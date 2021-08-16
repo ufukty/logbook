@@ -1,15 +1,17 @@
-import TaskGroup from "./ui-components/task-group/TaskGroup";
-
 import "./App.css";
+
+import ChronologicalView from "./views/chronological-view/Chronological";
+import TreeView from "./views/tree-view/TreeView";
+
 import React from "react";
 
-var task_events = [
-    {
-        log_id: 1,
-        event_type: "new child",
-        event_time: "198821988219882",
-    },
-];
+// var task_events = [
+//     {
+//         log_id: 1,
+//         event_type: "new child",
+//         event_time: "198821988219882",
+//     },
+// ];
 
 var dataset = {
     days: [
@@ -134,7 +136,6 @@ var dataset = {
             ],
         },
     ],
-
     active_tasks: [
         {
             text: "PAM for SSH",
@@ -151,7 +152,6 @@ var dataset = {
             active: true,
         },
     ],
-
     todo_drawer: [
         {
             text: "Redis security",
@@ -167,7 +167,6 @@ var dataset = {
             created_at: "880588058805",
             active: false,
         },
-        ,
         {
             text: "API gateway without redis",
             id: 8,
@@ -259,7 +258,6 @@ var dataset = {
             created_at: "339853398533985",
             active: false,
         },
-
         {
             text: "Golden image for vpn server",
             id: 19,
@@ -270,77 +268,59 @@ var dataset = {
     ],
 };
 
-class DocumentSheet extends React.Component {
+class App extends React.Component {
     constructor() {
         super();
         this.state = {
-            children: dataset.days.map((data) => (
-                <TaskGroup
-                    key={data.day}
-                    group_header={data.day}
-                    group_items={data.tasks}
-                    group_type="regular"
-                />
-            )),
+            mode: "tree",
         };
     }
 
     render() {
+        var content;
+        if (this.state.mode === "chronological") {
+            content = <ChronologicalView dataset={dataset} />;
+        } else if (this.state.mode == "tree") {
+            content = <TreeView />;
+        }
         return (
-            <div>
-                {this.state.children}
-                <TaskGroup
-                    key="Active Tasks"
-                    group_header="Active Tasks"
-                    group_items={dataset.active_tasks}
-                    group_type="active-tasks"
-                />
-                <TaskGroup
-                    key="To-do Drawer"
-                    group_header="To-do Drawer"
-                    group_items={dataset.todo_drawer}
-                    group_type="to-do-drawer"
-                />
+            <div className="document-sheet">
+                <a
+                    id="home-button"
+                    class="floating-corner left top"
+                    href="index.html"
+                >
+                    Logbook
+                </a>
+
+                <div id="sheet-settings" class="floating-corner right top dark">
+                    <div>Share</div>
+
+                    <div>Sync</div>
+                </div>
+
+                <div
+                    id="active-task-details"
+                    class="floating-corner left bottom"
+                >
+                    History for active task
+                    <div class="task">PAM for SSH</div>
+                    <div class="task">ACL - Redis</div>
+                    <div class="task">TOTP for SSH</div>
+                </div>
+
+                <div id="date-anchors" class="floating-corner right bottom">
+                    <a href="#august-10-2021">10th August</a>
+                    <a href="#august-12-2021">12th August</a>
+                    <a href="#august-13-2021">13th August</a>
+                    <a href="#august-14-2021">Active Tasks</a>
+                    <a href="#august-14-2021">To-do Drawer</a>
+                </div>
+
+                {content}
             </div>
         );
     }
-}
-
-function App() {
-    return (
-        <div className="document-sheet">
-            <a
-                id="home-button"
-                class="floating-corner left top"
-                href="index.html"
-            >
-                Logbook
-            </a>
-
-            <div id="sheet-settings" class="floating-corner right top dark">
-                <div>Share</div>
-
-                <div>Sync</div>
-            </div>
-
-            <div id="active-task-details" class="floating-corner left bottom">
-                History for active task
-                <div class="task">PAM for SSH</div>
-                <div class="task">ACL - Redis</div>
-                <div class="task">TOTP for SSH</div>
-            </div>
-
-            <div id="date-anchors" class="floating-corner right bottom">
-                <a href="#august-10-2021">10th August</a>
-                <a href="#august-12-2021">12th August</a>
-                <a href="#august-13-2021">13th August</a>
-                <a href="#august-14-2021">Active Tasks</a>
-                <a href="#august-14-2021">To-do Drawer</a>
-            </div>
-
-            <DocumentSheet />
-        </div>
-    );
 }
 
 export default App;
