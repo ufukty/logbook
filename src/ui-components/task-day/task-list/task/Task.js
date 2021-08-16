@@ -5,7 +5,7 @@ import "./Task.css";
 class Task extends React.Component {
     constructor(props) {
         super();
-        this.state = props.item;
+        this.state = props.task;
     }
 
     render() {
