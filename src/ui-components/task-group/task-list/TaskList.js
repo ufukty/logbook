@@ -7,7 +7,6 @@ import Task from "./task/Task";
 class TaskList extends React.Component {
     constructor(props) {
         super();
-        console.log(props);
         this.state = {
             children: props.tasks.map((task) => (
                 <Task key={task.id} task={task} />

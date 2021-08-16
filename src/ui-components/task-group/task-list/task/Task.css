@@ -1,0 +1,35 @@
+.task-wrapper {
+    margin-bottom: 40px;
+    cursor: pointer;
+}
+
+.task {
+    font-size: 1.2rem;
+    line-height: 22px;
+
+    padding: 5px 20px;
+
+    border-radius: 8px;
+
+    transition: all 50ms ease-out;
+
+    box-sizing: border-box;
+
+    /* -webkit-user-drag: element; */
+}
+
+.task-group.regular .task {
+    background-color: rgba(212, 255, 20, 0.8);
+}
+
+.task-group.active-tasks .task {
+    background-color: #f1d9ffd0;
+}
+
+.task-group.to-do-drawer .task {
+    background-color: rgb(236, 236, 236);
+}
+
+.task:hover {
+    transform: scale(0.99);
+}

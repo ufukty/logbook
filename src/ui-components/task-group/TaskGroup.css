@@ -1,0 +1,10 @@
+.task-group {
+    /* padding: 100px; */
+    margin: 20px 0 50px;
+    max-width: 800px;
+}
+
+.task-group-header {
+    font-size: 1.4rem;
+    padding: 42px 0;
+}

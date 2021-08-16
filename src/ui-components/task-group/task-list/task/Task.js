@@ -11,7 +11,12 @@ class Task extends React.Component {
     render() {
         return (
             <div className="task-wrapper">
-                <div className="task">{this.state.text}</div>
+                <div
+                    className={"task " + (this.state.active ? "active" : "")}
+                    draggable="true"
+                >
+                    {this.state.text}
+                </div>
             </div>
         );
     }
