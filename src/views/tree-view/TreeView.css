@@ -1,0 +1,10 @@
+.task-indentation-group details {
+    decoration: none;
+}
+.task-indentation-group summary::-webkit-details-marker {
+    display: none;
+}
+
+.task-indentation-margin {
+    transform: translateX(40px);
+}
