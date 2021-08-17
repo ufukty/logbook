@@ -18,11 +18,11 @@ type TaskModel struct {
 }
 
 type LinearizedTaskReference struct {
-	TaskId                int
-	Depth                 int
-	NumberOfChildren      int
-	NumberOfAllNodesBelow int
-	Task                  *TaskModel
+	TaskId                int        `json:"task_id"`
+	Depth                 int        `json:"depth"`
+	NumberOfChildren      int        `json:"number_of_children"`
+	NumberOfAllNodesBelow int        `json:"number_of_all_nodes_below"`
+	Task                  *TaskModel `json:"task"`
 }
 
 var visited_nodes, in_progress []bool
