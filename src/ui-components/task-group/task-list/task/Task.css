@@ -16,19 +16,22 @@
     box-sizing: border-box;
 
     /* -webkit-user-drag: element; */
+
+    margin-left: calc(40px * var(--depth));
 }
 
 .task-group.regular .task,
-.task.active {
+.task.done {
     background-color: rgba(212, 255, 20, 0.8);
 }
 
 .task-group.active-tasks .task,
-.task {
+.task.active {
     background-color: #f1d9ffd0;
 }
 
-.task-group.to-do-drawer .task {
+.task-group.to-do-drawer .task,
+.task.pending {
     background-color: rgb(236, 236, 236);
 }
 

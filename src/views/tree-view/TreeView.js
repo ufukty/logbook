@@ -4,79 +4,547 @@ import "./TreeView.css";
 
 import Task from "./../../ui-components/task-group/task-list/task/Task";
 
-class IndentationGroup extends React.Component {
-    constructor(props) {
-        super();
-        this.state = {
-            root: props.root,
-            dataset: props.dataset,
-            children: props.dataset
-                .filter((child) => child.parent === props.root.id)
-                .map((child) => (
-                    <IndentationGroup dataset={props.dataset} root={child} />
-                )),
-        };
-        console.log(this.state.root.text);
-        console.log(this.state.dataset);
-        console.log(this.state.children.length);
-    }
-
-    render() {
-        return (
-            <div className="task-indentation-group">
-                <details open="true">
-                    <summary>
-                        <Task key={this.state.root.id} task={this.state.root} />
-                    </summary>
-                    <div className="task-indentation-margin">
-                        {this.state.children}
-                    </div>
-                </details>
-            </div>
-        );
-    }
-}
+// Doesn't check for cyclic dependency
+var dataset = [
+    {
+        task_id: 1,
+        depth: 0,
+        number_of_children: 1,
+        number_of_all_nodes_below: 31,
+        task: {
+            id: 1,
+            parent_id: 0,
+            children_ids: [2],
+            text: "deploy redis cluster on multi DC",
+            created_at: "425042504250",
+            task_status: "pending",
+            event_history: null,
+        },
+    },
+    {
+        task_id: 2,
+        depth: 1,
+        number_of_children: 3,
+        number_of_all_nodes_below: 30,
+        task: {
+            id: 2,
+            parent_id: 1,
+            children_ids: [3, 4, 5],
+            text: "deploy redis cluster on 1 DC",
+            created_at: "425042504250",
+            task_status: "pending",
+            event_history: null,
+        },
+    },
+    {
+        task_id: 3,
+        depth: 2,
+        number_of_children: 4,
+        number_of_all_nodes_below: 9,
+        task: {
+            id: 3,
+            parent_id: 2,
+            children_ids: [7, 14, 20, 28],
+            text: "Revoke passwordless sudo rights after provision at cluster",
+            created_at: "445884458844588",
+            task_status: "done",
+            event_history: null,
+        },
+    },
+    {
+        task_id: 7,
+        depth: 3,
+        number_of_children: 4,
+        number_of_all_nodes_below: 5,
+        task: {
+            id: 7,
+            parent_id: 3,
+            children_ids: [13, 24, 27, 32],
+            text: "Remove: seperator from ovpn-auth",
+            created_at: "475904759047590",
+            task_status: "done",
+            event_history: null,
+        },
+    },
+    {
+        task_id: 13,
+        depth: 4,
+        number_of_children: 0,
+        number_of_all_nodes_below: 1,
+        task: {
+            id: 13,
+            parent_id: 7,
+            children_ids: [],
+            text: "Firewall & unbound rules update from prov script (VPN)",
+            created_at: "649286492864928",
+            task_status: "done",
+            event_history: null,
+        },
+    },
+    {
+        task_id: 24,
+        depth: 4,
+        number_of_children: 0,
+        number_of_all_nodes_below: 1,
+        task: {
+            id: 24,
+            parent_id: 7,
+            children_ids: [],
+            text: "Postgres",
+            created_at: "607006070060700",
+            task_status: "pending",
+            event_history: null,
+        },
+    },
+    {
+        task_id: 27,
+        depth: 4,
+        number_of_children: 0,
+        number_of_all_nodes_below: 1,
+        task: {
+            id: 27,
+            parent_id: 7,
+            children_ids: [],
+            text: "Federated learning",
+            created_at: "649286492864928",
+            task_status: "pending",
+            event_history: null,
+        },
+    },
+    {
+        task_id: 32,
+        depth: 4,
+        number_of_children: 0,
+        number_of_all_nodes_below: 1,
+        task: {
+            id: 32,
+            parent_id: 7,
+            children_ids: [],
+            text: "Redis/cluster script test for multi datacenter",
+            created_at: "649286492864928",
+            task_status: "pending",
+            event_history: null,
+        },
+    },
+    {
+        task_id: 14,
+        depth: 3,
+        number_of_children: 0,
+        number_of_all_nodes_below: 1,
+        task: {
+            id: 14,
+            parent_id: 3,
+            children_ids: [],
+            text: "Script pic_gitlab_runner_post_creation",
+            created_at: "475904759047590",
+            task_status: "done",
+            event_history: null,
+        },
+    },
+    {
+        task_id: 20,
+        depth: 3,
+        number_of_children: 0,
+        number_of_all_nodes_below: 1,
+        task: {
+            id: 20,
+            parent_id: 3,
+            children_ids: [],
+            text: "Redis security",
+            created_at: "334063340633406",
+            task_status: "pending",
+            event_history: null,
+        },
+    },
+    {
+        task_id: 28,
+        depth: 3,
+        number_of_children: 0,
+        number_of_all_nodes_below: 1,
+        task: {
+            id: 28,
+            parent_id: 3,
+            children_ids: [],
+            text: "Bluetooth transmission test",
+            created_at: "475904759047590",
+            task_status: "pending",
+            event_history: null,
+        },
+    },
+    {
+        task_id: 4,
+        depth: 2,
+        number_of_children: 2,
+        number_of_all_nodes_below: 3,
+        task: {
+            id: 4,
+            parent_id: 2,
+            children_ids: [18, 25],
+            text: "iptables for redis",
+            created_at: "425042504250",
+            task_status: "done",
+            event_history: null,
+        },
+    },
+    {
+        task_id: 18,
+        depth: 3,
+        number_of_children: 0,
+        number_of_all_nodes_below: 1,
+        task: {
+            id: 18,
+            parent_id: 4,
+            children_ids: [],
+            text: "PAM for SSH",
+            created_at: "337543375433754",
+            task_status: "active",
+            event_history: null,
+        },
+    },
+    {
+        task_id: 25,
+        depth: 3,
+        number_of_children: 0,
+        number_of_all_nodes_below: 1,
+        task: {
+            id: 25,
+            parent_id: 4,
+            children_ids: [],
+            text: "Auth service",
+            created_at: "359643596435964",
+            task_status: "pending",
+            event_history: null,
+        },
+    },
+    {
+        task_id: 5,
+        depth: 2,
+        number_of_children: 3,
+        number_of_all_nodes_below: 17,
+        task: {
+            id: 5,
+            parent_id: 2,
+            children_ids: [6, 19, 23],
+            text: "terraform for redis",
+            created_at: "391839183918",
+            task_status: "done",
+            event_history: null,
+        },
+    },
+    {
+        task_id: 6,
+        depth: 3,
+        number_of_children: 13,
+        number_of_all_nodes_below: 14,
+        task: {
+            id: 6,
+            parent_id: 5,
+            children_ids: [8, 9, 10, 11, 15, 16, 17, 22, 29, 30, 33, 34, 35],
+            text: "Update redis/tf file according to prod.tfvars file",
+            created_at: "227322273222732",
+            task_status: "done",
+            event_history: null,
+        },
+    },
+    {
+        task_id: 8,
+        depth: 4,
+        number_of_children: 0,
+        number_of_all_nodes_below: 1,
+        task: {
+            id: 8,
+            parent_id: 6,
+            children_ids: [],
+            text: "Write tests for ovpn-auth",
+            created_at: "450134501345013",
+            task_status: "done",
+            event_history: null,
+        },
+    },
+    {
+        task_id: 9,
+        depth: 4,
+        number_of_children: 0,
+        number_of_all_nodes_below: 1,
+        task: {
+            id: 9,
+            parent_id: 6,
+            children_ids: [],
+            text: "Decrease timing gap of ovpn-auth under 1ms",
+            created_at: "339853398533985",
+            task_status: "done",
+            event_history: null,
+        },
+    },
+    {
+        task_id: 10,
+        depth: 4,
+        number_of_children: 0,
+        number_of_all_nodes_below: 1,
+        task: {
+            id: 10,
+            parent_id: 6,
+            children_ids: [],
+            text: "Prepare releases for ovpn-auth",
+            created_at: "339853398533985",
+            task_status: "done",
+            event_history: null,
+        },
+    },
+    {
+        task_id: 11,
+        depth: 4,
+        number_of_children: 0,
+        number_of_all_nodes_below: 1,
+        task: {
+            id: 11,
+            parent_id: 6,
+            children_ids: [],
+            text: "Provision golden-image for gitlab-runner",
+            created_at: "339853398533985",
+            task_status: "done",
+            event_history: null,
+        },
+    },
+    {
+        task_id: 15,
+        depth: 4,
+        number_of_children: 0,
+        number_of_all_nodes_below: 1,
+        task: {
+            id: 15,
+            parent_id: 6,
+            children_ids: [],
+            text: "Execute 1 CI/CD pipeline on gitlab-runner",
+            created_at: "450134501345013",
+            task_status: "done",
+            event_history: null,
+        },
+    },
+    {
+        task_id: 16,
+        depth: 4,
+        number_of_children: 0,
+        number_of_all_nodes_below: 1,
+        task: {
+            id: 16,
+            parent_id: 6,
+            children_ids: [],
+            text: "gitlab-runner provisioner with resolv.conf/docker/runner-register",
+            created_at: "339853398533985",
+            task_status: "done",
+            event_history: null,
+        },
+    },
+    {
+        task_id: 17,
+        depth: 4,
+        number_of_children: 0,
+        number_of_all_nodes_below: 1,
+        task: {
+            id: 17,
+            parent_id: 6,
+            children_ids: [],
+            text: "prepare gitlab-ci for ovpn-auth repo",
+            created_at: "339853398533985",
+            task_status: "done",
+            event_history: null,
+        },
+    },
+    {
+        task_id: 22,
+        depth: 4,
+        number_of_children: 0,
+        number_of_all_nodes_below: 1,
+        task: {
+            id: 22,
+            parent_id: 6,
+            children_ids: [],
+            text: "API gateway without redis",
+            created_at: "582358235823",
+            task_status: "pending",
+            event_history: null,
+        },
+    },
+    {
+        task_id: 29,
+        depth: 4,
+        number_of_children: 0,
+        number_of_all_nodes_below: 1,
+        task: {
+            id: 29,
+            parent_id: 6,
+            children_ids: [],
+            text: "Intrusion detection system (centralised) (OSSEC",
+            created_at: "450134501345013",
+            task_status: "pending",
+            event_history: null,
+        },
+    },
+    {
+        task_id: 30,
+        depth: 4,
+        number_of_children: 0,
+        number_of_all_nodes_below: 1,
+        task: {
+            id: 30,
+            parent_id: 6,
+            children_ids: [],
+            text: "Envoy - HAProxy - NGiNX",
+            created_at: "339853398533985",
+            task_status: "pending",
+            event_history: null,
+        },
+    },
+    {
+        task_id: 33,
+        depth: 4,
+        number_of_children: 0,
+        number_of_all_nodes_below: 1,
+        task: {
+            id: 33,
+            parent_id: 6,
+            children_ids: [],
+            text: "gitlab-runner firewall rules: close public internet",
+            created_at: "339853398533985",
+            task_status: "pending",
+            event_history: null,
+        },
+    },
+    {
+        task_id: 34,
+        depth: 4,
+        number_of_children: 0,
+        number_of_all_nodes_below: 1,
+        task: {
+            id: 34,
+            parent_id: 6,
+            children_ids: [],
+            text: "static-challange for ovpn-auth",
+            created_at: "339853398533985",
+            task_status: "pending",
+            event_history: null,
+        },
+    },
+    {
+        task_id: 35,
+        depth: 4,
+        number_of_children: 0,
+        number_of_all_nodes_below: 1,
+        task: {
+            id: 35,
+            parent_id: 6,
+            children_ids: [],
+            text: "Golden image for vpn server",
+            created_at: "339853398533985",
+            task_status: "pending",
+            event_history: null,
+        },
+    },
+    {
+        task_id: 19,
+        depth: 3,
+        number_of_children: 0,
+        number_of_all_nodes_below: 1,
+        task: {
+            id: 19,
+            parent_id: 5,
+            children_ids: [],
+            text: "ACL - Redis",
+            created_at: "324363243632436",
+            task_status: "active",
+            event_history: null,
+        },
+    },
+    {
+        task_id: 23,
+        depth: 3,
+        number_of_children: 0,
+        number_of_all_nodes_below: 1,
+        task: {
+            id: 23,
+            parent_id: 5,
+            children_ids: [],
+            text: "Golden image interitance re-organize",
+            created_at: "360893608936089",
+            task_status: "pending",
+            event_history: null,
+        },
+    },
+    {
+        task_id: 12,
+        depth: 0,
+        number_of_children: 0,
+        number_of_all_nodes_below: 1,
+        task: {
+            id: 12,
+            parent_id: 0,
+            children_ids: [],
+            text: "gitlab-runner --(vpn)--> DNS ----> gitlab",
+            created_at: "996499649964",
+            task_status: "done",
+            event_history: null,
+        },
+    },
+    {
+        task_id: 21,
+        depth: 0,
+        number_of_children: 0,
+        number_of_all_nodes_below: 1,
+        task: {
+            id: 21,
+            parent_id: 2,
+            children_ids: [],
+            text: "TOTP for SSH",
+            created_at: "880588058805",
+            task_status: "pending",
+            event_history: null,
+        },
+    },
+    {
+        task_id: 26,
+        depth: 0,
+        number_of_children: 0,
+        number_of_all_nodes_below: 1,
+        task: {
+            id: 26,
+            parent_id: 0,
+            children_ids: [],
+            text: "MQ",
+            created_at: "996499649964",
+            task_status: "pending",
+            event_history: null,
+        },
+    },
+    {
+        task_id: 31,
+        depth: 0,
+        number_of_children: 0,
+        number_of_all_nodes_below: 1,
+        task: {
+            id: 31,
+            parent_id: 0,
+            children_ids: [],
+            text: "web-front/Privacy against [friend/pubic/company/attackers]",
+            created_at: "996499649964",
+            task_status: "pending",
+            event_history: null,
+        },
+    },
+];
 
 class TreeView extends React.Component {
-    constructor(props) {
+    constructor() {
         super();
         this.state = {
-            dataset: props.dataset,
+            children: dataset.map((linearized_task) => (
+                <Task key={linearized_task.TaskId} info={linearized_task} />
+            )),
         };
     }
+
     render() {
-        return (
-            <div>
-                <IndentationGroup
-                    dataset={this.state.dataset}
-                    root={this.state.dataset[0]}
-                />
-                <IndentationGroup
-                    dataset={this.state.dataset}
-                    root={this.state.dataset[2]}
-                />
-                <IndentationGroup
-                    dataset={this.state.dataset}
-                    root={this.state.dataset[3]}
-                />
-                <IndentationGroup
-                    dataset={this.state.dataset}
-                    root={this.state.dataset[4]}
-                />
-                <IndentationGroup
-                    dataset={this.state.dataset}
-                    root={this.state.dataset[5]}
-                />
-                <IndentationGroup
-                    dataset={this.state.dataset}
-                    root={this.state.dataset[6]}
-                />
-                <IndentationGroup
-                    dataset={this.state.dataset}
-                    root={this.state.dataset[7]}
-                />
-            </div>
-        );
+        return <div>{this.state.children}</div>;
     }
 }
 

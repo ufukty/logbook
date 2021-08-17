@@ -5,17 +5,22 @@ import "./Task.css";
 class Task extends React.Component {
     constructor(props) {
         super();
-        this.state = props.task;
+        this.state = {
+            info: props.info,
+        };
     }
 
     render() {
         return (
             <div className="task-wrapper">
                 <div
-                    className={"task " + (this.state.active ? "active" : "")}
+                    className={"task " + this.state.info.task.task_status}
+                    style={{
+                        "--depth": this.state.info.depth,
+                    }}
                     draggable="true"
                 >
-                    {this.state.text}
+                    {this.state.info.task.text}
                 </div>
             </div>
         );
