@@ -47,14 +47,6 @@ func dfs_helper(i int, tasks *[]TaskModel) int {
 
 	visited_nodes[i] = true
 	number_of_nodes_below := 0
-	linearized_tasks = append(linearized_tasks, LinearizedTaskReference{
-		TaskId:                (*tasks)[i].Id,
-		Task:                  &(*tasks)[i],
-		Depth:                 current_depth,
-		NumberOfChildren:      len((*tasks)[i].ChildrenIDs),
-		NumberOfAllNodesBelow: -1,
-	})
-	linearized_tasks_reserved_index := len(linearized_tasks) - 1
 
 	current_depth += 1
 	for _, child_id := range (*tasks)[i].ChildrenIDs {
@@ -64,7 +56,13 @@ func dfs_helper(i int, tasks *[]TaskModel) int {
 	current_depth -= 1
 
 	number_of_nodes_below += 1
-	linearized_tasks[linearized_tasks_reserved_index].NumberOfAllNodesBelow = number_of_nodes_below // plus itself
+	linearized_tasks = append(linearized_tasks, LinearizedTaskReference{
+		TaskId:                (*tasks)[i].Id,
+		Task:                  &(*tasks)[i],
+		Depth:                 current_depth,
+		NumberOfChildren:      len((*tasks)[i].ChildrenIDs),
+		NumberOfAllNodesBelow: number_of_nodes_below,
+	})
 	return number_of_nodes_below
 }
 
