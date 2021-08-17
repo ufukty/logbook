@@ -1,0 +1,282 @@
+[
+    {
+        "text": "deploy redis cluster on multi DC",
+        "id": 1,
+        "parent_id": 0,
+        "children_ids": [2],
+        "created_at": "425042504250",
+        "task_status": "pending"
+    },
+    {
+        "text": "deploy redis cluster on 1 DC",
+        "id": 2,
+        "parent_id": 1,
+        "children_ids": [3, 4, 5],
+        "created_at": "425042504250",
+        "task_status": "pending"
+    },
+    {
+        "text": "Revoke passwordless sudo rights after provision at cluster",
+        "id": 3,
+        "parent_id": 2,
+        "children_ids": [7, 14, 20, 28],
+        "created_at": "445884458844588",
+        "task_status": "done"
+    },
+    {
+        "text": "iptables for redis",
+        "id": 4,
+        "parent_id": 2,
+        "children_ids": [18, 25],
+        "created_at": "425042504250",
+        "task_status": "done"
+    },
+    {
+        "text": "terraform for redis",
+        "id": 5,
+        "parent_id": 2,
+        "children_ids": [6, 19, 23],
+        "created_at": "391839183918",
+        "task_status": "done"
+    },
+    {
+        "text": "Update redis/tf file according to prod.tfvars file",
+        "id": 6,
+        "parent_id": 5,
+        "children_ids": [8, 9, 10, 11, 15, 16, 17, 22, 29, 30, 33, 34, 35],
+        "created_at": "227322273222732",
+        "task_status": "done"
+    },
+    {
+        "text": "Remove: seperator from ovpn-auth",
+        "id": 7,
+        "parent_id": 3,
+        "children_ids": [13, 24, 27, 32],
+        "created_at": "475904759047590",
+        "task_status": "done"
+    },
+    {
+        "text": "Write tests for ovpn-auth",
+        "id": 8,
+        "parent_id": 6,
+        "children_ids": [],
+        "created_at": "450134501345013",
+        "task_status": "done"
+    },
+    {
+        "text": "Decrease timing gap of ovpn-auth under 1ms",
+        "id": 9,
+        "parent_id": 6,
+        "children_ids": [],
+        "created_at": "339853398533985",
+        "task_status": "done"
+    },
+    {
+        "text": "Prepare releases for ovpn-auth",
+        "id": 10,
+        "parent_id": 6,
+        "children_ids": [],
+        "created_at": "339853398533985",
+        "task_status": "done"
+    },
+    {
+        "text": "Provision golden-image for gitlab-runner",
+        "id": 11,
+        "parent_id": 6,
+        "children_ids": [],
+        "created_at": "339853398533985",
+        "task_status": "done"
+    },
+    {
+        "text": "gitlab-runner --(vpn)--> DNS ----> gitlab",
+        "id": 12,
+        "parent_id": 0,
+        "children_ids": [],
+        "created_at": "996499649964",
+        "task_status": "done"
+    },
+    {
+        "text": "Firewall & unbound rules update from prov script (VPN)",
+        "id": 13,
+        "parent_id": 7,
+        "children_ids": [],
+        "created_at": "649286492864928",
+        "task_status": "done"
+    },
+    {
+        "text": "Script pic_gitlab_runner_post_creation",
+        "id": 14,
+        "parent_id": 3,
+        "children_ids": [],
+        "created_at": "475904759047590",
+        "task_status": "done"
+    },
+    {
+        "text": "Execute 1 CI/CD pipeline on gitlab-runner",
+        "id": 15,
+        "parent_id": 6,
+        "children_ids": [],
+        "created_at": "450134501345013",
+        "task_status": "done"
+    },
+    {
+        "text": "gitlab-runner provisioner with resolv.conf/docker/runner-register",
+        "id": 16,
+        "parent_id": 6,
+        "children_ids": [],
+        "created_at": "339853398533985",
+        "task_status": "done"
+    },
+    {
+        "text": "prepare gitlab-ci for ovpn-auth repo",
+        "id": 17,
+        "parent_id": 6,
+        "children_ids": [],
+        "created_at": "339853398533985",
+        "task_status": "done"
+    },
+    {
+        "text": "PAM for SSH",
+        "id": 18,
+        "parent_id": 4,
+        "children_ids": [],
+        "created_at": "337543375433754",
+        "task_status": "active"
+    },
+    {
+        "text": "ACL - Redis",
+        "id": 19,
+        "parent_id": 5,
+        "children_ids": [],
+        "created_at": "324363243632436",
+        "task_status": "active"
+    },
+    {
+        "text": "Redis security",
+        "id": 20,
+        "parent_id": 3,
+        "children_ids": [],
+        "created_at": "334063340633406",
+        "task_status": "pending"
+    },
+    {
+        "text": "TOTP for SSH",
+        "id": 21,
+        "parent_id": 2,
+        "children_ids": [],
+        "created_at": "880588058805",
+        "task_status": "pending"
+    },
+    {
+        "text": "API gateway without redis",
+        "id": 22,
+        "parent_id": 6,
+        "children_ids": [],
+        "created_at": "582358235823",
+        "task_status": "pending"
+    },
+    {
+        "text": "Golden image interitance re-organize",
+        "id": 23,
+        "parent_id": 5,
+        "children_ids": [],
+        "created_at": "360893608936089",
+        "task_status": "pending"
+    },
+    {
+        "text": "Postgres",
+        "id": 24,
+        "parent_id": 7,
+        "children_ids": [],
+        "created_at": "607006070060700",
+        "task_status": "pending"
+    },
+    {
+        "text": "Auth service",
+        "id": 25,
+        "parent_id": 4,
+        "children_ids": [],
+        "created_at": "359643596435964",
+        "task_status": "pending"
+    },
+    {
+        "text": "MQ",
+        "id": 26,
+        "parent_id": 0,
+        "children_ids": [],
+        "created_at": "996499649964",
+        "task_status": "pending"
+    },
+    {
+        "text": "Federated learning",
+        "id": 27,
+        "parent_id": 7,
+        "children_ids": [],
+        "created_at": "649286492864928",
+        "task_status": "pending"
+    },
+    {
+        "text": "Bluetooth transmission test",
+        "id": 28,
+        "parent_id": 3,
+        "children_ids": [],
+        "created_at": "475904759047590",
+        "task_status": "pending"
+    },
+    {
+        "text": "Intrusion detection system (centralised) (OSSEC",
+        "id": 29,
+        "parent_id": 6,
+        "children_ids": [],
+        "created_at": "450134501345013",
+        "task_status": "pending"
+    },
+    {
+        "text": "Envoy - HAProxy - NGiNX",
+        "id": 30,
+        "parent_id": 6,
+        "children_ids": [],
+        "created_at": "339853398533985",
+        "task_status": "pending"
+    },
+    {
+        "text": "web-front/Privacy against [friend/pubic/company/attackers]",
+        "id": 31,
+        "parent_id": 0,
+        "children_ids": [],
+        "created_at": "996499649964",
+        "task_status": "pending"
+    },
+    {
+        "text": "Redis/cluster script test for multi datacenter",
+        "id": 32,
+        "parent_id": 7,
+        "children_ids": [],
+        "created_at": "649286492864928",
+        "task_status": "pending"
+    },
+    {
+        "text": "gitlab-runner firewall rules: close public internet",
+        "id": 33,
+        "parent_id": 6,
+        "children_ids": [],
+        "created_at": "339853398533985",
+        "task_status": "pending"
+    },
+    {
+        "text": "static-challange for ovpn-auth",
+        "id": 34,
+        "parent_id": 6,
+        "children_ids": [],
+        "created_at": "339853398533985",
+        "task_status": "pending"
+    },
+    {
+        "text": "Golden image for vpn server",
+        "id": 35,
+        "parent_id": 6,
+        "children_ids": [],
+        "created_at": "339853398533985",
+        "task_status": "pending"
+    }
+]

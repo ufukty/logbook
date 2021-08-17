@@ -1,18 +1,14 @@
 package main
 
 import (
-	"fmt"
 	"log"
+	"logbook/main/controller/task"
 	"net/http"
 )
 
-func root(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Hello world")
-}
-
 func main() {
 
-	http.HandleFunc("/", root)
+	http.HandleFunc("/", task.Controller)
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
