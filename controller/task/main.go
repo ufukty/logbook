@@ -1,33 +1,20 @@
 package task
 
 import (
-	"encoding/json"
 	"fmt"
-	"log"
-	"logbook/main/controller/task/linearized_tasks"
 	"net/http"
-	"os"
+
+	"github.com/gorilla/mux"
 )
 
-func Controller(w http.ResponseWriter, r *http.Request) {
+func Get(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Task / details: %s %s\n", mux.Vars(r)["document_id"], mux.Vars(r)["task_id"])
+}
 
-	fmt.Println(w)
-	fmt.Println()
+func Update(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Task / details: %s %s\n", mux.Vars(r)["document_id"], mux.Vars(r)["task_id"])
+}
 
-	file, _ := os.ReadFile("data/data.json")
-
-	document := []linearized_tasks.TaskModel{}
-
-	err := json.Unmarshal(file, &document)
-	if err != nil {
-		log.Println("Error: ", err)
-	}
-
-	linearized_tasks_ := linearized_tasks.DFS(document)
-
-	w.Header().Set("Content-Type", "application/json")
-	// pretty_print, _ := json.MarshalIndent(document, "", "\t")
-	json.NewEncoder(w).Encode(linearized_tasks_)
-	log.Println("Request processed.")
-
+func Delete(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Task / details: %s %s\n", mux.Vars(r)["document_id"], mux.Vars(r)["task_id"])
 }
