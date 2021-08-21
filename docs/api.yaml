@@ -1,0 +1,155 @@
+openapi: 3.0.0
+info:
+  title: Logbook API
+  version: 0.0.1
+  description: Logbook API has been designed for internal use only.
+servers:
+  - url: localhost:8080
+tags:
+  - name: Document
+    description: Logbook users can manage their tasks in separated documents.
+  - name: Group
+    description: Such as tasks that are done within 1 day, "Active Tasks", "Ready to Start" and "To-Do Drawer"
+  - name: Task
+    description: Summary of the current job that usually takes 5 to 30 minutes.
+paths:
+  /document:
+    get:
+      tags: ["Document"]
+      summary: Get list of documents a user own.
+      responses:
+        200:
+          description: Ok.
+
+    post:
+      tags: ["Document"]
+      summary: "Create an empty document"
+      requestBody:
+        content: { "application/json": { schema: { $ref: "#/components/schemas/Document" } } }
+        required: true
+      responses:
+        201:
+          description: Success. Document created.
+          content: { "application/json": { schema: { $ref: "#/components/schemas/Document" } } }
+        400:
+          description: Bad request. Check your request body.
+        401:
+          description: Not authorized.
+
+  "/document/{document_id}":
+    get:
+      tags: ["Document"]
+      summary: "Get latest content of a specific document."
+      parameters:
+        - name: document_id
+          in: path
+          required: true
+          description: You can get IDs of document you own by requesting `/document/list`
+          schema: { type: string, format: uuid }
+        - name: Bearer
+          in: header
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        content: { "application/json": { schema: { $ref: "#/components/schemas/Document" } } }
+      responses:
+        "200":
+          description: "OK. Returned content includes 100 tasks that picked from around active task to start showing necessary parts of document to user as soon as possible."
+          content: { "application/json": { schema: { $ref: "#/components/schemas/Document" } } }
+        "401":
+          description: "Unauthorized."
+        "default":
+          $ref: "#components/responses/api-limit-headers"
+
+    delete:
+      tags: ["Document"]
+      summary: Delete a document.
+      parameters:
+        - name: document_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        200:
+          description: Deleted.
+
+  /group/{document_id}:
+    get:
+      tags: ["Group"]
+      summary: Get list of groups for given document.
+      # return type has to have IDs of groups that the given document has.
+      parameters:
+        - name: document_id
+          in: query
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        200:
+          description: OK.
+          content:
+            "application/json":
+              schema: { type: string, format: uuid }
+
+  /task/{task_id}:
+    get:
+      tags: ["Task"]
+      summary: Get details of one particular task.
+
+    patch:
+      tags: ["Task"]
+      summary: Update one detail of a particular task.
+
+    delete:
+      tags: ["Task"]
+      summary: Delete a task
+
+components:
+  responses:
+    Documents:
+      description: List of documents a user has.
+      content:
+        200:
+          schema:
+            type: integer
+
+    api-limit-headers:
+      description: "Those headers included with every response."
+      headers:
+        "X-Rate-Limit-Limit":
+          description: "The default limit on number of requests that can be made per hour and per minute. Current rate limits are 5000 requests per hour and 250 requests per minute."
+          example: 50
+          schema: { type: integer }
+        "X-Rate-Limit-Remaining":
+          description: "The number of requests in your hourly quota that remain before you hit your request limit."
+          example: 50
+          schema: { type: integer }
+        "X-Rate-Limit-Reset":
+          description: "The time when the oldest request will expire. The value is given in Unix epoch time."
+          example: 50,
+          schema: { type: string, format: date-time }
+
+  schemas:
+    Document:
+      type: object
+      properties:
+        id: { type: string, format: uuid, readOnly: true }
+        user_id: { type: string, format: uuid }
+        dislay_name: { type: string, example: "My Document" }
+        status: { type: string, enum: [present, absent], example: present, readOnly: true }
+        groups: { type: array, items: { $ref: "#/components/schemas/Group" } }
+
+    Group:
+      type: object
+      properties:
+        group_type: { type: string, format: string, example: "Ready to Start" }
+        tasks: { type: array, items: { $ref: "#/components/schemas/Task" } }
+
+    Task:
+      type: object
+      properties:
+        id: { type: string, format: uuid, readOnly: true }
+        document_id: { type: string, format: uuid }
+        parent_id: { type: string, format: uuid }
+        nodes_below: { type: integer, minimum: 1 }
+        degree: { type: integer, minimum: 1 }
+        content: { type: string, format: string, example: "Draw wireframes for login page" }
