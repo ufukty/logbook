@@ -8,19 +8,13 @@ servers:
 tags:
   - name: Document
     description: Logbook users can manage their tasks in separated documents.
-  - name: Group
+  - name: TaskGroup
     description: Such as tasks that are done within 1 day, "Active Tasks", "Ready to Start" and "To-Do Drawer"
   - name: Task
     description: Summary of the current job that usually takes 5 to 30 minutes.
 paths:
   /document:
-    get:
-      tags: ["Document"]
-      summary: Get list of documents a user own.
-      responses:
-        200:
-          description: Ok.
-
+    
     post:
       tags: ["Document"]
       summary: "Create an empty document"
@@ -35,6 +29,22 @@ paths:
           description: Bad request. Check your request body.
         401:
           description: Not authorized.
+
+
+  /document/list:
+    get:
+      tags: ["Document"]
+      summary: Get list of all documents a user own.
+      responses:
+        200:
+          description: Ok.
+          content:
+            "application/json":
+              schema:
+                type: object
+                items: {
+                  type: 
+                }
 
   "/document/{document_id}":
     get:
@@ -61,6 +71,13 @@ paths:
         "default":
           $ref: "#components/responses/api-limit-headers"
 
+    patch:
+      tags: ["Document"]
+      summary: Update the name of a document.
+      responses:
+        200:
+          description: Ok.
+
     delete:
       tags: ["Document"]
       summary: Delete a document.
@@ -73,11 +90,11 @@ paths:
         200:
           description: Deleted.
 
-  /group/{document_id}:
+  /task-group/{document_id}:
     get:
-      tags: ["Group"]
-      summary: Get list of groups for given document.
-      # return type has to have IDs of groups that the given document has.
+      tags: ["TaskGroup"]
+      summary: Get list of task groups for given document.
+      # return type has to have IDs of task groups that the given document has.
       parameters:
         - name: document_id
           in: query
@@ -86,9 +103,7 @@ paths:
       responses:
         200:
           description: OK.
-          content:
-            "application/json":
-              schema: { type: string, format: uuid }
+          content: { "application/json": { schema: { type: string, format: uuid } } }
 
   /task/{task_id}:
     get:
@@ -129,16 +144,22 @@ components:
           schema: { type: string, format: date-time }
 
   schemas:
+    Dashboard:
+      type: object
+      properties:
+        user_id: { type: string, format: uuid }
+        document_ids: { type: array, items: { type: string, format: uuid } }
+
     Document:
       type: object
       properties:
-        id: { type: string, format: uuid, readOnly: true }
+        document_id: { type: string, format: uuid, readOnly: true }
         user_id: { type: string, format: uuid }
         dislay_name: { type: string, example: "My Document" }
         status: { type: string, enum: [present, absent], example: present, readOnly: true }
-        groups: { type: array, items: { $ref: "#/components/schemas/Group" } }
+        task groups: { type: array, items: { $ref: "#/components/schemas/TaskGroup" } }
 
-    Group:
+    TaskGroup:
       type: object
       properties:
         group_type: { type: string, format: string, example: "Ready to Start" }
@@ -147,9 +168,10 @@ components:
     Task:
       type: object
       properties:
-        id: { type: string, format: uuid, readOnly: true }
+        task_id: { type: string, format: uuid, readOnly: true }
         document_id: { type: string, format: uuid }
         parent_id: { type: string, format: uuid }
-        nodes_below: { type: integer, minimum: 1 }
-        degree: { type: integer, minimum: 1 }
+        depth: { type: integer, minimum: 1, description: Detail level of the task. }
+        degree:
+          { type: integer, minimum: 1, description: Sum of all dependencies (including their dependencies) of a task. }
         content: { type: string, format: string, example: "Draw wireframes for login page" }

@@ -1,44 +1,84 @@
 package document
 
 import (
-	"database/sql"
+	"context"
+	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
+	"os"
+	"time"
 
 	"github.com/gorilla/mux"
-	_ "github.com/lib/pq"
+	"github.com/jackc/pgx/v4"
 )
 
-const (
-	host     = "localhost"
-	port     = 5432
-	user     = "postgres"
-	password = "your-password"
-	dbname   = "testdatabase"
-)
+// type TaskGroup struct {
+// 	// GroupId string
+// 	// Tasks []Task
+// }
 
-func Get(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Document / get %s", password)
+// type Document struct {
+// 	DocumentId string
+// 	TaskGroups []TaskGroup
+// }
 
-	db, err := sql.Open(
-		"postgres", 
-		fmt.Sprintf(
-			"host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-			host, port, user, password, dbname))
+// type Dashboard struct {
+// 	UserId    string
+// 	Documents []Document
+// }
+
+type Document struct {
+	DocumentID  string    `json:"document_id"`
+	DisplayName string    `json:"display_name"`
+	CreatedAt   time.Time `json:"created_at"`
+}
+
+type Dashboard struct {
+	UserId    string     `json:"user_id"`
+	Documents []Document `json:"documents"`
+}
+
+func List(w http.ResponseWriter, r *http.Request) {
+
+	userId := "0842c266-af1b-41bc-b180-653ca42dff82"
+
+	// urlExample := "postgres://username:password@localhost:5432/database_name"
+	// conn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
+	conn, err := pgx.Connect(context.Background(), "postgres://postgres:password@localhost:5432/testdatabase")
 	if err != nil {
-		panic(err)
+		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
+		os.Exit(1)
 	}
-	defer db.Close()
+	defer conn.Close(context.Background())
 
-	err = db.Ping()
-	if err != nil {
-		panic(err)
+	dashboard := Dashboard{
+		UserId: userId,
 	}
 
-	fmt.Println("Successfully connected!")
+	// Read documents from database for given user
+	rows, err2 := conn.Query(
+		context.Background(),
+		"SELECT \"document_id\", \"display_name\", \"created_at\" FROM \"DOCUMENT\" WHERE \"user_id\"=$1",
+		userId,
+	)
 
-	// json.NewEncoder(w).Encode(linearized_tasks_)
-	// log.Println("Request processed.")
+	// Read documents to structs
+	for rows.Next() {
+		document := Document{}
+		if err = rows.Scan(&document.DocumentID, &document.DisplayName, &document.CreatedAt); err != nil {
+			log.Println("Error in Document/Get at rows.Scan() for user: ", userId)
+		}
+		dashboard.Documents = append(dashboard.Documents, document)
+	}
+
+	if err2 != nil {
+		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
+		os.Exit(1)
+	}
+
+	json.NewEncoder(w).Encode(dashboard)
+	log.Println("Request processed.")
 }
 
 func Post(w http.ResponseWriter, r *http.Request) {

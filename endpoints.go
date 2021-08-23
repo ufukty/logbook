@@ -16,8 +16,8 @@ type Endpoint struct {
 func endpoints() []Endpoint {
 	return []Endpoint{
 
-		{"/document", "GET", document.Get},
 		{"/document", "POST", document.Post},
+		{"/document/list", "GET", document.List},
 		{"/document/{document_id}", "GET", document.Details},
 		{"/document/{document_id}", "DELETE", document.Delete},
 
