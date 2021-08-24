@@ -14,10 +14,14 @@ tags:
     description: Summary of the current job that usually takes 5 to 30 minutes.
 paths:
   /document:
-    
     post:
       tags: ["Document"]
       summary: "Create an empty document"
+      parameters:
+        - name: Bearer
+          in: header
+          required: true
+          schema: { type: string, format: uuid }
       requestBody:
         content: { "application/json": { schema: { $ref: "#/components/schemas/Document" } } }
         required: true
@@ -30,11 +34,15 @@ paths:
         401:
           description: Not authorized.
 
-
   /document/list:
     get:
       tags: ["Document"]
       summary: Get list of all documents a user own.
+      parameters:
+        - name: Bearer
+          in: header
+          required: true
+          schema: { type: string, format: uuid }
       responses:
         200:
           description: Ok.
@@ -42,9 +50,7 @@ paths:
             "application/json":
               schema:
                 type: object
-                items: {
-                  type: 
-                }
+                items: { type }
 
   "/document/{document_id}":
     get:

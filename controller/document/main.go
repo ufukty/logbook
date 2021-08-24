@@ -10,8 +10,10 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
-	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v4/pgxpool"
 )
+
+var PGXPool *pgxpool.Pool
 
 // type TaskGroup struct {
 // 	// GroupId string
@@ -49,17 +51,9 @@ func List(w http.ResponseWriter, r *http.Request) {
 
 	// Get userId from authorization/session information
 	userId := "0842c266-af1b-41bc-b180-653ca42dff82"
-	urlExample := "postgres://postgres:password@localhost:5432/testdatabase" // os.Getenv("DATABASE_URL")
-
-	conn, err_connect := pgx.Connect(context.Background(), urlExample)
-	if err_connect != nil {
-		log_error(w, "/document/list", "pgx.Connect()", userId, err_connect)
-		return
-	}
-	defer conn.Close(context.Background())
 
 	// Read documents from database for given user
-	rows, err_query := conn.Query(
+	rows, err_query := PGXPool.Query(
 		context.Background(),
 		"SELECT \"document_id\", \"display_name\", \"created_at\" FROM \"DOCUMENT\" WHERE \"user_id\"=$1",
 		userId,
