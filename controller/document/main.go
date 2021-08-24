@@ -60,7 +60,7 @@ func List(w http.ResponseWriter, r *http.Request) {
 	)
 
 	if err_query != nil {
-		log_error(w, "/document/list", "conn.Query() 1st checkpoint", userId, err_query)
+		log_error(w, "GET /document/list", "pgxpool.Pool.Query() 1st checkpoint", userId, err_query)
 		return
 	}
 
@@ -73,7 +73,7 @@ func List(w http.ResponseWriter, r *http.Request) {
 		document := Document{}
 		err_scan := rows.Scan(&document.DocumentID, &document.DisplayName, &document.CreatedAt)
 		if err_scan != nil {
-			log_error(w, "/document/list", "rows.Scan()", userId, err_scan)
+			log_error(w, "GET /document/list", "rows.Scan()", userId, err_scan)
 			return
 		}
 		dashboard.Documents = append(dashboard.Documents, document)
@@ -81,16 +81,61 @@ func List(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err_query != nil {
-		log_error(w, "/document/list", "conn.Query() 2nd checkpoint", userId, err_query)
+		log_error(w, "GET /document/list", "conn.Query() 2nd checkpoint", userId, err_query)
 		return
 	}
 
 	json.NewEncoder(w).Encode(dashboard)
-	log.Println("/document/list: Request proccessed for userId: ", userId)
+	log.Println("GET /document/list: Request proccessed for userId: ", userId)
 }
 
-func Post(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Document / post")
+func Create(w http.ResponseWriter, r *http.Request) {
+
+	// Get userId from authorization/session information
+	userId := "0842c266-af1b-41bc-b180-653ca42dff82"
+
+	r.ParseForm()
+	displayName := r.Form.Get("display_name")
+	if displayName == "" {
+		log_error(w, "POST /document", "r.Form.Get('diplay_name')", userId, errors.New(""))
+	}
+
+	// Send SQL query
+	query := "INSERT INTO \"DOCUMENT\"(\"user_id\", \"display_name\") VALUES($1, $2)"
+	_, err_query := PGXPool.Query(context.Background(), query, userId, displayName)
+
+	if err_query != nil {
+		log_error(w, "POST /document", "pgxpool.Pool.Query()", userId, err_query)
+		return
+	}
+
+	log.Println("POST /document: Request proccessed for userId: ", userId)
+}
+
+func Update(w http.ResponseWriter, r *http.Request) {
+
+	// Get userId from authorization/session information
+	userId := "0842c266-af1b-41bc-b180-653ca42dff82"
+
+	r.ParseForm()
+	newName := r.Form.Get("name")
+	if newName == "" {
+		log_error(w, "PATCH /document/{document_id}", "r.Form.Get('diplay_name')", userId, errors.New("")) // TODO: NOT 502 INTERNAL SERVER ERROR
+		return
+	}
+
+	documentId := mux.Vars(r)["document_id"]
+
+	// Send SQL query
+	query := "UPDATE \"DOCUMENT\" SET display_name=$1 WHERE \"document_id\"=$2 AND \"user_id\"=$3;"
+	_, err_query := PGXPool.Query(context.Background(), query, newName, documentId, userId)
+
+	if err_query != nil {
+		log_error(w, "PATCH /document/{document_id}", "pgxpool.Pool.Query()", userId, err_query)
+		return
+	}
+
+	log.Println("PATCH /document/{document_id}: Request proccessed for userId: ", userId)
 }
 
 func Details(w http.ResponseWriter, r *http.Request) {

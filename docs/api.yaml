@@ -80,9 +80,28 @@ paths:
     patch:
       tags: ["Document"]
       summary: Update the name of a document.
+      parameters:
+        - name: document_id
+          in: path
+          required: true
+          description: You can get IDs of document you own by requesting `/document/list`
+          schema: { type: string, format: uuid }
+        - name: name
+          in: path
+          required: true
+          description: New name for the document.
+          schema: { type: string, format: uuid }
+        - name: Bearer
+          in: header
+          required: true
+          schema: { type: string, format: uuid }
       responses:
         200:
           description: Ok.
+        401:
+          description: Unauthorized. Check your token.
+        400:
+          description: "Either `name` or `document_id` is not supplied."
 
     delete:
       tags: ["Document"]
