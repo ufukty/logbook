@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/jackc/pgx/v4"
 )
@@ -39,46 +39,60 @@ type Dashboard struct {
 	Documents []Document `json:"documents"`
 }
 
+func log_error(w http.ResponseWriter, venue string, action string, userId string, err error) {
+	eventId := uuid.New().String()
+	log.Printf("%s: [ERROR] @ %s\n> [eventId]: %s\n> [userId]: %s\n> [details]: %s\n", venue, action, eventId, userId, err)
+	http.Error(w, fmt.Sprintf("Internal server error. Please check back later. Event ID: %s", eventId), http.StatusInternalServerError)
+}
+
 func List(w http.ResponseWriter, r *http.Request) {
 
+	// Get userId from authorization/session information
 	userId := "0842c266-af1b-41bc-b180-653ca42dff82"
+	urlExample := "postgres://postgres:password@localhost:5432/testdatabase" // os.Getenv("DATABASE_URL")
 
-	// urlExample := "postgres://username:password@localhost:5432/database_name"
-	// conn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
-	conn, err := pgx.Connect(context.Background(), "postgres://postgres:password@localhost:5432/testdatabase")
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
-		os.Exit(1)
+	conn, err_connect := pgx.Connect(context.Background(), urlExample)
+	if err_connect != nil {
+		log_error(w, "/document/list", "pgx.Connect()", userId, err_connect)
+		return
 	}
 	defer conn.Close(context.Background())
 
-	dashboard := Dashboard{
-		UserId: userId,
-	}
-
 	// Read documents from database for given user
-	rows, err2 := conn.Query(
+	rows, err_query := conn.Query(
 		context.Background(),
 		"SELECT \"document_id\", \"display_name\", \"created_at\" FROM \"DOCUMENT\" WHERE \"user_id\"=$1",
 		userId,
 	)
 
-	// Read documents to structs
-	for rows.Next() {
-		document := Document{}
-		if err = rows.Scan(&document.DocumentID, &document.DisplayName, &document.CreatedAt); err != nil {
-			log.Println("Error in Document/Get at rows.Scan() for user: ", userId)
-		}
-		dashboard.Documents = append(dashboard.Documents, document)
+	if err_query != nil {
+		log_error(w, "/document/list", "conn.Query() 1st checkpoint", userId, err_query)
+		return
 	}
 
-	if err2 != nil {
-		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
-		os.Exit(1)
+	// Read documents to structs
+	dashboard := Dashboard{
+		UserId: userId,
+	}
+	for rows.Next() {
+
+		document := Document{}
+		err_scan := rows.Scan(&document.DocumentID, &document.DisplayName, &document.CreatedAt)
+		if err_scan != nil {
+			log_error(w, "/document/list", "rows.Scan()", userId, err_scan)
+			return
+		}
+		dashboard.Documents = append(dashboard.Documents, document)
+
+	}
+
+	if err_query != nil {
+		log_error(w, "/document/list", "conn.Query() 2nd checkpoint", userId, err_query)
+		return
 	}
 
 	json.NewEncoder(w).Encode(dashboard)
-	log.Println("Request processed.")
+	log.Println("/document/list: Request proccessed for userId: ", userId)
 }
 
 func Post(w http.ResponseWriter, r *http.Request) {
