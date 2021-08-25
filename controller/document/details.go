@@ -11,29 +11,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type TaskGroupType string
-
-const (
-	Archive      TaskGroupType = "archive"
-	Active       TaskGroupType = "active"
-	Paused       TaskGroupType = "paused"
-	ReadyToStart TaskGroupType = "ready-to-start"
-	Drawer       TaskGroupType = "drawer"
-)
-
-type TaskGroup struct {
-	GroupId    string        `json:"group_id"`
-	GroupType  TaskGroupType `json:"group_type"`
-	Tasks      []Task        `json:"tasks"`
-	TotalTasks int           `json:"total_tasks"`
-}
-
-type Document struct {
-	DocumentId      string      `json:"document_id"`
-	TaskGroups      []TaskGroup `json:"task_groups"`
-	TotalTaskGroups int         `json:"total_task_groups"`
-}
-
 func getTaskGroups(documentId string) ([]TaskGroup, error) {
 	var taskGroups []TaskGroup
 

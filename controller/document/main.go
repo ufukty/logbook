@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
@@ -15,42 +14,6 @@ import (
 )
 
 var PGXPool *pgxpool.Pool
-
-type Task struct {
-	TaskId     string    `json:"task_id"`
-	ParentId   string    `json:"parent_id"`
-	Content    string    `json:"content"`
-	TaskStatus string    `json:"task_status"`
-	Degree     int       `json:"degree"`
-	Depth      int       `json:"depth"`
-	CreatedAt  time.Time `json:"created_at"`
-}
-
-// type TaskGroup struct {
-// 	// GroupId string
-// 	// Tasks []Task
-// }
-
-// type Document struct {
-// 	DocumentId string
-// 	TaskGroups []TaskGroup
-// }
-
-// type Dashboard struct {
-// 	UserId    string
-// 	Documents []Document
-// }
-
-type DocumentReference struct {
-	DocumentID  string    `json:"document_id"`
-	DisplayName string    `json:"display_name"`
-	CreatedAt   time.Time `json:"created_at"`
-}
-
-type Dashboard struct {
-	UserId    string              `json:"user_id"`
-	Documents []DocumentReference `json:"documents"`
-}
 
 func log_error(w http.ResponseWriter, venue string, action string, userId string, err error) {
 	eventId := uuid.New().String()
