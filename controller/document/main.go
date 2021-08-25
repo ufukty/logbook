@@ -3,6 +3,7 @@ package document
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -14,6 +15,16 @@ import (
 )
 
 var PGXPool *pgxpool.Pool
+
+type Task struct {
+	TaskId     string    `json:"task_id"`
+	ParentId   string    `json:"parent_id"`
+	Content    string    `json:"content"`
+	TaskStatus string    `json:"task_status"`
+	Degree     int       `json:"degree"`
+	Depth      int       `json:"depth"`
+	CreatedAt  time.Time `json:"created_at"`
+}
 
 // type TaskGroup struct {
 // 	// GroupId string
@@ -30,20 +41,20 @@ var PGXPool *pgxpool.Pool
 // 	Documents []Document
 // }
 
-type Document struct {
+type DocumentReference struct {
 	DocumentID  string    `json:"document_id"`
 	DisplayName string    `json:"display_name"`
 	CreatedAt   time.Time `json:"created_at"`
 }
 
 type Dashboard struct {
-	UserId    string     `json:"user_id"`
-	Documents []Document `json:"documents"`
+	UserId    string              `json:"user_id"`
+	Documents []DocumentReference `json:"documents"`
 }
 
 func log_error(w http.ResponseWriter, venue string, action string, userId string, err error) {
 	eventId := uuid.New().String()
-	log.Printf("%s: [ERROR] @ %s\n> [eventId]: %s\n> [userId]: %s\n> [details]: %s\n", venue, action, eventId, userId, err)
+	log.Printf("%s: [ERROR] @ %s\n^ [eventId]: %s\n^ [userId]: %s\n^ [details]: %s\n", venue, action, eventId, userId, err)
 	http.Error(w, fmt.Sprintf("Internal server error. Please check back later. Event ID: %s", eventId), http.StatusInternalServerError)
 }
 
@@ -70,7 +81,7 @@ func List(w http.ResponseWriter, r *http.Request) {
 	}
 	for rows.Next() {
 
-		document := Document{}
+		document := DocumentReference{}
 		err_scan := rows.Scan(&document.DocumentID, &document.DisplayName, &document.CreatedAt)
 		if err_scan != nil {
 			log_error(w, "GET /document/list", "rows.Scan()", userId, err_scan)
@@ -89,29 +100,6 @@ func List(w http.ResponseWriter, r *http.Request) {
 	log.Println("GET /document/list: Request proccessed for userId: ", userId)
 }
 
-func Create(w http.ResponseWriter, r *http.Request) {
-
-	// Get userId from authorization/session information
-	userId := "0842c266-af1b-41bc-b180-653ca42dff82"
-
-	r.ParseForm()
-	displayName := r.Form.Get("display_name")
-	if displayName == "" {
-		log_error(w, "POST /document", "r.Form.Get('diplay_name')", userId, errors.New(""))
-	}
-
-	// Send SQL query
-	query := "INSERT INTO \"DOCUMENT\"(\"user_id\", \"display_name\") VALUES($1, $2)"
-	_, err_query := PGXPool.Query(context.Background(), query, userId, displayName)
-
-	if err_query != nil {
-		log_error(w, "POST /document", "pgxpool.Pool.Query()", userId, err_query)
-		return
-	}
-
-	log.Println("POST /document: Request proccessed for userId: ", userId)
-}
-
 func Update(w http.ResponseWriter, r *http.Request) {
 
 	// Get userId from authorization/session information
@@ -120,7 +108,7 @@ func Update(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	newName := r.Form.Get("name")
 	if newName == "" {
-		log_error(w, "PATCH /document/{document_id}", "r.Form.Get('diplay_name')", userId, errors.New("")) // TODO: NOT 502 INTERNAL SERVER ERROR
+		log_error(w, "PATCH /document/{document_id}", "r.Form.Get('name')", userId, errors.New("")) // TODO: NOT 502 INTERNAL SERVER ERROR
 		return
 	}
 
@@ -136,10 +124,6 @@ func Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Println("PATCH /document/{document_id}: Request proccessed for userId: ", userId)
-}
-
-func Details(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Document / details: %s\n", mux.Vars(r)["document_id"])
 }
 
 func Delete(w http.ResponseWriter, r *http.Request) {
