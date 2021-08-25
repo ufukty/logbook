@@ -17,39 +17,6 @@ import (
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
-// type ThreadType string
-
-// const (
-// 	Daily        ThreadType = "Daily"
-// 	Active                  = "Active"
-// 	Paused                  = "Paused"
-// 	ReadyToStart            = "ReadyToStart"
-// 	Plan                    = "Plan"
-// )
-
-// type Task struct {
-// 	content string
-// 	task_id string
-// }
-
-// type ThreadTask struct {
-// 	task_id    string
-// 	task       Task
-// 	depth      int
-// 	degree     int // Number of all nodes below
-// 	created_at string
-// }
-
-// type Thread struct {
-// 	thread_type ThreadType
-// 	tasks       []ThreadTask
-// }
-
-// type Document struct {
-// 	threads       []Thread
-// 	total_threads int
-// }
-
 func setupDatabasePool() **pgxpool.Pool {
 	urlExample := "postgres://postgres:password@localhost:5432/testdatabase" // os.Getenv("DATABASE_URL")
 	pool, err := pgxpool.Connect(context.Background(), urlExample)
