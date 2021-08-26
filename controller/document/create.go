@@ -75,7 +75,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 				"^ Event ID                : %s\n"+
 				"^ User ID                 : %s\n"+
 				"^ Requested Document Name : %s\n"+
-				"^ Requested Document ID   : %s\n"+
+				"^ Created Document ID     : %s\n"+
 				"^ IP Address              : %s\n"+
 				"^ User Agent              : %s\n"+
 				"^ Error details           : %s", eventId, userId, documentName, documentId, ipAddress, userAgent, errorCreateDocument)
@@ -98,7 +98,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 				"^ Event ID                : %s\n"+
 				"^ User ID                 : %s\n"+
 				"^ Requested Document Name : %s\n"+
-				"^ Requested Document ID   : %s\n"+
+				"^ Created Document ID     : %s\n"+
 				"^ IP Address              : %s\n"+
 				"^ User Agent              : %s\n"+
 				"^ Error details           : %s", eventId, userId, documentName, documentId, ipAddress, userAgent, err_createGroups)
@@ -122,7 +122,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 				"^ Event ID                : %s\n"+
 				"^ User ID                 : %s\n"+
 				"^ Requested Document Name : %s\n"+
-				"^ Requested Document ID   : %s\n"+
+				"^ Created Document ID     : %s\n"+
 				"^ IP Address              : %s\n"+
 				"^ User Agent              : %s\n"+
 				"^ Error details           : %s", eventId, userId, documentName, documentId, ipAddress, userAgent, errorTaskGroups)
@@ -147,7 +147,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 					"^ Event ID                : %s\n"+
 					"^ User ID                 : %s\n"+
 					"^ Requested Document Name : %s\n"+
-					"^ Requested Document ID   : %s\n"+
+					"^ Created Document ID     : %s\n"+
 					"^ Task Group ID           : %s\n"+
 					"^ Task Group Type         : %s\n"+
 					"^ IP Address              : %s\n"+
@@ -166,7 +166,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 		"[OK] Document/Create\n"+
 			"^ User ID                 : %s\n"+
 			"^ Requested Document Name : %s\n"+
-			"^ Requested Document ID   : %s\n"+
+			"^ Created Document ID     : %s\n"+
 			"^ IP Address              : %s\n"+
 			"^ User Agent              : %s", userId, documentName, documentId, ipAddress, userAgent)
 	log.Println(internalSuccessMessage)
