@@ -4,8 +4,8 @@ import "testing"
 
 func TestDatabaseForGetAndCreateFunctions(t *testing.T) {
 
-	// For database connections
-	Init()
+	// Initialize database connection with test database
+	Init("postgres://postgres:password@localhost:5432/testdatabase")
 	defer Close()
 
 	var (

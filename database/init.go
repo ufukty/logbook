@@ -9,12 +9,11 @@ import (
 
 var pool *pgxpool.Pool
 
-func Init() {
-	urlExample := "postgres://postgres:password@localhost:5432/testdatabase" // os.Getenv("DATABASE_URL")
-	var errPgxPool error
-	pool, errPgxPool = pgxpool.Connect(context.Background(), urlExample)
-	if errPgxPool != nil {
-		log.Fatalf("Could not initialize Database connection using pgx %s", errPgxPool)
+func Init(connection string) {
+	var err error
+	pool, err = pgxpool.Connect(context.Background(), connection)
+	if err != nil {
+		log.Fatalf("Could not initialize Database connection using pgx.\n^ Error details: %s", err)
 	}
 }
 

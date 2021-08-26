@@ -54,14 +54,15 @@ func main() {
 	flag.DurationVar(&wait, "graceful-timeout", time.Second*15, "the duration for which the server gracefully wait for existing connections to finish - e.g. 15s or 1m")
 	flag.Parse()
 
-	// Run pgxpool for first time, and fill controllers' pool
-	// variables with created handler
-	defer (*setupDatabasePool()).Close()
+	// Initialize database connection pool
+
+	database.Init("postgres://postgres:password@localhost:5432/testdatabase") // os.Getenv("DATABASE_URL")
+	defer database.Close()
 
 	//
 	r := mux.NewRouter()
 
-	// 
+	//
 	register_endpoints(&r)
 
 	// r.Use(middleware.MWAuthorization)
