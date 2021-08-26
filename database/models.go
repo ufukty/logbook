@@ -1,0 +1,61 @@
+package database
+
+import "time"
+
+type TaskStatus string
+
+const (
+	Archive      TaskStatus = "archive"
+	Active       TaskStatus = "active"
+	Paused       TaskStatus = "paused"
+	ReadyToStart TaskStatus = "ready-to-start"
+	Drawer       TaskStatus = "drawer"
+)
+
+type Task struct {
+	Content   string    `json:"content"`
+	CreatedAt time.Time `json:"created_at"`
+	Degree    int       `json:"degree"`
+	Depth     int       `json:"depth"`
+	// DocumentId  string    `json:"document_id"`
+	ParentId    string     `json:"parent_id"`
+	TaskGroupId string     `json:"task_group_id"`
+	TaskId      string     `json:"task_id"`
+	TaskStatus  TaskStatus `json:"task_status"`
+}
+
+type TaskGroup struct {
+	CreatedAt     time.Time  `json:"created_at"`
+	DocumentId    string     `json:"document_id"`
+	TaskGroupId   string     `json:"group_id"`
+	TaskGroupType TaskStatus `json:"group_type"`
+	// Tasks         []Task        `json:"tasks"` // TODO: aggregate option will need those
+	// TotalTasks    int           `json:"total_tasks"`
+}
+
+type Document struct {
+	// TaskGroups      []TaskGroup `json:"task_groups"`
+	// TotalTaskGroups int         `json:"total_task_groups"`
+	CreatedAt   time.Time `json:"created_at"`
+	DisplayName string    `json:"display_name"`
+	DocumentId  string    `json:"document_id"`
+	UserId      string    `json:"user_id"`
+}
+
+type DocumentReference struct { // FIXME: REMOVE
+	DocumentID  string    `json:"document_id"`
+	DisplayName string    `json:"display_name"`
+	CreatedAt   time.Time `json:"created_at"`
+}
+
+// type Dashboard struct {
+// 	UserId    string              `json:"user_id"`
+// 	Documents []DocumentReference `json:"documents"`
+// }
+
+type User struct {
+	UserID    string    `json:"user_id"`
+	Email     string    `json:"email"`
+	Password  string    `json:"password"`
+	CreatedAt time.Time `json:"created_at"`
+}
