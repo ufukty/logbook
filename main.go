@@ -9,33 +9,10 @@ import (
 	"os/signal"
 	"time"
 
-	"logbook/main/controller/document"
-	"logbook/main/controller/group"
-	"logbook/main/controller/task"
+	"logbook/main/database"
 
 	"github.com/gorilla/mux"
-	"github.com/jackc/pgx/v4/pgxpool"
 )
-
-func setupDatabasePool() **pgxpool.Pool {
-	urlExample := "postgres://postgres:password@localhost:5432/testdatabase" // os.Getenv("DATABASE_URL")
-	pool, err := pgxpool.Connect(context.Background(), urlExample)
-	if err != nil {
-		log.Fatalf("Could not initialize Database connection using pgx %s", err)
-	}
-
-	pool_references := []**pgxpool.Pool{
-		&document.PGXPool,
-		&group.PGXPool,
-		&task.PGXPool,
-	}
-
-	for _, reference := range pool_references {
-		*reference = pool
-	}
-
-	return &pool
-}
 
 func register_endpoints(r **mux.Router) {
 	for _, endpoint := range endpoints() {
