@@ -10,9 +10,15 @@ var ErrInvalidInput error
 
 var ErrEmptyUserId error
 
+var ErrInvalidUserId error
+
 var ErrEmptyDocumentId error
 
+var ErrInvalidDocumentId error
+
 var ErrEmptyTaskGroupId error
+
+var ErrInvalidTaskGroupId error
 
 // FIXME: Wrap the PSQL error with Err class
 

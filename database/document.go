@@ -4,6 +4,8 @@ import (
 	"context"
 )
 
+// Can throw those errors:
+//    - ErrNoResult
 func CreateDocument(document Document) (Document, error) {
 	if err := checkUserId(document.UserId); err != nil {
 		return document, err

@@ -13,35 +13,34 @@ func TestDatabaseForGetAndCreateFunctions(t *testing.T) {
 		test_document     Document
 		test_drawer_group TaskGroup
 		test_task         Task
-		status            bool
 		err               error
 	)
 
-	test_user, status, err = CreateUser(User{
+	test_user, err = CreateUser(User{
 		Email:    "steven@logbook",
 		Password: "12345678",
 	})
-	if !status {
+	if err != nil {
 		t.Fatalf("Failed on create 'user' object.\nError details: %s", err)
 	}
 
-	test_document, status, err = CreateDocument(Document{
+	test_document, err = CreateDocument(Document{
 		DisplayName: "School stuff",
 		UserId:      test_user.UserID,
 	})
-	if !status {
+	if err != nil {
 		t.Fatalf("Failed on create 'document' object.\nError details: %s", err)
 	}
 
-	test_drawer_group, status, err = CreateTaskGroup(TaskGroup{
+	test_drawer_group, err = CreateTaskGroup(TaskGroup{
 		DocumentId:    test_document.DocumentId,
 		TaskGroupType: Drawer,
 	})
-	if !status {
+	if err != nil {
 		t.Fatalf("Failed on create 'task_group' object.\nError details: %s", err)
 	}
 
-	test_task, status, err = CreateTask(Task{
+	test_task, err = CreateTask(Task{
 		Content:     "One difficult task",
 		Degree:      1,
 		Depth:       1,
@@ -49,36 +48,36 @@ func TestDatabaseForGetAndCreateFunctions(t *testing.T) {
 		TaskStatus:  Active,
 		ParentId:    "00000000-0000-0000-0000-000000000000",
 	})
-	if !status {
+	if err != nil {
 		t.Fatalf("Failed on create 'task' object.\nError details: %s", err)
 	}
 
-	verify_task, status, err := GetTaskByTaskId(test_task.TaskId)
-	if !status {
+	verify_task, err := GetTaskByTaskId(test_task.TaskId)
+	if err != nil {
 		t.Fatalf("Failed on getTaskByTaskId(test_task.TaskId)\nError details: %s", err)
 	}
 	if verify_task.Content != test_task.Content {
 		t.Fatalf("Failed on comparing result of getTaskByTaskId(test_task.TaskId)")
 	}
 
-	verify_drawer_group, status, err := GetTaskGroupByTaskGroupId(test_drawer_group.TaskGroupId)
-	if !status {
+	verify_drawer_group, err := GetTaskGroupByTaskGroupId(test_drawer_group.TaskGroupId)
+	if err != nil {
 		t.Fatalf("Failed on getTaskGroupByGroupId(test_drawer_group.TaskGroupId)\nError details: %s", err)
 	}
 	if verify_drawer_group.CreatedAt != test_drawer_group.CreatedAt {
 		t.Fatalf("Failed on comparing result of getTaskGroupByGroupId(test_drawer_group.TaskGroupId)")
 	}
 
-	verify_document, status, err := GetDocumentByDocumentId(test_document.DocumentId)
-	if !status {
+	verify_document, err := GetDocumentByDocumentId(test_document.DocumentId)
+	if err != nil {
 		t.Fatalf("Failed on getDocumentByDocumentId(test_document.DocumentId)\nError details: %s", err)
 	}
 	if verify_document.CreatedAt != test_document.CreatedAt {
 		t.Fatalf("Failed on comparing result of getDocumentByDocumentId(test_document.DocumentId)")
 	}
 
-	verify_user, status, err := GetUserByUserId(test_user.UserID)
-	if !status {
+	verify_user, err := GetUserByUserId(test_user.UserID)
+	if err != nil {
 		t.Fatalf("Failed on getUserByUserId(test_user.UserID)\nError details: %s", err)
 	}
 	if verify_user.CreatedAt != test_user.CreatedAt {

@@ -2,8 +2,6 @@ package main
 
 import (
 	"logbook/main/controller/document"
-	"logbook/main/controller/group"
-	"logbook/main/controller/task"
 	"net/http"
 )
 
@@ -18,14 +16,14 @@ func endpoints() []Endpoint {
 
 		{"/document", "POST", document.Create},
 		{"/document/list", "GET", document.List},
-		{"/document/{document_id}", "GET", document.Details},
-		{"/document/{document_id}", "PATCH", document.Update},
-		{"/document/{document_id}", "DELETE", document.Delete},
+		// {"/document/{document_id}", "GET", document.Details},
+		// {"/document/{document_id}", "PATCH", document.Update},
+		// {"/document/{document_id}", "DELETE", document.Delete},
 
-		{"/group/{document_id}", "GET", group.Get},
+		// {"/group/{document_id}", "GET", group.Get},
 
-		{"/task/{document_id}/{task_id}", "GET", task.Get},
-		{"/task/{document_id}/{task_id}", "PATCH", task.Update},
-		{"/task/{document_id}/{task_id}", "DELETE", task.Delete},
+		// {"/task/{document_id}/{task_id}", "GET", task.Get},
+		// {"/task/{document_id}/{task_id}", "PATCH", task.Update},
+		// {"/task/{document_id}/{task_id}", "DELETE", task.Delete},
 	}
 }

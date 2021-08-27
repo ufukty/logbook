@@ -1,94 +1,87 @@
 package document
 
 import (
-	"context"
 	"encoding/json"
-	"errors"
-	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/google/uuid"
-	"github.com/gorilla/mux"
-	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/jackc/pgx/v4"
+
+	"logbook/main/database"
 )
 
-var PGXPool *pgxpool.Pool
-
-func log_error(w http.ResponseWriter, venue string, action string, userId string, err error) {
-	eventId := uuid.New().String()
-	log.Printf("%s: [ERROR] @ %s\n^ [eventId]: %s\n^ [userId]: %s\n^ [details]: %s\n", venue, action, eventId, userId, err)
-	http.Error(w, fmt.Sprintf("Internal server error. Please check back later. Event ID: %s", eventId), http.StatusInternalServerError)
+func Init() {
+	initErrors()
 }
 
 func List(w http.ResponseWriter, r *http.Request) {
 
 	// Get userId from authorization/session information
-	userId := "0842c266-af1b-41bc-b180-653ca42dff82"
+	userId := "c66bc967-db0e-4911-a375-fc830db01a8b"
 
-	// Read documents from database for given user
-	rows, err_query := PGXPool.Query(
-		context.Background(),
-		"SELECT \"document_id\", \"display_name\", \"created_at\" FROM \"DOCUMENT\" WHERE \"user_id\"=$1",
-		userId,
-	)
+	var err error
 
-	if err_query != nil {
-		log_error(w, "GET /document/list", "pgxpool.Pool.Query() 1st checkpoint", userId, err_query)
-		return
+	_, err = uuid.Parse(userId)
+	if err != nil {
+		http.Error(w, "Invalid user-id", http.StatusUnauthorized)
 	}
 
-	// Read documents to structs
-	dashboard := Dashboard{
-		UserId: userId,
-	}
-	for rows.Next() {
-
-		document := DocumentReference{}
-		err_scan := rows.Scan(&document.DocumentID, &document.DisplayName, &document.CreatedAt)
-		if err_scan != nil {
-			log_error(w, "GET /document/list", "rows.Scan()", userId, err_scan)
-			return
+	_, err = database.GetUserByUserId(userId)
+	if err != nil {
+		switch err {
+		case pgx.ErrNoRows:
+			http.Error(w, "Invalid user-id", http.StatusUnauthorized)
+		default:
+			log.Println(err)
+			http.Error(w, "Internal server error. Try again soon.", http.StatusInternalServerError)
 		}
-		dashboard.Documents = append(dashboard.Documents, document)
-
-	}
-
-	if err_query != nil {
-		log_error(w, "GET /document/list", "conn.Query() 2nd checkpoint", userId, err_query)
 		return
 	}
 
-	json.NewEncoder(w).Encode(dashboard)
+	documents, err := database.GetDocumentsByUserId(userId)
+	if err != nil {
+		log.Println("errorrrrr :", err)
+		return
+	}
+
+	json.NewEncoder(w).Encode(documents)
 	log.Println("GET /document/list: Request proccessed for userId: ", userId)
 }
 
-func Update(w http.ResponseWriter, r *http.Request) {
+// func Update(w http.ResponseWriter, r *http.Request) {
 
-	// Get userId from authorization/session information
-	userId := "0842c266-af1b-41bc-b180-653ca42dff82"
+// 	// Get userId from authorization/session information
+// 	userId := "0842c266-af1b-41bc-b180-653ca42dff82"
 
-	r.ParseForm()
-	newName := r.Form.Get("name")
-	if newName == "" {
-		log_error(w, "PATCH /document/{document_id}", "r.Form.Get('name')", userId, errors.New("")) // TODO: NOT 502 INTERNAL SERVER ERROR
-		return
-	}
+// 	r.ParseForm()
+// 	newName := r.Form.Get("name")
+// 	if newName == "" {
+// 		log_error(w, "PATCH /document/{document_id}", "r.Form.Get('name')", userId, errors.New("")) // TODO: NOT 502 INTERNAL SERVER ERROR
+// 		return
+// 	}
 
-	documentId := mux.Vars(r)["document_id"]
+// 	documentId := mux.Vars(r)["document_id"]
 
-	// Send SQL query
-	query := "UPDATE \"DOCUMENT\" SET display_name=$1 WHERE \"document_id\"=$2 AND \"user_id\"=$3;"
-	_, err_query := PGXPool.Query(context.Background(), query, newName, documentId, userId)
+// 	// Send SQL query
+// 	query := "UPDATE \"DOCUMENT\" SET display_name=$1 WHERE \"document_id\"=$2 AND \"user_id\"=$3;"
+// 	_, err_query := PGXPool.Query(context.Background(), query, newName, documentId, userId)
 
-	if err_query != nil {
-		log_error(w, "PATCH /document/{document_id}", "pgxpool.Pool.Query()", userId, err_query)
-		return
-	}
+// 	if err_query != nil {
+// 		log_error(w, "PATCH /document/{document_id}", "pgxpool.Pool.Query()", userId, err_query)
+// 		return
+// 	}
 
-	log.Println("PATCH /document/{document_id}: Request proccessed for userId: ", userId)
-}
+// 	log.Println("PATCH /document/{document_id}: Request proccessed for userId: ", userId)
+// }
 
-func Delete(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Document / delete")
-}
+// // FIXME: ADD CSRF TOKEN
+// func Delete(w http.ResponseWriter, r *http.Request) {
+// 	r.ParseForm()
+// 	newName := r.Form.Get("name")
+// 	if newName == "" {
+// 		log_error(w, "PATCH /document/{document_id}", "r.Form.Get('name')", userId, errors.New("")) // TODO: NOT 502 INTERNAL SERVER ERROR
+// 		return
+// 	}
+// 	fmt.Fprintln(w, "Document / delete")
+// }
