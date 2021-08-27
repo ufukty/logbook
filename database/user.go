@@ -2,7 +2,7 @@ package database
 
 import "context"
 
-func createUser(user User) (User, bool, error) {
+func CreateUser(user User) (User, error) {
 	query := `
 		INSERT INTO "USER" (
 			"email",
@@ -23,13 +23,10 @@ func createUser(user User) (User, bool, error) {
 		&user.UserID,
 		&user.CreatedAt,
 	)
-	if err != nil {
-		return user, false, err
-	}
-	return user, true, nil
+	return user, exportError(err)
 }
 
-func getUserByUserId(userId string) (User, bool, error) {
+func GetUserByUserId(userId string) (User, error) {
 	user := User{UserID: userId}
 	query := `
 		SELECT
@@ -40,7 +37,6 @@ func getUserByUserId(userId string) (User, bool, error) {
 			"USER"
 		WHERE
 			"user_id"=$1`
-
 	err := pool.QueryRow(
 		context.Background(),
 		query,
@@ -50,8 +46,5 @@ func getUserByUserId(userId string) (User, bool, error) {
 		&user.Password,
 		&user.CreatedAt,
 	)
-	if err != nil {
-		return user, false, err
-	}
-	return user, true, nil
+	return user, exportError(err)
 }

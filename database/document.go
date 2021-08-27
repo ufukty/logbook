@@ -2,10 +2,12 @@ package database
 
 import (
 	"context"
-	"errors"
 )
 
-func createDocument(document Document) (Document, bool, error) {
+func CreateDocument(document Document) (Document, error) {
+	if err := checkUserId(document.UserId); err != nil {
+		return document, err
+	}
 	query := `
 		INSERT INTO "DOCUMENT" (
 			"display_name",
@@ -26,13 +28,10 @@ func createDocument(document Document) (Document, bool, error) {
 		&document.DocumentId,
 		&document.CreatedAt,
 	)
-	if err != nil {
-		return document, false, err
-	}
-	return document, true, nil
+	return document, exportError(err)
 }
 
-func getDocumentByDocumentId(documentId string) (Document, bool, error) {
+func GetDocumentByDocumentId(documentId string) (Document, error) {
 	document := Document{DocumentId: documentId}
 	query := `
 		SELECT 
@@ -53,7 +52,39 @@ func getDocumentByDocumentId(documentId string) (Document, bool, error) {
 		&document.CreatedAt,
 	)
 	if err != nil {
-		return document, false, err
+		return document, err
 	}
-	return document, true, errors.New("")
+	return document, nil
+}
+
+func GetDocumentsByUserId(userId string) ([]Document, error) {
+	documents := []Document{}
+	query := `
+		SELECT 
+			"document_id",
+			"display_name",
+			"user_id",
+			"created_at"
+		FROM 
+			"DOCUMENT"
+		WHERE
+			"user_id"=$1`
+	rows, err := pool.Query(
+		context.Background(),
+		query,
+		userId,
+	)
+	if err != nil {
+		return documents, err
+	}
+	for rows.Next() {
+		document := Document{}
+		err = rows.Scan(
+			&document.DocumentId,
+			&document.DisplayName,
+			&document.UserId,
+			&document.CreatedAt,
+		)
+	}
+	return documents, err
 }

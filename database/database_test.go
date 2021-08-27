@@ -17,7 +17,7 @@ func TestDatabaseForGetAndCreateFunctions(t *testing.T) {
 		err               error
 	)
 
-	test_user, status, err = createUser(User{
+	test_user, status, err = CreateUser(User{
 		Email:    "steven@logbook",
 		Password: "12345678",
 	})
@@ -25,7 +25,7 @@ func TestDatabaseForGetAndCreateFunctions(t *testing.T) {
 		t.Fatalf("Failed on create 'user' object.\nError details: %s", err)
 	}
 
-	test_document, status, err = createDocument(Document{
+	test_document, status, err = CreateDocument(Document{
 		DisplayName: "School stuff",
 		UserId:      test_user.UserID,
 	})
@@ -33,7 +33,7 @@ func TestDatabaseForGetAndCreateFunctions(t *testing.T) {
 		t.Fatalf("Failed on create 'document' object.\nError details: %s", err)
 	}
 
-	test_drawer_group, status, err = createTaskGroup(TaskGroup{
+	test_drawer_group, status, err = CreateTaskGroup(TaskGroup{
 		DocumentId:    test_document.DocumentId,
 		TaskGroupType: Drawer,
 	})
@@ -41,7 +41,7 @@ func TestDatabaseForGetAndCreateFunctions(t *testing.T) {
 		t.Fatalf("Failed on create 'task_group' object.\nError details: %s", err)
 	}
 
-	test_task, status, err = createTask(Task{
+	test_task, status, err = CreateTask(Task{
 		Content:     "One difficult task",
 		Degree:      1,
 		Depth:       1,
@@ -53,7 +53,7 @@ func TestDatabaseForGetAndCreateFunctions(t *testing.T) {
 		t.Fatalf("Failed on create 'task' object.\nError details: %s", err)
 	}
 
-	verify_task, status, err := getTaskByTaskId(test_task.TaskId)
+	verify_task, status, err := GetTaskByTaskId(test_task.TaskId)
 	if !status {
 		t.Fatalf("Failed on getTaskByTaskId(test_task.TaskId)\nError details: %s", err)
 	}
@@ -61,7 +61,7 @@ func TestDatabaseForGetAndCreateFunctions(t *testing.T) {
 		t.Fatalf("Failed on comparing result of getTaskByTaskId(test_task.TaskId)")
 	}
 
-	verify_drawer_group, status, err := getTaskGroupByGroupId(test_drawer_group.TaskGroupId)
+	verify_drawer_group, status, err := GetTaskGroupByTaskGroupId(test_drawer_group.TaskGroupId)
 	if !status {
 		t.Fatalf("Failed on getTaskGroupByGroupId(test_drawer_group.TaskGroupId)\nError details: %s", err)
 	}
@@ -69,7 +69,7 @@ func TestDatabaseForGetAndCreateFunctions(t *testing.T) {
 		t.Fatalf("Failed on comparing result of getTaskGroupByGroupId(test_drawer_group.TaskGroupId)")
 	}
 
-	verify_document, status, err := getDocumentByDocumentId(test_document.DocumentId)
+	verify_document, status, err := GetDocumentByDocumentId(test_document.DocumentId)
 	if !status {
 		t.Fatalf("Failed on getDocumentByDocumentId(test_document.DocumentId)\nError details: %s", err)
 	}
@@ -77,7 +77,7 @@ func TestDatabaseForGetAndCreateFunctions(t *testing.T) {
 		t.Fatalf("Failed on comparing result of getDocumentByDocumentId(test_document.DocumentId)")
 	}
 
-	verify_user, status, err := getUserByUserId(test_user.UserID)
+	verify_user, status, err := GetUserByUserId(test_user.UserID)
 	if !status {
 		t.Fatalf("Failed on getUserByUserId(test_user.UserID)\nError details: %s", err)
 	}

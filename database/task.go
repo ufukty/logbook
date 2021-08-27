@@ -4,7 +4,10 @@ import (
 	"context"
 )
 
-func createTask(task Task) (Task, bool, error) {
+func CreateTask(task Task) (Task, error) {
+	if err := checkTaskGroupId(task.TaskGroupId); err != nil {
+		return task, err
+	}
 	query := `
 		INSERT INTO "TASK" (
 			"task_group_id",
@@ -29,13 +32,10 @@ func createTask(task Task) (Task, bool, error) {
 		&task.Degree,
 		&task.Depth,
 	).Scan(&task.TaskId, &task.CreatedAt)
-	if err != nil {
-		return task, false, err
-	}
-	return task, true, nil
+	return task, exportError(err)
 }
 
-func getTaskByTaskId(taskId string) (Task, bool, error) {
+func GetTaskByTaskId(taskId string) (Task, error) {
 	task := Task{}
 	query := `
 		SELECT 
@@ -61,13 +61,10 @@ func getTaskByTaskId(taskId string) (Task, bool, error) {
 		&task.TaskId,
 		&task.TaskStatus,
 	)
-	if err != nil {
-		return task, false, err
-	}
-	return task, true, nil
+	return task, exportError(err)
 }
 
-func getTasksByTaskGroupId(taskGroupId string) ([]Task, bool, error) {
+func GetTasksByTaskGroupId(taskGroupId string) ([]Task, error) {
 	tasks := []Task{}
 	query := `
 		SELECT 
@@ -85,7 +82,7 @@ func getTasksByTaskGroupId(taskGroupId string) ([]Task, bool, error) {
 			"task_group_id"=$1`
 	rows, err := pool.Query(context.Background(), query, taskGroupId)
 	if err != nil {
-		return tasks, false, err
+		return tasks, exportError(err)
 	}
 	for rows.Next() {
 		task := Task{}
@@ -104,5 +101,5 @@ func getTasksByTaskGroupId(taskGroupId string) ([]Task, bool, error) {
 		}
 		tasks = append(tasks, task)
 	}
-	return tasks, true, nil
+	return tasks, nil
 }
