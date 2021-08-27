@@ -9,12 +9,17 @@ import (
 
 var pool *pgxpool.Pool
 
-func Init(connection string) {
+func initDatabaseConnection(connection string) {
 	var err error
 	pool, err = pgxpool.Connect(context.Background(), connection)
 	if err != nil {
 		log.Fatalf("Could not initialize Database connection using pgx.\n^ Error details: %s", err)
 	}
+}
+
+func Init(connection string) {
+	initDatabaseConnection(connection)
+	initErrors()
 }
 
 func Close() {
