@@ -12,20 +12,25 @@ func CreateDocument(document Document) (Document, error) {
 		DEFAULT VALUES
 		RETURNING
 			"document_id", 
-			"created_at"`
+			"created_at",
+			"total_task_groups"`
 	err := pool.QueryRow(
 		context.Background(),
 		query,
 	).Scan(
 		&document.DocumentId,
 		&document.CreatedAt,
+		&document.TotalTaskGroups,
 	)
 	return document, exportError(err)
 }
 
 func CreateDocumentWithTaskGroups(document Document) (Document, error) {
 	query := `
-		SELECT "document_id", "created_at" 
+		SELECT 
+			"document_id", 
+			"created_at", 
+			"total_task_groups"
 		FROM create_document_with_task_groups();`
 	err := pool.QueryRow(
 		context.Background(),
@@ -33,6 +38,7 @@ func CreateDocumentWithTaskGroups(document Document) (Document, error) {
 	).Scan(
 		&document.DocumentId,
 		&document.CreatedAt,
+		&document.TotalTaskGroups,
 	)
 	return document, exportError(err)
 }
@@ -41,7 +47,8 @@ func GetDocumentByDocumentId(documentId string) (Document, error) {
 	document := Document{DocumentId: documentId}
 	query := `
 		SELECT 
-			"created_at"
+			"created_at",
+			"total_task_groups"
 		FROM
 			"DOCUMENT"
 		WHERE
@@ -52,6 +59,7 @@ func GetDocumentByDocumentId(documentId string) (Document, error) {
 		documentId,
 	).Scan(
 		&document.CreatedAt,
+		&document.TotalTaskGroups,
 	)
 	if err != nil {
 		return document, err

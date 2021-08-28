@@ -6,7 +6,8 @@ CREATE DATABASE testdatabase;
 
 CREATE TABLE "DOCUMENT" (
     "document_id"       UUID UNIQUE DEFAULT gen_random_UUID(), 
-    "created_at"        TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    "created_at"        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    "total_task_groups" INTEGER DEFAULT 0
 );
 
 CREATE TABLE "ACCESS"(
@@ -22,7 +23,8 @@ CREATE TABLE "TASK_GROUP" (
     "task_group_id"     UUID UNIQUE DEFAULT gen_random_UUID(),
     "document_id"       UUID NOT NULL REFERENCES "DOCUMENT" ("document_id"),
     "task_group_type"   TASK_GROUP_TYPE NOT NULL,
-    "created_at"        DATE DEFAULT CURRENT_DATE
+    "created_at"        DATE DEFAULT CURRENT_DATE,
+    "total_tasks"       INTEGER DEFAULT 0
 );
 
 CREATE TYPE TASK_STATUS AS ENUM('archive', 'drawer', 'ready-to-start', 'active', 'paused', 'dropped');
@@ -95,7 +97,7 @@ CREATE FUNCTION create_document_with_task_groups() RETURNS "DOCUMENT" AS $$
     DECLARE
         document "DOCUMENT"%ROWTYPE;
     BEGIN
-        INSERT INTO "DOCUMENT" DEFAULT VALUES RETURNING * INTO document;
+        INSERT INTO "DOCUMENT" ("total_task_groups") VALUES ('6') RETURNING * INTO document;
         INSERT INTO "TASK_GROUP"("document_id", "task_group_type") VALUES(document.document_id, 'archive');
         INSERT INTO "TASK_GROUP"("document_id", "task_group_type") VALUES(document.document_id, 'drawer');
         INSERT INTO "TASK_GROUP"("document_id", "task_group_type") VALUES(document.document_id, 'ready-to-start');

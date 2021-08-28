@@ -68,7 +68,6 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	document.TaskGroups = taskGroups
-	document.TotalTaskGroups = len(taskGroups)
 
 	responseHandler(w, r, "Document/Create", document)
 }

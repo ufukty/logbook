@@ -36,6 +36,7 @@ func GetTaskGroupByTaskGroupId(taskGroupId string) (TaskGroup, error) {
 		SELECT 
 			"task_group_id",
 			"task_group_type",
+			"total_tasks",
 			"document_id",
 			"created_at"
 		FROM 
@@ -49,6 +50,7 @@ func GetTaskGroupByTaskGroupId(taskGroupId string) (TaskGroup, error) {
 	).Scan(
 		&taskGroup.TaskGroupId,
 		&taskGroup.TaskGroupType,
+		&taskGroup.TotalTasks,
 		&taskGroup.DocumentId,
 		&taskGroup.CreatedAt,
 	)
@@ -61,6 +63,7 @@ func GetTaskGroupsByDocumentId(documentId string) ([]TaskGroup, error) {
 		SELECT 
 			"task_group_id",
 			"task_group_type",
+			"total_tasks",
 			"document_id",
 			"created_at"
 		FROM 
@@ -76,6 +79,7 @@ func GetTaskGroupsByDocumentId(documentId string) ([]TaskGroup, error) {
 		err = rows.Scan(
 			&taskGroup.TaskGroupId,
 			&taskGroup.TaskGroupType,
+			&taskGroup.TotalTasks,
 			&taskGroup.DocumentId,
 			&taskGroup.CreatedAt,
 		)
