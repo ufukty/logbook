@@ -2,51 +2,73 @@ package document
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"logbook/main/database"
 	"net/http"
+
+	"gopkg.in/yaml.v3"
 )
 
+type ResponseFields struct {
+	Status    int         `json:"status" yaml:"status"`
+	Resource  interface{} `json:"request" yaml:"request"`
+	ErrorHint string      `json:"error_hint" yaml:"error_hint"`
+	ErrorId   string      `json:"error_id" yaml:"error_id"`
+}
+
+type LogFields struct {
+	Status   int         `json:"status" yaml:"status"`
+	Endpoint string      `json:"endpoint" yaml:"endpoint"`
+	Request  interface{} `json:"request" yaml:"request"`
+	ErrorId  string      `json:"error_id" yaml:"error_id"`
+}
+
+func responseHandler(
+	w http.ResponseWriter,
+	r *http.Request,
+	endpoint string,
+	requestedResource interface{},
+) {
+	err := json.NewEncoder(w).Encode(ResponseFields{
+		Status:   http.StatusOK,
+		Resource: requestedResource,
+	})
+	if err != nil {
+		log.Println("[WARNING] responseHandler function can not print HTTP responses because of json.NewEncoder().Encode() gives error.")
+	}
+	bytes, err := yaml.Marshal(LogFields{
+		Status:   http.StatusOK,
+		Endpoint: endpoint,
+		Request:  r.Header,
+	})
+	if err != nil {
+		log.Println("[WARNING] responseHandler function can not print logs because of yaml.Marshall gives error.")
+	}
+	log.Println(string(bytes))
+}
+
 func Create(w http.ResponseWriter, r *http.Request) {
-	ipAddress := (*r).RemoteAddr
-	userAgent := (*r).Header.Get("User-Agent")
+	// ipAddress := (*r).RemoteAddr
+	// userAgent := (*r).Header.Get("User-Agent")
 
 	var (
-		document   database.Document
-		task_group database.TaskGroup
-		err        error
+		document database.Document
+		err      error
 	)
 
-	data, _ := json.Marshal(r.Header)
-	fmt.Println(string(data))
-
 	// create document table record
-	document, err = database.CreateDocument(database.Document{})
+	document, err = database.CreateDocumentWithTaskGroups(database.Document{})
 	if err != nil {
-		errorHandler(err, r, w)
+		errorHandler(w, r, "Document/Create", err)
 	}
 
-	for _, groupType := range []database.TaskStatus{
-		database.Active, database.Archive, database.Drawer,
-		database.Paused, database.ReadyToStart,
-	} {
-		task_group, err = database.CreateTaskGroup(
-			database.TaskGroup{
-				DocumentId:    document.DocumentId,
-				TaskGroupType: database.TaskStatus(groupType),
-			})
-		if err != nil {
-			errorHandler(err, r, w)
-		}
-		document.TaskGroups = append(document.TaskGroups, task_group)
-		document.TotalTaskGroups += 1
+	taskGroups, err := database.GetTaskGroupsByDocumentId(document.DocumentId)
+	if err != nil {
+		errorHandler(w, r, "Document/Create", err)
 	}
 
-	json.NewEncoder(w).Encode(document)
-	internalSuccessMessage := fmt.Sprintf(
-		"[OK] Document/Create\n"+
-			"^ IP Address              : %s\n"+
-			"^ User Agent              : %s", ipAddress, userAgent)
-	log.Println(internalSuccessMessage)
+	document.TaskGroups = taskGroups
+	document.TotalTaskGroups = len(taskGroups)
+
+	responseHandler(w, r, "Document/Create", document)
 }

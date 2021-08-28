@@ -23,6 +23,20 @@ func CreateDocument(document Document) (Document, error) {
 	return document, exportError(err)
 }
 
+func CreateDocumentWithTaskGroups(document Document) (Document, error) {
+	query := `
+		SELECT "document_id", "created_at" 
+		FROM create_document_with_task_groups();`
+	err := pool.QueryRow(
+		context.Background(),
+		query,
+	).Scan(
+		&document.DocumentId,
+		&document.CreatedAt,
+	)
+	return document, exportError(err)
+}
+
 func GetDocumentByDocumentId(documentId string) (Document, error) {
 	document := Document{DocumentId: documentId}
 	query := `

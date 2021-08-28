@@ -16,12 +16,12 @@ CREATE TABLE "ACCESS"(
     "ip-address"        INET NOT NULL
 );
 
-CREATE TYPE GROUP_TYPE AS ENUM('archive', 'drawer', 'ready-to-start', 'active', 'paused', 'dropped');
+CREATE TYPE TASK_GROUP_TYPE AS ENUM('archive', 'drawer', 'ready-to-start', 'active', 'paused', 'dropped');
 
 CREATE TABLE "TASK_GROUP" (
     "task_group_id"     UUID UNIQUE DEFAULT gen_random_UUID(),
     "document_id"       UUID NOT NULL REFERENCES "DOCUMENT" ("document_id"),
-    "task_group_type"   GROUP_TYPE NOT NULL,
+    "task_group_type"   TASK_GROUP_TYPE NOT NULL,
     "created_at"        DATE DEFAULT CURRENT_DATE
 );
 
@@ -89,3 +89,19 @@ CREATE TABLE "TASK" (
 -- INSERT INTO "TASK"("document_id", "content", "task_status") VALUES ('7baf5a59-b6fd-554b-9b4f-d694dc6f6d36', 'gitlab-runner firewall rules: close public internet', 'initial');
 -- INSERT INTO "TASK"("document_id", "content", "task_status") VALUES ('7baf5a59-b6fd-554b-9b4f-d694dc6f6d36', 'static-challange for ovpn-auth', 'initial');
 -- INSERT INTO "TASK"("document_id", "content", "task_status") VALUES ('7baf5a59-b6fd-554b-9b4f-d694dc6f6d36', 'Golden image for vpn server', 'initial');
+
+-- DROP FUNCTION IF EXISTS create_document_with_task_groups;
+CREATE FUNCTION create_document_with_task_groups() RETURNS "DOCUMENT" AS $$
+    DECLARE
+        document "DOCUMENT"%ROWTYPE;
+    BEGIN
+        INSERT INTO "DOCUMENT" DEFAULT VALUES RETURNING * INTO document;
+        INSERT INTO "TASK_GROUP"("document_id", "task_group_type") VALUES(document.document_id, 'archive');
+        INSERT INTO "TASK_GROUP"("document_id", "task_group_type") VALUES(document.document_id, 'drawer');
+        INSERT INTO "TASK_GROUP"("document_id", "task_group_type") VALUES(document.document_id, 'ready-to-start');
+        INSERT INTO "TASK_GROUP"("document_id", "task_group_type") VALUES(document.document_id, 'active');
+        INSERT INTO "TASK_GROUP"("document_id", "task_group_type") VALUES(document.document_id, 'paused');
+        INSERT INTO "TASK_GROUP"("document_id", "task_group_type") VALUES(document.document_id, 'dropped');
+        RETURN document;
+    END
+$$ LANGUAGE 'plpgsql';

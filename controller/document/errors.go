@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 
+	"logbook/main/database"
+
 	"github.com/google/uuid"
 )
 
@@ -13,7 +15,7 @@ type ControllerError struct {
 	helpMessage    string
 }
 
-// var errorMapFromDatabaseToController map[error]ControllerError
+var errorMapFromDatabaseToController map[error]ControllerError
 
 var ErrNotSpecified ControllerError
 
@@ -78,49 +80,44 @@ func initErrors() {
 		helpMessage:    "A name for new document should be specified.",
 	}
 
-	// 	errorMapFromDatabaseToController = map[error]ControllerError{
-	// 		database.ErrNotSpecified:       ErrNotSpecified,
-	// 		database.ErrNoResult:           ErrNoResult,
-	// 		database.ErrInvalidInput:       ErrInvalidInput,
-	// 		database.ErrEmptyUserId:        ErrEmptyUserId,
-	// 		database.ErrInvalidUserId:      ErrInvalidUserId,
-	// 		database.ErrEmptyDocumentId:    ErrEmptyDocumentId,
-	// 		database.ErrInvalidDocumentId:  ErrInvalidDocumentId,
-	// 		database.ErrEmptyTaskGroupId:   ErrEmptyTaskGroupId,
-	// 		database.ErrInvalidTaskGroupId: ErrInvalidTaskGroupId,
-	// 	}
+	errorMapFromDatabaseToController = map[error]ControllerError{
+		database.ErrNotSpecified:       ErrNotSpecified,
+		database.ErrNoResult:           ErrNoResult,
+		database.ErrInvalidInput:       ErrInvalidInput,
+		database.ErrEmptyDocumentId:    ErrEmptyDocumentId,
+		database.ErrInvalidDocumentId:  ErrInvalidDocumentId,
+		database.ErrEmptyTaskGroupId:   ErrEmptyTaskGroupId,
+		database.ErrInvalidTaskGroupId: ErrInvalidTaskGroupId,
+	}
 }
 
-// func exportError(err error) ControllerError {
-// 	return errorMapFromDatabaseToController[err]
-// }
+func exportError(err error) ControllerError {
+	return errorMapFromDatabaseToController[err]
+}
 
-func writeResponse(eventId string, err ControllerError, requestParameters map[string]string, w http.ResponseWriter) {
-	w.WriteHeader(err.httpStatusCode)
-	json.NewEncoder(w).Encode(struct {
-		EventId           string            `json:"event_id"`
-		Status            bool              `json:"status"`
-		Hint              string            `json:"hint"`
-		RequestParameters map[string]string `json:"request_parameters"`
-	}{
-		EventId:           eventId,
-		Status:            false,
-		Hint:              err.helpMessage,
-		RequestParameters: requestParameters,
+func writeResponse(errorId string, err error, w http.ResponseWriter) {
+	exportedError := exportError(err)
+	json.NewEncoder(w).Encode(ResponseFields{
+		Status:    exportedError.httpStatusCode,
+		ErrorHint: exportedError.helpMessage,
+		ErrorId:   errorId,
 	})
+	w.WriteHeader(exportedError.httpStatusCode)
 }
 
-func writeLog(eventId string, controllerError ControllerError, originalError error, requestParameters map[string]string, w http.ResponseWriter) {
-	byte_str, err := json.Marshal(struct {
-		EventId           string            `yaml:"event_id"`
-		ControllerError   ControllerError   `yaml:"controller_error"`
-		OriginalError     error             `yaml:"original_error"`
-		RequestParameters map[string]string `yaml:"request_parameters"`
-	}{
-		EventId:           eventId,
-		ControllerError:   controllerError,
-		OriginalError:     originalError,
-		RequestParameters: requestParameters,
+func writeLog(
+	errorId string,
+	err error,
+	endpoint string,
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	exportedError := exportError(err)
+	byte_str, err := json.Marshal(LogFields{
+		ErrorId:  errorId,
+		Status:   exportedError.httpStatusCode,
+		Endpoint: endpoint,
+		Request:  r.Header,
 	})
 	if err != nil {
 		log.Println("[WARNING] writeLog function can not print logs because of yaml.Marshall gives error.")
@@ -128,13 +125,8 @@ func writeLog(eventId string, controllerError ControllerError, originalError err
 	log.Println(string(byte_str))
 }
 
-func errorHandler(
-	controllerError ControllerError,
-	originalError error,
-	requestParameters map[string]string,
-	w http.ResponseWriter,
-) {
-	eventId := uuid.New().String()
-	writeResponse(eventId, controllerError, requestParameters, w)
-	writeLog(eventId, controllerError, originalError, requestParameters, w)
+func errorHandler(w http.ResponseWriter, r *http.Request, endpoint string, err error) {
+	errorId := uuid.New().String()
+	writeResponse(errorId, err, w)
+	writeLog(errorId, err, endpoint, w, r)
 }
