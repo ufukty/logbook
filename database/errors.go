@@ -29,18 +29,6 @@ func initErrors() {
 	ErrInvalidInput = errors.New("database didn't like the format of input")
 }
 
-func checkUserId(userId string) error {
-	// check existance
-	if userId == "" {
-		return ErrEmptyUserId
-	}
-	// check validity
-	if _, err := GetUserByUserId(userId); err != nil {
-		return err
-	}
-	return nil
-}
-
 func checkDocumentId(documentId string) error {
 	// check existance
 	if documentId == "" {
