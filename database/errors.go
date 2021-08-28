@@ -8,10 +8,6 @@ var ErrNoResult error
 
 var ErrInvalidInput error
 
-var ErrEmptyUserId error
-
-var ErrInvalidUserId error
-
 var ErrEmptyDocumentId error
 
 var ErrInvalidDocumentId error
@@ -25,7 +21,6 @@ var ErrInvalidTaskGroupId error
 func initErrors() {
 	ErrNotSpecified = errors.New("there is an unexpected error")
 	ErrNoResult = errors.New("no matching record find with those parameters")
-	ErrEmptyUserId = errors.New("user Id required to perform this operation, but none provided")
 	ErrInvalidInput = errors.New("database didn't like the format of input")
 }
 
