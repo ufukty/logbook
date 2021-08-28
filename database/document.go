@@ -58,31 +58,3 @@ func GetDocumentByDocumentId(documentId string) (Document, error) {
 	}
 	return document, nil
 }
-
-func GetDocumentsByUserId(userId string) ([]Document, error) {
-	documents := []Document{}
-	query := `
-		SELECT 
-			"document_id",
-			"created_at"
-		FROM 
-			"DOCUMENT"
-		WHERE
-			"user_id"=$1`
-	rows, err := pool.Query(
-		context.Background(),
-		query,
-		userId,
-	)
-	if err != nil {
-		return documents, err
-	}
-	for rows.Next() {
-		document := Document{}
-		err = rows.Scan(
-			&document.DocumentId,
-			&document.CreatedAt,
-		)
-	}
-	return documents, err
-}
