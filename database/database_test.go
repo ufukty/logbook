@@ -9,25 +9,13 @@ func TestDatabaseForGetAndCreateFunctions(t *testing.T) {
 	defer Close()
 
 	var (
-		test_user         User
 		test_document     Document
 		test_drawer_group TaskGroup
 		test_task         Task
 		err               error
 	)
 
-	test_user, err = CreateUser(User{
-		Email:    "steven@logbook",
-		Password: "12345678",
-	})
-	if err != nil {
-		t.Fatalf("Failed on create 'user' object.\nError details: %s", err)
-	}
-
-	test_document, err = CreateDocument(Document{
-		DisplayName: "School stuff",
-		UserId:      test_user.UserID,
-	})
+	test_document, err = CreateDocument(Document{})
 	if err != nil {
 		t.Fatalf("Failed on create 'document' object.\nError details: %s", err)
 	}
@@ -74,13 +62,5 @@ func TestDatabaseForGetAndCreateFunctions(t *testing.T) {
 	}
 	if verify_document.CreatedAt != test_document.CreatedAt {
 		t.Fatalf("Failed on comparing result of getDocumentByDocumentId(test_document.DocumentId)")
-	}
-
-	verify_user, err := GetUserByUserId(test_user.UserID)
-	if err != nil {
-		t.Fatalf("Failed on getUserByUserId(test_user.UserID)\nError details: %s", err)
-	}
-	if verify_user.CreatedAt != test_user.CreatedAt {
-		t.Fatalf("Failed on comparing result of getUserByUserId(test_user.UserID)")
 	}
 }
