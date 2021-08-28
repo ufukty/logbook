@@ -4,26 +4,16 @@ CREATE DATABASE testdatabase;
 
 \c testdatabase;
 
--- is varchar(128) correct type?
-CREATE TABLE "USER" (
-    "user_id"           UUID PRIMARY KEY DEFAULT gen_random_UUID(),
-    "email"             VARCHAR(256),
-    "password"          VARCHAR(128),
+CREATE TABLE "DOCUMENT" (
+    "document_id"       UUID UNIQUE DEFAULT gen_random_UUID(), 
     "created_at"        TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE "ACCESS"(
-    "user_id"           UUID REFERENCES "USER" ("user_id"),
+    "document_id"       UUID NOT NULL REFERENCES "DOCUMENT" ("document_id"),
     "created_at"        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "user-agent"        VARCHAR(256),
     "ip-address"        INET NOT NULL
-);
-
-CREATE TABLE "DOCUMENT" (
-    "document_id"       UUID UNIQUE DEFAULT gen_random_UUID(), 
-    "display_name"      VARCHAR(256) NOT NULL,
-    "user_id"           UUID REFERENCES "USER" ("user_id"),
-    "created_at"        TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TYPE GROUP_TYPE AS ENUM('archive', 'drawer', 'ready-to-start', 'active', 'paused', 'dropped');
@@ -39,12 +29,10 @@ CREATE TYPE TASK_STATUS AS ENUM('archive', 'drawer', 'ready-to-start', 'active',
 
 CREATE TABLE "TASK" (
     "task_id"           UUID UNIQUE DEFAULT gen_random_UUID(),
-    -- "document_id"       UUID NOT NULL REFERENCES "DOCUMENT" ("document_id"),
     "task_group_id"     UUID NOT NULL REFERENCES "TASK_GROUP" ("task_group_id"),
     "parent_id"         UUID DEFAULT '00000000-0000-0000-0000-000000000000',
     "content"           TEXT NOT NULL,
     "task_status"       TASK_STATUS NOT NULL,
-    -- "children_ids"   UUID[],         -- is it necessary?
     "degree"            INT NOT NULL DEFAULT 1,
     "depth"             INT NOT NULL DEFAULT 1,
     "created_at"        TIMESTAMP DEFAULT CURRENT_TIMESTAMP

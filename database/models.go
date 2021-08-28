@@ -28,7 +28,7 @@ type TaskGroup struct {
 	DocumentId    string     `json:"document_id"`
 	TaskGroupId   string     `json:"task_group_id"`
 	TaskGroupType TaskStatus `json:"task_group_type"`
-	Tasks         []Task     `json:"tasks"` // TODO: aggregate option will need those
+	Tasks         []Task     `json:"tasks"`
 	TotalTasks    int        `json:"total_tasks"`
 }
 
@@ -36,20 +36,11 @@ type Document struct {
 	TaskGroups      []TaskGroup `json:"task_groups"`
 	TotalTaskGroups int         `json:"total_task_groups"`
 	CreatedAt       time.Time   `json:"created_at"`
-	DisplayName     string      `json:"display_name"`
 	DocumentId      string      `json:"document_id"`
-	UserId          string      `json:"user_id"`
 }
 
 type DocumentReference struct { // FIXME: REMOVE
 	DocumentID  string    `json:"document_id"`
 	DisplayName string    `json:"display_name"`
 	CreatedAt   time.Time `json:"created_at"`
-}
-
-type User struct {
-	UserID    string    `json:"user_id"`
-	Email     string    `json:"email"`
-	Password  string    `json:"password"`
-	CreatedAt time.Time `json:"created_at"`
 }

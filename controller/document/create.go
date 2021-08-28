@@ -6,20 +6,13 @@ import (
 	"log"
 	"logbook/main/database"
 	"net/http"
-
-	"github.com/google/uuid"
 )
 
 func Create(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 
-	// Get userId from authorization/session information
-	userId := "d0d026b8-487d-45df-b4b6-08f54ab09615"
-
 	requestParameters := map[string]string{
-		"user-agent":          (*r).Header.Get("User-Agent"),
-		"ip-address":          (*r).RemoteAddr,
-		"input-document-name": r.Form.Get("display_name"),
+		"ip-address": (*r).RemoteAddr,
 	}
 
 	desiredDocumentName := r.Form.Get("display_name")
@@ -41,11 +34,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// create document table record
-	document, err = database.CreateDocument(
-		database.Document{
-			DisplayName: desiredDocumentName,
-			UserId:      userId,
-		})
+	document, err = database.CreateDocument(database.Document{})
 
 	if err != nil {
 		switch err { // FIXME:
@@ -72,10 +61,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(document)
 	internalSuccessMessage := fmt.Sprintf(
 		"[OK] Document/Create\n"+
-			"^ User ID                 : %s\n"+
-			// "^ Requested Document Name : %s\n"+
-			"^ Created Document ID     : %s\n"+
 			"^ IP Address              : %s\n"+
-			"^ User Agent              : %s", userId, desiredDocumentName, ipAddress, userAgent)
+			"^ User Agent              : %s", ipAddress, userAgent)
 	log.Println(internalSuccessMessage)
 }
