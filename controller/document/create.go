@@ -9,13 +9,6 @@ import (
 )
 
 func Create(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-
-	requestParameters := map[string]string{
-		"ip-address": (*r).RemoteAddr,
-	}
-
-	desiredDocumentName := r.Form.Get("display_name")
 	ipAddress := (*r).RemoteAddr
 	userAgent := (*r).Header.Get("User-Agent")
 
@@ -24,36 +17,28 @@ func Create(w http.ResponseWriter, r *http.Request) {
 		task_group database.TaskGroup
 		err        error
 	)
-	// data, _ := json.Marshal(r.Body)
-	// fmt.Println(string(data))
 
-	// Get display_name from request body
-	if desiredDocumentName == "" {
-		errorHandler(ErrEmptyDocumentName, nil, requestParameters, w)
-		return
-	}
+	data, _ := json.Marshal(r.Header)
+	fmt.Println(string(data))
 
 	// create document table record
 	document, err = database.CreateDocument(database.Document{})
-
 	if err != nil {
-		switch err { // FIXME:
-		case database.ErrNoResult:
-			log.Println("eagleeee", err)
-		default:
-			log.Println("agileeee", err)
-		}
+		errorHandler(err, r, w)
 	}
 
 	for _, groupType := range []database.TaskStatus{
 		database.Active, database.Archive, database.Drawer,
 		database.Paused, database.ReadyToStart,
 	} {
-		task_group, _ = database.CreateTaskGroup(
+		task_group, err = database.CreateTaskGroup(
 			database.TaskGroup{
 				DocumentId:    document.DocumentId,
 				TaskGroupType: database.TaskStatus(groupType),
 			})
+		if err != nil {
+			errorHandler(err, r, w)
+		}
 		document.TaskGroups = append(document.TaskGroups, task_group)
 		document.TotalTaskGroups += 1
 	}
