@@ -23,10 +23,6 @@ var ErrNoResult ControllerError
 
 var ErrInvalidInput ControllerError
 
-var ErrEmptyUserId ControllerError
-
-var ErrInvalidUserId ControllerError
-
 var ErrEmptyDocumentId ControllerError
 
 var ErrInvalidDocumentId ControllerError
@@ -50,14 +46,6 @@ func initErrors() {
 	ErrInvalidInput = ControllerError{
 		httpStatusCode: http.StatusBadRequest,
 		helpMessage:    "One or more paratemeters are invalid.",
-	}
-	ErrEmptyUserId = ControllerError{
-		httpStatusCode: 404,
-		helpMessage:    "",
-	}
-	ErrInvalidUserId = ControllerError{
-		httpStatusCode: 404,
-		helpMessage:    "",
 	}
 	ErrEmptyDocumentId = ControllerError{
 		httpStatusCode: 404,
