@@ -16,6 +16,8 @@ var ErrEmptyTaskGroupId error
 
 var ErrInvalidTaskGroupId error
 
+var ErrStrToTaskStatusNoMatchingRecord = errors.New("")
+
 // FIXME: Wrap the PSQL error with Err class
 
 func initErrors() {

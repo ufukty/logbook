@@ -50,7 +50,7 @@ paths:
             "application/json":
               schema:
                 type: object
-                items: { type }
+                items: { type: array, items: { $ref: "#/components/schemas/Document" } }
 
   "/document/{document_id}":
     get:

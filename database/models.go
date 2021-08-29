@@ -1,6 +1,8 @@
 package database
 
-import "time"
+import (
+	"time"
+)
 
 type TaskStatus string
 
@@ -11,6 +13,22 @@ const (
 	ReadyToStart TaskStatus = "ready-to-start"
 	Drawer       TaskStatus = "drawer"
 )
+
+func StringToTaskStatus(str string) (TaskStatus, error) {
+	switch str {
+	case "archive":
+		return Archive, nil
+	case "active":
+		return Active, nil
+	case "paused":
+		return Paused, nil
+	case "ready-to-start":
+		return ReadyToStart, nil
+	case "drawer":
+		return Drawer, nil
+	}
+	return "", ErrStrToTaskStatusNoMatchingRecord
+}
 
 type Task struct {
 	Content     string     `json:"content"`
