@@ -21,9 +21,9 @@ var ErrStrToTaskStatusNoMatchingRecord = errors.New("")
 // FIXME: Wrap the PSQL error with Err class
 
 func initErrors() {
-	ErrNotSpecified = errors.New("there is an unexpected error")
-	ErrNoResult = errors.New("no matching record find with those parameters")
-	ErrInvalidInput = errors.New("database didn't like the format of input")
+	ErrNotSpecified = errors.New("ErrNotSpecified")
+	ErrNoResult = errors.New("ErrNoResult")
+	ErrInvalidInput = errors.New("ErrInvalidInput")
 }
 
 func checkDocumentId(documentId string) error {

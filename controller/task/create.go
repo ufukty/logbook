@@ -7,7 +7,7 @@ import (
 	"strconv"
 )
 
-func sanitizeUserInput(w http.ResponseWriter, r *http.Request) db.Task {
+func sanitizeUserInput(w http.ResponseWriter, r *http.Request) (db.Task, error) {
 
 	var (
 		err error
@@ -16,6 +16,7 @@ func sanitizeUserInput(w http.ResponseWriter, r *http.Request) db.Task {
 	err = r.ParseForm()
 	if err != nil {
 		c.ErrorHandler(w, r, c.ControllerError{Wrapper: c.ErrSterilizeUserInputParseForm, Underlying: err})
+		return db.Task{}, err
 	}
 
 	var (
@@ -33,16 +34,19 @@ func sanitizeUserInput(w http.ResponseWriter, r *http.Request) db.Task {
 	degree_int, err = strconv.Atoi(degree)
 	if err != nil {
 		c.ErrorHandler(w, r, c.ControllerError{Wrapper: c.ErrSterilizeUserInputDegreeInt, Underlying: err})
+		return db.Task{}, err
 	}
 
 	depth_int, err = strconv.Atoi(depth)
 	if err != nil {
 		c.ErrorHandler(w, r, c.ControllerError{Wrapper: c.ErrSterilizeUserInputDepthInt, Underlying: err})
+		return db.Task{}, err
 	}
 
 	taskStatus_ts, err = db.StringToTaskStatus(taskStatus)
 	if err != nil {
 		c.ErrorHandler(w, r, c.ControllerError{Wrapper: c.ErrSterilizeUserInputTaskStatus, Underlying: err})
+		return db.Task{}, err
 	}
 
 	task := db.Task{
@@ -53,28 +57,36 @@ func sanitizeUserInput(w http.ResponseWriter, r *http.Request) db.Task {
 		TaskGroupId: taskGroupId,
 		TaskStatus:  taskStatus_ts,
 	}
-	return task
+	return task, nil
+}
+
 }
 
 func Create(w http.ResponseWriter, r *http.Request) {
 
-	task := sanitizeUserInput(w, r)
+	var (
+		task       db.Task
+		parentTask db.Task
+		err        error
+	)
 
-	if task.ParentId != "00000000-0000-0000-0000-000000000000" {
-		_, err := db.GetTaskByTaskId(task.ParentId)
-		if err != nil {
-			c.ErrorHandler(w, r, c.ControllerError{Wrapper: c.ErrTaskGroupIdCheck, Underlying: err})
-		}
+	task, err = sanitizeUserInput(w, r)
+	if err != nil {
+		return // sanitizeUserInput should already done logging and writing response
 	}
 
-	_, err := db.GetTaskGroupByTaskGroupId(task.TaskGroupId)
+	// Check if task group exists
+	_, err = db.GetTaskGroupByTaskGroupId(task.TaskGroupId)
 	if err != nil {
 		c.ErrorHandler(w, r, c.ControllerError{Wrapper: c.ErrTaskGroupIdCheck, Underlying: err})
+		return
 	}
 
+	// Call the db and make it official
 	task, err = db.CreateTask(task)
 	if err != nil {
 		c.ErrorHandler(w, r, c.ControllerError{Wrapper: c.ErrCreateTaskCall, Underlying: err})
+		return
 	}
 
 	c.SuccessHandler(w, r, task)
