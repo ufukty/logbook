@@ -33,7 +33,7 @@ var (
 	ErrUpdateTaskItem                   = errors.New("UpdateTaskItem faced with an error")
 )
 
-func checkDocumentId(documentId string) []error {
+func CheckDocumentId(documentId string) []error {
 	// check existance
 	if documentId == "" {
 		return []error{ErrEmptyDocumentId}
@@ -45,7 +45,7 @@ func checkDocumentId(documentId string) []error {
 	return nil
 }
 
-func checkTaskGroupId(taskGroupId string) []error {
+func CheckTaskGroupId(taskGroupId string) []error {
 	// check existance
 	if taskGroupId == "" {
 		return []error{ErrEmptyTaskGroupId}
@@ -57,6 +57,6 @@ func checkTaskGroupId(taskGroupId string) []error {
 	return nil
 }
 
-func checkTaskId(taskId string) []error { // TODO:
+func CheckTaskId(taskId string) []error { // TODO:
 	return nil
 }
