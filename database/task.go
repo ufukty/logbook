@@ -103,3 +103,92 @@ func GetTasksByTaskGroupId(taskGroupId string) ([]Task, error) {
 	}
 	return tasks, nil
 }
+
+func GetTaskByParentId(parentId string) ([]Task, error) {
+	tasks := []Task{}
+	query := `
+		SELECT 
+			"content", 
+			"created_at", 
+			"degree", 
+			"depth", 
+			"parent_id", 
+			"task_group_id",
+			"task_id", 
+			"task_status" 
+		FROM 
+			"TASK" 
+		WHERE 
+			"parent_id"=$1`
+	rows, err := pool.Query(
+		context.Background(),
+		query,
+		parentId,
+	)
+	if err != nil {
+		return tasks, exportError(err)
+	}
+	for rows.Next() {
+		task := Task{}
+		err = rows.Scan(
+			&task.Content,
+			&task.CreatedAt,
+			&task.Degree,
+			&task.Depth,
+			&task.ParentId,
+			&task.TaskGroupId,
+			&task.TaskId,
+			&task.TaskStatus,
+		)
+		if err != nil {
+			continue
+		}
+		tasks = append(tasks, task)
+	}
+	return tasks, nil
+}
+
+func UpdateTaskItem(task Task) (Task, error) {
+	query := `
+		UPDATE 
+			"TASK" 
+		SET 
+			"content"=$2,
+			"created_at"=$3,
+			"degree"=$4,
+			"depth"=$5,
+			"parent_id"=$6,
+			"task_group_id"=$7,
+			"task_status"=$8
+		WHERE 
+			"task_id"=$1
+		RETURNING
+			"content",
+			"created_at",
+			"degree",
+			"depth",
+			"parent_id",
+			"task_group_id",
+			"task_status"`
+	err := pool.QueryRow(
+		context.Background(),
+		query,
+		task.TaskId,
+		task.Content,
+		task.CreatedAt,
+		task.Degree,
+		task.Depth,
+		task.ParentId,
+		task.TaskGroupId,
+		task.TaskStatus,
+	).Scan(
+		&task.Content,
+		&task.CreatedAt,
+		&task.Degree,
+		&task.Depth,
+		&task.ParentId,
+		&task.TaskGroupId,
+		&task.TaskStatus,
+	)
+	return task, err
+}

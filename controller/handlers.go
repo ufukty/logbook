@@ -18,6 +18,10 @@ var (
 	ErrSterilizeUserInputDepthInt   = errors.New("ErrSterilizeUserInputDepthInt")
 	ErrSterilizeUserInputTaskStatus = errors.New("ErrSterilizeUserInputTaskStatus")
 	ErrSterilizeUserInputParseForm  = errors.New("ErrSterilizeUserInputParseForm")
+	ErrParentCheck                  = errors.New("ErrParentCheck")
+	ErrCreateTaskUpdateParent       = errors.New("ErrCreateTaskUpdateParent")
+	ErrMaximumDepthReached          = errors.New("ErrMaximumDepthReached")
+	ErrNextTaskCheck                = errors.New("ErrNextTaskCheck")
 )
 
 var httpErrorMapping = map[error]int{
@@ -27,15 +31,23 @@ var httpErrorMapping = map[error]int{
 	ErrSterilizeUserInputDepthInt:   http.StatusNotAcceptable,
 	ErrSterilizeUserInputTaskStatus: http.StatusNotAcceptable,
 	ErrSterilizeUserInputParseForm:  http.StatusNotAcceptable,
+	ErrParentCheck:                  http.StatusNotAcceptable,
+	ErrCreateTaskUpdateParent:       http.StatusNotAcceptable,
+	ErrMaximumDepthReached:          http.StatusNotAcceptable,
+	ErrNextTaskCheck:                http.StatusNotAcceptable,
 }
 
 var httpHintMapping = map[error]string{
-	ErrTaskGroupIdCheck:             "Task Group Id is invalid. Check it again.",
+	ErrTaskGroupIdCheck:             "task-group-id is invalid. Check it again.",
 	ErrCreateTaskCall:               "There was an error when attempted to create a task.",
-	ErrSterilizeUserInputDegreeInt:  "Check your inputs or try again later.",
-	ErrSterilizeUserInputDepthInt:   "Check your inputs or try again later.",
-	ErrSterilizeUserInputTaskStatus: "Check your inputs or try again later.",
-	ErrSterilizeUserInputParseForm:  "Check your inputs or try again later.",
+	ErrSterilizeUserInputDegreeInt:  "'Degree' is invalid. Check your inputs or try again later.",
+	ErrSterilizeUserInputDepthInt:   "'depth' is invalid. Check your inputs or try again later.",
+	ErrSterilizeUserInputTaskStatus: "'task-status' is invalid. Check your inputs or try again later.",
+	ErrSterilizeUserInputParseForm:  "HTTP 'form' oject is invalid. Check your inputs or try again later.",
+	ErrParentCheck:                  "No such task as in parent-id.",
+	ErrCreateTaskUpdateParent:       "Relation with parent task may not updated properly.",
+	ErrMaximumDepthReached:          "Maximum depth is reached.",
+	ErrNextTaskCheck:                "Document could not processed.",
 }
 
 // Used for both error and success messages
@@ -123,7 +135,7 @@ func ErrorHandler(
 	if ok && details != nil {
 		InternalErrorHandler(w, r, errorId, controllerError, details.Name())
 	}
-	panic("ErrorHandler called panic.")
+	// panic("ErrorHandler called panic.")
 }
 
 func ResponseHandler(

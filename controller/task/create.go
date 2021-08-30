@@ -7,6 +7,8 @@ import (
 	"strconv"
 )
 
+const MaximumDepth = 50
+
 func sanitizeUserInput(w http.ResponseWriter, r *http.Request) (db.Task, error) {
 
 	var (
@@ -60,6 +62,47 @@ func sanitizeUserInput(w http.ResponseWriter, r *http.Request) (db.Task, error) 
 	return task, nil
 }
 
+func updateParentTask(w *http.ResponseWriter, r **http.Request, task *db.Task) error {
+
+	var (
+		parentTask db.Task
+		err        error
+	)
+
+	if task.ParentId == "00000000-0000-0000-0000-000000000000" {
+		return nil
+	}
+
+	parentTask, err = db.GetTaskByTaskId(task.ParentId)
+	if err != nil {
+		c.ErrorHandler(*w, *r, c.ControllerError{Wrapper: c.ErrParentCheck, Underlying: err})
+		return err
+	}
+
+	// Increment the degree of parent,
+	nextTasks, err := db.GetTaskByParentId(task.ParentId)
+	if err != nil {
+		c.ErrorHandler(*w, *r, c.ControllerError{Wrapper: c.ErrNextTaskCheck, Underlying: err})
+		return err
+	}
+	totalDegree := 1
+	for _, nextTask := range nextTasks {
+		totalDegree += nextTask.Degree
+	}
+	parentTask.Degree = totalDegree
+
+	// Call the db to update parent task to save changes
+	_, err = db.UpdateTaskItem(parentTask)
+	if err != nil {
+		c.ErrorHandler(*w, *r, c.ControllerError{Wrapper: c.ErrCreateTaskUpdateParent, Underlying: err})
+		return err
+	}
+
+	if parentTask.Depth >= MaximumDepth {
+		return c.ErrMaximumDepthReached
+	} else {
+		return updateParentTask(w, r, &parentTask)
+	}
 }
 
 func Create(w http.ResponseWriter, r *http.Request) {
@@ -87,6 +130,28 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		c.ErrorHandler(w, r, c.ControllerError{Wrapper: c.ErrCreateTaskCall, Underlying: err})
 		return
+	}
+
+	if task.ParentId != "00000000-0000-0000-0000-000000000000" {
+		parentTask, err = db.GetTaskByTaskId(task.ParentId)
+		if err != nil {
+			c.ErrorHandler(w, r, c.ControllerError{Wrapper: c.ErrParentCheck, Underlying: err})
+			return
+		}
+
+		// Change status of parent to "drawer"
+		if parentTask.TaskStatus == db.Active {
+			parentTask.TaskStatus = db.Drawer
+		}
+
+		// Set the depth of child (current) task
+		task.Depth = parentTask.Depth + 1
+
+		// Check if the task is root or not,
+		err = updateParentTask(&w, &r, &parentTask)
+		if err != nil {
+			return // updateParentTask should already done logging and writing response
+		}
 	}
 
 	c.SuccessHandler(w, r, task)
