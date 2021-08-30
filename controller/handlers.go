@@ -11,6 +11,23 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// Errors from [POST]/document
+var (
+	ErrCreateDocumentCreateCreationPhase = errors.New("CreateDocument faced with an error when tried to create document with task groups")
+	ErrCreateDocumentSelectionPhase      = errors.New("CreateDocument faced with an error when tried to access created task groups")
+)
+
+var errorResponseCodes = map[error]int{
+	ErrCreateDocumentCreateCreationPhase: http.StatusNoContent,
+	ErrCreateDocumentSelectionPhase:      http.StatusNoContent,
+}
+
+var errorHints = map[error]string{
+	ErrCreateDocumentCreateCreationPhase: "Try again later.",
+	ErrCreateDocumentSelectionPhase:      "Try again later.",
+}
+
+// Errors from [POST]/task
 var (
 	ErrTaskGroupIdCheck             = errors.New("ErrTaskGroupIdCheck")
 	ErrCreateTaskCall               = errors.New("ErrCreateTaskCall")
@@ -59,49 +76,39 @@ type ControllerResponseFields struct {
 	Resource   interface{} `json:"resource" yaml:"resource"`
 }
 
-// Only used by ErrorHandler to hold error information
-type ControllerError struct {
-	Wrapper    error `json:"wrapper" yaml:"wrapper"`
-	Underlying error `json:"underlying" yaml:"underlying"`
-}
-
-// Only used by ErrorHandler to hold error information
-type ControllerErrorStrings struct {
-	Wrapper    string `json:"wrapper" yaml:"wrapper"`
-	Underlying string `json:"underlying" yaml:"underlying"`
-}
-
 // Used for both error and success messages
 // But only for writing internal logs
 type ControllerLoggingFields struct {
-	Status        int                    `json:"status" yaml:"status"`
-	IncidentId    string                 `json:"incident_id" yaml:"incident_id"`
-	Error         ControllerErrorStrings `json:"controller_error" yaml:"controller_error"`
-	RequestHeader interface{}            `json:"request_header" yaml:"request_header"`
-	RequestForm   interface{}            `json:"request_form" yaml:"request_form"`
-	Endpoint      string                 `json:"endpoint" yaml:"endpoint"`
+	Status        int         `json:"status" yaml:"status"`
+	IncidentId    string      `json:"incident_id" yaml:"incident_id"`
+	ErrorStack    []string    `json:"error_stack" yaml:"error_stack"`
+	RequestHeader interface{} `json:"request_header" yaml:"request_header"`
+	RequestForm   interface{} `json:"request_form" yaml:"request_form"`
+	Endpoint      string      `json:"endpoint" yaml:"endpoint"`
 }
 
-func serializeControllerError(ce ControllerError) ControllerErrorStrings {
-	return ControllerErrorStrings{
-		Wrapper:    ce.Wrapper.Error(),
-		Underlying: ce.Underlying.Error(),
+func serializeControllerError(errs []error) []string {
+	errs_str := []string{}
+	for _, err := range errs {
+		errs_str = append(errs_str, err.Error())
 	}
+	return errs_str
 }
 
 func InternalErrorHandler(
-	w http.ResponseWriter,
 	r *http.Request,
 	incidentId string,
-	controllerError ControllerError,
+	errs []error,
 	endpoint string,
+	responseCode int,
+	errorHint string,
 ) {
 	byte_str, err := yaml.Marshal(ControllerLoggingFields{
 		IncidentId:    incidentId,
-		Error:         serializeControllerError(controllerError),
+		ErrorStack:    serializeControllerError(errs),
 		RequestHeader: r.Header,
 		RequestForm:   r.PostForm,
-		Status:        httpErrorMapping[controllerError.Wrapper],
+		Status:        responseCode,
 		Endpoint:      endpoint,
 	})
 	if err != nil {
@@ -113,12 +120,14 @@ func InternalErrorHandler(
 func PublicFacingErrorHandler(
 	w http.ResponseWriter,
 	incidentId string,
-	controllerError ControllerError,
+	errs []error,
+	responseCode int,
+	errorHint string,
 ) {
-	w.WriteHeader(httpErrorMapping[controllerError.Wrapper])
+	w.WriteHeader(responseCode)
 	json.NewEncoder(w).Encode(ControllerResponseFields{
-		Status:     httpErrorMapping[controllerError.Wrapper],
-		ErrorHint:  httpHintMapping[controllerError.Wrapper],
+		Status:     responseCode,
+		ErrorHint:  errorHint,
 		IncidentId: incidentId,
 	})
 }
@@ -126,16 +135,36 @@ func PublicFacingErrorHandler(
 func ErrorHandler(
 	w http.ResponseWriter,
 	r *http.Request,
-	controllerError ControllerError,
+	errs []error,
 ) {
 	errorId := uuid.New().String()
-	PublicFacingErrorHandler(w, errorId, controllerError)
+
+	var responseCode int
+	if code, ok := errorResponseCodes[errs[len(errs)-1]]; ok {
+		responseCode = code
+	} else {
+		responseCode = http.StatusInternalServerError
+	}
+
+	var errorHint string
+	if code, ok := errorHints[errs[len(errs)-1]]; ok {
+		errorHint = code
+	} else {
+		errorHint = "Unexpected error. Try again later."
+	}
+
+	PublicFacingErrorHandler(w, errorId, errs, responseCode, errorHint)
+
+	var endpoint string
 	pc, _, _, ok := runtime.Caller(1)
 	details := runtime.FuncForPC(pc)
 	if ok && details != nil {
-		InternalErrorHandler(w, r, errorId, controllerError, details.Name())
+		endpoint = details.Name()
+	} else {
+		endpoint = "could not traced the endpoint"
 	}
-	// panic("ErrorHandler called panic.")
+
+	InternalErrorHandler(r, errorId, errs, endpoint, responseCode, errorHint)
 }
 
 func ResponseHandler(

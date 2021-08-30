@@ -19,7 +19,6 @@ func initDatabaseConnection(connection string) {
 
 func Init(connection string) {
 	initDatabaseConnection(connection)
-	initErrors()
 }
 
 func Close() {

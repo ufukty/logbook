@@ -12,7 +12,7 @@ func TestDatabaseForGetAndCreateFunctions(t *testing.T) {
 		test_document     Document
 		test_drawer_group TaskGroup
 		test_task         Task
-		err               error
+		err               []error
 	)
 
 	test_document, err = CreateDocument(Document{})
@@ -29,7 +29,7 @@ func TestDatabaseForGetAndCreateFunctions(t *testing.T) {
 	}
 
 	test_task, err = CreateTask(Task{
-		Content:     "One difficult task",
+		Content:     "One difficult task for testing go package.",
 		Degree:      1,
 		Depth:       1,
 		TaskGroupId: test_drawer_group.TaskGroupId,

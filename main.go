@@ -9,8 +9,7 @@ import (
 	"os/signal"
 	"time"
 
-	"logbook/main/controller/document"
-	"logbook/main/database"
+	db "logbook/main/database"
 
 	"github.com/gorilla/mux"
 )
@@ -33,10 +32,10 @@ func main() {
 	flag.Parse()
 
 	// Initialize database connection pool
-	database.Init("postgres://postgres:password@localhost:5432/testdatabase") // os.Getenv("DATABASE_URL")
-	defer database.Close()
+	db.Init("postgres://postgres:password@localhost:5432/testdatabase") // os.Getenv("DATABASE_URL")
+	defer db.Close()
 
-	document.Init()
+	// document.Init()
 
 	//
 	r := mux.NewRouter()

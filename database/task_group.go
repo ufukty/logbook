@@ -2,10 +2,7 @@ package database
 
 import "context"
 
-func CreateTaskGroup(taskGroup TaskGroup) (TaskGroup, error) {
-	if err := checkDocumentId(taskGroup.DocumentId); err != nil {
-		return taskGroup, err
-	}
+func CreateTaskGroup(taskGroup TaskGroup) (TaskGroup, []error) {
 	query := `
 		INSERT INTO "TASK_GROUP" (
 			"document_id",
@@ -27,10 +24,13 @@ func CreateTaskGroup(taskGroup TaskGroup) (TaskGroup, error) {
 		&taskGroup.TaskGroupId,
 		&taskGroup.CreatedAt,
 	)
-	return taskGroup, exportError(err)
+	if err != nil {
+		return taskGroup, []error{err, ErrCreateTaskGroup}
+	}
+	return taskGroup, nil
 }
 
-func GetTaskGroupByTaskGroupId(taskGroupId string) (TaskGroup, error) {
+func GetTaskGroupByTaskGroupId(taskGroupId string) (TaskGroup, []error) {
 	taskGroup := TaskGroup{}
 	query := `
 		SELECT 
@@ -54,10 +54,13 @@ func GetTaskGroupByTaskGroupId(taskGroupId string) (TaskGroup, error) {
 		&taskGroup.DocumentId,
 		&taskGroup.CreatedAt,
 	)
-	return taskGroup, exportError(err)
+	if err != nil {
+		return taskGroup, []error{err, ErrGetTaskGroupByTaskGroupId}
+	}
+	return taskGroup, nil
 }
 
-func GetTaskGroupsByDocumentId(documentId string) ([]TaskGroup, error) {
+func GetTaskGroupsByDocumentId(documentId string) ([]TaskGroup, []error) {
 	taskGroups := []TaskGroup{}
 	query := `
 		SELECT 
@@ -72,7 +75,7 @@ func GetTaskGroupsByDocumentId(documentId string) ([]TaskGroup, error) {
 			"document_id"=$1`
 	rows, err := pool.Query(context.Background(), query, documentId)
 	if err != nil {
-		return taskGroups, exportError(err)
+		return taskGroups, []error{err, ErrGetTaskGroupsByDocumentIdQuery}
 	}
 	for rows.Next() {
 		taskGroup := TaskGroup{}
@@ -87,6 +90,9 @@ func GetTaskGroupsByDocumentId(documentId string) ([]TaskGroup, error) {
 			continue
 		}
 		taskGroups = append(taskGroups, taskGroup)
+	}
+	if err != nil {
+		return taskGroups, []error{err, ErrGetTaskGroupsByDocumentIdRowScan}
 	}
 	return taskGroups, nil
 }

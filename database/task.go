@@ -4,10 +4,7 @@ import (
 	"context"
 )
 
-func CreateTask(task Task) (Task, error) {
-	if err := checkTaskGroupId(task.TaskGroupId); err != nil {
-		return task, err
-	}
+func CreateTask(task Task) (Task, []error) {
 	query := `
 		INSERT INTO "TASK" (
 			"task_group_id",
@@ -32,10 +29,14 @@ func CreateTask(task Task) (Task, error) {
 		&task.Degree,
 		&task.Depth,
 	).Scan(&task.TaskId, &task.CreatedAt)
-	return task, exportError(err)
+	if err != nil {
+		return task, []error{ErrCreateTask}
+	}
+	return task, nil
+
 }
 
-func GetTaskByTaskId(taskId string) (Task, error) {
+func GetTaskByTaskId(taskId string) (Task, []error) {
 	task := Task{}
 	query := `
 		SELECT 
@@ -61,10 +62,13 @@ func GetTaskByTaskId(taskId string) (Task, error) {
 		&task.TaskId,
 		&task.TaskStatus,
 	)
-	return task, exportError(err)
+	if err != nil {
+		return task, []error{err, ErrGetTaskByTaskId}
+	}
+	return task, nil
 }
 
-func GetTasksByTaskGroupId(taskGroupId string) ([]Task, error) {
+func GetTasksByTaskGroupId(taskGroupId string) ([]Task, []error) {
 	tasks := []Task{}
 	query := `
 		SELECT 
@@ -82,7 +86,7 @@ func GetTasksByTaskGroupId(taskGroupId string) ([]Task, error) {
 			"task_group_id"=$1`
 	rows, err := pool.Query(context.Background(), query, taskGroupId)
 	if err != nil {
-		return tasks, exportError(err)
+		return tasks, []error{err, ErrGetTasksByTaskGroupIdQuery}
 	}
 	for rows.Next() {
 		task := Task{}
@@ -101,10 +105,13 @@ func GetTasksByTaskGroupId(taskGroupId string) ([]Task, error) {
 		}
 		tasks = append(tasks, task)
 	}
+	if err != nil {
+		return tasks, []error{err, ErrGetTasksByTaskGroupIdScan}
+	}
 	return tasks, nil
 }
 
-func GetTaskByParentId(parentId string) ([]Task, error) {
+func GetTaskByParentId(parentId string) ([]Task, []error) {
 	tasks := []Task{}
 	query := `
 		SELECT 
@@ -126,7 +133,7 @@ func GetTaskByParentId(parentId string) ([]Task, error) {
 		parentId,
 	)
 	if err != nil {
-		return tasks, exportError(err)
+		return tasks, []error{err, ErrGetTaskByParentIdQuery}
 	}
 	for rows.Next() {
 		task := Task{}
@@ -145,10 +152,13 @@ func GetTaskByParentId(parentId string) ([]Task, error) {
 		}
 		tasks = append(tasks, task)
 	}
+	if err != nil {
+		return tasks, []error{err, ErrGetTaskByParentIdScan}
+	}
 	return tasks, nil
 }
 
-func UpdateTaskItem(task Task) (Task, error) {
+func UpdateTaskItem(task Task) (Task, []error) {
 	query := `
 		UPDATE 
 			"TASK" 
@@ -190,5 +200,8 @@ func UpdateTaskItem(task Task) (Task, error) {
 		&task.TaskGroupId,
 		&task.TaskStatus,
 	)
-	return task, err
+	if err != nil {
+		return task, []error{err, ErrUpdateTaskItem}
+	}
+	return task, nil
 }

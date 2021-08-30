@@ -4,9 +4,7 @@ import (
 	"context"
 )
 
-// Can throw those errors:
-//    - ErrNoResult
-func CreateDocument(document Document) (Document, error) {
+func CreateDocument(document Document) (Document, []error) {
 	query := `
 		INSERT INTO "DOCUMENT" 
 		DEFAULT VALUES
@@ -22,10 +20,13 @@ func CreateDocument(document Document) (Document, error) {
 		&document.CreatedAt,
 		&document.TotalTaskGroups,
 	)
-	return document, exportError(err)
+	if err != nil {
+		return document, []error{err, ErrCreateDocument}
+	}
+	return document, nil
 }
 
-func CreateDocumentWithTaskGroups(document Document) (Document, error) {
+func CreateDocumentWithTaskGroups(document Document) (Document, []error) {
 	query := `
 		SELECT 
 			"document_id", 
@@ -40,10 +41,13 @@ func CreateDocumentWithTaskGroups(document Document) (Document, error) {
 		&document.CreatedAt,
 		&document.TotalTaskGroups,
 	)
-	return document, exportError(err)
+	if err != nil {
+		return document, []error{err, ErrCreateDocumentWithTaskGroups}
+	}
+	return document, nil
 }
 
-func GetDocumentByDocumentId(documentId string) (Document, error) {
+func GetDocumentByDocumentId(documentId string) (Document, []error) {
 	document := Document{DocumentId: documentId}
 	query := `
 		SELECT 
@@ -62,7 +66,7 @@ func GetDocumentByDocumentId(documentId string) (Document, error) {
 		&document.TotalTaskGroups,
 	)
 	if err != nil {
-		return document, err
+		return document, []error{err, ErrGetDocumentByDocumentId}
 	}
 	return document, nil
 }
