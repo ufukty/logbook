@@ -2,6 +2,7 @@ package task
 
 import (
 	c "logbook/main/controller"
+	e "logbook/main/controller/utilities/errors"
 	db "logbook/main/database"
 	"net/http"
 	"strconv"
@@ -9,7 +10,7 @@ import (
 
 const MaximumDepth = 50
 
-func sanitizeUserInput(r *http.Request) (db.Task, []error) {
+func sanitizeUserInput(r *http.Request) (db.Task, *e.Error) {
 
 	var (
 		err  error
@@ -18,7 +19,7 @@ func sanitizeUserInput(r *http.Request) (db.Task, []error) {
 
 	err = r.ParseForm()
 	if err != nil {
-		return db.Task{}, []error{err, c.ErrSterilizeUserInputParseForm}
+		return db.Task{}, e.New()
 	}
 
 	var (
@@ -33,19 +34,40 @@ func sanitizeUserInput(r *http.Request) (db.Task, []error) {
 		taskStatus_ts db.TaskStatus
 	)
 
+	if content == "" {
+		return db.Task{}, e.New(`Check your input for "content"`, http.StatusBadRequest)
+	}
+
 	degree_int, err = strconv.Atoi(degree)
 	if err != nil {
-		return db.Task{}, []error{err, c.ErrSterilizeUserInputDegreeInt}
+		return db.Task{}, e.New(`Check your input for "degree"`, http.StatusBadRequest, []error{err})
+	} else if degree_int < 1 {
+		return db.Task{}, e.New(`Check your input for "degree", it should be bigger than 0`, http.StatusBadRequest)
 	}
 
 	depth_int, err = strconv.Atoi(depth)
 	if err != nil {
-		return db.Task{}, []error{err, c.ErrSterilizeUserInputDepthInt}
+		return db.Task{}, e.New(`Check your input for "depth"`, http.StatusBadRequest, []error{err})
+	} else if depth_int < 1 {
+		return db.Task{}, e.New(`Check your input for "depth", it should be bigger than 0`, http.StatusBadRequest)
 	}
 
 	taskStatus_ts, errs = db.StringToTaskStatus(taskStatus)
 	if errs != nil {
-		return db.Task{}, append(errs, c.ErrSterilizeUserInputTaskStatus)
+		return db.Task{}, e.New(`Check your input for "task_status"`, http.StatusBadRequest, errs)
+	}
+
+	if parentId == "" {
+		return db.Task{}, e.New(`Check your input for "parent_id"`, http.StatusBadRequest)
+	}
+	if parentId != "00000000-0000-0000-0000-000000000000" {
+		if errs := db.CheckTaskId(parentId); errs != nil {
+			return db.Task{}, e.New(`Check your input for "parent_id"`, http.StatusBadRequest)
+		}
+	}
+
+	if errs := db.CheckTaskGroupId(taskGroupId); errs != nil {
+		return db.Task{}, e.New(`Check your input for "task_group_id"`, http.StatusBadRequest)
 	}
 
 	task := db.Task{
@@ -99,34 +121,33 @@ func updateParentTask(r **http.Request, task *db.Task) []error {
 	}
 }
 
-func createExecutor(r *http.Request) (db.Task, []error) {
+func createExecutor(r *http.Request) (db.Task, *e.Error) {
 	var (
 		task       db.Task
 		parentTask db.Task
 		errs       []error
+		err        *e.Error
 	)
 
-	task, errs = sanitizeUserInput(r)
-	if errs != nil {
-		return db.Task{}, append(errs, c.ErrTaskCreateSanitize)
-	}
-
-	// Check if task group exists
-	_, errs = db.GetTaskGroupByTaskGroupId(task.TaskGroupId)
-	if errs != nil {
-		return db.Task{}, append(errs, c.ErrTaskCreateTaskGroupIdCheck)
+	task, err = sanitizeUserInput(r)
+	if err != nil {
+		return db.Task{}, err
 	}
 
 	// Call the db and make it official
 	task, errs = db.CreateTask(task)
 	if errs != nil {
-		return db.Task{}, append(errs, c.ErrTaskCreateCreateTaskCall)
+		return db.Task{}, e.New(`Couldn't create task.`, errs)
 	}
 
 	if task.ParentId != "00000000-0000-0000-0000-000000000000" {
 		parentTask, errs = db.GetTaskByTaskId(task.ParentId)
 		if errs != nil {
-			return db.Task{}, append(errs, c.ErrTaskCreateParentCheck)
+			return db.Task{}, e.New(
+				`Couldn't connect task to the higher task.`,
+				http.StatusInternalServerError,
+				append(errs, c.ErrTaskCreateUpdateParents),
+			)
 		}
 
 		// Change status of parent to "drawer"
@@ -140,7 +161,7 @@ func createExecutor(r *http.Request) (db.Task, []error) {
 		// Check if the task is root or not,
 		errs = updateParentTask(&r, &parentTask)
 		if errs != nil {
-			return db.Task{}, append(errs, c.ErrTaskCreateUpdateParents)
+			return db.Task{}, e.New(`Couldn't connect task to the higher task.`, append(errs, c.ErrUpdateParentSaveChanges))
 		}
 	}
 

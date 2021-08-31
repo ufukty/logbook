@@ -9,6 +9,8 @@ import (
 
 	"github.com/google/uuid"
 	"gopkg.in/yaml.v2"
+
+	e "logbook/main/controller/utilities/errors"
 )
 
 // Errors from [POST]/document
@@ -19,20 +21,24 @@ var (
 
 // Errors from [POST]/task
 var (
-	ErrTaskGroupIdCheck                = errors.New("ErrTaskGroupIdCheck")
-	ErrTaskCreateCreateTaskCall        = errors.New("ErrCreateTaskCall")
-	ErrSterilizeUserInputDegreeInt     = errors.New("SterilizeUserInput faced with an error when running strconv.Atoi(degree)")
-	ErrSterilizeUserInputDepthInt      = errors.New("SterilizeUserInput faced with an error when running strconv.Atoi(depth)")
-	ErrSterilizeUserInputTaskStatus    = errors.New("SterilizeUserInput faced with an error when running db.StringToTaskStatus(taskStatus)")
-	ErrSterilizeUserInputParseForm     = errors.New("SterilizeUserInput faced with an error when running r.ParseForm()")
-	ErrUpdateParentParentCheck         = errors.New("UpdateParent faced with an error when running db.GetTaskByTaskId(task.ParentId) to check if parent task id is valid")
-	ErrUpdateParentSaveChanges         = errors.New("UpdateParent faced with an error when trying to save changes into database")
-	ErrUpdateParentMaximumDepthReached = errors.New("ErrUpdateParentMaximumDepthReached")
-	ErrUpdateParentNextTaskCheck       = errors.New("UpdateParent faced with an error when trying to check next child task")
-	ErrTaskCreateSanitize              = errors.New("Task/createExecutor faced with an error while trying to sanitize user input")
-	ErrTaskCreateTaskGroupIdCheck      = errors.New("Task/createExecutor faced with an error while trying to ")
-	ErrTaskCreateParentCheck           = errors.New("Task/createExecutor faced with an error while trying to ")
-	ErrTaskCreateUpdateParents         = errors.New("Task/createExecutor faced with an error while trying to ")
+	ErrTaskGroupIdCheck                      = errors.New("ErrTaskGroupIdCheck")
+	ErrTaskCreateCreateTaskCall              = errors.New("ErrCreateTaskCall")
+	ErrTaskCreateSanitizeDegreeConvertion    = errors.New("problem with converting 'degree' to integer")
+	ErrTaskCreateSanitizeDegreeNegativeValue = errors.New("problem with converting 'degree' to integer")
+	ErrTaskCreateSanitizeDepthConvertion     = errors.New("problem with converting 'depth' to integer")
+	ErrTaskCreateSanitizeDepthNegativeValue  = errors.New("problem with converting 'depth' to integer")
+	ErrTaskCreateSanitizeTaskStatus          = errors.New("problem with converting 'task_status' to TaskStatus type")
+	ErrTaskCreateSanitizeParseForm           = errors.New("problem with parsing http.request via ParseForm()")
+	ErrTaskCreateSanitizeParentId            = errors.New("problem with validating 'parent_id'")
+	ErrTaskCreateSanitizeTaskGroupId         = errors.New("problem with validating 'task_group_id'")
+	ErrUpdateParentParentCheck               = errors.New("UpdateParent faced with an error when running db.GetTaskByTaskId(task.ParentId) to check if parent task id is valid")
+	ErrUpdateParentSaveChanges               = errors.New("UpdateParent faced with an error when trying to save changes into database")
+	ErrUpdateParentMaximumDepthReached       = errors.New("ErrUpdateParentMaximumDepthReached")
+	ErrUpdateParentNextTaskCheck             = errors.New("UpdateParent faced with an error when trying to check next child task")
+	ErrTaskCreateSanitize                    = errors.New("Task/createExecutor faced with an error while trying to sanitize user input")
+	ErrTaskCreateTaskGroupIdCheck            = errors.New("Task/createExecutor faced with an error while trying to ")
+	ErrTaskCreateParentCheck                 = errors.New("Task/createExecutor faced with an error while trying to ")
+	ErrTaskCreateUpdateParents               = errors.New("Task/createExecutor faced with an error while trying to ")
 )
 
 var errorResponseCodes = map[error]int{
@@ -86,6 +92,7 @@ type ControllerResponseFields struct {
 type ControllerLoggingFields struct {
 	Status        int         `json:"status" yaml:"status"`
 	IncidentId    string      `json:"incident_id" yaml:"incident_id"`
+	ErrorHint     string      `json:"error_hint" yaml:"error_hint"`
 	ErrorStack    []string    `json:"error_stack" yaml:"error_stack"`
 	RequestHeader interface{} `json:"request_header" yaml:"request_header"`
 	RequestForm   interface{} `json:"request_form" yaml:"request_form"`
@@ -103,21 +110,20 @@ func serializeControllerError(errs []error) []string {
 func InternalErrorHandler(
 	r *http.Request,
 	incidentId string,
-	errs []error,
+	errs *e.Error,
 	endpoint string,
-	responseCode int,
-	errorHint string,
 ) {
 	byte_str, err := yaml.Marshal(ControllerLoggingFields{
 		IncidentId:    incidentId,
-		ErrorStack:    serializeControllerError(errs),
+		ErrorHint:     errs.HttpResponseHint,
+		ErrorStack:    serializeControllerError(errs.ErrorTrace),
 		RequestHeader: r.Header,
 		RequestForm:   r.PostForm,
-		Status:        responseCode,
+		Status:        errs.HttpResponseCode,
 		Endpoint:      endpoint,
 	})
 	if err != nil {
-		log.Println("[WARNING] writeLog function can not print logs because of yaml.Marshall gives error.")
+		log.Println("[WARNING] InternalErrorHandler function can not print logs because of yaml.Marshal(ControllerLoggingFields{...}) gives error.")
 	}
 	log.Println(string(byte_str))
 }
@@ -125,14 +131,12 @@ func InternalErrorHandler(
 func PublicFacingErrorHandler(
 	w http.ResponseWriter,
 	incidentId string,
-	errs []error,
-	responseCode int,
-	errorHint string,
+	errs *e.Error,
 ) {
-	w.WriteHeader(responseCode)
+	w.WriteHeader(errs.HttpResponseCode)
 	json.NewEncoder(w).Encode(ControllerResponseFields{
-		Status:     responseCode,
-		ErrorHint:  errorHint,
+		Status:     errs.HttpResponseCode,
+		ErrorHint:  errs.HttpResponseHint,
 		IncidentId: incidentId,
 	})
 }
@@ -140,25 +144,10 @@ func PublicFacingErrorHandler(
 func ErrorHandler(
 	w http.ResponseWriter,
 	r *http.Request,
-	errs []error,
+	errs *e.Error,
 ) {
 	errorId := uuid.New().String()
-
-	var responseCode int
-	if code, ok := errorResponseCodes[errs[len(errs)-1]]; ok {
-		responseCode = code
-	} else {
-		responseCode = http.StatusInternalServerError
-	}
-
-	var errorHint string
-	if code, ok := errorHints[errs[len(errs)-1]]; ok {
-		errorHint = code
-	} else {
-		errorHint = "Unexpected error. Try again later."
-	}
-
-	PublicFacingErrorHandler(w, errorId, errs, responseCode, errorHint)
+	PublicFacingErrorHandler(w, errorId, errs)
 
 	var endpoint string
 	pc, _, _, ok := runtime.Caller(1)
@@ -169,7 +158,7 @@ func ErrorHandler(
 		endpoint = "could not traced the endpoint"
 	}
 
-	InternalErrorHandler(r, errorId, errs, endpoint, responseCode, errorHint)
+	InternalErrorHandler(r, errorId, errs, endpoint)
 }
 
 func ResponseHandler(

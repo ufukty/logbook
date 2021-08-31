@@ -2,11 +2,12 @@ package document
 
 import (
 	c "logbook/main/controller"
+	e "logbook/main/controller/utilities/errors"
 	db "logbook/main/database"
 	"net/http"
 )
 
-func createExecutor() (db.Document, []error) {
+func createExecutor() (db.Document, *e.Error) {
 	var (
 		document db.Document
 		errs     []error
@@ -15,12 +16,12 @@ func createExecutor() (db.Document, []error) {
 	// create document table record
 	document, errs = db.CreateDocumentWithTaskGroups(db.Document{})
 	if errs != nil {
-		return db.Document{}, append(errs, c.ErrCreateDocumentCreateCreationPhase)
+		return db.Document{}, e.New(errs)
 	}
 
 	taskGroups, errs := db.GetTaskGroupsByDocumentId(document.DocumentId)
 	if errs != nil {
-		return db.Document{}, append(errs, c.ErrCreateDocumentSelectionPhase)
+		return db.Document{}, e.New(errs)
 	}
 
 	document.TaskGroups = taskGroups
