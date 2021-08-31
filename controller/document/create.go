@@ -33,6 +33,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	document, errs := createExecutor()
 	if errs != nil {
 		c.ErrorHandler(w, r, errs)
+	} else {
+		c.SuccessHandler(w, r, document)
 	}
-	c.SuccessHandler(w, r, document)
 }
