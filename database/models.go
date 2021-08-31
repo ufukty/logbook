@@ -14,7 +14,7 @@ const (
 	Drawer       TaskStatus = "drawer"
 )
 
-func StringToTaskStatus(str string) (TaskStatus, error) {
+func StringToTaskStatus(str string) (TaskStatus, []error) {
 	switch str {
 	case "archive":
 		return Archive, nil
@@ -27,7 +27,7 @@ func StringToTaskStatus(str string) (TaskStatus, error) {
 	case "drawer":
 		return Drawer, nil
 	}
-	return "", ErrStrToTaskStatusNoMatchingRecord
+	return "", []error{ErrStrToTaskStatusNoMatchingRecord}
 }
 
 type Task struct {

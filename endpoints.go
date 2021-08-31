@@ -2,6 +2,7 @@ package main
 
 import (
 	"logbook/main/controller/document"
+	"logbook/main/controller/task"
 	"net/http"
 )
 
@@ -23,7 +24,7 @@ func endpoints() []Endpoint {
 		// {"/group/{document_id}", "GET", group.Get},
 
 		// {"/task/{document_id}/{task_id}", "GET", task.Read},
-		// {"/task", "POST", task.Create},
+		{"/task", "POST", task.Create},
 		// {"/task/{document_id}/{task_id}", "PATCH", task.Update},
 		// {"/task/{document_id}/{task_id}", "DELETE", task.Delete},
 	}

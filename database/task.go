@@ -30,7 +30,7 @@ func CreateTask(task Task) (Task, []error) {
 		&task.Depth,
 	).Scan(&task.TaskId, &task.CreatedAt)
 	if err != nil {
-		return task, []error{ErrCreateTask}
+		return task, []error{err, ErrCreateTask}
 	}
 	return task, nil
 
