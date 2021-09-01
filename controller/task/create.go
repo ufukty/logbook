@@ -35,39 +35,39 @@ func sanitizeUserInput(r *http.Request) (db.Task, *e.Error) {
 	)
 
 	if content == "" {
-		return db.Task{}, e.New(`Check your input for "content"`, http.StatusBadRequest)
+		return db.Task{}, e.New(`Check your input for 'content'.`, http.StatusBadRequest)
 	}
 
 	degree_int, err = strconv.Atoi(degree)
 	if err != nil {
-		return db.Task{}, e.New(`Check your input for "degree"`, http.StatusBadRequest, []error{err})
+		return db.Task{}, e.New(`Check your input for 'degree'.`, http.StatusBadRequest, []error{err})
 	} else if degree_int < 1 {
-		return db.Task{}, e.New(`Check your input for "degree", it should be bigger than 0`, http.StatusBadRequest)
+		return db.Task{}, e.New(`Check your input for 'degree'., it should be positive number.`, http.StatusBadRequest)
 	}
 
 	depth_int, err = strconv.Atoi(depth)
 	if err != nil {
-		return db.Task{}, e.New(`Check your input for "depth"`, http.StatusBadRequest, []error{err})
+		return db.Task{}, e.New(`Check your input for 'depth'.`, http.StatusBadRequest, []error{err})
 	} else if depth_int < 1 {
-		return db.Task{}, e.New(`Check your input for "depth", it should be bigger than 0`, http.StatusBadRequest)
+		return db.Task{}, e.New(`Check your input for 'depth', it should be positive number.`, http.StatusBadRequest)
 	}
 
 	taskStatus_ts, errs = db.StringToTaskStatus(taskStatus)
 	if errs != nil {
-		return db.Task{}, e.New(`Check your input for "task_status"`, http.StatusBadRequest, errs)
+		return db.Task{}, e.New(`Check your input for 'task_status'.`, http.StatusBadRequest, errs)
 	}
 
 	if parentId == "" {
-		return db.Task{}, e.New(`Check your input for "parent_id"`, http.StatusBadRequest)
+		return db.Task{}, e.New(`Check your input for 'parent_id'.`, http.StatusBadRequest)
 	}
 	if parentId != "00000000-0000-0000-0000-000000000000" {
 		if errs := db.CheckTaskId(parentId); errs != nil {
-			return db.Task{}, e.New(`Check your input for "parent_id"`, http.StatusBadRequest)
+			return db.Task{}, e.New(`Check your input for 'parent_id'.`, http.StatusBadRequest)
 		}
 	}
 
 	if errs := db.CheckTaskGroupId(taskGroupId); errs != nil {
-		return db.Task{}, e.New(`Check your input for "task_group_id"`, http.StatusBadRequest)
+		return db.Task{}, e.New(`Check your input for 'task_group_id'.`, http.StatusBadRequest)
 	}
 
 	task := db.Task{
