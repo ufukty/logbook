@@ -14,7 +14,7 @@ var ErrEmptyTaskGroupId error
 
 var ErrInvalidTaskGroupId error
 
-var ErrStrToTaskStatusNoMatchingRecord error
+var ErrStrToTaskStatusNoMatchingRecord = errors.New("ErrStrToTaskStatusNoMatchingRecord")
 
 var (
 	ErrCreateDocument                   = errors.New("CreateDocument faced with an error")
