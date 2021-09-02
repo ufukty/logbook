@@ -12,71 +12,14 @@ import (
 
 	e "logbook/main/controller/utilities/errors"
 )
-
-// Errors from [POST]/document
-var (
-	ErrCreateDocumentCreateCreationPhase = errors.New("CreateDocument faced with an error when tried to create document with task groups")
-	ErrCreateDocumentSelectionPhase      = errors.New("CreateDocument faced with an error when tried to access created task groups")
-)
-
 // Errors from [POST]/task
 var (
-	ErrTaskGroupIdCheck                      = errors.New("ErrTaskGroupIdCheck")
-	ErrTaskCreateCreateTaskCall              = errors.New("ErrCreateTaskCall")
-	ErrTaskCreateSanitizeDegreeConvertion    = errors.New("problem with converting 'degree' to integer")
-	ErrTaskCreateSanitizeDegreeNegativeValue = errors.New("problem with converting 'degree' to integer")
-	ErrTaskCreateSanitizeDepthConvertion     = errors.New("problem with converting 'depth' to integer")
-	ErrTaskCreateSanitizeDepthNegativeValue  = errors.New("problem with converting 'depth' to integer")
-	ErrTaskCreateSanitizeTaskStatus          = errors.New("problem with converting 'task_status' to TaskStatus type")
-	ErrTaskCreateSanitizeParseForm           = errors.New("problem with parsing http.request via ParseForm()")
-	ErrTaskCreateSanitizeParentId            = errors.New("problem with validating 'parent_id'")
-	ErrTaskCreateSanitizeTaskGroupId         = errors.New("problem with validating 'task_group_id'")
-	ErrUpdateParentParentCheck               = errors.New("UpdateParent faced with an error when running db.GetTaskByTaskId(task.ParentId) to check if parent task id is valid")
-	ErrUpdateParentSaveChanges               = errors.New("UpdateParent faced with an error when trying to save changes into database")
-	ErrUpdateParentMaximumDepthReached       = errors.New("ErrUpdateParentMaximumDepthReached")
-	ErrUpdateParentNextTaskCheck             = errors.New("UpdateParent faced with an error when trying to check next child task")
-	ErrTaskCreateSanitize                    = errors.New("Task/createExecutor faced with an error while trying to sanitize user input")
-	ErrTaskCreateTaskGroupIdCheck            = errors.New("Task/createExecutor faced with an error while trying to ")
-	ErrTaskCreateParentCheck                 = errors.New("Task/createExecutor faced with an error while trying to ")
+	ErrUpdateParentParentCheck         = errors.New("UpdateParent faced with an error when running db.GetTaskByTaskId(task.ParentId) to check if parent task id is valid")
+	ErrUpdateParentSaveChanges         = errors.New("UpdateParent faced with an error when trying to save changes into database")
+	ErrUpdateParentMaximumDepthReached = errors.New("ErrUpdateParentMaximumDepthReached")
+	ErrUpdateParentNextTaskCheck       = errors.New("UpdateParent faced with an error when trying to check next child task")
 	ErrTaskCreateUpdateParents               = errors.New("Task/createExecutor faced with an error while trying to ")
 )
-
-var errorResponseCodes = map[error]int{
-	ErrCreateDocumentCreateCreationPhase: http.StatusNoContent,
-	ErrCreateDocumentSelectionPhase:      http.StatusNoContent,
-}
-
-var errorHints = map[error]string{
-	ErrCreateDocumentCreateCreationPhase: "Try again later.",
-	ErrCreateDocumentSelectionPhase:      "Try again later.",
-	ErrUpdateParentMaximumDepthReached:   "You can't create new dependency to this task due to maximum depth limit.",
-}
-
-// var httpErrorMapping = map[error]int{
-// 	ErrTaskGroupIdCheck:                http.StatusNotAcceptable,
-// 	ErrTaskCreateCreateTaskCall:        http.StatusNotAcceptable,
-// 	ErrSterilizeUserInputDegreeInt:     http.StatusNotAcceptable,
-// 	ErrSterilizeUserInputDepthInt:      http.StatusNotAcceptable,
-// 	ErrSterilizeUserInputTaskStatus:    http.StatusNotAcceptable,
-// 	ErrSterilizeUserInputParseForm:     http.StatusNotAcceptable,
-// 	ErrUpdateParentParentCheck:         http.StatusNotAcceptable,
-// 	ErrUpdateParentSaveChanges:         http.StatusNotAcceptable,
-// 	ErrUpdateParentMaximumDepthReached: http.StatusNotAcceptable,
-// 	ErrUpdateParentNextTaskCheck:       http.StatusNotAcceptable,
-// }
-
-// var httpHintMapping = map[error]string{
-// 	ErrTaskGroupIdCheck:             "task-group-id is invalid. Check it again.",
-// 	ErrTaskCreateCreateTaskCall:     "There was an error when attempted to create a task.",
-// 	ErrSterilizeUserInputDegreeInt:  "'Degree' is invalid. Check your inputs or try again later.",
-// 	ErrSterilizeUserInputDepthInt:   "'depth' is invalid. Check your inputs or try again later.",
-// 	ErrSterilizeUserInputTaskStatus: "'task-status' is invalid. Check your inputs or try again later.",
-// 	ErrSterilizeUserInputParseForm:  "HTTP 'form' oject is invalid. Check your inputs or try again later.",
-// 	// ErrParentCheck:                  "No such task as in parent-id.",
-// 	// ErrCreateTaskUpdateParent:       "Relation with parent task may not updated properly.",
-// 	// ErrMaximumDepthReached:          "Maximum depth is reached.",
-// 	// ErrNextTaskCheck:                "Document could not processed.",
-// }
 
 // Used for both error and success messages
 // But only for rendering public http response
