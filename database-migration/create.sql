@@ -73,14 +73,14 @@ CREATE PROCEDURE update_parent_task(v_task_id UUID) AS $$
         v_total_degrees_of_siblings INT;
         v_task "TASK"%ROWTYPE;
     BEGIN
-        RAISE NOTICE 'update_parent_task, v_task_id = %', v_task_id;
+        -- RAISE NOTICE 'update_parent_task, v_task_id = %', v_task_id;
 
         SELECT sum("degree")
         INTO v_total_degrees_of_siblings
         FROM "TASK"
         WHERE "parent_id" = v_task_id;
 
-        RAISE NOTICE 'v_total_degrees_of_siblings = %', v_total_degrees_of_siblings;
+        -- RAISE NOTICE 'v_total_degrees_of_siblings = %', v_total_degrees_of_siblings;
 
         UPDATE "TASK"
         SET degree = v_total_degrees_of_siblings + 1
@@ -91,14 +91,14 @@ CREATE PROCEDURE update_parent_task(v_task_id UUID) AS $$
         FROM "TASK"
         WHERE "task_id" = v_task_id;
 
-        RAISE NOTICE 'v_task."parent_id" = %', v_task."parent_id";
+        -- RAISE NOTICE 'v_task."parent_id" = %', v_task."parent_id";
 
         IF v_task."parent_id" != '00000000-0000-0000-0000-000000000000' THEN
-            RAISE NOTICE 'recursing to v_task."parent_id" = %', v_task."parent_id";
+            -- RAISE NOTICE 'recursing to v_task."parent_id" = %', v_task."parent_id";
             CALL update_parent_task(v_task."parent_id");
         END IF;
         
-        RAISE NOTICE 'no more parent to recurse further, returning to caller now';
+        -- RAISE NOTICE 'no more parent to recurse further, returning to caller now';
     END
 $$ LANGUAGE 'plpgsql';
 
