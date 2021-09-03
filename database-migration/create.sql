@@ -6,8 +6,7 @@ CREATE DATABASE testdatabase;
 
 CREATE TABLE "DOCUMENT" (
     "document_id"       UUID UNIQUE DEFAULT gen_random_UUID(), 
-    "created_at"        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    "total_task_groups" INTEGER DEFAULT 0
+    "created_at"        TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE "ACCESS"(
