@@ -68,12 +68,12 @@ CREATE FUNCTION document_overview(UUID) RETURNS SETOF "TASK" AS $$
 $$ LANGUAGE 'plpgsql';
 
 -- RECURSIVE HELPER FUNCTION FOR create_task
-CREATE PROCEDURE update_parent_task(v_task_id UUID) AS $$
+CREATE PROCEDURE update_parent_task_degree(v_task_id UUID) AS $$
     DECLARE
         v_total_degrees_of_siblings INT;
         v_task "TASK"%ROWTYPE;
     BEGIN
-        -- RAISE NOTICE 'update_parent_task, v_task_id = %', v_task_id;
+        -- RAISE NOTICE 'update_parent_task_degree, v_task_id = %', v_task_id;
 
         SELECT sum("degree")
         INTO v_total_degrees_of_siblings
@@ -95,7 +95,7 @@ CREATE PROCEDURE update_parent_task(v_task_id UUID) AS $$
 
         IF v_task."parent_id" != '00000000-0000-0000-0000-000000000000' THEN
             -- RAISE NOTICE 'recursing to v_task."parent_id" = %', v_task."parent_id";
-            CALL update_parent_task(v_task."parent_id");
+            CALL update_parent_task_degree(v_task."parent_id");
         END IF;
         
         -- RAISE NOTICE 'no more parent to recurse further, returning to caller now';
@@ -115,8 +115,10 @@ CREATE FUNCTION create_task(
         v_degree INT;
         v_task "TASK"%ROWTYPE;
     BEGIN
+        -- DEGREE ALWAYS 1, WHEN THE TASK IS NEWLY ADDED
         v_degree = 1;
 
+        -- DECIDE DEPTH
         IF v_parent_id != '00000000-0000-0000-0000-000000000000' THEN
             SELECT "TASK"."depth"+1 
             INTO v_depth
@@ -126,12 +128,14 @@ CREATE FUNCTION create_task(
             v_depth = 1;
         END IF;
 
+        -- WRITE NEW TASK INTO DB
         INSERT INTO "TASK"("document_id", "parent_id", "content", "degree", "depth")
         VALUES (v_document_id, v_parent_id, v_content, v_degree, v_depth)
         RETURNING * INTO v_task;
 
+        -- UPDATE PARENTS' DEGREES
         IF v_parent_id != '00000000-0000-0000-0000-000000000000' THEN
-            CALL update_parent_task(v_parent_id);
+            CALL update_parent_task_degree(v_parent_id);
         END IF;
 
         RETURN v_task;
