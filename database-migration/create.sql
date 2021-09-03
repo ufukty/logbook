@@ -26,6 +26,7 @@ CREATE TABLE "TASK" (
     "depth"             INT NOT NULL DEFAULT 1,
     "created_at"        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "completed_at"      DATE,
+    "ready_to_pick_up"  BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 -- CREATE VIEW tasks_linearized AS SELECT * FROM tasks;
@@ -136,6 +137,13 @@ CREATE FUNCTION create_task(
         -- UPDATE PARENTS' DEGREES
         IF v_parent_id != '00000000-0000-0000-0000-000000000000' THEN
             CALL update_parent_task_degree(v_parent_id);
+        END IF;
+
+        -- UPDATE PARENT'S READY-TO-PICK-UP STATUS TO FALSE
+        IF v_parent_id != '00000000-0000-0000-0000-000000000000' THEN
+            UPDATE "TASK"
+            SET "ready_to_pick_up" = FALSE
+            WHERE task_id = v_parent_id;
         END IF;
 
         RETURN v_task;
