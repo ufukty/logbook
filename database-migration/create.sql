@@ -48,19 +48,21 @@ CREATE FUNCTION document_overview(UUID) RETURNS SETOF "TASK" AS $$
             (
                 SELECT *
                 FROM "TASK"
-                WHERE "completion_at" IN (
-                    SELECT DISTINCT ON ("completion_at") 
-                        "completion_at"
+                WHERE "completed_at" IN (
+                    SELECT DISTINCT ON ("completed_at") 
+                        "completed_at"
                     FROM "TASK" 
                     WHERE "document_id" = $1
-                    ORDER BY "completion_at" 
+                    ORDER BY "completed_at" DESC
                     LIMIT 10
                 )
                 LIMIT 500
-            ) UNION (
+            ) 
+            UNION ALL
+            (
                 SELECT *
                 FROM "TASK"
-                WHERE "completion_at" IS NULL
+                WHERE "completed_at" IS NULL
                 ORDER BY "created_at" ASC
                 LIMIT 50
             )
