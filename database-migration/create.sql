@@ -28,6 +28,9 @@ CREATE TABLE "TASK" (
     "ready_to_pick_up"  BOOLEAN NOT NULL DEFAULT TRUE
 );
 
+ALTER TABLE "DOCUMENT" ADD 
+    "active_task"       UUID REFERENCES "TASK" ("task_id");
+
 -- CREATE VIEW tasks_linearized AS SELECT * FROM tasks;
 
 -- DROP FUNCTION IF EXISTS create_document_with_task_groups;
@@ -40,30 +43,60 @@ CREATE FUNCTION create_document() RETURNS "DOCUMENT" AS $$
     END
 $$ LANGUAGE 'plpgsql';
 
--- TO GET THE LIST OF TASKS THAT ARE COMPLETED WITHIN LAST 10 DAYS
-CREATE FUNCTION document_overview(UUID) RETURNS SETOF "TASK" AS $$
+-- TO GET THE LIST OF TASKS THAT ARE:
+--   * COMPLETED WITHIN LAST 10 DAYS (<200 ITEM),
+--   * ACTIVE,
+--   * READY-TO-PICK-UP
+--   * DRAWER (TO-DO)
+CREATE FUNCTION document_overview(v_document_id UUID) RETURNS SETOF "TASK" AS $$
     BEGIN
         RETURN QUERY (
             (
+                -- ARCHIVED TASKS (LATEST 200 FROM LAST 10 DAYS)
                 SELECT *
                 FROM "TASK"
                 WHERE "completed_at" IN (
                     SELECT DISTINCT ON ("completed_at") 
                         "completed_at"
                     FROM "TASK" 
-                    WHERE "document_id" = $1
+                    WHERE "document_id" = v_document_id
                     ORDER BY "completed_at" DESC
                     LIMIT 10
                 )
-                LIMIT 500
+                LIMIT 200
             ) 
             UNION ALL
             (
+                -- ACTIVE TASK
                 SELECT *
                 FROM "TASK"
-                WHERE "completed_at" IS NULL
+                WHERE "task_id" = (
+                    SELECT "active_task"
+                    FROM "DOCUMENT"
+                    WHERE "document_id" = v_document_id
+                )
+            )
+            UNION ALL
+            (
+                -- READY-TO-PICK-UPS (100)
+                SELECT *
+                FROM "TASK"
+                WHERE 
+                    "completed_at" IS NULL
+                    AND "ready_to_pick_up" = TRUE
                 ORDER BY "created_at" ASC
-                LIMIT 50
+                LIMIT 100
+            )
+            UNION ALL
+            (
+                -- DRAWER (20)
+                SELECT *
+                FROM "TASK"
+                WHERE 
+                    "completed_at" IS NULL
+                    AND "ready_to_pick_up" = FALSE
+                ORDER BY "degree" DESC
+                LIMIT 20
             )
         );
     END
