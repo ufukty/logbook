@@ -25,7 +25,7 @@ CREATE TABLE "TASK" (
     "degree"            INT NOT NULL DEFAULT 1,
     "depth"             INT NOT NULL DEFAULT 1,
     "created_at"        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    "completion_at"     DATE
+    "completed_at"      DATE,
 );
 
 -- CREATE VIEW tasks_linearized AS SELECT * FROM tasks;
@@ -215,6 +215,68 @@ CREATE PROCEDURE load_test_dataset() AS $$
         v_task_33 = create_task(document_id, 'gitlab-runner firewall rules: close public internet', v_task_14.task_id);
         v_task_34 = create_task(document_id, 'static-challange for ovpn-auth', v_task_20.task_id);
         v_task_35 = create_task(document_id, 'Golden image for vpn server', v_task_21.task_id);
+
+        UPDATE "TASK" SET "created_at" = '2021-01-11T18:19:27+03:00' WHERE "task_id" = v_task_27."task_id";
+        UPDATE "TASK" SET "created_at" = '2021-01-23T21:37:55+03:00' WHERE "task_id" = v_task_4."task_id";
+        UPDATE "TASK" SET "created_at" = '2021-02-14T01:03:33+03:00' WHERE "task_id" = v_task_1."task_id";
+        UPDATE "TASK" SET "created_at" = '2021-02-18T02:23:12+03:00' WHERE "task_id" = v_task_35."task_id";
+        UPDATE "TASK" SET "created_at" = '2021-02-23T00:42:48+03:00' WHERE "task_id" = v_task_19."task_id";
+        UPDATE "TASK" SET "created_at" = '2021-02-26T20:43:38+03:00' WHERE "task_id" = v_task_3."task_id";
+        UPDATE "TASK" SET "created_at" = '2021-02-28T12:58:22+03:00' WHERE "task_id" = v_task_22."task_id";
+        UPDATE "TASK" SET "created_at" = '2021-03-21T04:48:09+03:00' WHERE "task_id" = v_task_14."task_id";
+        UPDATE "TASK" SET "created_at" = '2021-03-28T05:00:14+03:00' WHERE "task_id" = v_task_28."task_id";
+        UPDATE "TASK" SET "created_at" = '2021-04-22T01:22:57+03:00' WHERE "task_id" = v_task_31."task_id";
+        UPDATE "TASK" SET "created_at" = '2021-04-26T18:27:59+03:00' WHERE "task_id" = v_task_8."task_id";
+        UPDATE "TASK" SET "created_at" = '2021-04-29T04:37:40+03:00' WHERE "task_id" = v_task_2."task_id";
+        UPDATE "TASK" SET "created_at" = '2021-04-30T20:48:02+03:00' WHERE "task_id" = v_task_16."task_id";
+        UPDATE "TASK" SET "created_at" = '2021-05-02T05:46:29+03:00' WHERE "task_id" = v_task_33."task_id";
+        UPDATE "TASK" SET "created_at" = '2021-05-09T05:25:48+03:00' WHERE "task_id" = v_task_12."task_id";
+        UPDATE "TASK" SET "created_at" = '2021-05-14T10:54:34+03:00' WHERE "task_id" = v_task_24."task_id";
+        UPDATE "TASK" SET "created_at" = '2021-05-24T04:01:24+03:00' WHERE "task_id" = v_task_21."task_id";
+        UPDATE "TASK" SET "created_at" = '2021-07-03T05:47:47+03:00' WHERE "task_id" = v_task_17."task_id";
+        UPDATE "TASK" SET "created_at" = '2021-07-08T03:07:40+03:00' WHERE "task_id" = v_task_18."task_id";
+        UPDATE "TASK" SET "created_at" = '2021-07-25T22:54:19+03:00' WHERE "task_id" = v_task_13."task_id";
+        UPDATE "TASK" SET "created_at" = '2021-08-22T11:06:13+03:00' WHERE "task_id" = v_task_20."task_id";
+        UPDATE "TASK" SET "created_at" = '2021-08-24T20:57:14+03:00' WHERE "task_id" = v_task_29."task_id";
+        UPDATE "TASK" SET "created_at" = '2021-08-28T14:20:12+03:00' WHERE "task_id" = v_task_5."task_id";
+        UPDATE "TASK" SET "created_at" = '2021-09-03T09:48:06+03:00' WHERE "task_id" = v_task_6."task_id";
+        UPDATE "TASK" SET "created_at" = '2021-09-04T04:33:43+03:00' WHERE "task_id" = v_task_23."task_id";
+        UPDATE "TASK" SET "created_at" = '2021-09-15T01:14:20+03:00' WHERE "task_id" = v_task_10."task_id";
+        UPDATE "TASK" SET "created_at" = '2021-09-16T04:13:49+03:00' WHERE "task_id" = v_task_26."task_id";
+        UPDATE "TASK" SET "created_at" = '2021-09-23T21:12:23+03:00' WHERE "task_id" = v_task_9."task_id";
+        UPDATE "TASK" SET "created_at" = '2021-10-04T08:37:10+03:00' WHERE "task_id" = v_task_11."task_id";
+        UPDATE "TASK" SET "created_at" = '2021-10-10T21:55:15+03:00' WHERE "task_id" = v_task_30."task_id";
+        UPDATE "TASK" SET "created_at" = '2021-10-15T02:51:16+03:00' WHERE "task_id" = v_task_32."task_id";
+        UPDATE "TASK" SET "created_at" = '2021-10-15T11:37:09+03:00' WHERE "task_id" = v_task_25."task_id";
+        UPDATE "TASK" SET "created_at" = '2021-11-20T09:08:29+03:00' WHERE "task_id" = v_task_15."task_id";
+        UPDATE "TASK" SET "created_at" = '2021-12-20T09:51:34+03:00' WHERE "task_id" = v_task_7."task_id";
+        UPDATE "TASK" SET "created_at" = '2021-12-31T10:52:07+03:00' WHERE "task_id" = v_task_34."task_id";
+
+        UPDATE "TASK" SET "completed_at" = '2021-10-02T05:46:29+03:00' WHERE "task_id" = v_task_18."task_id";
+        UPDATE "TASK" SET "completed_at" = '2021-10-03T05:47:47+03:00' WHERE "task_id" = v_task_19."task_id";
+        UPDATE "TASK" SET "completed_at" = '2021-10-03T09:48:06+03:00' WHERE "task_id" = v_task_20."task_id";
+        UPDATE "TASK" SET "completed_at" = '2021-10-08T03:07:40+03:00' WHERE "task_id" = v_task_21."task_id";
+        UPDATE "TASK" SET "completed_at" = '2021-10-09T05:25:48+03:00' WHERE "task_id" = v_task_22."task_id";
+        UPDATE "TASK" SET "completed_at" = '2021-10-11T18:19:27+03:00' WHERE "task_id" = v_task_23."task_id";
+        UPDATE "TASK" SET "completed_at" = '2021-10-14T01:03:33+03:00' WHERE "task_id" = v_task_24."task_id";
+        UPDATE "TASK" SET "completed_at" = '2021-10-14T10:54:34+03:00' WHERE "task_id" = v_task_25."task_id";
+        UPDATE "TASK" SET "completed_at" = '2021-10-18T02:23:12+03:00' WHERE "task_id" = v_task_26."task_id";
+        UPDATE "TASK" SET "completed_at" = '2021-10-21T04:48:09+03:00' WHERE "task_id" = v_task_27."task_id";
+        UPDATE "TASK" SET "completed_at" = '2021-10-22T01:22:57+03:00' WHERE "task_id" = v_task_28."task_id";
+        UPDATE "TASK" SET "completed_at" = '2021-10-22T11:06:13+03:00' WHERE "task_id" = v_task_29."task_id";
+        UPDATE "TASK" SET "completed_at" = '2021-10-23T00:42:48+03:00' WHERE "task_id" = v_task_30."task_id";
+        UPDATE "TASK" SET "completed_at" = '2021-10-23T21:37:55+03:00' WHERE "task_id" = v_task_31."task_id";
+        UPDATE "TASK" SET "completed_at" = '2021-10-24T04:01:24+03:00' WHERE "task_id" = v_task_32."task_id";
+        UPDATE "TASK" SET "completed_at" = '2021-10-24T20:57:14+03:00' WHERE "task_id" = v_task_33."task_id";
+        UPDATE "TASK" SET "completed_at" = '2021-10-25T22:54:19+03:00' WHERE "task_id" = v_task_34."task_id";
+        UPDATE "TASK" SET "completed_at" = '2021-10-26T18:27:59+03:00' WHERE "task_id" = v_task_35."task_id";
+        UPDATE "TASK" SET "completed_at" = '2021-10-26T20:43:38+03:00' WHERE "task_id" = v_task_6."task_id";
+        UPDATE "TASK" SET "completed_at" = '2021-10-28T05:00:14+03:00' WHERE "task_id" = v_task_7."task_id";
+        UPDATE "TASK" SET "completed_at" = '2021-10-28T12:58:22+03:00' WHERE "task_id" = v_task_8."task_id";
+        UPDATE "TASK" SET "completed_at" = '2021-10-28T14:20:12+03:00' WHERE "task_id" = v_task_9."task_id";
+        UPDATE "TASK" SET "completed_at" = '2021-10-29T04:37:40+03:00' WHERE "task_id" = v_task_10."task_id";
+        UPDATE "TASK" SET "completed_at" = '2021-10-30T20:48:02+03:00' WHERE "task_id" = v_task_11."task_id";
+
     END
 $$ LANGUAGE 'plpgsql';
 
