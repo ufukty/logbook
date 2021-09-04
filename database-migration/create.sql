@@ -103,22 +103,15 @@ CREATE FUNCTION document_overview(v_document_id UUID) RETURNS SETOF "TASK" AS $$
 $$ LANGUAGE 'plpgsql';
 
 -- RECURSIVE HELPER FUNCTION FOR create_task
-CREATE PROCEDURE update_parent_task_degree(v_task_id UUID) AS $$
+CREATE PROCEDURE update_parent_task_degree(v_task_id UUID, v_increment INT) AS $$
     DECLARE
         v_total_degrees_of_siblings INT;
         v_task "TASK"%ROWTYPE;
     BEGIN
         -- RAISE NOTICE 'update_parent_task_degree, v_task_id = %', v_task_id;
 
-        SELECT sum("degree")
-        INTO v_total_degrees_of_siblings
-        FROM "TASK"
-        WHERE "parent_id" = v_task_id;
-
-        -- RAISE NOTICE 'v_total_degrees_of_siblings = %', v_total_degrees_of_siblings;
-
         UPDATE "TASK"
-        SET degree = v_total_degrees_of_siblings + 1
+        SET "degree" = "degree" + v_increment
         WHERE "TASK"."task_id" = v_task_id;
 
         SELECT *
@@ -129,8 +122,8 @@ CREATE PROCEDURE update_parent_task_degree(v_task_id UUID) AS $$
         -- RAISE NOTICE 'v_task."parent_id" = %', v_task."parent_id";
 
         IF v_task."parent_id" != '00000000-0000-0000-0000-000000000000' THEN
-            -- RAISE NOTICE 'recursing to v_task."parent_id" = %', v_task."parent_id";
-            CALL update_parent_task_degree(v_task."parent_id");
+            -- RAISE NOTICE 'recursing into parent';
+            CALL update_parent_task_degree(v_task."parent_id", v_increment);
         END IF;
         
         -- RAISE NOTICE 'no more parent to recurse further, returning to caller now';
@@ -170,7 +163,7 @@ CREATE FUNCTION create_task(
 
         -- UPDATE PARENTS' DEGREES
         IF v_parent_id != '00000000-0000-0000-0000-000000000000' THEN
-            CALL update_parent_task_degree(v_parent_id);
+            CALL update_parent_task_degree(v_parent_id, 1);
         END IF;
 
         -- UPDATE PARENT'S READY-TO-PICK-UP STATUS TO FALSE
