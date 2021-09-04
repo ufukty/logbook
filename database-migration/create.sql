@@ -177,6 +177,70 @@ CREATE FUNCTION create_task(
     END
 $$ LANGUAGE 'plpgsql';
 
+CREATE PROCEDURE update_parent_readiness(v_parent_id UUID) AS $$
+    DECLARE
+        v_undone_children "TASK";
+        v_readiness BOOLEAN;
+    BEGIN
+        -- RAISE NOTICE 'update_parent_readiness is running for %', v_parent_id;
+
+        SELECT *
+        INTO v_undone_children
+        FROM "TASK"
+        WHERE "parent_id" = v_parent_id
+            AND "completed_at" IS NULL;
+
+        IF v_undone_children IS NULL THEN
+            v_readiness = TRUE;
+        ELSE
+            v_readiness = FALSE;
+        END IF;
+
+        -- RAISE NOTICE 'v_readiness = %', v_readiness;
+
+        UPDATE "TASK"
+        SET "ready_to_pick_up" = v_readiness
+        WHERE "task_id" = v_parent_id;
+    END
+$$ LANGUAGE 'plpgsql';
+
+CREATE PROCEDURE reattach_task(v_task_id UUID, v_new_parent_id UUID) AS $$ -- RETURN "TASK"
+    DECLARE
+        v_old_parent_id UUID;
+        v_degree INT;
+        v_ready_to_pick_up BOOLEAN;
+        v_completed_at DATE;
+        v_old_siblings "TASK";
+    BEGIN
+        -- HOLD CURRENT PARRENT
+        SELECT "parent_id", "degree", "ready_to_pick_up", "completed_at"
+        INTO v_old_parent_id, v_degree, v_ready_to_pick_up, v_completed_at
+        FROM "TASK"
+        WHERE "task_id" = v_task_id;
+
+        -- UPDATE TASK:
+        --     * PARENT
+        --     * DEPTH
+        UPDATE "TASK"
+        SET "parent_id" = v_new_parent_id
+        WHERE "task_id" = v_task_id;
+
+        -- UPDATE OLD PARENT:
+        --     * DEGREE (RECURSIVELY)
+        --     * READINESS STATUS
+        CALL update_parent_task_degree(v_old_parent_id, -1 * v_degree);
+        CALL update_parent_readiness(v_old_parent_id);
+
+        -- UPDATE NEW PARENT:
+        --     * DEGREE (RECURSIVELY)
+        --     * READINESS STATUS
+        CALL update_parent_task_degree(v_new_parent_id, v_degree);
+        CALL update_parent_readiness(v_old_parent_id);
+
+        -- RETURN UPDATED TASKS AS ARRAY FOR UPDATING FRONTEND 
+    END 
+$$ LANGUAGE 'plpgsql';
+
 CREATE PROCEDURE load_test_dataset() AS $$
     DECLARE
         document_id UUID;
