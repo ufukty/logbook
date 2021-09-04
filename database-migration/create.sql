@@ -380,6 +380,9 @@ CREATE PROCEDURE load_test_dataset() AS $$
         UPDATE "TASK" SET "completed_at" = '2021-10-29T04:37:40+03:00' WHERE "task_id" = v_task_10."task_id";
         UPDATE "TASK" SET "completed_at" = '2021-10-30T20:48:02+03:00' WHERE "task_id" = v_task_11."task_id";
 
+        CALL reattach_task(v_task_13."task_id", v_task_1."task_id");
+        CALL reattach_task(v_task_27."task_id", v_task_15."task_id");
+        CALL reattach_task(v_task_31."task_id", v_task_5."task_id");
     END
 $$ LANGUAGE 'plpgsql';
 
