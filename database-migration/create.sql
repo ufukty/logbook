@@ -102,14 +102,16 @@ CREATE FUNCTION document_overview(v_document_id UUID) RETURNS SETOF "TASK" AS $$
     END
 $$ LANGUAGE 'plpgsql';
 
--- RECURSIVE HELPER FUNCTION FOR create_task
-CREATE FUNCTION update_parent_task_degree(v_task_id UUID, v_increment INT) RETURNS "TASK"[] AS $$
+-- RECURSIVE HELPER FUNCTION FOR:
+--    * create_task
+--    * reattach_task
+CREATE FUNCTION update_task_degree(v_task_id UUID, v_increment INT) RETURNS "TASK"[] AS $$
     DECLARE
         v_total_degrees_of_siblings INT;
         v_task "TASK";
         v_updated_task_list "TASK"[];
     BEGIN
-        -- RAISE NOTICE 'update_parent_task_degree, v_task_id = %', v_task_id;
+        -- RAISE NOTICE 'update_task_degree, v_task_id = %', v_task_id;
 
         UPDATE "TASK"
         SET "degree" = "degree" + v_increment
@@ -130,7 +132,7 @@ CREATE FUNCTION update_parent_task_degree(v_task_id UUID, v_increment INT) RETUR
             -- RAISE NOTICE 'recursing into parent';
             v_updated_task_list = array_cat(
                 v_updated_task_list, 
-                update_parent_task_degree(v_task."parent_id", v_increment)
+                update_task_degree(v_task."parent_id", v_increment)
             );
         END IF;
         
@@ -182,7 +184,7 @@ CREATE FUNCTION create_task(
         IF v_parent_id != '00000000-0000-0000-0000-000000000000' THEN
             v_updated_task_list = array_cat(
                 v_updated_task_list, 
-                update_parent_task_degree(v_parent_id, 1)
+                update_task_degree(v_parent_id, 1)
             );
         END IF;
 
@@ -197,17 +199,17 @@ CREATE FUNCTION create_task(
     END
 $$ LANGUAGE 'plpgsql';
 
-CREATE PROCEDURE update_parent_readiness(v_parent_id UUID) AS $$
+CREATE PROCEDURE update_task_readineess(v_task_id UUID) AS $$
     DECLARE
         v_undone_children "TASK";
         v_readiness BOOLEAN;
     BEGIN
-        -- RAISE NOTICE 'update_parent_readiness is running for %', v_parent_id;
+        -- RAISE NOTICE 'update_task_readineess is running for %', v_task_id;
 
         SELECT *
         INTO v_undone_children
         FROM "TASK"
-        WHERE "parent_id" = v_parent_id
+        WHERE "parent_id" = v_task_id
             AND "completed_at" IS NULL;
 
         IF v_undone_children IS NULL THEN
@@ -220,7 +222,7 @@ CREATE PROCEDURE update_parent_readiness(v_parent_id UUID) AS $$
 
         UPDATE "TASK"
         SET "ready_to_pick_up" = v_readiness
-        WHERE "task_id" = v_parent_id;
+        WHERE "task_id" = v_task_id;
     END
 $$ LANGUAGE 'plpgsql';
 
@@ -256,9 +258,9 @@ CREATE FUNCTION reattach_task(v_task_id UUID, v_new_parent_id UUID) RETURNS "TAS
         IF v_task_old."parent_id" != '00000000-0000-0000-0000-000000000000' THEN
             v_updated_task_list = array_cat(
                 v_updated_task_list,
-                update_parent_task_degree(v_task_old."parent_id", -1 * v_task_old."degree")
+                update_task_degree(v_task_old."parent_id", -1 * v_task_old."degree")
             );
-            CALL update_parent_readiness(v_task_old."parent_id");
+            CALL update_task_readineess(v_task_old."parent_id");
         END IF;
 
         -- UPDATE NEW PARENT:
@@ -266,9 +268,9 @@ CREATE FUNCTION reattach_task(v_task_id UUID, v_new_parent_id UUID) RETURNS "TAS
         --     * READINESS STATUS
         v_updated_task_list = array_cat(
             v_updated_task_list,
-            update_parent_task_degree(v_new_parent_id, v_task_old."degree")
+            update_task_degree(v_new_parent_id, v_task_old."degree")
         );
-        CALL update_parent_readiness(v_task_old."parent_id");
+        CALL update_task_readineess(v_task_old."parent_id");
 
         -- RETURN UPDATED TASKS AS ARRAY FOR UPDATING FRONTEND 
         RETURN v_updated_task_list;
