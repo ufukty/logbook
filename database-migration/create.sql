@@ -279,7 +279,7 @@ CREATE FUNCTION reattach_task(v_task_id UUID, v_new_parent_id UUID) RETURNS SETO
             v_updated_task_list,
             update_task_degree(v_new_parent_id, v_task_old."degree")
         );
-        PERFORM update_task_readineess(v_new_parent_id); -- TODO: BUG FIX
+        PERFORM update_task_readineess(v_new_parent_id);
 
         -- RETURN UPDATED TASKS AS ARRAY FOR UPDATING FRONTEND 
         RETURN QUERY SELECT * FROM "TASK" WHERE "task_id" = ANY(v_updated_task_list);
