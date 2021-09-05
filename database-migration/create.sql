@@ -105,11 +105,11 @@ $$ LANGUAGE 'plpgsql';
 -- RECURSIVE HELPER FUNCTION FOR:
 --    * create_task
 --    * reattach_task
-CREATE FUNCTION update_task_degree(v_task_id UUID, v_increment INT) RETURNS "TASK"[] AS $$
+CREATE FUNCTION update_task_degree(v_task_id UUID, v_increment INT) RETURNS UUID[] AS $$
     DECLARE
         v_total_degrees_of_siblings INT;
         v_task "TASK";
-        v_updated_task_list "TASK"[];
+        v_updated_task_list UUID[];
     BEGIN
         -- RAISE NOTICE 'update_task_degree, v_task_id = %', v_task_id;
 
@@ -126,7 +126,7 @@ CREATE FUNCTION update_task_degree(v_task_id UUID, v_increment INT) RETURNS "TAS
         -- RAISE NOTICE 'v_task."parent_id" = %', v_task."parent_id";
 
         -- ADD ITSELF TO v_updated_task_list BEFORE THE TASKS THAT WILL RETURNED BY PARENT
-        v_updated_task_list = array_append(v_updated_task_list, v_task);
+        v_updated_task_list = array_append(v_updated_task_list, v_task."task_id");
 
         IF v_task."parent_id" != '00000000-0000-0000-0000-000000000000' THEN
             -- RAISE NOTICE 'recursing into parent';
@@ -150,12 +150,12 @@ CREATE FUNCTION create_task(
     v_document_id UUID, 
     v_content VARCHAR,
     v_parent_id UUID DEFAULT '00000000-0000-0000-0000-000000000000'
-) RETURNS "TASK"[] AS $$
+) RETURNS SETOF "TASK" AS $$
     DECLARE
         v_depth INT;
         v_degree INT;
         v_task "TASK"%ROWTYPE;
-        v_updated_task_list "TASK"[];
+        v_updated_task_list UUID[];
     BEGIN
         -- RAISE NOTICE 'v_parent_id = %', v_parent_id;
 
@@ -178,7 +178,14 @@ CREATE FUNCTION create_task(
         RETURNING * INTO v_task;
 
         -- INITIALIZE THE RETURN LIST
-        v_updated_task_list = array_append(v_updated_task_list, v_task);
+        v_updated_task_list = array_append(v_updated_task_list, v_task."task_id");
+
+        -- UPDATE PARENT'S READY-TO-PICK-UP STATUS TO FALSE
+        IF v_parent_id != '00000000-0000-0000-0000-000000000000' THEN
+            UPDATE "TASK"
+            SET "ready_to_pick_up" = FALSE
+            WHERE task_id = v_parent_id;
+        END IF;
 
         -- UPDATE PARENTS' DEGREES
         IF v_parent_id != '00000000-0000-0000-0000-000000000000' THEN
@@ -188,23 +195,18 @@ CREATE FUNCTION create_task(
             );
         END IF;
 
-        -- UPDATE PARENT'S READY-TO-PICK-UP STATUS TO FALSE
-        IF v_parent_id != '00000000-0000-0000-0000-000000000000' THEN
-            UPDATE "TASK"
-            SET "ready_to_pick_up" = FALSE
-            WHERE task_id = v_parent_id;
-        END IF;
-
-        RETURN v_updated_task_list;
+        RETURN QUERY SELECT * FROM "TASK" WHERE "task_id" = ANY(v_updated_task_list);
     END
 $$ LANGUAGE 'plpgsql';
 
-CREATE FUNCTION update_task_readineess(v_task_id UUID) RETURNS "TASK" AS $$
+CREATE FUNCTION update_task_readineess(v_task_id UUID) RETURNS UUID AS $$
     DECLARE
         v_undone_children "TASK";
         v_readiness BOOLEAN;
         v_task "TASK";
     BEGIN
+        -- TODO: IT CAN RETURN UUID[] IF PARENTS OF PARENTS TAKEN INTO CALCULATION
+
         -- RAISE NOTICE 'update_task_readineess is running for %', v_task_id;
 
         SELECT *
@@ -227,15 +229,17 @@ CREATE FUNCTION update_task_readineess(v_task_id UUID) RETURNS "TASK" AS $$
             AND "ready_to_pick_up" <> v_readiness
         RETURNING * INTO v_task;
 
-        RETURN v_task;
+        RETURN v_task."task_id";
     END
 $$ LANGUAGE 'plpgsql';
 
-CREATE FUNCTION reattach_task(v_task_id UUID, v_new_parent_id UUID) RETURNS "TASK"[] AS $$ -- RETURN "TASK"
+CREATE FUNCTION reattach_task(v_task_id UUID, v_new_parent_id UUID) RETURNS SETOF "TASK" AS $$ -- RETURN "TASK"
     DECLARE
-        v_updated_task_list "TASK"[];
+        v_updated_task_list UUID[];
         v_task_old "TASK";
     BEGIN
+        -- FIXME: CHECK CIRCULAR DEPENDENCY
+    
         -- TEMPORARILY STORE THE TASK WITH ITS CURRENT CONDITION
         SELECT * 
         INTO v_task_old 
@@ -244,7 +248,7 @@ CREATE FUNCTION reattach_task(v_task_id UUID, v_new_parent_id UUID) RETURNS "TAS
 
         -- DON'T CONTINUE IF THE DESIRED NEW PARENT IS THE TASK'S ITSELF
         IF v_task_id = v_new_parent_id THEN
-            RETURN v_updated_task_list;
+            RETURN;
         END IF;
 
         -- UPDATE TASK:
@@ -255,7 +259,7 @@ CREATE FUNCTION reattach_task(v_task_id UUID, v_new_parent_id UUID) RETURNS "TAS
         WHERE "task_id" = v_task_id;
 
         -- INITILIAZE RETURN LIST WITH THE MODIFIED TASK AS ITS FIRST ITEM
-        v_updated_task_list = array_append(v_updated_task_list, v_task_old);
+        v_updated_task_list = array_append(v_updated_task_list, v_task_old."task_id");
 
         -- UPDATE OLD PARENT:
         --     * DEGREE (RECURSIVELY)
@@ -278,14 +282,14 @@ CREATE FUNCTION reattach_task(v_task_id UUID, v_new_parent_id UUID) RETURNS "TAS
         PERFORM update_task_readineess(v_new_parent_id); -- TODO: BUG FIX
 
         -- RETURN UPDATED TASKS AS ARRAY FOR UPDATING FRONTEND 
-        RETURN v_updated_task_list;
+        RETURN QUERY SELECT * FROM "TASK" WHERE "task_id" = ANY(v_updated_task_list);
     END 
 $$ LANGUAGE 'plpgsql';
 
-CREATE FUNCTION mark_a_task_done(v_task_id UUID) RETURNS "TASK"[] AS $$
+CREATE FUNCTION mark_a_task_done(v_task_id UUID) RETURNS SETOF "TASK" AS $$
     DECLARE
         v_task "TASK";
-        v_updated_tasks "TASK"[];
+        v_updated_task_list UUID[];
     BEGIN
         RAISE NOTICE 'mark_a_task_done, v_task_id = %', v_task_id;
 
@@ -297,17 +301,17 @@ CREATE FUNCTION mark_a_task_done(v_task_id UUID) RETURNS "TASK"[] AS $$
         RETURNING * INTO v_task;
         
         -- UPDATE TASK'
-        v_updated_tasks = array_append(v_updated_tasks, v_task);
+        v_updated_task_list = array_append(v_updated_task_list, v_task."task_id");
 
         -- UPDATE PARENT READINESS
         IF v_task IS NOT NULL THEN
-            v_updated_tasks = array_append(
-                v_updated_tasks,
+            v_updated_task_list = array_append(
+                v_updated_task_list,
                 update_task_readineess(v_task."parent_id") 
             );
         END IF;
 
-        RETURN v_updated_tasks;
+        RETURN QUERY SELECT * FROM "TASK" WHERE "task_id" = ANY(v_updated_task_list);
     END
 $$ LANGUAGE 'plpgsql';
 
