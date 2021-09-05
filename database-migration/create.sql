@@ -199,10 +199,11 @@ CREATE FUNCTION create_task(
     END
 $$ LANGUAGE 'plpgsql';
 
-CREATE PROCEDURE update_task_readineess(v_task_id UUID) AS $$
+CREATE FUNCTION update_task_readineess(v_task_id UUID) RETURNS "TASK" AS $$
     DECLARE
         v_undone_children "TASK";
         v_readiness BOOLEAN;
+        v_task "TASK";
     BEGIN
         -- RAISE NOTICE 'update_task_readineess is running for %', v_task_id;
 
@@ -222,7 +223,11 @@ CREATE PROCEDURE update_task_readineess(v_task_id UUID) AS $$
 
         UPDATE "TASK"
         SET "ready_to_pick_up" = v_readiness
-        WHERE "task_id" = v_task_id;
+        WHERE "task_id" = v_task_id 
+            AND "ready_to_pick_up" <> v_readiness
+        RETURNING * INTO v_task;
+
+        RETURN v_task;
     END
 $$ LANGUAGE 'plpgsql';
 
@@ -260,7 +265,7 @@ CREATE FUNCTION reattach_task(v_task_id UUID, v_new_parent_id UUID) RETURNS "TAS
                 v_updated_task_list,
                 update_task_degree(v_task_old."parent_id", -1 * v_task_old."degree")
             );
-            CALL update_task_readineess(v_task_old."parent_id");
+            PERFORM update_task_readineess(v_task_old."parent_id");
         END IF;
 
         -- UPDATE NEW PARENT:
@@ -270,11 +275,40 @@ CREATE FUNCTION reattach_task(v_task_id UUID, v_new_parent_id UUID) RETURNS "TAS
             v_updated_task_list,
             update_task_degree(v_new_parent_id, v_task_old."degree")
         );
-        CALL update_task_readineess(v_task_old."parent_id");
+        PERFORM update_task_readineess(v_task_old."parent_id");
 
         -- RETURN UPDATED TASKS AS ARRAY FOR UPDATING FRONTEND 
         RETURN v_updated_task_list;
     END 
+$$ LANGUAGE 'plpgsql';
+
+CREATE FUNCTION mark_a_task_done(v_task_id UUID) RETURNS "TASK"[] AS $$
+    DECLARE
+        v_task "TASK";
+        v_updated_tasks "TASK"[];
+    BEGIN
+        RAISE NOTICE 'mark_a_task_done, v_task_id = %', v_task_id;
+
+        -- UPDATE TASK'S ITSELF
+        UPDATE "TASK"
+        SET completed_at = CURRENT_TIMESTAMP
+        WHERE "task_id" = v_task_id 
+            AND "completed_at" IS NULL
+        RETURNING * INTO v_task;
+        
+        -- UPDATE TASK'
+        v_updated_tasks = array_append(v_updated_tasks, v_task);
+
+        -- UPDATE PARENT READINESS
+        IF v_task IS NOT NULL THEN
+            v_updated_tasks = array_append(
+                v_updated_tasks,
+                update_task_readineess(v_task."parent_id") 
+            );
+        END IF;
+
+        RETURN v_updated_tasks;
+    END
 $$ LANGUAGE 'plpgsql';
 
 CREATE PROCEDURE load_test_dataset() AS $$
@@ -317,6 +351,7 @@ CREATE PROCEDURE load_test_dataset() AS $$
         v_tasks_34 "TASK"[];
         v_tasks_35 "TASK"[];
         v_tasks_0 "TASK"[];
+        v_task_35_mark_done "TASK"[];
     BEGIN
         INSERT INTO "DOCUMENT"("document_id") VALUES ('fe71c1e5-e6c8-587e-9647-e9ae9819eb8a') RETURNING "DOCUMENT"."document_id" INTO document_id;
 
@@ -393,30 +428,56 @@ CREATE PROCEDURE load_test_dataset() AS $$
         UPDATE "TASK" SET "created_at" = '2021-12-20T09:51:34+03:00' WHERE "task_id" = v_tasks_7[1]."task_id";
         UPDATE "TASK" SET "created_at" = '2021-12-31T10:52:07+03:00' WHERE "task_id" = v_tasks_34[1]."task_id";
 
+        PERFORM mark_a_task_done(v_tasks_18[1]."task_id");
         UPDATE "TASK" SET "completed_at" = '2021-10-02T05:46:29+03:00' WHERE "task_id" = v_tasks_18[1]."task_id";
+        PERFORM mark_a_task_done(v_tasks_19[1]."task_id");
         UPDATE "TASK" SET "completed_at" = '2021-10-03T05:47:47+03:00' WHERE "task_id" = v_tasks_19[1]."task_id";
+        PERFORM mark_a_task_done(v_tasks_20[1]."task_id");
         UPDATE "TASK" SET "completed_at" = '2021-10-03T09:48:06+03:00' WHERE "task_id" = v_tasks_20[1]."task_id";
+        PERFORM mark_a_task_done(v_tasks_21[1]."task_id");
         UPDATE "TASK" SET "completed_at" = '2021-10-08T03:07:40+03:00' WHERE "task_id" = v_tasks_21[1]."task_id";
+        PERFORM mark_a_task_done(v_tasks_22[1]."task_id");
         UPDATE "TASK" SET "completed_at" = '2021-10-09T05:25:48+03:00' WHERE "task_id" = v_tasks_22[1]."task_id";
+        PERFORM mark_a_task_done(v_tasks_23[1]."task_id");
         UPDATE "TASK" SET "completed_at" = '2021-10-11T18:19:27+03:00' WHERE "task_id" = v_tasks_23[1]."task_id";
+        PERFORM mark_a_task_done(v_tasks_24[1]."task_id");
         UPDATE "TASK" SET "completed_at" = '2021-10-14T01:03:33+03:00' WHERE "task_id" = v_tasks_24[1]."task_id";
+        PERFORM mark_a_task_done(v_tasks_25[1]."task_id");
         UPDATE "TASK" SET "completed_at" = '2021-10-14T10:54:34+03:00' WHERE "task_id" = v_tasks_25[1]."task_id";
+        PERFORM mark_a_task_done(v_tasks_26[1]."task_id");
         UPDATE "TASK" SET "completed_at" = '2021-10-18T02:23:12+03:00' WHERE "task_id" = v_tasks_26[1]."task_id";
+        PERFORM mark_a_task_done(v_tasks_27[1]."task_id");
         UPDATE "TASK" SET "completed_at" = '2021-10-21T04:48:09+03:00' WHERE "task_id" = v_tasks_27[1]."task_id";
+        PERFORM mark_a_task_done(v_tasks_28[1]."task_id");
         UPDATE "TASK" SET "completed_at" = '2021-10-22T01:22:57+03:00' WHERE "task_id" = v_tasks_28[1]."task_id";
+        PERFORM mark_a_task_done(v_tasks_29[1]."task_id");
         UPDATE "TASK" SET "completed_at" = '2021-10-22T11:06:13+03:00' WHERE "task_id" = v_tasks_29[1]."task_id";
+        PERFORM mark_a_task_done(v_tasks_30[1]."task_id");
         UPDATE "TASK" SET "completed_at" = '2021-10-23T00:42:48+03:00' WHERE "task_id" = v_tasks_30[1]."task_id";
+        PERFORM mark_a_task_done(v_tasks_31[1]."task_id");
         UPDATE "TASK" SET "completed_at" = '2021-10-23T21:37:55+03:00' WHERE "task_id" = v_tasks_31[1]."task_id";
+        PERFORM mark_a_task_done(v_tasks_32[1]."task_id");
         UPDATE "TASK" SET "completed_at" = '2021-10-24T04:01:24+03:00' WHERE "task_id" = v_tasks_32[1]."task_id";
+        PERFORM mark_a_task_done(v_tasks_33[1]."task_id");
         UPDATE "TASK" SET "completed_at" = '2021-10-24T20:57:14+03:00' WHERE "task_id" = v_tasks_33[1]."task_id";
+        PERFORM mark_a_task_done(v_tasks_34[1]."task_id");
         UPDATE "TASK" SET "completed_at" = '2021-10-25T22:54:19+03:00' WHERE "task_id" = v_tasks_34[1]."task_id";
+        PERFORM mark_a_task_done(v_tasks_35[1]."task_id");
         UPDATE "TASK" SET "completed_at" = '2021-10-26T18:27:59+03:00' WHERE "task_id" = v_tasks_35[1]."task_id";
+        PERFORM mark_a_task_done(v_tasks_6[1]."task_id");
         UPDATE "TASK" SET "completed_at" = '2021-10-26T20:43:38+03:00' WHERE "task_id" = v_tasks_6[1]."task_id";
+        PERFORM mark_a_task_done(v_tasks_7[1]."task_id");
         UPDATE "TASK" SET "completed_at" = '2021-10-28T05:00:14+03:00' WHERE "task_id" = v_tasks_7[1]."task_id";
+        PERFORM mark_a_task_done(v_tasks_8[1]."task_id");
         UPDATE "TASK" SET "completed_at" = '2021-10-28T12:58:22+03:00' WHERE "task_id" = v_tasks_8[1]."task_id";
+        PERFORM mark_a_task_done(v_tasks_9[1]."task_id");
         UPDATE "TASK" SET "completed_at" = '2021-10-28T14:20:12+03:00' WHERE "task_id" = v_tasks_9[1]."task_id";
+        PERFORM mark_a_task_done(v_tasks_10[1]."task_id");
         UPDATE "TASK" SET "completed_at" = '2021-10-29T04:37:40+03:00' WHERE "task_id" = v_tasks_10[1]."task_id";
+        v_task_35_mark_done = mark_a_task_done(v_tasks_11[1]."task_id");
         UPDATE "TASK" SET "completed_at" = '2021-10-30T20:48:02+03:00' WHERE "task_id" = v_tasks_11[1]."task_id";
+
+        RAISE NOTICE 'v_task_35_mark_done = %', v_task_35_mark_done;
 
         PERFORM reattach_task(v_tasks_13[1]."task_id", v_tasks_1[1]."task_id");
         PERFORM reattach_task(v_tasks_27[1]."task_id", v_tasks_15[1]."task_id");
