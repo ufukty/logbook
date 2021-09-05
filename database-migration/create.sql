@@ -275,7 +275,7 @@ CREATE FUNCTION reattach_task(v_task_id UUID, v_new_parent_id UUID) RETURNS "TAS
             v_updated_task_list,
             update_task_degree(v_new_parent_id, v_task_old."degree")
         );
-        PERFORM update_task_readineess(v_task_old."parent_id");
+        PERFORM update_task_readineess(v_new_parent_id); -- TODO: BUG FIX
 
         -- RETURN UPDATED TASKS AS ARRAY FOR UPDATING FRONTEND 
         RETURN v_updated_task_list;
