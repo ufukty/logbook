@@ -142,6 +142,40 @@ CREATE FUNCTION update_task_degree(v_task_id UUID, v_increment INT) RETURNS UUID
     END
 $$ LANGUAGE 'plpgsql';
 
+CREATE FUNCTION update_task_readineess(v_task_id UUID) RETURNS UUID AS $$
+    DECLARE
+        v_undone_children "TASK";
+        v_readiness BOOLEAN;
+        v_task "TASK";
+    BEGIN
+        -- TODO: IT CAN RETURN UUID[] IF PARENTS OF PARENTS TAKEN INTO CALCULATION
+
+        -- RAISE NOTICE 'update_task_readineess is running for %', v_task_id;
+
+        SELECT *
+        INTO v_undone_children
+        FROM "TASK"
+        WHERE "parent_id" = v_task_id
+            AND "completed_at" IS NULL;
+
+        IF v_undone_children IS NULL THEN
+            v_readiness = TRUE;
+        ELSE
+            v_readiness = FALSE;
+        END IF;
+
+        -- RAISE NOTICE 'v_readiness = %', v_readiness;
+
+        UPDATE "TASK"
+        SET "ready_to_pick_up" = v_readiness
+        WHERE "task_id" = v_task_id 
+            AND "ready_to_pick_up" <> v_readiness
+        RETURNING * INTO v_task;
+
+        RETURN v_task."task_id";
+    END
+$$ LANGUAGE 'plpgsql';
+
 -- Add new task to document with:
 --   * updating the degree of parent task (and theirs, recursively).
 --   * minding the depth of parent task.
@@ -196,40 +230,6 @@ CREATE FUNCTION create_task(
         END IF;
 
         RETURN QUERY SELECT * FROM "TASK" WHERE "task_id" = ANY(v_updated_task_list);
-    END
-$$ LANGUAGE 'plpgsql';
-
-CREATE FUNCTION update_task_readineess(v_task_id UUID) RETURNS UUID AS $$
-    DECLARE
-        v_undone_children "TASK";
-        v_readiness BOOLEAN;
-        v_task "TASK";
-    BEGIN
-        -- TODO: IT CAN RETURN UUID[] IF PARENTS OF PARENTS TAKEN INTO CALCULATION
-
-        -- RAISE NOTICE 'update_task_readineess is running for %', v_task_id;
-
-        SELECT *
-        INTO v_undone_children
-        FROM "TASK"
-        WHERE "parent_id" = v_task_id
-            AND "completed_at" IS NULL;
-
-        IF v_undone_children IS NULL THEN
-            v_readiness = TRUE;
-        ELSE
-            v_readiness = FALSE;
-        END IF;
-
-        -- RAISE NOTICE 'v_readiness = %', v_readiness;
-
-        UPDATE "TASK"
-        SET "ready_to_pick_up" = v_readiness
-        WHERE "task_id" = v_task_id 
-            AND "ready_to_pick_up" <> v_readiness
-        RETURNING * INTO v_task;
-
-        RETURN v_task."task_id";
     END
 $$ LANGUAGE 'plpgsql';
 
