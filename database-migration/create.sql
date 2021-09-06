@@ -106,6 +106,15 @@ CREATE FUNCTION document_overview(v_document_id UUID) RETURNS SETOF "TASK" AS $$
     END
 $$ LANGUAGE 'plpgsql';
 
+CREATE OR REPLACE FUNCTION field(uuid, uuid) RETURNS INTEGER AS $$
+    BEGIN
+        IF $1 = $2 THEN
+            RETURN 0;
+        END IF;
+        RETURN 1;
+    END
+$$ LANGUAGE 'plpgsql';
+
 -- RECURSIVE HELPER FUNCTION FOR:
 --    * create_task
 --    * reattach_task
@@ -238,6 +247,15 @@ CREATE FUNCTION update_task_depth(v_task_id UUID) RETURNS UUID[] AS $$
 $$ LANGUAGE 'plpgsql';
 
 
+CREATE FUNCTION array_to_sorted_row_list(v_id_array UUID[], v_task_id UUID) RETURNS SETOF "TASK" AS $$
+    BEGIN
+        RETURN QUERY (
+            SELECT * FROM "TASK" t WHERE t."task_id" = ANY(v_id_array) 
+            ORDER BY CASE WHEN t."task_id" = v_task_id THEN 0 ELSE 1 END
+        );
+    END
+$$ LANGUAGE 'plpgsql';
+
 -- Add new task to document with:
 --   * updating the degree of parent task (and theirs, recursively).
 --   * minding the depth of parent task.
@@ -291,7 +309,7 @@ CREATE FUNCTION create_task(
             );
         END IF;
 
-        RETURN QUERY SELECT * FROM "TASK" WHERE "task_id" = ANY(v_updated_task_list);
+        RETURN QUERY SELECT * FROM array_to_sorted_row_list(v_updated_task_list, v_task."task_id");
     END
 $$ LANGUAGE 'plpgsql';
 
@@ -349,7 +367,7 @@ CREATE FUNCTION reattach_task(v_task_id UUID, v_new_parent_id UUID) RETURNS SETO
         );
 
         -- RETURN UPDATED TASKS AS ARRAY FOR UPDATING FRONTEND 
-        RETURN QUERY SELECT * FROM "TASK" WHERE "task_id" = ANY(v_updated_task_list);
+        RETURN QUERY SELECT * FROM array_to_sorted_row_list(v_updated_task_list, v_task_id);
     END 
 $$ LANGUAGE 'plpgsql';
 
@@ -378,7 +396,7 @@ CREATE FUNCTION mark_a_task_done(v_task_id UUID) RETURNS SETOF "TASK" AS $$
             );
         END IF;
 
-        RETURN QUERY SELECT * FROM "TASK" WHERE "task_id" = ANY(v_updated_task_list);
+        RETURN QUERY SELECT * FROM array_to_sorted_row_list(v_updated_task_list, v_task_id);
     END
 $$ LANGUAGE 'plpgsql';
 
@@ -552,6 +570,3 @@ CREATE PROCEDURE load_test_dataset() AS $$
 $$ LANGUAGE 'plpgsql';
 
 CALL load_test_dataset();
-
--- SELECT "task_id" FROM "TASK" LIMIT 1;
--- SELECT * FROM unnest(v_task_0
