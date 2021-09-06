@@ -106,15 +106,6 @@ CREATE FUNCTION document_overview(v_document_id UUID) RETURNS SETOF "TASK" AS $$
     END
 $$ LANGUAGE 'plpgsql';
 
-CREATE OR REPLACE FUNCTION field(uuid, uuid) RETURNS INTEGER AS $$
-    BEGIN
-        IF $1 = $2 THEN
-            RETURN 0;
-        END IF;
-        RETURN 1;
-    END
-$$ LANGUAGE 'plpgsql';
-
 -- RECURSIVE HELPER FUNCTION FOR:
 --    * create_task
 --    * reattach_task
