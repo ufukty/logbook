@@ -84,6 +84,7 @@ CREATE FUNCTION document_overview(v_document_id UUID) RETURNS SETOF "TASK" AS $$
                 WHERE 
                     "completed_at" IS NULL
                     AND "ready_to_pick_up" = TRUE
+                    AND "document_id" = v_document_id
                 ORDER BY "created_at" ASC
                 LIMIT 100
             )
@@ -95,6 +96,7 @@ CREATE FUNCTION document_overview(v_document_id UUID) RETURNS SETOF "TASK" AS $$
                 WHERE 
                     "completed_at" IS NULL
                     AND "ready_to_pick_up" = FALSE
+                    AND "document_id" = v_document_id
                 ORDER BY "degree" DESC
                 LIMIT 20
             )
