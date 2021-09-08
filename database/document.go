@@ -4,45 +4,25 @@ import (
 	"context"
 )
 
-func CreateDocument(document Document) (Document, []error) {
+func CreateDocument() (Document, []error) {
+	document := Document{}
 	query := `
 		INSERT INTO "DOCUMENT" 
 		DEFAULT VALUES
 		RETURNING
 			"document_id", 
 			"created_at",
-			"total_task_groups"`
+			"active_task"`
 	err := pool.QueryRow(
 		context.Background(),
 		query,
 	).Scan(
 		&document.DocumentId,
 		&document.CreatedAt,
-		&document.TotalTaskGroups,
+		&document.ActiveTask,
 	)
 	if err != nil {
 		return document, []error{err, ErrCreateDocument}
-	}
-	return document, nil
-}
-
-func CreateDocumentWithTaskGroups(document Document) (Document, []error) {
-	query := `
-		SELECT 
-			"document_id", 
-			"created_at", 
-			"total_task_groups"
-		FROM create_document_with_task_groups();`
-	err := pool.QueryRow(
-		context.Background(),
-		query,
-	).Scan(
-		&document.DocumentId,
-		&document.CreatedAt,
-		&document.TotalTaskGroups,
-	)
-	if err != nil {
-		return document, []error{err, ErrCreateDocumentWithTaskGroups}
 	}
 	return document, nil
 }
@@ -52,7 +32,7 @@ func GetDocumentByDocumentId(documentId string) (Document, []error) {
 	query := `
 		SELECT 
 			"created_at",
-			"total_task_groups"
+			"active_task"
 		FROM
 			"DOCUMENT"
 		WHERE
@@ -63,10 +43,49 @@ func GetDocumentByDocumentId(documentId string) (Document, []error) {
 		documentId,
 	).Scan(
 		&document.CreatedAt,
-		&document.TotalTaskGroups,
+		&document.ActiveTask,
 	)
 	if err != nil {
 		return document, []error{err, ErrGetDocumentByDocumentId}
 	}
 	return document, nil
+}
+
+func GetDocumentOverviewWithDocumentId(documentId string) ([]Task, []error) {
+	tasks := []Task{}
+	query := `
+		SELECT
+			"task_id", 
+			"document_id", 
+			"parent_id", 
+			"content", 
+			"degree", 
+			"depth", 
+			"created_at", 
+			"completed_at", 
+			"ready_to_pick_up"
+		FROM document_overview($1)`
+	rows, err := pool.Query(context.Background(), query, documentId)
+	if err != nil {
+		return nil, []error{err, ErrGetDocumentOverviewWithDocumentIdQuery}
+	}
+	for rows.Next() {
+		task := Task{}
+		rows.Scan(
+			&task.TaskId,
+			&task.DocumentId,
+			&task.ParentId,
+			&task.Content,
+			&task.Degree,
+			&task.Depth,
+			&task.CreatedAt,
+			&task.CompletedAt,
+			&task.ReadyToPickUp,
+		)
+		if err != nil {
+			return nil, []error{err, ErrGetDocumentOverviewWithDocumentIdScan}
+		}
+		tasks = append(tasks, task)
+	}
+	return tasks, nil
 }

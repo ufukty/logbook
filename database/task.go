@@ -4,63 +4,79 @@ import (
 	"context"
 )
 
-func CreateTask(task Task) (Task, []error) {
+// Returns a list of updated items in addition to
+// the created task in first item.
+func CreateTask(task Task) ([]Task, []error) {
 	query := `
-		INSERT INTO "TASK" (
-			"task_group_id",
-			"parent_id",
-			"content",
-			"task_status",
-			"degree",
-			"depth"
-		)
-		VALUES (
-			$1, $2, $3, $4, $5, $6
-		)
-		RETURNING
-			"task_id", "created_at"`
-	err := pool.QueryRow(
+		SELECT 
+			"task_id", 
+			"document_id", 
+			"parent_id", 
+			"content", 
+			"degree", 
+			"depth", 
+			"created_at", 
+			"completed_at", 
+			"ready_to_pick_up"
+		FROM
+			create_task($1, $2, $3)`
+	rows, err := pool.Query(
 		context.Background(),
 		query,
-		&task.TaskGroupId,
-		&task.ParentId,
+		&task.DocumentId,
 		&task.Content,
-		&task.TaskStatus,
-		&task.Degree,
-		&task.Depth,
-	).Scan(&task.TaskId, &task.CreatedAt)
+		&task.ParentId,
+	)
 	if err != nil {
-		return task, []error{err, ErrCreateTask}
+		return nil, []error{err, ErrCreateTask}
 	}
-	return task, nil
-
+	tasks := []Task{}
+	for rows.Next() {
+		task := Task{}
+		err := rows.Scan(
+			&task.TaskId,
+			&task.DocumentId,
+			&task.ParentId,
+			&task.Content,
+			&task.Degree,
+			&task.Depth,
+			&task.CreatedAt,
+			&task.CompletedAt,
+			&task.ReadyToPickUp,
+		)
+		if err != nil {
+			return nil, []error{err}
+		}
+		tasks = append(tasks, task)
+	}
+	return tasks, nil
 }
 
 func GetTaskByTaskId(taskId string) (Task, []error) {
 	task := Task{}
 	query := `
 		SELECT 
+			"document_id", 
+			"parent_id", 
 			"content", 
-			"created_at", 
 			"degree", 
 			"depth", 
-			"parent_id", 
-			"task_group_id",
-			"task_id", 
-			"task_status" 
+			"created_at", 
+			"completed_at", 
+			"ready_to_pick_up"
 		FROM 
 			"TASK" 
 		WHERE 
 			"task_id"=$1`
 	err := pool.QueryRow(context.Background(), query, taskId).Scan(
+		&task.DocumentId,
+		&task.ParentId,
 		&task.Content,
-		&task.CreatedAt,
 		&task.Degree,
 		&task.Depth,
-		&task.ParentId,
-		&task.TaskGroupId,
-		&task.TaskId,
-		&task.TaskStatus,
+		&task.CreatedAt,
+		&task.CompletedAt,
+		&task.ReadyToPickUp,
 	)
 	if err != nil {
 		return task, []error{err, ErrGetTaskByTaskId}
@@ -68,37 +84,37 @@ func GetTaskByTaskId(taskId string) (Task, []error) {
 	return task, nil
 }
 
-func GetTasksByTaskGroupId(taskGroupId string) ([]Task, []error) {
+func GetTasksByDocumentId(documentId string) ([]Task, []error) {
 	tasks := []Task{}
 	query := `
 		SELECT 
+			"document_id", 
+			"parent_id", 
 			"content", 
-			"created_at", 
 			"degree", 
 			"depth", 
-			"parent_id", 
-			"task_group_id",
-			"task_id", 
-			"task_status" 
+			"created_at", 
+			"completed_at", 
+			"ready_to_pick_up"
 		FROM 
 			"TASK" 
 		WHERE 
-			"task_group_id"=$1`
-	rows, err := pool.Query(context.Background(), query, taskGroupId)
+			"document_id"=$1`
+	rows, err := pool.Query(context.Background(), query, documentId)
 	if err != nil {
-		return tasks, []error{err, ErrGetTasksByTaskGroupIdQuery}
+		return tasks, []error{err, ErrGetTasksByDocumentIdQuery}
 	}
 	for rows.Next() {
 		task := Task{}
 		err = rows.Scan(
+			&task.DocumentId,
+			&task.ParentId,
 			&task.Content,
-			&task.CreatedAt,
 			&task.Degree,
 			&task.Depth,
-			&task.ParentId,
-			&task.TaskGroupId,
-			&task.TaskId,
-			&task.TaskStatus,
+			&task.CreatedAt,
+			&task.CompletedAt,
+			&task.ReadyToPickUp,
 		)
 		if err != nil {
 			continue
@@ -106,7 +122,7 @@ func GetTasksByTaskGroupId(taskGroupId string) ([]Task, []error) {
 		tasks = append(tasks, task)
 	}
 	if err != nil {
-		return tasks, []error{err, ErrGetTasksByTaskGroupIdScan}
+		return tasks, []error{err, ErrGetTasksByDocumentIdScan}
 	}
 	return tasks, nil
 }
@@ -114,15 +130,16 @@ func GetTasksByTaskGroupId(taskGroupId string) ([]Task, []error) {
 func GetTaskByParentId(parentId string) ([]Task, []error) {
 	tasks := []Task{}
 	query := `
-		SELECT 
+	SELECT 
+			"task_id", 
+			"document_id", 
+			"parent_id", 
 			"content", 
-			"created_at", 
 			"degree", 
 			"depth", 
-			"parent_id", 
-			"task_group_id",
-			"task_id", 
-			"task_status" 
+			"created_at", 
+			"completed_at", 
+			"ready_to_pick_up"
 		FROM 
 			"TASK" 
 		WHERE 
@@ -138,14 +155,15 @@ func GetTaskByParentId(parentId string) ([]Task, []error) {
 	for rows.Next() {
 		task := Task{}
 		err = rows.Scan(
+			&task.TaskId,
+			&task.DocumentId,
+			&task.ParentId,
 			&task.Content,
-			&task.CreatedAt,
 			&task.Degree,
 			&task.Depth,
-			&task.ParentId,
-			&task.TaskGroupId,
-			&task.TaskId,
-			&task.TaskStatus,
+			&task.CreatedAt,
+			&task.CompletedAt,
+			&task.ReadyToPickUp,
 		)
 		if err != nil {
 			continue
@@ -158,50 +176,104 @@ func GetTaskByParentId(parentId string) ([]Task, []error) {
 	return tasks, nil
 }
 
-func UpdateTaskItem(task Task) (Task, []error) {
-	query := `
-		UPDATE 
-			"TASK" 
-		SET 
-			"content"=$2,
-			"created_at"=$3,
-			"degree"=$4,
-			"depth"=$5,
-			"parent_id"=$6,
-			"task_group_id"=$7,
-			"task_status"=$8
-		WHERE 
-			"task_id"=$1
-		RETURNING
-			"content",
-			"created_at",
-			"degree",
-			"depth",
-			"parent_id",
-			"task_group_id",
-			"task_status"`
-	err := pool.QueryRow(
-		context.Background(),
-		query,
-		task.TaskId,
-		task.Content,
-		task.CreatedAt,
-		task.Degree,
-		task.Depth,
-		task.ParentId,
-		task.TaskGroupId,
-		task.TaskStatus,
-	).Scan(
-		&task.Content,
-		&task.CreatedAt,
-		&task.Degree,
-		&task.Depth,
-		&task.ParentId,
-		&task.TaskGroupId,
-		&task.TaskStatus,
-	)
+// func UpdateTaskItem(task Task) (Task, []error) {
+// 	query := `
+// 		UPDATE
+// 			"TASK"
+// 		SET
+// 			"content"=$2,
+// 			"created_at"=$3,
+// 			"degree"=$4,
+// 			"depth"=$5,
+// 			"parent_id"=$6,
+// 		WHERE
+// 			"task_id"=$1
+// 		RETURNING
+// 			"content",
+// 			"created_at",
+// 			"degree",
+// 			"depth",
+// 			"parent_id",
+// 			"task_group_id",
+// 			"task_status"`
+// 	err := pool.QueryRow(
+// 		context.Background(),
+// 		query,
+// 		task.TaskId,
+// 		task.Content,
+// 		task.CreatedAt,
+// 		task.Degree,
+// 		task.Depth,
+// 		task.ParentId,
+// 	).Scan(
+// 		&task.Content,
+// 		&task.CreatedAt,
+// 		&task.Degree,
+// 		&task.Depth,
+// 		&task.ParentId,
+// 	)
+// 	if err != nil {
+// 		return task, []error{err, ErrUpdateTaskItem}
+// 	}
+// 	return task, nil
+// }
+
+// Returns a list of updated items in addition to
+// the marked task in first item.
+func MarkATaskDone(taskId string) ([]Task, []error) {
+	query := `SELECT mark_a_task_done($1)`
+	rows, err := pool.Query(context.Background(), query, taskId)
 	if err != nil {
-		return task, []error{err, ErrUpdateTaskItem}
+		return nil, []error{err, ErrMarkATaskDone}
 	}
-	return task, nil
+	tasks := []Task{}
+	for rows.Next() {
+		task := Task{}
+		err := rows.Scan(
+			&task.TaskId,
+			&task.DocumentId,
+			&task.ParentId,
+			&task.Content,
+			&task.Degree,
+			&task.Depth,
+			&task.CreatedAt,
+			&task.CompletedAt,
+			&task.ReadyToPickUp,
+		)
+		if err != nil {
+			return nil, []error{err}
+		}
+		tasks = append(tasks, task)
+	}
+	return tasks, nil
+}
+
+// Returns a list of updated items in addition to
+// the reattached task in first item.
+func ReattachTask(taskId string, newParentId string) ([]Task, []error) {
+	query := `SELECT reattach_task($1, $2)`
+	rows, err := pool.Query(context.Background(), query, taskId, newParentId)
+	if err != nil {
+		return nil, []error{err, ErrMarkATaskDone}
+	}
+	tasks := []Task{}
+	for rows.Next() {
+		task := Task{}
+		err := rows.Scan(
+			&task.TaskId,
+			&task.DocumentId,
+			&task.ParentId,
+			&task.Content,
+			&task.Degree,
+			&task.Depth,
+			&task.CreatedAt,
+			&task.CompletedAt,
+			&task.ReadyToPickUp,
+		)
+		if err != nil {
+			return nil, []error{err}
+		}
+		tasks = append(tasks, task)
+	}
+	return tasks, nil
 }

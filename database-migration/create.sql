@@ -24,7 +24,7 @@ CREATE TABLE "TASK" (
     "degree"            INT NOT NULL DEFAULT 1,
     "depth"             INT NOT NULL DEFAULT 1,
     "created_at"        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    "completed_at"      DATE,
+    "completed_at"      DATE, -- FIXME: MAKE IT TIMESTAMP AND UPDATE document_overview FUNCTION
     "ready_to_pick_up"  BOOLEAN NOT NULL DEFAULT TRUE
 );
 
@@ -36,7 +36,7 @@ ALTER TABLE "DOCUMENT" ADD
 -- DROP FUNCTION IF EXISTS create_document_with_task_groups;
 CREATE FUNCTION create_document() RETURNS "DOCUMENT" AS $$
     DECLARE
-        document "DOCUMENT"%ROWTYPE;
+        document "DOCUMENT";
     BEGIN
         INSERT INTO "DOCUMENT" DEFAULT VALUES RETURNING * INTO document;
         RETURN document;
@@ -389,7 +389,7 @@ $$ LANGUAGE 'plpgsql';
 
 CREATE PROCEDURE load_test_dataset() AS $$
     DECLARE
-        document_id UUID;
+        v_document_id UUID;
         v_task_1 UUID;
         v_task_2 UUID;
         v_task_3 UUID;
@@ -426,44 +426,44 @@ CREATE PROCEDURE load_test_dataset() AS $$
         v_task_34 UUID;
         v_task_35 UUID;
     BEGIN
-        INSERT INTO "DOCUMENT"("document_id") VALUES ('fe71c1e5-e6c8-587e-9647-e9ae9819eb8a') RETURNING "DOCUMENT"."document_id" INTO document_id;
+        SELECT "document_id" INTO v_document_id FROM create_document();
 
-        SELECT "task_id" INTO v_task_1 FROM create_task(v_document_id => document_id, v_content => 'deploy redis cluster on multi DC');
-        SELECT "task_id" INTO v_task_2 FROM create_task(document_id, 'deploy redis cluster on 1 DC', v_task_1);
-        SELECT "task_id" INTO v_task_3 FROM create_task(document_id, 'Revoke passwordless sudo rights after provision at cluster', v_task_1);
-        SELECT "task_id" INTO v_task_4 FROM create_task(document_id, 'iptables for redis', v_task_2);
-        SELECT "task_id" INTO v_task_5 FROM create_task(document_id, 'terraform for redis', v_task_3);
-        SELECT "task_id" INTO v_task_6 FROM create_task(document_id, 'Update redis/tf file according to prod.tfvars file', v_task_4);
-        SELECT "task_id" INTO v_task_7 FROM create_task(document_id, 'Remove: seperator from ovpn-auth', v_task_2);
-        SELECT "task_id" INTO v_task_8 FROM create_task(document_id, 'Write tests for ovpn-auth', v_task_3);
-        SELECT "task_id" INTO v_task_9 FROM create_task(document_id, 'Decrease timing gap of ovpn-auth under 1ms', v_task_3);
-        SELECT "task_id" INTO v_task_10 FROM create_task(document_id, 'Prepare releases for ovpn-auth', v_task_4);
-        SELECT "task_id" INTO v_task_11 FROM create_task(document_id, 'Provision golden-image for gitlab-runner', v_task_10);
+        SELECT "task_id" INTO v_task_1 FROM create_task(v_document_id => v_document_id, v_content => 'deploy redis cluster on multi DC');
+        SELECT "task_id" INTO v_task_2 FROM create_task(v_document_id, 'deploy redis cluster on 1 DC', v_task_1);
+        SELECT "task_id" INTO v_task_3 FROM create_task(v_document_id, 'Revoke passwordless sudo rights after provision at cluster', v_task_1);
+        SELECT "task_id" INTO v_task_4 FROM create_task(v_document_id, 'iptables for redis', v_task_2);
+        SELECT "task_id" INTO v_task_5 FROM create_task(v_document_id, 'terraform for redis', v_task_3);
+        SELECT "task_id" INTO v_task_6 FROM create_task(v_document_id, 'Update redis/tf file according to prod.tfvars file', v_task_4);
+        SELECT "task_id" INTO v_task_7 FROM create_task(v_document_id, 'Remove: seperator from ovpn-auth', v_task_2);
+        SELECT "task_id" INTO v_task_8 FROM create_task(v_document_id, 'Write tests for ovpn-auth', v_task_3);
+        SELECT "task_id" INTO v_task_9 FROM create_task(v_document_id, 'Decrease timing gap of ovpn-auth under 1ms', v_task_3);
+        SELECT "task_id" INTO v_task_10 FROM create_task(v_document_id, 'Prepare releases for ovpn-auth', v_task_4);
+        SELECT "task_id" INTO v_task_11 FROM create_task(v_document_id, 'Provision golden-image for gitlab-runner', v_task_10);
         
-        SELECT "task_id" INTO v_task_12 FROM create_task(v_document_id => document_id, v_content => 'gitlab-runner --(vpn)--> DNS ----> gitlab');
-        SELECT "task_id" INTO v_task_13 FROM create_task(document_id, 'Firewall & unbound rules update from prov script (VPN)', v_task_12);
-        SELECT "task_id" INTO v_task_14 FROM create_task(document_id, 'Script pic_gitlab_runner_post_creation', v_task_13);
-        SELECT "task_id" INTO v_task_15 FROM create_task(document_id, 'Execute 1 CI/CD pipeline on gitlab-runner', v_task_14);
-        SELECT "task_id" INTO v_task_16 FROM create_task(document_id, 'gitlab-runner provisioner with resolv.conf/docker/runner-register', v_task_12);
-        SELECT "task_id" INTO v_task_17 FROM create_task(document_id, 'prepare gitlab-ci for ovpn-auth repo', v_task_13);
-        SELECT "task_id" INTO v_task_18 FROM create_task(document_id, 'PAM for SSH', v_task_14);
-        SELECT "task_id" INTO v_task_19 FROM create_task(document_id, 'ACL - Redis', v_task_13);
-        SELECT "task_id" INTO v_task_20 FROM create_task(document_id, 'Redis security', v_task_13);
-        SELECT "task_id" INTO v_task_21 FROM create_task(document_id, 'TOTP for SSH', v_task_14);
-        SELECT "task_id" INTO v_task_22 FROM create_task(document_id, 'API gateway without redis', v_task_15);
-        SELECT "task_id" INTO v_task_23 FROM create_task(document_id, 'Golden image interitance re-organize', v_task_16);
-        SELECT "task_id" INTO v_task_24 FROM create_task(document_id, 'Postgres', v_task_12);
-        SELECT "task_id" INTO v_task_25 FROM create_task(document_id, 'Auth service', v_task_13);
-        SELECT "task_id" INTO v_task_26 FROM create_task(document_id, 'MQ', v_task_15);
-        SELECT "task_id" INTO v_task_27 FROM create_task(document_id, 'Federated learning', v_task_16);
-        SELECT "task_id" INTO v_task_28 FROM create_task(document_id, 'Bluetooth transmission test', v_task_12);
-        SELECT "task_id" INTO v_task_29 FROM create_task(document_id, 'Intrusion detection system (centralised) (OSSEC', v_task_12);
-        SELECT "task_id" INTO v_task_30 FROM create_task(document_id, 'Envoy - HAProxy - NGiNX', v_task_12);
-        SELECT "task_id" INTO v_task_31 FROM create_task(document_id, 'web-front/Privacy against [friend/pubic/company/attackers]', v_task_13);
-        SELECT "task_id" INTO v_task_32 FROM create_task(document_id, 'Redis/cluster script test for multi datacenter', v_task_13);
-        SELECT "task_id" INTO v_task_33 FROM create_task(document_id, 'gitlab-runner firewall rules: close public internet', v_task_14);
-        SELECT "task_id" INTO v_task_34 FROM create_task(document_id, 'static-challange for ovpn-auth', v_task_20);
-        SELECT "task_id" INTO v_task_35 FROM create_task(document_id, 'Golden image for vpn server', v_task_21);
+        SELECT "task_id" INTO v_task_12 FROM create_task(v_document_id => v_document_id, v_content => 'gitlab-runner --(vpn)--> DNS ----> gitlab');
+        SELECT "task_id" INTO v_task_13 FROM create_task(v_document_id, 'Firewall & unbound rules update from prov script (VPN)', v_task_12);
+        SELECT "task_id" INTO v_task_14 FROM create_task(v_document_id, 'Script pic_gitlab_runner_post_creation', v_task_13);
+        SELECT "task_id" INTO v_task_15 FROM create_task(v_document_id, 'Execute 1 CI/CD pipeline on gitlab-runner', v_task_14);
+        SELECT "task_id" INTO v_task_16 FROM create_task(v_document_id, 'gitlab-runner provisioner with resolv.conf/docker/runner-register', v_task_12);
+        SELECT "task_id" INTO v_task_17 FROM create_task(v_document_id, 'prepare gitlab-ci for ovpn-auth repo', v_task_13);
+        SELECT "task_id" INTO v_task_18 FROM create_task(v_document_id, 'PAM for SSH', v_task_14);
+        SELECT "task_id" INTO v_task_19 FROM create_task(v_document_id, 'ACL - Redis', v_task_13);
+        SELECT "task_id" INTO v_task_20 FROM create_task(v_document_id, 'Redis security', v_task_13);
+        SELECT "task_id" INTO v_task_21 FROM create_task(v_document_id, 'TOTP for SSH', v_task_14);
+        SELECT "task_id" INTO v_task_22 FROM create_task(v_document_id, 'API gateway without redis', v_task_15);
+        SELECT "task_id" INTO v_task_23 FROM create_task(v_document_id, 'Golden image interitance re-organize', v_task_16);
+        SELECT "task_id" INTO v_task_24 FROM create_task(v_document_id, 'Postgres', v_task_12);
+        SELECT "task_id" INTO v_task_25 FROM create_task(v_document_id, 'Auth service', v_task_13);
+        SELECT "task_id" INTO v_task_26 FROM create_task(v_document_id, 'MQ', v_task_15);
+        SELECT "task_id" INTO v_task_27 FROM create_task(v_document_id, 'Federated learning', v_task_16);
+        SELECT "task_id" INTO v_task_28 FROM create_task(v_document_id, 'Bluetooth transmission test', v_task_12);
+        SELECT "task_id" INTO v_task_29 FROM create_task(v_document_id, 'Intrusion detection system (centralised) (OSSEC', v_task_12);
+        SELECT "task_id" INTO v_task_30 FROM create_task(v_document_id, 'Envoy - HAProxy - NGiNX', v_task_12);
+        SELECT "task_id" INTO v_task_31 FROM create_task(v_document_id, 'web-front/Privacy against [friend/pubic/company/attackers]', v_task_13);
+        SELECT "task_id" INTO v_task_32 FROM create_task(v_document_id, 'Redis/cluster script test for multi datacenter', v_task_13);
+        SELECT "task_id" INTO v_task_33 FROM create_task(v_document_id, 'gitlab-runner firewall rules: close public internet', v_task_14);
+        SELECT "task_id" INTO v_task_34 FROM create_task(v_document_id, 'static-challange for ovpn-auth', v_task_20);
+        SELECT "task_id" INTO v_task_35 FROM create_task(v_document_id, 'Golden image for vpn server', v_task_21);
 
         UPDATE "TASK" SET "created_at" = '2021-01-11T18:19:27+03:00' WHERE "task_id" = v_task_27;
         UPDATE "TASK" SET "created_at" = '2021-01-23T21:37:55+03:00' WHERE "task_id" = v_task_4;
