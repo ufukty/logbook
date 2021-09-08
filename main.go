@@ -32,7 +32,7 @@ func main() {
 	flag.Parse()
 
 	// Initialize database connection pool
-	db.Init("postgres://postgres:password@localhost:5432/testdatabase") // os.Getenv("DATABASE_URL")
+	db.Init("postgres://ufuktan:password@localhost:5432/testdatabase") // os.Getenv("DATABASE_URL")
 	defer db.Close()
 
 	// document.Init()

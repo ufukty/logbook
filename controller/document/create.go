@@ -14,17 +14,11 @@ func createExecutor() (db.Document, *e.Error) {
 	)
 
 	// create document table record
-	document, errs = db.CreateDocumentWithTaskGroups(db.Document{})
+	document, errs = db.CreateDocument()
 	if errs != nil {
 		return db.Document{}, e.New(errs)
 	}
 
-	taskGroups, errs := db.GetTaskGroupsByDocumentId(document.DocumentId)
-	if errs != nil {
-		return db.Document{}, e.New(errs)
-	}
-
-	document.TaskGroups = taskGroups
 	return document, nil
 }
 
