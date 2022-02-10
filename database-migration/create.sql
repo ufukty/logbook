@@ -2,11 +2,11 @@
     FIXME: CHECK USER INPUT BEFORE START TO EXECUTION
 */
 
-DROP DATABASE IF EXISTS testdatabase;
+DROP DATABASE IF EXISTS logbook_dev;
 
-CREATE DATABASE testdatabase;
+CREATE DATABASE logbook_dev;
 
-\c testdatabase;
+\c logbook_dev;
 
 CREATE TABLE "DOCUMENT" (
     "document_id"       UUID UNIQUE DEFAULT gen_random_UUID(), 
