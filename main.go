@@ -14,14 +14,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func register_endpoints(r **mux.Router) {
-	for _, endpoint := range endpoints() {
-		(*r).
-			HandleFunc(endpoint.Path, endpoint.Handler).
-			Methods(endpoint.Method)
-	}
-}
-
 func main() {
 	// Make sure log package uses UTC
 	log.SetFlags(log.LstdFlags | log.LUTC)
@@ -34,16 +26,14 @@ func main() {
 	// Initialize database connection pool
 	db.Init("postgres://ufuktan:password@localhost:5432/logbook_dev") // os.Getenv("DATABASE_URL")
 	defer db.Close()
-
-	// document.Init()
-
+	
 	//
 	r := mux.NewRouter()
-
-	//
-	register_endpoints(&r)
+	registerEndpoints(r)
 
 	// r.Use(middleware.MWAuthorization)
+
+	r.Use(mux.CORSMethodMiddleware(r))
 
 	srv := &http.Server{
 		Addr: ":8080",

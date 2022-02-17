@@ -21,6 +21,8 @@ var (
 	ErrGetDocumentByDocumentId                = errors.New("ErrGetDocumentByDocumentId")
 	ErrGetDocumentOverviewWithDocumentIdQuery = errors.New("ErrGetDocumentOverviewWithDocumentIdQuery")
 	ErrGetDocumentOverviewWithDocumentIdScan  = errors.New("ErrGetDocumentOverviewWithDocumentIdScan")
+	ErrGetChronologicalViewItemsQuery         = errors.New("ErrGetChronologicalViewItemsQuery")
+	ErrGetChronologicalViewItemsScan          = errors.New("ErrGetChronologicalViewItemsScan")
 )
 
 var (

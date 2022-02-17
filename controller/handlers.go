@@ -33,6 +33,14 @@ var (
 	ErrTaskCreateUpdateParents         = errors.New("Task/createExecutor faced with an error while trying to ")
 )
 
+// Errors from [GET]/document/overview/chronological
+var (
+	ErrOffsetInputIsNotValidInteger   = errors.New("ErrOffsetInputIsNotValidInteger")
+	ErrOffsetInputIsNotInAllowedRange = errors.New("ErrOffsetInputIsNotInAllowedRange")
+	ErrLimitInputIsNotValidInteger    = errors.New("ErrLimitInputIsNotValidInteger")
+	ErrLimitInputIsNotInAllowedRange  = errors.New("ErrLimitInputIsNotInAllowedRange")
+)
+
 // Used for both error and success messages
 // But only for rendering public http response
 type ControllerResponseFields struct {

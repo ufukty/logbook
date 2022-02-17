@@ -10,7 +10,15 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func sanitizeUserInput(r *http.Request) (string, []error) {
+type CDocumentOverviewHierarchical struct {
+	userInput struct {
+		DocumentId string
+		Limit      int // TODO:
+		Offset     int // TODO:
+	}
+}
+
+func (s *CDocumentOverviewHierarchical) sanitizer(r *http.Request) (string, []error) {
 	vars := mux.Vars(r)
 	documentId := vars["document_id"]
 	if !v.IsValidUUID(documentId) {
@@ -19,13 +27,13 @@ func sanitizeUserInput(r *http.Request) (string, []error) {
 	return documentId, nil
 }
 
-func overviewExecutor(r *http.Request) ([]db.Task, *e.Error) {
+func (s *CDocumentOverviewHierarchical) executor(r *http.Request) ([]db.Task, *e.Error) {
 	var (
 		tasks []db.Task
 		errs  []error
 	)
 
-	documentId, errs := sanitizeUserInput(r)
+	documentId, errs := s.sanitizer(r)
 	if errs != nil {
 		return nil, e.New("Check your inputs.", http.StatusBadRequest, errs)
 	}
@@ -39,13 +47,14 @@ func overviewExecutor(r *http.Request) ([]db.Task, *e.Error) {
 	return tasks, nil
 }
 
-func Overview(w http.ResponseWriter, r *http.Request) {
+func (s *CDocumentOverviewHierarchical) Responder(w http.ResponseWriter, r *http.Request) {
 	// ipAddress := (*r).RemoteAddr
 	// userAgent := (*r).Header.Get("User-Agent")
-	tasks, errs := overviewExecutor(r)
+	tasks, errs := s.executor(r)
 	if errs != nil {
 		c.ErrorHandler(w, r, errs)
 	} else {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		c.SuccessHandler(w, r, tasks)
 	}
 }

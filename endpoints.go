@@ -1,9 +1,15 @@
 package main
 
 import (
+	"fmt"
 	"logbook/main/controller/document"
 	"logbook/main/controller/task"
+
+	// "logbook/main/controller/document/overview/chronological"
+
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 type Endpoint struct {
@@ -12,17 +18,27 @@ type Endpoint struct {
 	Handler func(http.ResponseWriter, *http.Request)
 }
 
-func endpoints() []Endpoint {
-	return []Endpoint{
+func rootURIHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "Hello world. Read our documentation to start.")
+}
 
-		{"/document", "POST", document.Create},
-		{"/document/overview/{document_id}", "GET", document.Overview},
+func registerEndpoints(r *mux.Router) {
+	var (
+		documentOverviewHierarchical  = document.CDocumentOverviewHierarchical{}
+		documentOverviewChronological = document.CDocumentOverviewChronological{}
+	)
 
-		// {"/group/{document_id}", "GET", group.Get},
+	r.HandleFunc("/", rootURIHandler).Methods("GET")
 
-		// {"/task/{document_id}/{task_id}", "GET", task.Read},
-		{"/task", "POST", task.Create},
-		// {"/task/{document_id}/{task_id}", "PATCH", task.Update},
-		// {"/task/{document_id}/{task_id}", "DELETE", task.Delete},
-	}
+	r.HandleFunc("/document", document.Create).Methods("POST")
+	r.HandleFunc("/document/overview/{document_id}", documentOverviewHierarchical.Responder).Methods("GET")
+	r.HandleFunc("/document/overview/chronological/{document_id}", documentOverviewChronological.Responder).Methods("GET").Queries("limit", "{limit}").Queries("offset", "{offset}")
+
+	r.HandleFunc("/task", task.Create).Methods("POST")
+
+	// {"/group/{document_id}", "GET", group.Get},
+
+	// {"/task/{document_id}/{task_id}", "GET", task.Read},
+	// {"/task/{document_id}/{task_id}", "PATCH", task.Update},
+	// {"/task/{document_id}/{task_id}", "DELETE", task.Delete},
 }
