@@ -7,34 +7,42 @@ import "./Task.css";
 class Task extends React.Component {
     constructor(props) {
         super(props);
-        console.log(props.data);
 
+        // console.log(props);
         var status;
-        if (props.data.completed_at != null) {
+        if (props.task.completed_at != null) {
             status = "done";
-        } else if (props.data.ready_to_pick_up) {
+        } else if (props.task.ready_to_pick_up) {
             status = "ready-to-pick-up";
         } else {
             status = "pending";
         }
 
         this.state = {
-            data: props.data,
+            task: props.task,
             status: status,
+            documentViewMode: props.documentViewMode,
         };
     }
 
     render() {
         return (
-            <div className="task-wrapper">
+            <div
+                className="task-wrapper"
+                style={{
+                    "--depth": this.state.task.depth,
+                }}
+                documentViewMode={this.state.documentViewMode}
+            >
                 <div
+                    task_id={this.state.task.task_id}
+                    task_depth={this.state.task.depth}
                     className={"task " + this.state.status}
-                    style={{
-                        "--depth": this.state.data.depth,
-                    }}
-                    draggable="true"
+                    // draggable="true"
+                    contentEditable="true"
+                    suppressContentEditableWarning={true}
                 >
-                    {this.state.data.content}
+                    {this.state.task.content}
                 </div>
             </div>
         );

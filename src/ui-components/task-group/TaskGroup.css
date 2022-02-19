@@ -7,4 +7,7 @@
 .task-group-header {
     font-size: 1.4rem;
     padding: 42px 0;
+    /* position: relative;
+    left: calc(-1 * ((var(--focus-depth) - 1) * -80px) / 2);
+    transition: 200ms left ease-out; */
 }

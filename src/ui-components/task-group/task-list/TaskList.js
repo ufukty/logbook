@@ -8,14 +8,16 @@ class TaskList extends React.Component {
     constructor(props) {
         super();
         this.state = {
-            children: props.tasks.map((task) => (
-                <Task key={task.id} task={task} />
-            )),
+            tasks: props.tasks,
+            documentViewMode: props.documentViewMode,
         };
     }
 
     render() {
-        return <div className="task-list">{this.state.children}</div>;
+        var children = this.state.tasks.map((task) => (
+            <Task key={task.task_id} task={task} documentViewMode={this.state.documentViewMode} />
+        ));
+        return <div className="task-list">{children}</div>;
     }
 }
 

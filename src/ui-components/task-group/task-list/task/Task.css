@@ -1,10 +1,13 @@
 .task-wrapper {
     margin-bottom: 40px;
     cursor: pointer;
+    /* outline: red 1px solid; */
+    width: min(50vw, 600px);
+    box-sizing: content-box;
 }
 
 .task {
-    font-size: 1.2rem;
+    font-size: 14pt;
     line-height: 22px;
 
     padding: 5px 20px;
@@ -17,7 +20,16 @@
 
     /* -webkit-user-drag: element; */
 
-    margin-left: calc(40px * var(--depth));
+    transition: transform 0.4s cubic-bezier(0.16, 0.77, 0.61, 0.98);
+    transform: translateX(calc(40px * (max(0, var(--depth) - 1))));
+}
+
+/* .task-wrapper[documentviewmode="hierarchical"] {
+    padding-left: calc(40px * (max(0, var(--depth) - 1)));
+} */
+
+.task:hover {
+    transform: translateX(calc(40px * (max(0, var(--depth) - 1)))) scale(0.95);
 }
 
 .task-group.regular .task,
@@ -40,6 +52,6 @@
     background-color: rgb(236, 236, 236);
 }
 
-.task:hover {
-    transform: scale(0.99);
+.task.focused-task {
+    transform: scale(1.05);
 }
