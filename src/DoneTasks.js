@@ -12,10 +12,17 @@ class VCDoneTasks extends React.Component {
             documentViewMode: props.documentViewMode,
         };
     }
+    static getDerivedStateFromProps(props, state) {
+        return {
+            tasksRawData: props.tasks,
+            childrenDivs: [],
+            documentViewMode: props.documentViewMode,
+        };
+    }
 
     updateTaskGroups() {}
 
-    initialTaskCategorizationByDays() {
+    createChildren() {
         var classifiedTasks = DateTime.classifyTasksByDays(this.state.tasksRawData);
         var sortedDays = Object.keys(classifiedTasks).sort();
         var preparedChildrenDivs = [];
@@ -30,9 +37,7 @@ class VCDoneTasks extends React.Component {
                 ></TaskGroup>
             );
         });
-        this.setState((state, props) => ({
-            childrenDivs: preparedChildrenDivs,
-        }));
+        return preparedChildrenDivs;
     }
 
     attachDelegates() {
@@ -42,17 +47,13 @@ class VCDoneTasks extends React.Component {
     }
 
     componentDidMount() {
-        this.initialTaskCategorizationByDays();
+        this.createChildren();
         this.attachDelegates();
     }
 
-    componentDidUpdate() {
-        console.log("vcdonetasks componentDidUpdate");
-    }
-
     render() {
-        console.log("vcdonetasks render");
-        return <div>{this.state.childrenDivs}</div>;
+        var childrenDivs = this.createChildren();
+        return <div>{childrenDivs}</div>;
     }
 }
 

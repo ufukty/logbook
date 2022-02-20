@@ -15,6 +15,14 @@ class TaskGroup extends React.Component {
             documentViewMode: props.documentViewMode,
         };
     }
+    static getDerivedStateFromProps(props, state) {
+        return {
+            group_header: DateTime.timestampToLocalizedText(props.timestampOfDay),
+            group_items: props.tasks,
+            group_type: props.groupType,
+            documentViewMode: props.documentViewMode,
+        };
+    }
 
     render() {
         return (

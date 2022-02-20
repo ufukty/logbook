@@ -10,32 +10,40 @@ import VCDoneTasks from "./DoneTasks";
 import React from "react";
 
 var endpoint_address = "http://192.168.1.44:8080";
-var endpoint_document_overview_hierarchical = "/document/overview/hierarchical";
+// var endpoint_document_overview_hierarchical = "/document/overview/hierarchical";
 var endpoint_document_overview_chronological = "/document/overview/chronological/";
 
-class DataStore {
-    constructor() {}
-}
+// class DataStore {
+//     constructor() {}
+// }
 
 class InfiniteSheet extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             tasksRawData: props.tasks,
-            childrenDivs: [],
             documentViewMode: props.documentViewMode,
         };
     }
 
-    initialTaskCategorizationByTaskKind() {
+    static getDerivedStateFromProps(props, state) {
+        return {
+            tasksRawData: props.tasks,
+            documentViewMode: props.documentViewMode,
+        };
+    }
+
+    
+
+    prepareChildren() {
         var preparedChildrenDivs = [];
 
-        var done_tasks = this.state.tasksRawData.filter((item) => item.completed_at != null);
-        if (done_tasks.length > 0) {
+        var doneTasks = this.state.tasksRawData.filter((item) => item.completed_at != null);
+        if (doneTasks.length > 0) {
             preparedChildrenDivs.push(
                 <VCDoneTasks
                     key="done-tasks"
-                    tasks={done_tasks}
+                    tasks={doneTasks}
                     documentViewMode={this.state.documentViewMode}
                 ></VCDoneTasks>
             );
@@ -43,21 +51,11 @@ class InfiniteSheet extends React.Component {
 
         // TODO: other types of tasks such as; ready-to-pick-up, to-do, active, paused etc..
 
-        this.setState({
-            childrenDivs: preparedChildrenDivs,
-        });
-    }
-
-    componentDidMount() {
-        this.initialTaskCategorizationByTaskKind();
-    }
-
-    componentDidUpdate() {
-        console.log("infinite-sheet componentDidUpdate");
+        return preparedChildrenDivs;
     }
 
     render() {
-        console.log("infinite-sheet render");
+        var childrenDivs = this.prepareChildren();
         return (
             <div
                 id="infinite-sheet"
@@ -66,7 +64,7 @@ class InfiniteSheet extends React.Component {
                     background: "url('img/dot-background.png')",
                 }}
             >
-                {this.state.childrenDivs}
+                {childrenDivs}
             </div>
         );
     }
@@ -88,7 +86,7 @@ class ModeSelector extends React.Component {
         this.setState((state, props) => ({
             selectedMode: changeModeTo,
         }));
-        this.state.documentViewModeChangeDelegate(["choronological", "hierarchical"][changeModeTo]);
+        this.state.documentViewModeChangeDelegate(["chro", "hier"][changeModeTo]);
     }
 
     render() {
@@ -108,15 +106,15 @@ class App extends React.Component {
     constructor() {
         super();
         this.documentViewModeChangeHandler = this.documentViewModeChangeHandler.bind(this);
-        var documentViewModeSelector = (
+
+        this.documentViewModeSelector = (
             <ModeSelector documentViewModeChangeDelegate={this.documentViewModeChangeHandler}></ModeSelector>
         );
         this.state = {
             overviewIsLoaded: false,
             response: null,
             error: null,
-            documentViewMode: "hierarchical", // hierarchical | chronological
-            documentViewModeSelector: documentViewModeSelector,
+            documentViewMode: "chro", // hier | chro
         };
     }
 
@@ -124,7 +122,6 @@ class App extends React.Component {
         this.setState({
             documentViewMode: newMode,
         });
-        console.log(newMode);
     }
 
     componentDidMount() {
@@ -150,22 +147,18 @@ class App extends React.Component {
     render() {
         var content;
 
-        // if (this.state.mode === "chronological") {
-        //     content = <ChronologicalView dataset={dataset} />;
-        // } else if (this.state.mode === "tree") {
-        //     content = <TreeView />;
-        // }
-
-        content = (function (state) {
-            const { overviewIsLoaded, response, error, documentViewMode } = state;
-            if (error) {
-                return <div>{error.message}</div>;
-            } else if (!overviewIsLoaded) {
-                return <div>Loading...</div>;
-            } else {
-                return <InfiniteSheet tasks={response.resource} documentViewMode={documentViewMode}></InfiniteSheet>;
-            }
-        })(this.state);
+        if (this.state.error) {
+            content = <div>{this.state.error.message}</div>;
+        } else if (!this.state.overviewIsLoaded) {
+            content = <div>Loading...</div>;
+        } else {
+            content = (
+                <InfiniteSheet
+                    tasks={this.state.response.resource}
+                    documentViewMode={this.state.documentViewMode}
+                ></InfiniteSheet>
+            );
+        }
 
         return (
             <div className="document-sheet">
@@ -199,7 +192,7 @@ class App extends React.Component {
                 </div> */}
 
                 <div id="settings" className="floating-corner left bottom">
-                    {this.state.documentViewModeSelector}
+                    {this.documentViewModeSelector}
                 </div>
 
                 {content}
