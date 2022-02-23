@@ -1,11 +1,3 @@
-.task-wrapper {
-    margin-bottom: 40px;
-    cursor: pointer;
-    /* outline: red 1px solid; */
-    width: min(50vw, 600px);
-    box-sizing: content-box;
-}
-
 .task {
     font-size: 14pt;
     line-height: 22px;
@@ -66,7 +58,7 @@
 }
 
 .task-positioner {
-    width: min(100%, 600px);
+    width: var(--task-width);
     position: absolute;
     transition: transform 0.2s cubic-bezier(0.18, 0.88, 0.58, 1);
     /* transform: translateX(calc(40px * (max(0, var(--depth) - 1)))); */

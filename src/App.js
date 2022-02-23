@@ -5,57 +5,178 @@ import "./App.css";
 
 // import Task from "./ui-components/task-group/task-list/task/Task";
 
-import VCDoneTasks from "./DoneTasks";
+// import VCDoneTasks from "./DoneTasks";
 
 import React from "react";
+import TaskPositioner from "./ui-components/task-group/task-list/task/Task";
 
 var endpoint_address = "http://192.168.1.44:8080";
 // var endpoint_document_overview_hierarchical = "/document/overview/hierarchical";
 var endpoint_document_overview_chronological = "/document/overview/chronological/";
 
-// class DataStore {
-//     constructor() {}
+// function leastOfGreaterBinarySearch(list, item) {
+//     var lo = 0,
+//         hi = list.length - 1,
+//         mid = -1;
+
+//     while (hi - lo > 1) {
+//         mid = Math.floor((lo + hi) / 2);
+//         if (list[mid] <= item) {
+//             lo = mid + 1;
+//         } else {
+//             hi = mid - 1;
+//         }
+//     }
+//     return hi;
+// }
+
+// function searchIndex(items, item) {
+//     for (const i in items) {
+//         if (items[i] === item) {
+//             return i;
+//         }
+//     }
+//     return -1;
 // }
 
 class InfiniteSheet extends React.Component {
     constructor(props) {
         super(props);
+
+        console.log("infinite-sheet constructor");
+
+        // That property of component will hold the cell heights. Each component
+        // will call a method of this class when its height changed and update
+        // its record in this array. Initial values are just mock values because
+        // real values needs each component to be mounted.
+        this.cellHeights = this.getMockCellHeights(props.tasks);
+
+        // Each item is an task_id of a task. Ordering of items represents the
+        // rendering order of task components. Toggling between Chronological
+        // and Hierarchical document view modes, directly changes the ordering
+        // of items of this array and eventually will be represented in page
+        // by render method.
+        this.domOrdering = props.tasks.map((task) => {
+            return task.task_id;
+        });
+
+        this.initializedCellsForTasks = {};
+        this.initializedCellsForTasksRefs = {};
+
         this.state = {
             tasksRawData: props.tasks,
             documentViewMode: props.documentViewMode,
+            childrenInitialized: false,
+
+            // Based on mock values for initialization time
+            verticalCellPositions: Array.from(Array(props.tasks.length).keys()).map((x) => {
+                return x * 64 + 200;
+            }),
         };
+
+        // Task cells will be initialized with mock positions for calculating
+        // real heights and positions.
+        this.initializeTaskCells();
     }
 
     static getDerivedStateFromProps(props, state) {
+        console.log("infinite-sheet getDerivedStateFromProps");
         return {
             tasksRawData: props.tasks,
             documentViewMode: props.documentViewMode,
         };
     }
 
-    
-
-    prepareChildren() {
-        var preparedChildrenDivs = [];
-
-        var doneTasks = this.state.tasksRawData.filter((item) => item.completed_at != null);
-        if (doneTasks.length > 0) {
-            preparedChildrenDivs.push(
-                <VCDoneTasks
-                    key="done-tasks"
-                    tasks={doneTasks}
+    initializeTaskCells() {
+        var updateHeightRecordOfComponent = this.updateHeightRecordOfComponent.bind(this);
+        for (var rowIndex = 0; rowIndex < this.state.tasksRawData.length; rowIndex++) {
+            var task = this.state.tasksRawData[rowIndex];
+            this.initializedCellsForTasksRefs[task.task_id] = React.createRef();
+            this.initializedCellsForTasks[task.task_id] = (
+                <TaskPositioner
+                    ref={this.initializedCellsForTasksRefs[task.task_id]}
+                    key={task.task_id}
+                    taskDetails={task}
                     documentViewMode={this.state.documentViewMode}
-                ></VCDoneTasks>
+                    posY={this.state.verticalCellPositions[rowIndex]}
+                    sizeUpdateHandler={updateHeightRecordOfComponent}
+                />
             );
         }
+    }
 
-        // TODO: other types of tasks such as; ready-to-pick-up, to-do, active, paused etc..
+    getMockCellHeights(tasks) {
+        var heights = {};
+        for (const task of tasks) {
+            heights[task.task_id] = 32;
+        }
+        return heights;
+    }
+    getNumberOfRows() {
+        return this.state.tasksRawData.length;
+    }
 
-        return preparedChildrenDivs;
+    getVerticalCellPositions(childrenMounted) {
+        if (this.state.childrenInitialized) {
+            var totalNumberOfCells = this.initializedCellsForTasks.length;
+        } else {
+            var totalNumberOfCells = this.state.tasksRawData.length;
+        }
+
+        if (childrenMounted) {
+            console.log("initialized");
+            var cumulativeHeights = [0];
+            for (var cellIndex = 1; cellIndex < totalNumberOfCells + 1; cellIndex++) {
+                var prevCellPosition = cumulativeHeights[cumulativeHeights.length - 1];
+                var currentCellHeight = this.getCellHeight(cellIndex - 1);
+                cumulativeHeights.push(prevCellPosition + currentCellHeight);
+            }
+            return cumulativeHeights.slice(1);
+        } else {
+            console.log("not initialized");
+            return Array.from(Array(totalNumberOfCells).keys()).map((x) => {
+                return x * 64 + 200;
+            });
+        }
+    }
+
+    getCellHeight(cellIndex) {
+        var cellTaskId = this.domOrdering[cellIndex];
+        return this.cellHeights[cellTaskId];
+    }
+
+    componentDidMount() {
+        console.log("infinite-sheet componentDidMount");
+        this.setState({
+            childrenInitialized: true,
+            verticalCellPositions: this.getVerticalCellPositions(true),
+        });
+        for (const [taskId, ref] of Object.entries(this.initializedCellsForTasksRefs)) {
+            ref.current.forceUpdate();
+        }
+        this.forceUpdate();
+    }
+
+    updateHeightRecordOfComponent(taskPositionerTaskId, newHeight) {
+        console.log(taskPositionerTaskId, newHeight);
+        this.cellHeights[taskPositionerTaskId] = newHeight;
+        // debugger;
+        // this.setState({
+        //     verticalCellPositions: this.getVerticalCellPositions(false),
+        // });
+        // debugger;
+        // this.initializedCellsForTasksRefs[taskPositionerTaskId].current.forceUpdate();
     }
 
     render() {
-        var childrenDivs = this.prepareChildren();
+        console.log("infinite-sheet render");
+        var content = [];
+        for (const taskId of this.domOrdering) {
+            content.push(this.initializedCellsForTasks[taskId]);
+        }
+
+        console.log("positions: ", this.state.verticalCellPositions);
+
         return (
             <div
                 id="infinite-sheet"
@@ -64,7 +185,7 @@ class InfiniteSheet extends React.Component {
                     background: "url('img/dot-background.png')",
                 }}
             >
-                {childrenDivs}
+                {content}
             </div>
         );
     }
@@ -145,6 +266,7 @@ class App extends React.Component {
     }
 
     render() {
+        console.log("app render");
         var content;
 
         if (this.state.error) {
