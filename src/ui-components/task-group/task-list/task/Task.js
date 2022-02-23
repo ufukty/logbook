@@ -33,11 +33,7 @@ class TaskPositioner extends React.Component {
         this.state = {
             taskDetails: props.taskDetails,
             documentViewMode: props.documentViewMode,
-            documentPositions: {
-                top: props.posY,
-                left: calculatePositionsToLeft(props.documentViewMode, props.taskDetails.depth),
-            },
-            sizeChangeDelegate: props.sizeUpdateHandler,
+            horizontalShift: calculatePositionsToLeft(props.documentViewMode, props.taskDetails.depth),
         };
         this.div = React.createRef();
     }
@@ -47,27 +43,8 @@ class TaskPositioner extends React.Component {
         return {
             taskDetails: props.taskDetails,
             documentViewMode: props.documentViewMode,
-            documentPositions: {
-                top: props.posY,
-                left: calculatePositionsToLeft(props.documentViewMode, props.taskDetails.depth),
-            },
-            sizeChangeDelegate: props.sizeUpdateHandler,
+            horizontalShift: calculatePositionsToLeft(props.documentViewMode, props.taskDetails.depth),
         };
-    }
-
-    reportSizeChange() {
-        this.state.sizeChangeDelegate(this.state.taskDetails.task_id, this.getHeight());
-    }
-
-    componentDidMount() {
-        this.mounted = true;
-        console.log("task-positioner componentDidMount");
-        this.reportSizeChange();
-    }
-
-    componentDidUpdate() {
-        console.log("task-positioner componentDidUpdate");
-        // this.reportSizeChange();
     }
 
     // Returns the height of element by pixels and by
@@ -86,8 +63,7 @@ class TaskPositioner extends React.Component {
         console.log("task-positioner render");
         // var objectKey = "taskPositioner" + this.state.taskDetails.id;
         var style = {
-            top: this.state.documentPositions.top,
-            transform: "translateX(" + this.state.documentPositions.left + "px)",
+            transform: "translateX(" + this.state.horizontalShift + "px)",
             // display: "none",
         };
         var taskID = this.state.taskDetails.task_id;

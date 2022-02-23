@@ -1,0 +1,133 @@
+:root {
+    --primary-color: rgba(212, 255, 20, 0.8);
+    --primary-color-opaque: #ddff5d;
+    --light-gray-background: #eeeeee;
+
+    --task-width: calc(min(90vw, 600px));
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    font-family: "Work Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 600;
+    box-sizing: border-box;
+    font-size: 12pt;
+    color: inherit;
+    text-decoration: inherit;
+    cursor: default;
+    user-select: none;
+}
+
+body {
+    position: relative;
+}
+
+.document-sheet {
+    width: 100vw;
+    overflow-x: hidden;
+}
+
+.floating-corner {
+    position: fixed;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.floating-corner.top {
+    top: 20px;
+}
+
+.floating-corner.bottom {
+    bottom: 20px;
+}
+
+.floating-corner.left {
+    left: 20px;
+}
+
+.floating-corner.right {
+    right: 20px;
+}
+
+.floating-corner.white {
+    background-color: #ffff;
+    color: #000;
+}
+
+.floating-corner.light,
+.floating-corner.dark {
+    backdrop-filter: blur(50px) saturate(5);
+    -webkit-backdrop-filter: blur(50px) saturate(5);
+    border-radius: 20px;
+}
+
+.floating-corner.light {
+    background-color: rgba(255, 255, 255, 0.5);
+    border: 1px solid #8882;
+    color: #000;
+}
+
+.floating-corner.dark {
+    background-color: #000e;
+    color: #fff;
+}
+
+#home-button {
+    text-decoration: none;
+    font-size: 1.6rem;
+    cursor: pointer;
+}
+
+#date-anchors {
+    display: flex;
+    flex-direction: column;
+    justify-content: left;
+}
+
+#date-anchors > a {
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+#date-anchors > a:hover {
+    opacity: 0.5;
+}
+
+#active-task-details > div.task {
+    margin: 10px 0;
+}
+
+#active-task-details > div.task:nth-of-type(2) {
+    margin-left: 20px;
+}
+
+#active-task-details > div.task:nth-of-type(3) {
+    margin-left: 40px;
+}
+
+#active-task-details > div.task:nth-of-type(4) {
+    margin-left: 60px;
+}
+
+/* #settings-documentViewMode {
+    display: flex;
+}
+
+#settings-documentViewMode > div {
+    padding: 5px 10px;
+    border-radius: 8px;
+}
+
+#settings-documentViewMode > div.sc-picked {
+    background-color: var(--primary-color);
+    cursor: not-allowed;
+}
+
+#settings-documentViewMode > div:not(.sc-picked) {
+    cursor: pointer;
+}
+
+#settings-documentViewMode > div:not(.sc-picked):hover {
+    opacity: 0.75;
+} */

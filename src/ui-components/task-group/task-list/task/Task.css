@@ -1,48 +1,45 @@
+.task-positioner {
+    width: var(--task-width);
+    /* position: absolute; */
+    transition: transform 0.15s cubic-bezier(0.18, 0.88, 0.58, 1);
+    /* transform: translateX(calc(40px * (max(0, var(--depth) - 1)))); */
+}
+
+.task-positioner:not(:last-of-type) {
+    margin-bottom: 32px;
+}
+
 .task {
     font-size: 14pt;
     line-height: 22px;
 
     padding: 5px 20px;
-
     border-radius: 8px;
-
-    transition: all 50ms ease-out;
-
     box-sizing: border-box;
 
     /* -webkit-user-drag: element; */
 
     transition: transform 0.4s cubic-bezier(0.16, 0.77, 0.61, 0.98);
-    transform: translateX(calc(40px * (max(0, var(--depth) - 1))));
-
     user-select: text;
     cursor: auto;
 }
 
-/* .task-wrapper[documentviewmode="hierarchical"] {
-    padding-left: calc(40px * (max(0, var(--depth) - 1)));
-} */
-
 .task:hover {
-    transform: translateX(calc(40px * (max(0, var(--depth) - 1)))) scale(0.95);
+    transform: scale(0.95);
 }
 
-.task-group.regular .task,
 .task.done {
     background-color: rgba(212, 255, 20, 0.8);
 }
 
-.task-group.ready-to-pick-up-tasks .task,
-.task.ready-to-pick-up {
+/* .task.ready-to-pick-up {
     background-color: #b0fcffd0;
 }
 
-.task-group.active-tasks .task,
 .task.active {
     background-color: #f1d9ffd0;
-}
+} */
 
-.task-group.to-do-drawer .task,
 .task.pending {
     background-color: rgb(236, 236, 236);
 }
@@ -55,11 +52,4 @@
     position: relative;
     width: 500px;
     height: 400px;
-}
-
-.task-positioner {
-    width: var(--task-width);
-    position: absolute;
-    transition: transform 0.2s cubic-bezier(0.18, 0.88, 0.58, 1);
-    /* transform: translateX(calc(40px * (max(0, var(--depth) - 1)))); */
 }
