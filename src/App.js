@@ -122,16 +122,16 @@ class InfiniteSheet extends React.Component {
         } else {
             var totalNumberOfCells = this.state.tasksRawData.length;
         }
-
+        var padding = 32;
         if (childrenMounted) {
             console.log("initialized");
-            var cumulativeHeights = [0];
+            var cumulativeHeights = [200];
             for (var cellIndex = 1; cellIndex < totalNumberOfCells + 1; cellIndex++) {
                 var prevCellPosition = cumulativeHeights[cumulativeHeights.length - 1];
                 var currentCellHeight = this.getCellHeight(cellIndex - 1);
-                cumulativeHeights.push(prevCellPosition + currentCellHeight);
+                cumulativeHeights.push(prevCellPosition + currentCellHeight + padding);
             }
-            return cumulativeHeights.slice(1);
+            return cumulativeHeights.slice(0);
         } else {
             console.log("not initialized");
             return Array.from(Array(totalNumberOfCells).keys()).map((x) => {
@@ -147,23 +147,24 @@ class InfiniteSheet extends React.Component {
 
     componentDidMount() {
         console.log("infinite-sheet componentDidMount");
-        this.setState({
-            childrenInitialized: true,
-            verticalCellPositions: this.getVerticalCellPositions(true),
+        var positions = this.getVerticalCellPositions(true);
+        // this.setState({
+        //     childrenInitialized: true,
+        //     verticalCellPositions: positions,
+        // });
+
+        this.domOrdering.forEach((taskId, rowIndex) => {
+            this.initializedCellsForTasksRefs[taskId].current.div.current.style.top = positions[rowIndex] + "px";
         });
-        for (const [taskId, ref] of Object.entries(this.initializedCellsForTasksRefs)) {
-            ref.current.forceUpdate();
-        }
-        this.forceUpdate();
     }
 
     updateHeightRecordOfComponent(taskPositionerTaskId, newHeight) {
         console.log(taskPositionerTaskId, newHeight);
         this.cellHeights[taskPositionerTaskId] = newHeight;
         // debugger;
-        // this.setState({
-        //     verticalCellPositions: this.getVerticalCellPositions(false),
-        // });
+        this.setState({
+            verticalCellPositions: this.getVerticalCellPositions(true),
+        });
         // debugger;
         // this.initializedCellsForTasksRefs[taskPositionerTaskId].current.forceUpdate();
     }
