@@ -3,7 +3,9 @@
     --primary-color-opaque: #ddff5d;
     --light-gray-background: #eeeeee;
 
-    --task-width: calc(min(90vw, 600px));
+    --task-vertical-margin-one-side: 30vw;
+    --task-width: calc(min((100vw - var(--task-vertical-margin-one-side)), 600px));
+    --focus-depth-shift: 40px;
 }
 
 * {

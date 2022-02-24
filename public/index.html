@@ -44,53 +44,7 @@
 
         <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@600;700&display=swap" rel="stylesheet">
 
-        <script>
-            var debug = document.querySelector("#debug");
-
-            var upperEdgeOfScreen = function () { return window.scrollY; }
-            var bottomEdgeOfScreen = function () { return window.scrollY + window.innerHeight; }
-
-            var centerYOfScreen = function () { return window.scrollY + 0.3 * window.innerHeight; }
-
-            var lastFocusedTask = null;
-
-            // var scrollPositionsOfTasks = null
-            // var taskScrollOffsets = function () {
-            //     if (scrollPositionsOfTasks == null) {
-            //         Array.from(document.querySelectorAll(".task"), (item => {
-            //             "topY": item.offsetTop,
-            //                 "bottomY": item.offsetTop + item.offsetHeight
-            //         }));
-            //     }
-            //     return scrollPositionsOfTasks;
-            // }
-
-            var findFocusedTaskId = function () {
-                posY = centerYOfScreen();
-                tasks = document.querySelectorAll(".task");
-                for (let i = 0; i < tasks.length; i++) {
-                    taskTopY = tasks[i].offsetTop - window.innerHeight;
-                    taskBottomY = taskTopY + tasks[i].offsetHeight;
-                    if (posY > taskTopY && posY < taskBottomY) {
-                        // document.querySelector("#debug").innerHTML = tasks[i].innerHTML + "<br>" + tasks[i].getAttribute("task_depth") + "<br>" + posY;
-                        document.getElementById("infinite-sheet").style.setProperty("--focus-depth", tasks[i].getAttribute("task_depth"));
-                        tasks[i].classList.add("focused-task");
-                        return;
-                    } else {
-                        tasks[i].classList.remove("focused-task");
-                    }
-                }
-                // document.querySelector("#debug").innerHTML = "not found" + "<br>" + posY;
-            }
-
-            var focusToTask = function (e) {
-                // console.log(centerYOfScreen())
-                // document.querySelector("#debug").innerHTML = centerYOfScreen();
-                findFocusedTaskId();
-            }
-
-            // window.addEventListener("scroll", focusToTask)
-        </script>
+        <script src="horizontalFocusHandler.js"></script>
     </body>
 
 </html>

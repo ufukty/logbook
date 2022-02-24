@@ -3,6 +3,7 @@ import "./css/document-view-mode-selector.css";
 import "./css/infinite-sheet.css";
 
 import React from "react";
+import * as constants from "./constants";
 import TaskPositioner from "./ui-components/task-group/task-list/task/Task";
 
 var endpoint_address = "http://192.168.1.44:8080";
@@ -12,7 +13,7 @@ var endpoint_document_overview_chronological = "/document/overview/chronological
 class InfiniteSheet extends React.Component {
     constructor(props) {
         super(props);
-        console.log("infinite-sheet constructor");
+        // console.log("infinite-sheet constructor");
         this.state = {
             tasksRawData: props.tasks,
             documentViewMode: props.documentViewMode,
@@ -21,7 +22,7 @@ class InfiniteSheet extends React.Component {
     }
 
     static getDerivedStateFromProps(props, state) {
-        console.log("infinite-sheet getDerivedStateFromProps");
+        // console.log("infinite-sheet getDerivedStateFromProps");
         return {
             tasksRawData: props.tasks,
             documentViewMode: props.documentViewMode,
@@ -29,7 +30,7 @@ class InfiniteSheet extends React.Component {
     }
 
     render() {
-        console.log("infinite-sheet render");
+        // console.log("infinite-sheet render");
 
         var content = [];
         for (const taskId of this.state.domOrdering) {
@@ -40,9 +41,15 @@ class InfiniteSheet extends React.Component {
             content.push(taskPositioner);
         }
 
+        var className = "auto-focus-shift-area";
+        if (this.state.documentViewMode === constants.DVM_HIERARCH) {
+            className += " auto-focus-enabled";
+        }
+
         return (
             <div
                 id="infinite-sheet"
+                className={className}
                 style={{
                     "--focus-depth": "1",
                     background: "url('img/dot-background.png')",
@@ -61,7 +68,13 @@ class ModeSelector extends React.Component {
             selectedMode: 0,
             documentViewModeChangeDelegate: props.documentViewModeChangeDelegate,
         };
-        this.eventSwitchModes = this.eventSwitchModes.bind(this);
+        document.addEventListener("keyup", this.keyboardEventListener.bind(this));
+    }
+
+    keyboardEventListener(e) {
+        if (e.ctrlKey && (e.key === "c" || e.key === "C")) {
+            this.eventSwitchModes(e);
+        }
     }
 
     eventSwitchModes(e) {
@@ -70,13 +83,14 @@ class ModeSelector extends React.Component {
         this.setState((state, props) => ({
             selectedMode: changeModeTo,
         }));
-        this.state.documentViewModeChangeDelegate(["chro", "hier"][changeModeTo]);
+        this.state.documentViewModeChangeDelegate([constants.DVM_CHRONO, constants.DVM_HIERARCH][changeModeTo]);
     }
 
     render() {
         var classNameForWrapper = ["left-picked", "right-picked"][this.state.selectedMode];
+        var eventSwitchModes = this.eventSwitchModes.bind(this);
         return (
-            <div id="settings-documentViewMode" className={classNameForWrapper} onClick={this.eventSwitchModes}>
+            <div id="settings-documentViewMode" className={classNameForWrapper} onClick={eventSwitchModes}>
                 <div id="left">C</div>
                 <div id="right">H</div>
                 <div id="left-activated-caption">Chronological</div>
@@ -89,16 +103,15 @@ class ModeSelector extends React.Component {
 class App extends React.Component {
     constructor() {
         super();
-        this.documentViewModeChangeHandler = this.documentViewModeChangeHandler.bind(this);
-
         this.documentViewModeSelector = (
-            <ModeSelector documentViewModeChangeDelegate={this.documentViewModeChangeHandler}></ModeSelector>
+            <ModeSelector documentViewModeChangeDelegate={this.documentViewModeChangeHandler.bind(this)}></ModeSelector>
         );
+
         this.state = {
             overviewIsLoaded: false,
             response: null,
             error: null,
-            documentViewMode: "chro", // hier | chro
+            documentViewMode: constants.DVM_CHRONO,
         };
     }
 
@@ -129,7 +142,7 @@ class App extends React.Component {
     }
 
     render() {
-        console.log("app render");
+        // console.log("app render");
         var content;
 
         if (this.state.error) {
@@ -147,9 +160,9 @@ class App extends React.Component {
 
         return (
             <div className="document-sheet">
-                <a id="home-button" className="floating-corner left top" href="index.html">
+                {/* <a id="home-button" className="floating-corner left top" href="index.html">
                     Logbook
-                </a>
+                </a> */}
 
                 {/* <div id="sheet-settings" className="floating-corner right top dark">
                     <div>Share</div>
@@ -172,7 +185,7 @@ class App extends React.Component {
                     <a href="#august-14-2021">To-do Drawer</a>
                 </div> */}
 
-                {/* <div id="debug" className="floating-corner left bottom light">
+                {/* <div id="debug" className="floating-corner right bottom light">
                     Welcome back.
                 </div> */}
 

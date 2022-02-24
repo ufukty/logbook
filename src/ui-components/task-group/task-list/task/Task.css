@@ -46,6 +46,7 @@
 
 .task.focused-task {
     transform: scale(1.05);
+    /* outline: 1px solid red; */
 }
 
 .task-list {

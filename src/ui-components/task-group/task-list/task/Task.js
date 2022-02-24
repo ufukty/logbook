@@ -4,6 +4,7 @@ import React from "react";
 // import { timestampToLocalizedText } from "../../../../utility/dateTime";
 
 import "./Task.css";
+import * as constants from "../../../../constants";
 
 function max(left, right) {
     if (left > right) {
@@ -13,16 +14,10 @@ function max(left, right) {
     }
 }
 
-const amountOfShiftInPixelsForTaskDepth = 40;
-// const documentViewModeChronological = "chro";
-const documentViewModeHierarchical = "hier";
-
 function calculatePositionsToLeft(documentViewMode, depth) {
-    if (documentViewMode === documentViewModeHierarchical) {
-        // console.log("task-positioner calculatePositionsToLeft defined");
-        return amountOfShiftInPixelsForTaskDepth * max(0, depth - 1);
+    if (documentViewMode === constants.DVM_HIERARCH) {
+        return constants.AUTO_FOCUS_SHIFT_IN_PIXELS * max(0, depth - 1);
     } else {
-        // console.log("task-positioner calculatePositionsToLeft undefined");
         return 0;
     }
 }
@@ -47,24 +42,10 @@ class TaskPositioner extends React.Component {
         };
     }
 
-    // Returns the height of element by pixels and by
-    // minding the responsive design constraints
-    getHeight() {
-        if (this.mounted) {
-            // var s = thisq.div.current.offsetHeight;
-            // debugger;
-            return this.div.current.offsetHeight; // Real size
-        } else {
-            return 32; // Estimated size
-        }
-    }
-
     render() {
-        console.log("task-positioner render");
-        // var objectKey = "taskPositioner" + this.state.taskDetails.id;
+        // console.log("task-positioner render");
         var style = {
             transform: "translateX(" + this.state.horizontalShift + "px)",
-            // display: "none",
         };
         var taskID = this.state.taskDetails.task_id;
         var taskDetails = this.state.taskDetails;
@@ -79,15 +60,12 @@ class TaskPositioner extends React.Component {
 class Task extends React.Component {
     constructor(props) {
         super(props);
-
-        // console.log(props);
         var status;
         if (props.taskDetails.completed_at != null) {
             status = "done";
         } else {
             status = "pending";
         }
-
         this.state = {
             taskDetails: props.taskDetails,
             taskStatus: status,
