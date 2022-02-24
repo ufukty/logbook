@@ -6,6 +6,9 @@
     --task-vertical-margin-one-side: 30vw;
     --task-width: calc(min((100vw - var(--task-vertical-margin-one-side)), 600px));
     --focus-depth-shift: 40px;
+
+    --auto-focus-shift-transition-duration: 400ms;
+    --auto-focus-shift-transition-timing-function: cubic-bezier(0.18, 0.88, 0.58, 1);
 }
 
 * {

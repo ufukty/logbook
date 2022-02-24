@@ -1,4 +1,5 @@
 function leastOfGreaterBinarySearch(list, item) {
+    list.unshift(-1); // Add dummy -1 at the beginning of array
     var lo = 0,
         hi = list.length - 1,
         mid = -1;
@@ -10,7 +11,7 @@ function leastOfGreaterBinarySearch(list, item) {
             hi = mid;
         }
     }
-    return lo;
+    return lo - 1;
 }
 
 class HorizontalFocusHandler {
@@ -37,17 +38,15 @@ class HorizontalFocusHandler {
             lastFocusedElem: lastFocusedElem,
             position: position,
         });
-        // console.log("centerY", centerY, " focus area boundaries: ", this.getBoundariesOfFocusAreas());
-        // this.debugElem.innerHTML = centerY;
-        if (this.lastFocusedElem != undefined) {
-            this.debugElem.innerHTML =
-                "Focused: " +
-                this.lastFocusedElem.innerHTML +
-                "<br>Focus Depth: " +
-                this.lastFocusedElem.getAttribute("task_depth") +
-                "<br>Position: " +
-                position;
-        }
+        // if (this.lastFocusedElem != undefined) {
+        //     this.debugElem.innerHTML =
+        //         "Focused: " +
+        //         this.lastFocusedElem.innerHTML +
+        //         "<br>Focus Depth: " +
+        //         this.lastFocusedElem.getAttribute("task_depth") +
+        //         "<br>Position: " +
+        //         position;
+        // }
     }
 
     // focusElements should be a NodeList

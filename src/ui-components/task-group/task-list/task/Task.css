@@ -1,8 +1,6 @@
 .task-positioner {
     width: var(--task-width);
-    /* position: absolute; */
-    transition: transform 0.15s cubic-bezier(0.18, 0.88, 0.58, 1);
-    /* transform: translateX(calc(40px * (max(0, var(--depth) - 1)))); */
+    transition: transform var(--auto-focus-shift-transition-duration) var(--auto-focus-shift-transition-timing-function);
 }
 
 .task-positioner:not(:last-of-type) {
@@ -19,18 +17,40 @@
 
     /* -webkit-user-drag: element; */
 
-    transition: transform 0.4s cubic-bezier(0.16, 0.77, 0.61, 0.98);
     user-select: text;
     cursor: auto;
+
+    border: 2px solid transparent;
+
+    transition: all var(--auto-focus-shift-transition-duration) var(--auto-focus-shift-transition-timing-function);
+    box-shadow: 0 0 20px -20px #00000055;
 }
 
 .task:hover {
     transform: scale(0.95);
 }
 
+.task.pending {
+    background-color: rgb(236, 236, 236);
+}
+
+.task.focused-task {
+    transform: translateY(-10%) scale(1.05);
+    /* outline: 1px solid red; */
+    box-shadow: 0 10px 20px -10px #00000055;
+}
+
+/* .task.pending.focused-task {
+    border-color: gray;
+} */
+
 .task.done {
     background-color: rgba(212, 255, 20, 0.8);
 }
+
+/* .task.done.focused-task {
+    border-color: rgba(159, 190, 20, 0.8);
+} */
 
 /* .task.ready-to-pick-up {
     background-color: #b0fcffd0;
@@ -39,15 +59,6 @@
 .task.active {
     background-color: #f1d9ffd0;
 } */
-
-.task.pending {
-    background-color: rgb(236, 236, 236);
-}
-
-.task.focused-task {
-    transform: scale(1.05);
-    /* outline: 1px solid red; */
-}
 
 .task-list {
     position: relative;

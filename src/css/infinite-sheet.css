@@ -6,7 +6,7 @@
     align-items: left;
 
     /* overscroll */
-    padding: 20vh 100vw 50vh;
+    padding: 30vh 100vw 80vh;
 
     position: relative;
     margin-left: calc(50%);
@@ -16,7 +16,11 @@
 }
 
 .auto-focus-shift-area {
-    transition: left 400ms cubic-bezier(0.35, 0, 0.63, 0.64);
+    transition: left var(--auto-focus-shift-transition-duration) var(--auto-focus-shift-transition-timing-function);
+}
+
+.auto-focus-shift-area {
+    left: 0;
 }
 
 .auto-focus-shift-area.auto-focus-enabled {

@@ -52,7 +52,7 @@ class InfiniteSheet extends React.Component {
                 className={className}
                 style={{
                     "--focus-depth": "1",
-                    background: "url('img/dot-background.png')",
+                    // background: "url('img/dot-background.png')",
                 }}
             >
                 {content}
