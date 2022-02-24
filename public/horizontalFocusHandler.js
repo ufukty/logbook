@@ -68,7 +68,7 @@ class HorizontalFocusHandler {
             this.changeTaskInFocus(elements[focusIndex]);
         }
 
-        this.debug(elements, boundaries, this.lastFocusedElem, this.positionOfFieldOfFocus());
+        // this.debug(elements, boundaries, this.lastFocusedElem, this.positionOfFieldOfFocus());
     }
 
     changeTaskInFocus(domObject) {
