@@ -5,6 +5,8 @@ import "./css/infinite-sheet.css";
 import React from "react";
 import * as constants from "./constants";
 import TaskPositioner from "./ui-components/task-group/task-list/task/Task";
+import { autoFocusManager } from "./AutoFocusManager";
+// ("./AutoFocusManager");
 
 var endpoint_address = "http://192.168.1.44:8080";
 // var endpoint_document_overview_hierarchical = "/document/overview/hierarchical";
@@ -17,8 +19,12 @@ class InfiniteSheet extends React.Component {
         this.state = {
             tasksRawData: props.tasks,
             documentViewMode: props.documentViewMode,
+            adjustmentForDepth: 1,
             domOrdering: props.tasks.map((taskDetails) => taskDetails.task_id),
         };
+        autoFocusManager.registerDelegateForAdjustmentDepthChange(
+            this.delegateAutoFocusAdjustmentDepthChange.bind(this)
+        );
     }
 
     static getDerivedStateFromProps(props, state) {
@@ -28,6 +34,11 @@ class InfiniteSheet extends React.Component {
             documentViewMode: props.documentViewMode,
         };
     }
+    delegateAutoFocusAdjustmentDepthChange(newAdjustmentDepth) {
+        this.setState({
+            adjustmentForDepth: newAdjustmentDepth,
+        });
+    }
 
     render() {
         // console.log("infinite-sheet render");
@@ -36,7 +47,12 @@ class InfiniteSheet extends React.Component {
         for (const taskId of this.state.domOrdering) {
             var task = this.state.tasksRawData.filter((taskDetails) => taskDetails.task_id === taskId)[0];
             var taskPositioner = (
-                <TaskPositioner key={task.task_id} taskDetails={task} documentViewMode={this.state.documentViewMode} />
+                <TaskPositioner
+                    key={task.task_id}
+                    taskDetails={task}
+                    adjustmentForDepth={this.state.adjustmentForDepth}
+                    documentViewMode={this.state.documentViewMode}
+                />
             );
             content.push(taskPositioner);
         }
@@ -46,13 +62,15 @@ class InfiniteSheet extends React.Component {
             className += " auto-focus-enabled";
         }
 
+        autoFocusManager.registerNextDVM(this.state.documentViewMode);
+
         return (
             <div
                 id="infinite-sheet"
                 className={className}
                 style={{
-                    "--focus-depth": "1",
-                    // background: "url('img/dot-background.png')",
+                    // "--focus-depth": "4",
+                    background: "url('img/dot-background.png')",
                 }}
             >
                 {content}
@@ -185,9 +203,9 @@ class App extends React.Component {
                     <a href="#august-14-2021">To-do Drawer</a>
                 </div> */}
 
-                {/* <div id="debug" className="floating-corner right bottom light">
+                <div id="debug" className="floating-corner right bottom light">
                     Welcome back.
-                </div> */}
+                </div>
 
                 <div id="settings" className="floating-corner left bottom">
                     {this.documentViewModeSelector}

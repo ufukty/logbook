@@ -24,5 +24,5 @@
 }
 
 .auto-focus-shift-area.auto-focus-enabled {
-    left: calc((var(--focus-depth) - 1) * -1 * var(--focus-depth-shift));
+    left: calc(-1 * var(--focus-depth) * var(--focus-depth-shift));
 }

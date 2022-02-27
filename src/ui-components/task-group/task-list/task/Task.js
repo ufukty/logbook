@@ -5,6 +5,7 @@ import React from "react";
 
 import "./Task.css";
 import * as constants from "../../../../constants";
+import { calculateShiftForItem } from "../../../../AutoFocusManager";
 
 function max(left, right) {
     if (left > right) {
@@ -14,9 +15,10 @@ function max(left, right) {
     }
 }
 
-function calculatePositionsToLeft(documentViewMode, depth) {
+function calculatePositionsToLeft(documentViewMode, adjustmentForDepth, depth) {
     if (documentViewMode === constants.DVM_HIERARCH) {
-        return constants.AUTO_FOCUS_SHIFT_IN_PIXELS * max(0, depth - 1);
+        // console.log(calculateShiftForItem(adjustmentForDepth, depth));
+        return calculateShiftForItem(adjustmentForDepth, depth);
     } else {
         return 0;
     }
@@ -28,7 +30,12 @@ class TaskPositioner extends React.Component {
         this.state = {
             taskDetails: props.taskDetails,
             documentViewMode: props.documentViewMode,
-            horizontalShift: calculatePositionsToLeft(props.documentViewMode, props.taskDetails.depth),
+            adjustmentForDepth: props.adjustmentForDepth,
+            horizontalShift: calculatePositionsToLeft(
+                props.documentViewMode,
+                props.adjustmentForDepth,
+                props.taskDetails.depth
+            ),
         };
         this.div = React.createRef();
     }
@@ -38,7 +45,12 @@ class TaskPositioner extends React.Component {
         return {
             taskDetails: props.taskDetails,
             documentViewMode: props.documentViewMode,
-            horizontalShift: calculatePositionsToLeft(props.documentViewMode, props.taskDetails.depth),
+            adjustmentForDepth: props.adjustmentForDepth,
+            horizontalShift: calculatePositionsToLeft(
+                props.documentViewMode,
+                props.adjustmentForDepth,
+                props.taskDetails.depth
+            ),
         };
     }
 
