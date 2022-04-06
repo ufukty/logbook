@@ -6,23 +6,15 @@
     align-items: left;
 
     /* overscroll */
+    /* padding: 30vh 0 80vh; */
     padding: 30vh 100vw 80vh;
 
     position: relative;
     margin-left: calc(50%);
-    transform: translateX(-50%);
+    transform: translateX(-50%); /* only for initialization */
 
     background-position: 50% 50%;
-}
 
-.auto-focus-shift-area {
-    transition: left var(--auto-focus-shift-transition-duration) var(--auto-focus-shift-transition-timing-function);
-}
-
-.auto-focus-shift-area {
     left: 0;
-}
-
-.auto-focus-shift-area.auto-focus-enabled {
-    left: calc(-1 * var(--focus-depth) * var(--focus-depth-shift));
+    transition: transform var(--auto-focus-shift-transition-duration) var(--auto-focus-shift-transition-timing-function);
 }

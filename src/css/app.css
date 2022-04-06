@@ -5,10 +5,16 @@
 
     --task-vertical-margin-one-side: 30vw;
     --task-width: calc(min((100vw - var(--task-vertical-margin-one-side)), 600px));
-    --focus-depth-shift: 40px;
 
-    --auto-focus-shift-transition-duration: 400ms;
-    --auto-focus-shift-transition-timing-function: cubic-bezier(0.18, 0.88, 0.58, 1);
+    
+    --auto-focus-shift-transition-duration: 1000ms;
+    --auto-focus-shift-transition-timing-function: cubic-bezier(0,1.01,.58,1);
+    
+    --auto-focus-task-positioner-transition-duration: 400ms;
+    --auto-focus-task-positioner-transition-timing-function: cubic-bezier(.42,1.56,.55,1);
+    
+    --auto-focus-highlight-transition-duration:400ms;
+    --auto-focus-highlight-transition-timing-function: cubic-bezier(.42,1.56,.55,1);
 }
 
 * {

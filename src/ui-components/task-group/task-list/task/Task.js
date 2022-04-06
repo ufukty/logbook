@@ -5,65 +5,27 @@ import React from "react";
 
 import "./Task.css";
 import * as constants from "../../../../constants";
-import { calculateShiftForItem } from "../../../../AutoFocusManager";
-
-function max(left, right) {
-    if (left > right) {
-        return left;
-    } else {
-        return right;
-    }
-}
-
-function calculatePositionsToLeft(documentViewMode, adjustmentForDepth, depth) {
-    if (documentViewMode === constants.DVM_HIERARCH) {
-        // console.log(calculateShiftForItem(adjustmentForDepth, depth));
-        return calculateShiftForItem(adjustmentForDepth, depth);
-    } else {
-        return 0;
-    }
-}
 
 class TaskPositioner extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {
-            taskDetails: props.taskDetails,
-            documentViewMode: props.documentViewMode,
-            adjustmentForDepth: props.adjustmentForDepth,
-            horizontalShift: calculatePositionsToLeft(
-                props.documentViewMode,
-                props.adjustmentForDepth,
-                props.taskDetails.depth
-            ),
-        };
+        this.state = { task: props.task };
         this.div = React.createRef();
     }
 
     static getDerivedStateFromProps(props, state) {
-        // console.log(nextProps, currentState);
-        return {
-            taskDetails: props.taskDetails,
-            documentViewMode: props.documentViewMode,
-            adjustmentForDepth: props.adjustmentForDepth,
-            horizontalShift: calculatePositionsToLeft(
-                props.documentViewMode,
-                props.adjustmentForDepth,
-                props.taskDetails.depth
-            ),
-        };
+        return { task: props.task };
     }
 
     render() {
         // console.log("task-positioner render");
+        var horizontalShift = this.state.task.effectiveDepth * constants.AUTO_FOCUS_SHIFT_IN_PIXELS;
         var style = {
-            transform: "translateX(" + this.state.horizontalShift + "px)",
+            transform: "translateX(" + horizontalShift + "px)",
         };
-        var taskID = this.state.taskDetails.task_id;
-        var taskDetails = this.state.taskDetails;
         return (
             <div ref={this.div} className="task-positioner" style={style}>
-                <Task key={taskID} taskDetails={taskDetails} documentViewMode={this.state.documentViewMode}></Task>
+                <Task key={this.state.task.taskId} task={this.state.task}></Task>
             </div>
         );
     }
@@ -73,15 +35,14 @@ class Task extends React.Component {
     constructor(props) {
         super(props);
         var status;
-        if (props.taskDetails.completed_at != null) {
+        if (props.task.completedAt != null) {
             status = "done";
         } else {
             status = "pending";
         }
         this.state = {
-            taskDetails: props.taskDetails,
+            task: props.task,
             taskStatus: status,
-            documentViewMode: props.documentViewMode,
         };
     }
 
@@ -89,14 +50,14 @@ class Task extends React.Component {
         // console.log("task render");
         return (
             <div
-                task_id={this.state.taskDetails.task_id}
-                task_depth={this.state.taskDetails.depth}
+                task_id={this.state.task.taskId} // FIXME: task_id -> taskId
+                task_depth={this.state.task.depth}
                 className={"task " + this.state.taskStatus}
                 // draggable="true"
                 contentEditable="true"
                 suppressContentEditableWarning={true}
             >
-                {this.state.taskDetails.content}
+                {this.state.task.content}
             </div>
         );
     }
