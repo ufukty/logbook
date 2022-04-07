@@ -1,20 +1,15 @@
 :root {
-    --primary-color: rgba(212, 255, 20, 0.8);
-    --primary-color-opaque: #ddff5d;
-    --light-gray-background: #eeeeee;
-
-    --task-vertical-margin-one-side: 30vw;
+    --task-vertical-margin-one-side: 25vw;
     --task-width: calc(min((100vw - var(--task-vertical-margin-one-side)), 600px));
 
-    
     --auto-focus-shift-transition-duration: 1000ms;
-    --auto-focus-shift-transition-timing-function: cubic-bezier(0,1.01,.58,1);
-    
+    --auto-focus-shift-transition-timing-function: cubic-bezier(0, 1.01, 0.58, 1);
+
     --auto-focus-task-positioner-transition-duration: 400ms;
-    --auto-focus-task-positioner-transition-timing-function: cubic-bezier(.42,1.56,.55,1);
-    
-    --auto-focus-highlight-transition-duration:400ms;
-    --auto-focus-highlight-transition-timing-function: cubic-bezier(.42,1.56,.55,1);
+    --auto-focus-task-positioner-transition-timing-function: cubic-bezier(0.42, 1.56, 0.55, 1);
+
+    --auto-focus-highlight-transition-duration: 400ms;
+    --auto-focus-highlight-transition-timing-function: cubic-bezier(0.42, 1.56, 0.55, 1);
 }
 
 * {
@@ -23,11 +18,29 @@
     font-family: "Work Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-weight: 600;
     box-sizing: border-box;
-    font-size: 12pt;
+    font-size: 9pt;
     color: inherit;
     text-decoration: inherit;
     cursor: default;
     user-select: none;
+}
+
+@media screen and (min-width: 800px) {
+    * {
+        font-size: 10pt;
+    }
+}
+
+@media screen and (min-width: 1000px) {
+    * {
+        font-size: 11pt;
+    }
+}
+
+@media screen and (min-width: 1200px) {
+    * {
+        font-size: 12pt;
+    }
 }
 
 body {
@@ -61,27 +74,11 @@ body {
     right: 20px;
 }
 
-.floating-corner.white {
-    background-color: #ffff;
-    color: #000;
-}
-
 .floating-corner.light,
 .floating-corner.dark {
     backdrop-filter: blur(50px) saturate(5);
     -webkit-backdrop-filter: blur(50px) saturate(5);
     border-radius: 20px;
-}
-
-.floating-corner.light {
-    background-color: rgba(255, 255, 255, 0.5);
-    border: 1px solid #8882;
-    color: #000;
-}
-
-.floating-corner.dark {
-    background-color: #000e;
-    color: #fff;
 }
 
 #home-button {

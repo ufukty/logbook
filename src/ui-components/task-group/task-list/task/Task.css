@@ -1,17 +1,17 @@
 .task-positioner {
     width: var(--task-width);
-    transition: transform var(--auto-focus-task-positioner-transition-duration) var(--auto-focus-task-positioner-transition-timing-function);
+    transition: transform var(--auto-focus-task-positioner-transition-duration)
+        var(--auto-focus-task-positioner-transition-timing-function);
 }
 
 .task-positioner:not(:last-of-type) {
-    margin-bottom: 32px;
+    margin-bottom: calc(9pt + 2 * 10px);
 }
 
 .task {
-    font-size: 14pt;
-    line-height: 22px;
+    font-size: 1rem;
 
-    padding: 5px 20px;
+    padding: calc(0.4rem + 1px) 1rem 0.4rem;
     border-radius: 8px;
     box-sizing: border-box;
 
@@ -22,30 +22,17 @@
 
     border: 2px solid transparent;
 
-    transition: all var(--auto-focus-highlight-transition-duration) var(--auto-focus-highlight-transition-timing-function);
+    transition: all var(--auto-focus-highlight-transition-duration)
+        var(--auto-focus-highlight-transition-timing-function);
     box-shadow: 0 0 20px -20px #00000055;
-}
 
-.task:hover {
-    transform: scale(0.95);
-}
-
-.task.pending {
-    background-color: rgb(236, 236, 236);
+    color: var(--text-color);
+    background-color: var(--background-color);
 }
 
 .task.focused-task {
     transform: translateY(-10%) scale(1.05);
-    /* outline: 1px solid red; */
     box-shadow: 0 10px 20px -10px #00000055;
-}
-
-/* .task.pending.focused-task {
-    border-color: gray;
-} */
-
-.task.done {
-    background-color: rgba(212, 255, 20, 0.8);
 }
 
 /* .task.done.focused-task {

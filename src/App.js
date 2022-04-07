@@ -1,3 +1,4 @@
+import "./css/colors.css";
 import "./css/app.css";
 import "./css/document-view-mode-selector.css";
 import "./css/infinite-sheet.css";
@@ -5,8 +6,6 @@ import "./css/infinite-sheet.css";
 import React from "react";
 import * as constants from "./constants";
 import TaskPositioner from "./ui-components/task-group/task-list/task/Task";
-import { toHaveAccessibleDescription } from "@testing-library/jest-dom/dist/matchers";
-// import { autoFocusManager } from "./AutoFocusManager";
 
 var endpoint_address = "http://192.168.1.44:8080";
 // var endpoint_document_overview_hierarchical = "/document/overview/hierarchical";
@@ -314,7 +313,7 @@ class InfiniteSheet extends React.Component {
                 // className={className}
                 style={{
                     transform: "translateX(calc(" + this.state.paneTranslationInPixels + "px - 50%))",
-                    background: "url('img/dot-background.png')",
+                    // background: "url('img/dot-background.png')",
                 }}
             >
                 {content}
