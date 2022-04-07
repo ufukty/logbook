@@ -17,7 +17,7 @@
 
     left: 0;
     transition: transform var(--auto-focus-shift-transition-duration) var(--auto-focus-shift-transition-timing-function);
-    transition-delay: 1s;
+    transition-delay: 400ms;
 }
 
 .chronological-dvm-components.day-title {
