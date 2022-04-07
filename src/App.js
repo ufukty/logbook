@@ -5,26 +5,38 @@ import "./css/infinite-sheet.css";
 import React from "react";
 import * as constants from "./constants";
 import TaskPositioner from "./ui-components/task-group/task-list/task/Task";
+import { toHaveAccessibleDescription } from "@testing-library/jest-dom/dist/matchers";
 // import { autoFocusManager } from "./AutoFocusManager";
 
 var endpoint_address = "http://192.168.1.44:8080";
 // var endpoint_document_overview_hierarchical = "/document/overview/hierarchical";
 var endpoint_document_overview_chronological = "/document/overview/chronological/";
 
-function leastOfGreaterBinarySearch(list, item) {
-    list.unshift(-1); // Add dummy -1 at the beginning of array
-    var lo = 0,
-        hi = list.length - 1,
-        mid = -1;
-    while (hi - lo > 1) {
-        mid = Math.floor((lo + hi) / 2);
-        if (list[mid] <= item) {
-            lo = mid;
-        } else {
-            hi = mid;
+function findFirstGreaterOrClosestItem(orderedList, searchItem) {
+    var lastItemIndex = orderedList.length - 1;
+    if (searchItem <= orderedList[0]) {
+        // if searchItem is smaller than the smallest item on orderedList
+        return 0;
+    } else if (orderedList[lastItemIndex] <= searchItem) {
+        // if searchItem is bigger than the biggest item on orderedList
+        return lastItemIndex;
+    } else {
+        // if searchItem is in between first and last item of
+        // orderedList, perform below instructions based on
+        // binary search.
+        var lo = 0,
+            hi = lastItemIndex,
+            mid = undefined;
+        while (hi - lo > 1) {
+            mid = Math.floor((lo + hi) / 2);
+            if (orderedList[mid] <= searchItem) {
+                lo = mid;
+            } else {
+                hi = mid;
+            }
         }
+        return lo;
     }
-    return lo - 1;
 }
 
 function Task(props) {
@@ -203,6 +215,7 @@ class InfiniteSheet extends React.Component {
     scrollEventHandler(e) {
         e.preventDefault();
         this.focusHandler();
+        this.debug();
     }
 
     focusHandler() {
@@ -265,7 +278,7 @@ class InfiniteSheet extends React.Component {
 
     detectFocusedTaskIndex(elements) {
         var boundaries = this.getBoundariesOfFocusAreas(elements);
-        var focusIndex = leastOfGreaterBinarySearch(boundaries, this.positionOfFieldOfFocus());
+        var focusIndex = findFirstGreaterOrClosestItem(boundaries, this.positionOfFieldOfFocus());
         return focusIndex;
     }
 
