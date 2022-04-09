@@ -78,8 +78,9 @@
 @media (prefers-color-scheme: dark) {
     #left,
     #right {
-        background-color: rgb(185, 185, 185);
-        color: #000;
+        background-color: #3d3d3d;
+        color: #bebebe;
+        box-shadow: 0 10px 5px -5px #15151588, 0 0 5px #15151588;
     }
 
     #left-activated-caption,
@@ -93,12 +94,12 @@
 
 .task.pending {
     --text-color: #000000;
-    --background-color: rgb(236, 236, 236);
+    --background-color: #ececec;
 }
 
 .task.done {
     --text-color: #000000;
-    --background-color: rgba(212, 255, 20, 0.8);
+    --background-color: #d4ff14cc;
 }
 
 @media (prefers-color-scheme: dark) {

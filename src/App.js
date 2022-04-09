@@ -38,6 +38,14 @@ function findFirstGreaterOrClosestItem(orderedList, searchItem) {
     }
 }
 
+function averageInt(listOfValues) {
+    var total = 0;
+    listOfValues.forEach((value) => {
+        total += value;
+    });
+    return Math.floor(total / listOfValues.length);
+}
+
 function Task(props) {
     // Properties that are fetched from server
     this.taskId = props.task_id; // example: "8557d156-3d00-4836-8323-a9bdd586719a"
@@ -57,12 +65,11 @@ function Task(props) {
 class InfiniteSheet extends React.Component {
     constructor(props) {
         super(props);
-
         this.state = {
             tasks: props.tasks,
             documentViewMode: props.documentViewMode,
             chronologicalOrdering: props.chronologicalOrdering,
-            paneStyleLeftInPixels: 0,
+            paneShiftTotal: 0,
         };
         this.autoFocusSetup();
         this.debug();
@@ -116,8 +123,7 @@ class InfiniteSheet extends React.Component {
         this.paneShiftPrior += this.paneShiftCurrent;
         this.paneShiftCurrent = 0;
 
-        var initiallyFocusedDepth = this.getCurrentlyFocusedDepth();
-        // var initiallyFocusedDepth =
+        var initiallyFocusedDepth = this.state.paneShiftTotal * -1; // this.getCurrentlyFocusedDepth();
         var updatedTasks;
         this.setState((prevState) => {
             updatedTasks = Object.assign({}, prevState.tasks);
@@ -131,6 +137,7 @@ class InfiniteSheet extends React.Component {
                 tasks: updatedTasks,
             };
         });
+        this.debug();
     }
 
     // save the focus depth
@@ -157,16 +164,17 @@ class InfiniteSheet extends React.Component {
                 tasks: updatedTasks,
             };
         });
+        this.debug();
     }
 
     positionOfFieldOfFocus() {
         var upperEdgeOfScreen = window.scrollY,
             heightOfScreen = window.innerHeight;
-        return upperEdgeOfScreen + 0.3 * heightOfScreen;
+        return upperEdgeOfScreen + 0.5 * heightOfScreen;
     }
 
     debug() {
-        var debugActivated = false;
+        var debugActivated = true;
         if (debugActivated) {
             this.debugElem = document.getElementById("debug");
             // if (this.currentlyFocusedTask_DOMObject !== undefined) {
@@ -183,8 +191,8 @@ class InfiniteSheet extends React.Component {
                 "paneShiftCurrent: " +
                 this.paneShiftCurrent +
                 "<br>" +
-                "paneTranslationInPixels: " +
-                this.state.paneTranslationInPixels;
+                "paneShiftTotal: " +
+                this.state.paneShiftTotal;
 
             if (this.currentlyFocusedTask_DOMObject !== undefined) {
                 this.debugElem.innerHTML +=
@@ -209,6 +217,24 @@ class InfiniteSheet extends React.Component {
 
     findTasksFromDOM() {
         return document.querySelectorAll(".task");
+    }
+
+    getAverageEffectiveFocusDepthOfFocusedArea(nextFocusedTask_DOMObject) {
+        var taskIdOfFocusedTask = nextFocusedTask_DOMObject.getAttribute("task_id");
+        var orderOfFocusedTask = this.state.chronologicalOrdering.findIndex((item) => {
+            return taskIdOfFocusedTask === item;
+        });
+        var effectiveDepths = [];
+        for (let offset = -2; offset <= 2; offset++) {
+            var neighbourTaskOrder = orderOfFocusedTask + offset;
+            if (0 >= neighbourTaskOrder || neighbourTaskOrder >= this.state.chronologicalOrdering.length) {
+                continue;
+            }
+            var neighbourTaskId = this.state.chronologicalOrdering[neighbourTaskOrder];
+            var neighbourTaskEffectiveDepth = this.state.tasks[neighbourTaskId].effectiveDepth;
+            effectiveDepths.push(neighbourTaskEffectiveDepth);
+        }
+        return averageInt(effectiveDepths);
     }
 
     scrollEventHandler(e) {
@@ -238,40 +264,21 @@ class InfiniteSheet extends React.Component {
 
         var nextFocusedTask_DOMObject = tasksFromDOM[nextFocusIndex];
 
-        // If this is the first time we focus on a task (first call of this function)
-        if (this.currentlyFocusedTask_DOMObject === undefined) {
-            // Register currently focused task
-            this.currentlyFocusedTask_DOMObject = nextFocusedTask_DOMObject;
-            this.addHighlightToCurrentlyFocusedTask();
-        } else {
-            this.focusDepth = this.getCurrentlyFocusedDepth();
-
-            // Detect if the task in focus is the same with previous call
-            if (this.currentlyFocusedTask_DOMObject === nextFocusedTask_DOMObject) {
-                return;
-            }
-            this.removeHighlightFromFromCurrentlyFocusedTask();
-
-            // Register currently focused task
-            this.currentlyFocusedTask_DOMObject = nextFocusedTask_DOMObject;
-            this.addHighlightToCurrentlyFocusedTask();
-        }
-
-        // calculatePaneShiftCurrent
+        // calculate paneShiftCurrent
+        // focused depth will be the average effective depth of 5 tasks
+        // around the centered one
         this.currentlyFocusedTask_DOMObject = nextFocusedTask_DOMObject;
-        var effectiveDepthOfTaskInFocus =
-            this.state.tasks[nextFocusedTask_DOMObject.getAttribute("task_id")].effectiveDepth;
+        var effectiveDepthOfTaskInFocus = this.getAverageEffectiveFocusDepthOfFocusedArea(nextFocusedTask_DOMObject);
         this.paneShiftCurrent = effectiveDepthOfTaskInFocus - this.focusDepthOnTransition;
 
         // applyFocusedDepth
-        var paneTranslationInPixels;
+        var paneShiftTotal;
         if (this.effectiveDVM === constants.DVM_HIERARCH) {
-            paneTranslationInPixels =
-                -1 * (this.paneShiftPrior + this.paneShiftCurrent) * constants.AUTO_FOCUS_SHIFT_IN_PIXELS;
+            paneShiftTotal = -1 * (this.paneShiftPrior + this.paneShiftCurrent);
         } else {
-            paneTranslationInPixels = -1 * this.paneShiftPrior * constants.AUTO_FOCUS_SHIFT_IN_PIXELS;
+            paneShiftTotal = -1 * this.paneShiftPrior;
         }
-        this.setState({ paneTranslationInPixels: paneTranslationInPixels });
+        this.setState({ paneShiftTotal: paneShiftTotal });
         this.debug();
     }
 
@@ -293,7 +300,7 @@ class InfiniteSheet extends React.Component {
         if (this.currentlyFocusedTask_DOMObject === undefined) {
             return 0;
         } else {
-            return this.state.tasks[this.currentlyFocusedTask_DOMObject.getAttribute("task_id")].effectiveDepth;
+            return this.getAverageEffectiveFocusDepthOfFocusedArea(this.currentlyFocusedTask_DOMObject);
         }
     }
 
@@ -302,18 +309,14 @@ class InfiniteSheet extends React.Component {
             return <TaskPositioner key={taskId} task={this.state.tasks[taskId]} />;
         });
 
-        // var className = "auto-focus-shift-area auto-focus-enabled";
-        // if (this.state.documentViewMode === constants.DVM_HIERARCH) {
-        //     className += " auto-focus-enabled";
-        // }
-
         return (
             <div
                 id="infinite-sheet"
-                // className={className}
                 style={{
-                    transform: "translateX(calc(" + this.state.paneTranslationInPixels + "px - 50%))",
-                    // background: "url('img/dot-background.png')",
+                    transform:
+                        "translateX(calc(" +
+                        this.state.paneShiftTotal +
+                        " * var(--infinite-sheet-pixels-for-each-shift) - 50%))",
                 }}
             >
                 {content}
@@ -395,7 +398,7 @@ class App extends React.Component {
                 (result) => {
                     // Create < associative array || key-value list >
 
-                    var tasks = new Object();
+                    var tasks = {};
                     result.resource.forEach((resource) => {
                         tasks[resource.task_id] = new Task(resource);
                     });
@@ -422,12 +425,35 @@ class App extends React.Component {
         var content;
 
         if (this.state.error) {
-            content = <div>{this.state.error.message}</div>;
+            content = (
+                <div
+                    style={{
+                        position: "absolute",
+                        left: "50vw",
+                        top: "50vh",
+                        transform: "translate(-50%)",
+                    }}
+                >
+                    {this.state.error.message}
+                </div>
+            );
         } else if (!this.state.overviewIsLoaded) {
-            content = <div>Loading...</div>;
+            content = (
+                <div
+                    style={{
+                        position: "absolute",
+                        left: "50vw",
+                        top: "50vh",
+                        transform: "translate(-50%)",
+                    }}
+                >
+                    Loading...
+                </div>
+            );
         } else {
             content = (
                 <InfiniteSheet
+                    // key="ae0bcf02-427f-5f9d-8cc9-2aa969c8e273"
                     tasks={this.state.tasks}
                     chronologicalOrdering={this.state.chronologicalOrdering}
                     documentViewMode={this.state.documentViewMode}
@@ -462,9 +488,9 @@ class App extends React.Component {
                     <a href="#august-14-2021">To-do Drawer</a>
                 </div> */}
 
-                {/* <div id="debug" className="floating-corner right  bottom light">
+                <div id="debug" className="floating-corner right  bottom light">
                     Welcome back.
-                </div> */}
+                </div>
 
                 <div id="settings" className="floating-corner left bottom">
                     {this.documentViewModeSelector}

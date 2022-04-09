@@ -1,9 +1,9 @@
 :root {
-    --task-vertical-margin-one-side: 25vw;
+    --task-vertical-margin-one-side: 30vw;
     --task-width: calc(min((100vw - var(--task-vertical-margin-one-side)), 600px));
 
     --auto-focus-shift-transition-duration: 1000ms;
-    --auto-focus-shift-transition-timing-function: cubic-bezier(0, 1.01, 0.58, 1);
+    --auto-focus-shift-transition-timing-function: ease-in-out;
 
     --auto-focus-task-positioner-transition-duration: 400ms;
     --auto-focus-task-positioner-transition-timing-function: cubic-bezier(0.42, 1.56, 0.55, 1);

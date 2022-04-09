@@ -17,7 +17,11 @@
 
     left: 0;
     transition: transform var(--auto-focus-shift-transition-duration) var(--auto-focus-shift-transition-timing-function);
-    transition-delay: 400ms;
+    /* transition-delay: 400ms; */
+}
+
+#infinite-sheet {
+    --infinite-sheet-pixels-for-each-shift: calc(20px + 1vw);
 }
 
 .chronological-dvm-components.day-title {

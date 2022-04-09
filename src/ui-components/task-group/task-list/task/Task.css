@@ -25,15 +25,16 @@
     transition: all var(--auto-focus-highlight-transition-duration)
         var(--auto-focus-highlight-transition-timing-function);
     box-shadow: 0 0 20px -20px #00000055;
+    transform: scale(1);
 
     color: var(--text-color);
     background-color: var(--background-color);
 }
 
-.task.focused-task {
-    transform: translateY(-10%) scale(1.05);
+/* .task.focused-task {
+    transform: scale(1.05);
     box-shadow: 0 10px 20px -10px #00000055;
-}
+} */
 
 /* .task.done.focused-task {
     border-color: rgba(159, 190, 20, 0.8);

@@ -19,9 +19,9 @@ class TaskPositioner extends React.Component {
 
     render() {
         // console.log("task-positioner render");
-        var horizontalShift = this.state.task.effectiveDepth * constants.AUTO_FOCUS_SHIFT_IN_PIXELS;
+        var horizontalShift = this.state.task.effectiveDepth;
         var style = {
-            transform: "translateX(" + horizontalShift + "px)",
+            transform: "translateX(calc(" + horizontalShift + " * var(--infinite-sheet-pixels-for-each-shift)))",
         };
         return (
             <div ref={this.div} className="task-positioner" style={style}>
