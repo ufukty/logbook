@@ -4,7 +4,6 @@ import React from "react";
 // import { timestampToLocalizedText } from "../../../../utility/dateTime";
 
 import "./Task.css";
-import * as constants from "../../../../constants";
 
 class TaskPositioner extends React.Component {
     constructor(props) {
