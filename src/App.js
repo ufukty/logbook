@@ -174,9 +174,8 @@ class InfiniteSheet extends React.Component {
     }
 
     debug() {
-        var debugActivated = true;
-        if (debugActivated) {
-            this.debugElem = document.getElementById("debug");
+        this.debugElem = document.getElementById("debug");
+        if (this.debugElem !== null) {
             // if (this.currentlyFocusedTask_DOMObject !== undefined) {
             this.debugElem.innerHTML =
                 "focusDepthOnTransition: " +
@@ -488,9 +487,9 @@ class App extends React.Component {
                     <a href="#august-14-2021">To-do Drawer</a>
                 </div> */}
 
-                <div id="debug" className="floating-corner right  bottom light">
+                {/* <div id="debug" className="floating-corner right  bottom light">
                     Welcome back.
-                </div>
+                </div> */}
 
                 <div id="settings" className="floating-corner left bottom">
                     {this.documentViewModeSelector}
