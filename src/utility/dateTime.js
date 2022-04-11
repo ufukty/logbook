@@ -3,15 +3,16 @@ export function dateToEpoch(dateTimeString) {
     return date.valueOf().toString();
 }
 
-export function classifyTasksByDays(linear_tasks) {
+export function classifyTasksByDays(tasks) {
     var classifiedTasks = {}; // type: { "date1": [task1, task2], "date2": [...], ...}
-    for (const task of linear_tasks) {
-        var backendTimestamp = task.completed_at;
-        var completionDayEpoch = dateToEpoch(backendTimestamp);
-        if (!classifiedTasks.hasOwnProperty(completionDayEpoch)) {
-            classifiedTasks[completionDayEpoch] = [];
+    for (const taskId in tasks) {
+        if (Object.hasOwnProperty.call(tasks, taskId)) {
+            var completionDayEpoch = dateToEpoch(tasks[taskId].createdAt);
+            if (!classifiedTasks.hasOwnProperty(completionDayEpoch)) {
+                classifiedTasks[completionDayEpoch] = [];
+            }
+            classifiedTasks[completionDayEpoch].push(taskId);
         }
-        classifiedTasks[completionDayEpoch].push(task);
     }
     return classifiedTasks;
 }

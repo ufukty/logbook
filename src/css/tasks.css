@@ -1,0 +1,4 @@
+.chronological-dvm-compo.day-header {
+    font-size: 1.1rem;
+    margin: calc(18pt + 40px) 0 calc(9pt + 2 * 10px);
+}

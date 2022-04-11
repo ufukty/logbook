@@ -2,10 +2,12 @@ import "./css/colors.css";
 import "./css/app.css";
 import "./css/document-view-mode-selector.css";
 import "./css/infinite-sheet.css";
+import "./css/tasks.css";
 
 import React from "react";
 import * as constants from "./constants";
 import TaskPositioner from "./ui-components/task-group/task-list/task/Task";
+import { classifyTasksByDays, timestampToLocalizedText } from "./utility/dateTime";
 
 var endpoint_address = "http://192.168.1.44:8080";
 // var endpoint_document_overview_hierarchical = "/document/overview/hierarchical";
@@ -62,6 +64,20 @@ function Task(props) {
     this.effectiveDepth = 0;
 }
 
+class DayHeader extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            dateStamp: props.dateStamp,
+        };
+    }
+    render() {
+        return (
+            <div className="chronological-dvm-compo day-header">{timestampToLocalizedText(this.state.dateStamp)}</div>
+        );
+    }
+}
+
 class InfiniteSheet extends React.Component {
     constructor(props) {
         super(props);
@@ -96,6 +112,7 @@ class InfiniteSheet extends React.Component {
     }
 
     componentDidMount() {
+        this.currentlyFocusedTask_DOMObject = this.findTasksFromDOM[0];
         this.focusHandler();
     }
 
@@ -218,18 +235,23 @@ class InfiniteSheet extends React.Component {
         return document.querySelectorAll(".task");
     }
 
-    getAverageEffectiveFocusDepthOfFocusedArea(nextFocusedTask_DOMObject) {
-        var taskIdOfFocusedTask = nextFocusedTask_DOMObject.getAttribute("task_id");
-        var orderOfFocusedTask = this.state.chronologicalOrdering.findIndex((item) => {
-            return taskIdOfFocusedTask === item;
-        });
+    getAverageEffectiveFocusDepthOfFocusedArea(tasksFromDOM, nextFocusedTask_DOMObject) {
+        // var taskIdOfFocusedTask = nextFocusedTask_DOMObject.getAttribute("task_id");
+        var orderOfFocusedTask = -1;
+        for (let index = 0; index < tasksFromDOM.length; index++) {
+            const taskDOMObject = tasksFromDOM[index];
+            if (taskDOMObject.getAttribute("task_id") === nextFocusedTask_DOMObject.getAttribute("task_id")) {
+                orderOfFocusedTask = index;
+                break;
+            }
+        }
         var effectiveDepths = [];
         for (let offset = -2; offset <= 2; offset++) {
             var neighbourTaskOrder = orderOfFocusedTask + offset;
-            if (0 >= neighbourTaskOrder || neighbourTaskOrder >= this.state.chronologicalOrdering.length) {
+            if (0 >= neighbourTaskOrder || neighbourTaskOrder >= tasksFromDOM.length) {
                 continue;
             }
-            var neighbourTaskId = this.state.chronologicalOrdering[neighbourTaskOrder];
+            var neighbourTaskId = tasksFromDOM[neighbourTaskOrder].getAttribute("task_id");
             var neighbourTaskEffectiveDepth = this.state.tasks[neighbourTaskId].effectiveDepth;
             effectiveDepths.push(neighbourTaskEffectiveDepth);
         }
@@ -257,7 +279,7 @@ class InfiniteSheet extends React.Component {
                 // if there is no task in focus, then this should be the first
                 // call of this function. we will continue with focusing the
                 // task at top
-                nextFocusIndex = 0;
+                nextFocusIndex = 1;
             }
         }
 
@@ -267,7 +289,10 @@ class InfiniteSheet extends React.Component {
         // focused depth will be the average effective depth of 5 tasks
         // around the centered one
         this.currentlyFocusedTask_DOMObject = nextFocusedTask_DOMObject;
-        var effectiveDepthOfTaskInFocus = this.getAverageEffectiveFocusDepthOfFocusedArea(nextFocusedTask_DOMObject);
+        var effectiveDepthOfTaskInFocus = this.getAverageEffectiveFocusDepthOfFocusedArea(
+            tasksFromDOM,
+            nextFocusedTask_DOMObject
+        );
         this.paneShiftCurrent = effectiveDepthOfTaskInFocus - this.focusDepthOnTransition;
 
         // applyFocusedDepth
@@ -299,14 +324,29 @@ class InfiniteSheet extends React.Component {
         if (this.currentlyFocusedTask_DOMObject === undefined) {
             return 0;
         } else {
-            return this.getAverageEffectiveFocusDepthOfFocusedArea(this.currentlyFocusedTask_DOMObject);
+            return this.getAverageEffectiveFocusDepthOfFocusedArea(
+                this.findTasksFromDOM(),
+                this.currentlyFocusedTask_DOMObject
+            );
         }
     }
 
+    content() {
+        var content = [];
+
+        const dateStampsOrdered = Object.keys(this.state.chronologicalOrdering).sort();
+        for (const dateStamp of dateStampsOrdered) {
+            content.push(<DayHeader key={dateStamp} dateStamp={dateStamp}></DayHeader>);
+            const taskIDsOfDay = this.state.chronologicalOrdering[dateStamp];
+            for (const taskID of taskIDsOfDay) {
+                content.push(<TaskPositioner key={taskID} task={this.state.tasks[taskID]} />);
+            }
+        }
+        return content;
+    }
+
     render() {
-        var content = this.state.chronologicalOrdering.map((taskId) => {
-            return <TaskPositioner key={taskId} task={this.state.tasks[taskId]} />;
-        });
+        var content = this.content();
 
         return (
             <div
@@ -390,6 +430,12 @@ class App extends React.Component {
         this.fetchDocumentFromServer(documentId);
     }
 
+    organizeTasksByCreationDay(tasks) {
+        tasks.forEach((task) => {
+            var s = task.createdAt;
+        });
+    }
+
     fetchDocumentFromServer(documentId) {
         fetch(endpoint_address + endpoint_document_overview_chronological + documentId + "?limit=1000&offset=0")
             .then((result) => result.json())
@@ -402,7 +448,7 @@ class App extends React.Component {
                         tasks[resource.task_id] = new Task(resource);
                     });
 
-                    var chronologicalOrdering = result.resource.map((resource) => resource.task_id);
+                    var chronologicalOrdering = classifyTasksByDays(tasks);
 
                     this.setState((state, props) => ({
                         overviewIsLoaded: true,
