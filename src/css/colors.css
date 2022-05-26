@@ -21,7 +21,38 @@
     color: #fff;
 }
 
-@media (prefers-color-scheme: dark) {
+/* infinite sheet */
+
+#infinite-sheet {
+    background: url("img/dot-background.png");
+}
+
+/* DVM selector */
+
+#left,
+#right {
+    background-color: #000000;
+    color: #ffffff;
+}
+
+#left-activated-caption,
+#right-activated-caption {
+    background-color: var(--light-gray-background);
+}
+
+/* task */
+
+.task.pending {
+    --text-color: #000000;
+    --background-color: #ececec;
+}
+
+.task.done {
+    --text-color: #000000;
+    --background-color: #d4ff14cc;
+}
+
+/* @media (prefers-color-scheme: dark) {
     :root {
         --primary-color: rgba(212, 255, 20, 0.8);
         --primary-color-opaque: #d1ff2a;
@@ -48,34 +79,11 @@
         background-color: rgba(255, 255, 255, 0.5);
         color: #000;
     }
-}
 
-/* infinite sheet */
-
-#infinite-sheet {
-    background: url("img/dot-background.png");
-}
-
-@media (prefers-color-scheme: dark) {
     #infinite-sheet {
         background: url("img/dot-background-dark-mode.png");
     }
-}
 
-/* DVM selector */
-
-#left,
-#right {
-    background-color: #000000;
-    color: #ffffff;
-}
-
-#left-activated-caption,
-#right-activated-caption {
-    background-color: var(--light-gray-background);
-}
-
-@media (prefers-color-scheme: dark) {
     #left,
     #right {
         background-color: #3d3d3d;
@@ -88,21 +96,7 @@
         background-color: #3d3d3d;
         color: #bebebe;
     }
-}
 
-/* task */
-
-.task.pending {
-    --text-color: #000000;
-    --background-color: #ececec;
-}
-
-.task.done {
-    --text-color: #000000;
-    --background-color: #d4ff14cc;
-}
-
-@media (prefers-color-scheme: dark) {
     .task.pending {
         --text-color: #bebebe;
         --background-color: #3d3d3d;
@@ -112,4 +106,4 @@
         --text-color: var(--primary-color-opaque);
         --background-color: #3d3d3d;
     }
-}
+} */
