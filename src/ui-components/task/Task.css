@@ -1,7 +1,6 @@
 .task-positioner {
     width: var(--task-width);
-    transition: transform var(--auto-focus-task-positioner-transition-duration)
-        var(--auto-focus-task-positioner-transition-timing-function);
+    transition: transform var(--auto-focus-task-positioner-transition-duration) var(--auto-focus-task-positioner-transition-timing-function);
 }
 
 .task-positioner:not(:last-of-type) {
@@ -22,8 +21,7 @@
 
     border: 2px solid transparent;
 
-    transition: all var(--auto-focus-highlight-transition-duration)
-        var(--auto-focus-highlight-transition-timing-function);
+    transition: all var(--auto-focus-highlight-transition-duration) var(--auto-focus-highlight-transition-timing-function);
     box-shadow: 0 0 20px -20px #00000055;
     transform: scale(1);
 

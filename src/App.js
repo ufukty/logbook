@@ -5,11 +5,11 @@ import "./css/infinite-sheet.css";
 import "./css/tasks.css";
 
 import React from "react";
-import * as constants from "./constants";
-import TaskPositioner from "./ui-components/task-group/task-list/task/Task";
+import * as constants from "./utility/constants";
+import TaskPositioner from "./ui-components/task/Task";
 import { classifyTasksByDays, timestampToLocalizedText } from "./utility/dateTime";
 
-var endpoint_address = "http://192.168.1.44:8080";
+var endpoint_address = "http://192.168.1.66:8080";
 // var endpoint_document_overview_hierarchical = "/document/overview/hierarchical";
 var endpoint_document_overview_chronological = "/document/overview/chronological/";
 
@@ -69,11 +69,26 @@ class DayHeader extends React.Component {
         super(props);
         this.state = {
             dateStamp: props.dateStamp,
+            effectiveDepth: props.effectiveDepth,
         };
     }
+
+    static getDerivedStateFromProps(props, state) {
+        return {
+            dateStamp: props.dateStamp,
+            effectiveDepth: props.effectiveDepth,
+        };
+    }
+
     render() {
+        var style = {
+            transform:
+                "translateX(calc(" + this.state.effectiveDepth + " * var(--infinite-sheet-pixels-for-each-shift)))",
+        };
         return (
-            <div className="chronological-dvm-compo day-header">{timestampToLocalizedText(this.state.dateStamp)}</div>
+            <div className="chronological-dvm-compo day-header" style={style}>
+                {timestampToLocalizedText(this.state.dateStamp)}
+            </div>
         );
     }
 }
@@ -86,6 +101,7 @@ class InfiniteSheet extends React.Component {
             documentViewMode: props.documentViewMode,
             chronologicalOrdering: props.chronologicalOrdering,
             paneShiftTotal: 0,
+            effectiveDepthForDayHeaders: 0,
         };
         this.autoFocusSetup();
         this.debug();
@@ -112,8 +128,13 @@ class InfiniteSheet extends React.Component {
     }
 
     componentDidMount() {
+        this._isMounted = true;
         this.currentlyFocusedTask_DOMObject = this.findTasksFromDOM[0];
         this.focusHandler();
+    }
+
+    componentWillUnmount() {
+        this._isMounted = false;
     }
 
     componentDidUpdate() {
@@ -141,9 +162,8 @@ class InfiniteSheet extends React.Component {
         this.paneShiftCurrent = 0;
 
         var initiallyFocusedDepth = this.state.paneShiftTotal * -1; // this.getCurrentlyFocusedDepth();
-        var updatedTasks;
         this.setState((prevState) => {
-            updatedTasks = Object.assign({}, prevState.tasks);
+            var updatedTasks = Object.assign({}, prevState.tasks);
             for (const taskId in updatedTasks) {
                 if (Object.hasOwnProperty.call(updatedTasks, taskId)) {
                     var task = updatedTasks[taskId];
@@ -152,6 +172,7 @@ class InfiniteSheet extends React.Component {
             }
             return {
                 tasks: updatedTasks,
+                effectiveDepthForDayHeaders: initiallyFocusedDepth,
             };
         });
         this.debug();
@@ -333,10 +354,18 @@ class InfiniteSheet extends React.Component {
 
     content() {
         var content = [];
-
+        console.log(this.state.effectiveDepthForDayHeaders);
         const dateStampsOrdered = Object.keys(this.state.chronologicalOrdering).sort();
         for (const dateStamp of dateStampsOrdered) {
-            content.push(<DayHeader key={dateStamp} dateStamp={dateStamp}></DayHeader>);
+            if (this.state.documentViewMode === constants.DVM_CHRONO) {
+                content.push(
+                    <DayHeader
+                        key={dateStamp}
+                        dateStamp={dateStamp}
+                        effectiveDepth={this.state.effectiveDepthForDayHeaders}
+                    ></DayHeader>
+                );
+            }
             const taskIDsOfDay = this.state.chronologicalOrdering[dateStamp];
             for (const taskID of taskIDsOfDay) {
                 content.push(<TaskPositioner key={taskID} task={this.state.tasks[taskID]} />);
