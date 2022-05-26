@@ -2,3 +2,57 @@
     font-size: 1.1rem;
     margin: calc(18pt + 40px) 0 calc(9pt + 2 * 10px);
 }
+
+.task-positioner {
+    width: var(--task-width);
+    transition: transform var(--auto-focus-task-positioner-transition-duration) var(--auto-focus-task-positioner-transition-timing-function);
+}
+
+.task-positioner:not(:last-of-type) {
+    margin-bottom: calc(9pt + 2 * 10px);
+}
+
+.task {
+    font-size: 1rem;
+
+    padding: calc(0.4rem + 1px) 1rem 0.4rem;
+    border-radius: 8px;
+    box-sizing: border-box;
+
+    /* -webkit-user-drag: element; */
+
+    user-select: text;
+    cursor: auto;
+
+    border: 2px solid transparent;
+
+    transition: all var(--auto-focus-highlight-transition-duration) var(--auto-focus-highlight-transition-timing-function);
+    box-shadow: 0 0 20px -20px #00000055;
+    transform: scale(1);
+
+    color: var(--text-color);
+    background-color: var(--background-color);
+}
+
+/* .task.focused-task {
+    transform: scale(1.05);
+    box-shadow: 0 10px 20px -10px #00000055;
+} */
+
+/* .task.done.focused-task {
+    border-color: rgba(159, 190, 20, 0.8);
+} */
+
+/* .task.ready-to-pick-up {
+    background-color: #b0fcffd0;
+}
+
+.task.active {
+    background-color: #f1d9ffd0;
+} */
+
+.task-list {
+    position: relative;
+    width: 500px;
+    height: 400px;
+}

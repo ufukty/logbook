@@ -1,9 +1,6 @@
 // TODO: Update status + CSS ==> Active tasks
 
 import React from "react";
-// import { timestampToLocalizedText } from "../../../../utility/dateTime";
-
-import "./Task.css";
 
 class TaskPositioner extends React.Component {
     constructor(props) {
@@ -24,13 +21,13 @@ class TaskPositioner extends React.Component {
         };
         return (
             <div ref={this.div} className="task-positioner" style={style}>
-                <Task key={this.state.task.taskId} task={this.state.task}></Task>
+                <TaskViewController key={this.state.task.taskId} task={this.state.task}></TaskViewController>
             </div>
         );
     }
 }
 
-class Task extends React.Component {
+class TaskViewController extends React.Component {
     constructor(props) {
         super(props);
         var status;
