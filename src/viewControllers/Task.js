@@ -49,9 +49,9 @@ class TaskViewController extends React.Component {
                 task_id={this.state.task.taskId} // FIXME: task_id -> taskId
                 task_depth={this.state.task.depth}
                 className={"task " + this.state.taskStatus}
-                // draggable="true"
-                contentEditable="true"
-                suppressContentEditableWarning={true}
+            // draggable="true"
+            // contentEditable="true"
+            // suppressContentEditableWarning={true}
             >
                 {this.state.task.content}
             </div>

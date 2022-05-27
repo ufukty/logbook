@@ -24,6 +24,16 @@
     --infinite-sheet-pixels-for-each-shift: calc(20px + 1vw);
 }
 
+#infinite-sheet div.scale-on-focus {
+    transition: 60ms ease-out transform;
+}
+
+#infinite-sheet div.scale-on-focus.focus-activated {
+    transform: scale(0.5);
+    transform-origin: 50% 0;
+    opacity: 0.6;
+}
+
 .chronological-dvm-components.day-title {
     font-size: 1.4rem;
     transform: translateX(80px);
