@@ -13,7 +13,7 @@ class InfiniteSheetTask extends AbstractViewController {
     }
 
     setPosition(posY) {
-        this.container.style.top = `${posY}px`;
+        this.container.style.transform = `translateY(${posY}px)`;
     }
 
     setData(kv) {

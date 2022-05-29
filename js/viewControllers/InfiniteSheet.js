@@ -1,7 +1,5 @@
 import { adoption, domElementReuseCollector, createElement } from "../utilities.js";
 import AbstractViewController from "./AbstractViewController.js";
-import InfiniteSheetTask from "./InfiniteSheetTask.js";
-import InfiniteSheetHeader from "./InfiniteSheetHeader.js";
 
 function inBetween(a, b, c) {
     if (a <= b && c <= c) return true;
@@ -109,19 +107,6 @@ class InfiniteSheet extends AbstractViewController {
         this.visibleHeaderElements = {};
         this.visibleRowElements = {};
 
-        // prettier-ignore
-        domElementReuseCollector.registerItemIdentifier("infiniteSheetRow", function () {
-            const cell = new InfiniteSheetTask();
-            adoption(this.anchorPosition, [cell.container]);            
-            cell.container.addEventListener("click", this.clickEventReceiver.bind(this));
-            return cell;
-        }.bind(this));
-        // prettier-ignore
-        domElementReuseCollector.registerItemIdentifier("infiniteSheetHeader", function () {
-            const cell = new InfiniteSheetHeader();
-            adoption(this.anchorPosition, [cell.container]);
-            return cell;
-        }.bind(this));
 
         document.addEventListener("scroll", this.renderVisible.bind(this));
     }
@@ -365,12 +350,6 @@ class InfiniteSheet extends AbstractViewController {
      *
      */
 
-    clickEventReceiver(e) {
-        const isClickOnTask = e.currentTarget.classList.contains("task-positioner");
-        if (isClickOnTask) {
-            alert("welcome " + e.currentTarget.dataset["section"]);
-        }
-    }
 }
 
 export default InfiniteSheet;

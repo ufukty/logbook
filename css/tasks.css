@@ -10,13 +10,13 @@
     /* margin: calc(18pt + 40px) 0 calc(9pt + 2 * 10px); */
 }
 
-
 .task-positioner {
     position: absolute;
     top: 0;
     left: 0;
     /* width: var(--task-width); */
     /* transition: transform var(--auto-focus-task-positioner-transition-duration) var(--auto-focus-task-positioner-transition-timing-function); */
+    transition: 60ms ease-out opacity;
 }
 
 .task-positioner:not(:last-of-type) {
@@ -68,4 +68,8 @@
     position: relative;
     width: 500px;
     height: 400px;
+}
+
+#infinite-sheet.context-menu-open .task-positioner:not(.context-menu-focused-on) {
+    opacity: 0.5;
 }
