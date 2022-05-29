@@ -1,0 +1,141 @@
+:root {
+    --task-vertical-margin-one-side: 30vw;
+    --task-width: calc(min((100vw - var(--task-vertical-margin-one-side)), 600px));
+
+    --auto-focus-shift-transition-duration: 1000ms;
+    --auto-focus-shift-transition-timing-function: ease-in-out;
+
+    --auto-focus-task-positioner-transition-duration: 400ms;
+    --auto-focus-task-positioner-transition-timing-function: cubic-bezier(0.42, 1.56, 0.55, 1);
+
+    --auto-focus-highlight-transition-duration: 400ms;
+    --auto-focus-highlight-transition-timing-function: cubic-bezier(0.42, 1.56, 0.55, 1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    font-family: "Work Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 600;
+    box-sizing: border-box;
+    font-size: 9pt;
+    color: inherit;
+    text-decoration: inherit;
+    cursor: default;
+    user-select: none;
+}
+
+@media screen and (min-width: 800px) {
+    * {
+        font-size: 10pt;
+    }
+}
+
+@media screen and (min-width: 1000px) {
+    * {
+        font-size: 11pt;
+    }
+}
+
+@media screen and (min-width: 1200px) {
+    * {
+        font-size: 12pt;
+    }
+}
+
+body {
+    position: relative;
+}
+
+/* .document-sheet {
+    width: 100vw;
+    overflow-x: hidden;
+} */
+
+.floating-corner {
+    position: fixed;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.floating-corner.top {
+    top: 20px;
+}
+
+.floating-corner.bottom {
+    bottom: 20px;
+}
+
+.floating-corner.left {
+    left: 20px;
+}
+
+.floating-corner.right {
+    right: 20px;
+}
+
+.floating-corner.light,
+.floating-corner.dark {
+    backdrop-filter: blur(50px) saturate(5);
+    -webkit-backdrop-filter: blur(50px) saturate(5);
+    border-radius: 20px;
+}
+
+#home-button {
+    text-decoration: none;
+    font-size: 1.6rem;
+    cursor: pointer;
+}
+
+#date-anchors {
+    display: flex;
+    flex-direction: column;
+    justify-content: left;
+}
+
+#date-anchors > a {
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+#date-anchors > a:hover {
+    opacity: 0.5;
+}
+
+#active-task-details > div.task {
+    margin: 10px 0;
+}
+
+#active-task-details > div.task:nth-of-type(2) {
+    margin-left: 20px;
+}
+
+#active-task-details > div.task:nth-of-type(3) {
+    margin-left: 40px;
+}
+
+#active-task-details > div.task:nth-of-type(4) {
+    margin-left: 60px;
+}
+
+/* #settings-documentViewMode {
+    display: flex;
+}
+
+#settings-documentViewMode > div {
+    padding: 5px 10px;
+    border-radius: 8px;
+}
+
+#settings-documentViewMode > div.sc-picked {
+    background-color: var(--primary-color);
+    cursor: not-allowed;
+}
+
+#settings-documentViewMode > div:not(.sc-picked) {
+    cursor: pointer;
+}
+
+#settings-documentViewMode > div:not(.sc-picked):hover {
+    opacity: 0.75;
+} */

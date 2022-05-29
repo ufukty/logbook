@@ -1,0 +1,159 @@
+@keyframes cardSwitchingLeftCardPromotingLeft {
+    0% {
+        transform: translateX(0) scale(0.5);
+        z-index: 100;
+        /* opacity: 0; */
+    }
+
+    50% {
+        transform: translateX(-30%) scale(0.75);
+        z-index: 101;
+    }
+
+    100% {
+        transform: none;
+        /* opacity: 1; */
+        z-index: 101;
+    }
+}
+
+@keyframes cardSwitchingRightCardPromotingLeft {
+    0% {
+        transform: none;
+        /* opacity: 1; */
+        z-index: 101;
+    }
+
+    50% {
+        transform: translateX(30%) scale(0.75);
+        z-index: 100;
+    }
+
+    100% {
+        transform: translateX(0) scale(0.5);
+        z-index: 100;
+        /* opacity: 0; */
+    }
+}
+
+@keyframes cardSwitchingLeftCardPromotingRight {
+    0% {
+        transform: none;
+        /* opacity: 1; */
+        z-index: 101;
+    }
+
+    50% {
+        transform: translateX(-30%) scale(0.75);
+        z-index: 100;
+    }
+
+    100% {
+        transform: translateX(0) scale(0.5);
+        /* opacity: 0; */
+        z-index: 100;
+    }
+}
+
+@keyframes cardSwitchingRightCardPromotingRight {
+    0% {
+        transform: translateX(0) scale(0.5);
+        /* opacity: 0; */
+        z-index: 100;
+    }
+
+    50% {
+        transform: translateX(30%) scale(0.75);
+        z-index: 101;
+    }
+
+    100% {
+        transform: none;
+        /* opacity: 1; */
+        z-index: 101;
+    }
+}
+
+#mode-selector div.left,
+#mode-selector div.right {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    bottom: 0;
+    left: 0;
+    position: absolute;
+    cursor: pointer;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* div.left {
+    transform-origin: 100% 0%;
+}
+div.right {
+    transform-origin: 0% 100%;
+} */
+
+#mode-selector[data-selected-mode="chronological"] div.left {
+    animation: cardSwitchingLeftCardPromotingLeft 0.3s ease-in-out 1 both;
+}
+
+#mode-selector[data-selected-mode="chronological"] div.right {
+    animation: cardSwitchingRightCardPromotingLeft 0.3s ease-in-out 1 both;
+}
+
+#mode-selector[data-selected-mode="hierarchical"] div.left {
+    animation: cardSwitchingLeftCardPromotingRight 0.3s ease-in-out 1 both;
+}
+
+#mode-selector[data-selected-mode="hierarchical"] div.right {
+    animation: cardSwitchingRightCardPromotingRight 0.3s ease-in-out 1 both;
+}
+
+@keyframes caption-activated {
+
+    0%,
+    100% {
+        transform: scale(0.001);
+        opacity: 0;
+        animation-timing-function: cubic-bezier(0.34, 1.58, 0.6, 0.99);
+        visibility: hidden;
+    }
+
+    1%,
+    99% {
+        visibility: visible;
+    }
+
+    20%,
+    80% {
+        opacity: 1;
+        transform: scale(1);
+        animation-timing-function: ease-out;
+    }
+}
+
+#mode-selector div.left-activated-caption,
+#mode-selector div.right-activated-caption {
+    border-radius: 8px;
+    padding: 5px 10px;
+    position: absolute;
+    bottom: 120%;
+    left: 120%;
+    transform-origin: 0% 100%;
+    transform: scale(0.001);
+    opacity: 0;
+    display: block;
+}
+
+#mode-selector[data-selected-mode="chronological"] div.left-activated-caption,
+#mode-selector[data-selected-mode="hierarchical"] div.right-activated-caption {
+    animation: caption-activated 1s 0.2s linear 1 both;
+}
