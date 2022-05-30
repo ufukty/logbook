@@ -54,14 +54,26 @@ class App {
 
         this.isContextMenuOpen = true;
 
-        const contextMenuWidth = 220;
         const taskElement = e.currentTarget;
-        const posY = e.pageY;
-        const posX = e.pageX < window.innerWidth - contextMenuWidth ? e.pageX : window.innerWidth - contextMenuWidth;
+
+        const contextMenuBounds = this.contextMenu.container.getBoundingClientRect();
+        const contextMenuWidth = Math.floor(contextMenuBounds.width);
+        const contextMenuHeight = Math.floor(contextMenuBounds.height);
+        const padding = 20;
+
+        const lastSafePosY = window.scrollY + window.innerHeight - (contextMenuHeight + padding);
+        const lastSafePosX = window.innerWidth - (contextMenuWidth + padding);
+        const posY = e.pageY < lastSafePosY ? e.pageY : lastSafePosY;
+        const posX = e.pageX < lastSafePosX ? e.pageX : lastSafePosX;
+
+        const transformOriginX = Math.floor(((e.pageX - posX) / contextMenuWidth) * 100);
+        const transformOriginY = Math.floor(((e.pageY - posY) / contextMenuHeight) * 100);
+
         const section = taskElement.dataset["section"];
         const row = taskElement.dataset["row"];
 
         this.contextMenu.setPosition(posX, posY);
+        this.contextMenu.setTransformOrigin(transformOriginX, transformOriginY);
         this.contextMenu.show();
 
         this.infiniteSheet.container.classList.add("context-menu-open");

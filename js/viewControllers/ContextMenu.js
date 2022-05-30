@@ -13,6 +13,10 @@ class ContextMenu extends AbstractViewController {
         this.container.style.left = `${posX}px`;
     }
 
+    setTransformOrigin(transformOriginX, transformOriginY) {
+        this.container.style.transformOrigin = `${transformOriginX}% ${transformOriginY}%`;
+    }
+
     playAnimation() {
         const animatedElement = document.getElementById("context-menu");
         const animationName = "context-menu-appear";
