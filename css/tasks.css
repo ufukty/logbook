@@ -2,12 +2,19 @@
     position: absolute;
     top: 0;
     left: 0;
+    transition: 60ms ease-out opacity, 120ms ease-out transform;
 }
 
 #infinite-sheet .header {
+    width: var(--body-width);
     font-size: 1.1rem;
     color: black;
     /* margin: calc(18pt + 40px) 0 calc(9pt + 2 * 10px); */
+}
+
+#infinite-sheet.context-menu-open .header-positioner {
+    opacity: 0.33;
+    transform: scale(0.975)
 }
 
 .task-positioner {
@@ -16,11 +23,7 @@
     left: 0;
     /* width: var(--task-width); */
     /* transition: transform var(--auto-focus-task-positioner-transition-duration) var(--auto-focus-task-positioner-transition-timing-function); */
-    transition: 60ms ease-out opacity;
-}
-
-.task-positioner:not(:last-of-type) {
-    margin-bottom: calc(9pt + 2 * 10px);
+    transition: 60ms ease-out opacity, 120ms ease-out transform;
 }
 
 .task {
@@ -71,5 +74,7 @@
 }
 
 #infinite-sheet.context-menu-open .task-positioner:not(.context-menu-focused-on) {
-    opacity: 0.5;
+    opacity: 0.33;
+    /* -webkit-filter: grayscale(1); */
+    transform: scale(0.95);
 }

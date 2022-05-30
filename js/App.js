@@ -21,6 +21,7 @@ class App {
             const cell = new InfiniteSheetTask();
             adoption(this.infiniteSheet.anchorPosition, [cell.container]);            
             cell.container.addEventListener("contextmenu", this.contextmenuEventReceiver.bind(this));
+            cell.container.addEventListener("touchend", this.contextmenuEventReceiver.bind(this));
             return cell;
         }.bind(this));
         // prettier-ignore
@@ -31,6 +32,7 @@ class App {
         }.bind(this));
 
         document.addEventListener("click", this.clickEventReceiver.bind(this));
+        document.addEventListener("scroll", this.scrollEventReceiver.bind(this));
     }
 
     updateMode(newMode) {
@@ -46,20 +48,16 @@ class App {
         this.infiniteSheet.build();
     }
 
-    /**
-     * @param {HTMLElement} taskElement
-     * @param {int} section
-     * @param {int} row
-     */
-    openContextMenuOnTask(taskElement, section, row) {}
-
     contextmenuEventReceiver(e) {
         e.preventDefault();
         this.closeContextMenuOnce();
 
+        this.isContextMenuOpen = true;
+
+        const contextMenuWidth = 220;
         const taskElement = e.currentTarget;
         const posY = e.pageY;
-        const posX = e.pageX;
+        const posX = e.pageX < window.innerWidth - contextMenuWidth ? e.pageX : window.innerWidth - contextMenuWidth;
         const section = taskElement.dataset["section"];
         const row = taskElement.dataset["row"];
 
@@ -73,14 +71,18 @@ class App {
     }
 
     closeContextMenuOnce() {
-        if (typeof this.taskElementThatIsContextMenuFocusedOn === "undefined") {
-            return;
-        }
+        if (!this.isContextMenuOpen) return;
 
         this.contextMenu.hide();
 
         this.infiniteSheet.container.classList.remove("context-menu-open");
         this.taskElementThatIsContextMenuFocusedOn.classList.remove("context-menu-focused-on");
+
+        this.isContextMenuOpen = false;
+    }
+
+    scrollEventReceiver(e) {
+        this.closeContextMenuOnce();
     }
 
     clickEventReceiver(e) {

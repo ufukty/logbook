@@ -1,6 +1,6 @@
 #context-menu {
     background-color: #ffffffda;
-    -webkit-backdrop-filter: blur(30px) saturate(4);
+    -webkit-backdrop-filter: blur(30px) saturate(10);
 
     position: absolute;
     top: 0;
