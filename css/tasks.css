@@ -9,6 +9,7 @@
     width: var(--body-width);
     font-size: 1.1rem;
     color: black;
+    padding: calc(0.4rem + 1px) 1rem 0.4rem;
     /* margin: calc(18pt + 40px) 0 calc(9pt + 2 * 10px); */
 }
 

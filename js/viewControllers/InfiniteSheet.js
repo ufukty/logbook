@@ -1,5 +1,6 @@
 import { adoption, domElementReuseCollector, createElement } from "../utilities.js";
 import AbstractViewController from "./AbstractViewController.js";
+import InfiniteSheetTask from "./InfiniteSheetTask.js";
 
 function inBetween(a, b, c) {
     if (a <= b && c <= c) return true;
@@ -67,7 +68,13 @@ class InfiniteSheet extends AbstractViewController {
                 // "section9",
             ],
             effectiveOrdering: [
-                ["sec0 row1", "sec0 row2", "sec0 row3", "sec0 row4", "sec0 row5"],
+                [
+                    "sec0 row1",
+                    "sec0 row2",
+                    "sec0 row3",
+                    "sec0 row4",
+                    "sec0 row5 Lorem ipsum dolor sit amet. Consectetur adipiscing elit. Fusce vel posuare enim. Nam vulputate lectus ligula.",
+                ],
                 ["sec1 row1", "sec1 row2", "sec1 row3", "sec1 row4", "sec1 row5"],
                 ["sec2 row1", "sec2 row2", "sec2 row3", "sec2 row4", "sec2 row5"],
                 ["sec3 row1", "sec3 row2", "sec3 row3", "sec3 row4", "sec3 row5"],
@@ -106,6 +113,7 @@ class InfiniteSheet extends AbstractViewController {
         this.allocatedItemElements = {};
         this.visibleHeaderElements = {};
         this.visibleRowElements = {};
+        this.computedHeights = {};
 
         this.margins = {
             pageBeginning: 100,
@@ -116,6 +124,19 @@ class InfiniteSheet extends AbstractViewController {
         };
 
         document.addEventListener("scroll", this.renderVisible.bind(this));
+
+        this.resizeObserver = new ResizeObserver((entries) => {
+            entries.forEach((entry) => {
+                const element = entry.target;
+                const section = element.dataset.section;
+                const row = element.dataset.row;
+                const height = entry.contentRect.height;
+                this.updateComputedHeightOfElement(this.getReferenceOfAllocatedRowElement(section, row), section, row);
+            });
+            this.calculateElementBounds();
+            this.rePosition();
+            // this.renderVisible();
+        });
     }
 
     numberOfSections() {
@@ -134,16 +155,25 @@ class InfiniteSheet extends AbstractViewController {
      *
      */
 
-    getPaddingTopForTable() {
-        return 100;
-    }
-
     getHeightOfSectionHeader(section) {
-        return 50;
+        return 25;
     }
 
     getHeightOfElement(section, row) {
-        return 50;
+        if (this.computedHeights.hasOwnProperty(section) && this.computedHeights[section].hasOwnProperty(row))
+            return this.computedHeights[section][row];
+        else return 25;
+    }
+
+    /**
+     * @param {InfiniteSheetTask} element
+     * @param {int} section
+     * @param {int} row
+     */
+    updateComputedHeightOfElement(element, section, row) {
+        if (!this.computedHeights.hasOwnProperty(section)) this.computedHeights[section] = {};
+        const boundingBox = element.container.getBoundingClientRect();
+        this.computedHeights[section][row] = Math.ceil(boundingBox.height);
     }
 
     calculateElementBounds() {
@@ -153,6 +183,7 @@ class InfiniteSheet extends AbstractViewController {
 
         lastPosition += this.margins.pageBeginning;
 
+        // let printed = false;
         for (let i = 0; i < this.numberOfSections(); i++) {
             lastPosition += this.margins.beforeSectionHeader;
 
@@ -164,13 +195,21 @@ class InfiniteSheet extends AbstractViewController {
 
             itemElementBounds.push([]);
             for (let j = 0; j < this.numberOfRowsPerSection(i); j++) {
-                if (j !== 0) {
-                    lastPosition += this.margins.betweenRows;
-                }
+                if (j !== 0) lastPosition += this.margins.betweenRows;
 
                 const itemHeight = this.getHeightOfElement(i, j);
                 itemElementBounds[i].push({ y1: lastPosition, y2: lastPosition + itemHeight });
                 lastPosition += itemHeight;
+
+                // if (
+                //     !printed &&
+                //     this.itemElementBounds !== undefined &&
+                //     itemElementBounds[i][j].y1 !== this.itemElementBounds[i][j].y1
+                // ) {
+                //     printed = true;
+                //
+                //     // debugger;
+                // }
             }
         }
 
@@ -197,6 +236,20 @@ class InfiniteSheet extends AbstractViewController {
         return this.allocatedSectionElements[section];
     }
 
+    releaseReferenceOfAllocatedSectionElement(section) {
+        this.allocatedSectionElements[section] = undefined;
+    }
+
+    isReferenceSetForSectionElement(section) {
+        if (
+            this.allocatedSectionElements.hasOwnProperty(section) &&
+            this.allocatedSectionElements[section] !== undefined
+        ) {
+            return true;
+        }
+        return false;
+    }
+
     saveReferenceOfAllocatedRowElement(section, row, element) {
         if (!this.allocatedItemElements.hasOwnProperty(section)) {
             this.allocatedItemElements[section] = {};
@@ -206,6 +259,24 @@ class InfiniteSheet extends AbstractViewController {
 
     getReferenceOfAllocatedRowElement(section, row) {
         return this.allocatedItemElements[section][row];
+    }
+
+    releaseReferenceOfAllocatedRowElement(section, row) {
+        if (!this.allocatedItemElements.hasOwnProperty(section)) {
+            this.allocatedItemElements[section] = {};
+        }
+        this.allocatedItemElements[section][row] = undefined;
+    }
+
+    isReferenceSetForRowElement(section, row) {
+        if (
+            this.allocatedItemElements.hasOwnProperty(section) &&
+            this.allocatedItemElements[section].hasOwnProperty(row) &&
+            this.allocatedItemElements[section][row] !== undefined
+        ) {
+            return true;
+        }
+        return false;
     }
 
     /*
@@ -229,21 +300,32 @@ class InfiniteSheet extends AbstractViewController {
     releaseHeaderElement(section) {
         const element = this.getReferenceOfAllocatedSectionElement(section);
         domElementReuseCollector.free("infiniteSheetHeader", element);
+        this.releaseReferenceOfAllocatedSectionElement(section);
     }
 
     getRowElement(section, row) {
         const element = domElementReuseCollector.get("infiniteSheetRow");
         this.saveReferenceOfAllocatedRowElement(section, row, element);
+        this.resizeObserver.observe(element.container);
 
         const content = this.state.effectiveOrdering[section][row];
         element.setContent(content);
         element.setPosition(this.itemElementBounds[section][row].y1);
         element.setData({ section: section, row: row });
+
+        this.updateComputedHeightOfElement(element, section, row);
+        //
+        // this.calculateElementBounds();
     }
 
+    /**
+     * @returns {InfiniteSheetTask}
+     */
     releaseRowElement(section, row) {
         const element = this.getReferenceOfAllocatedRowElement(section, row);
         domElementReuseCollector.free("infiniteSheetRow", element);
+        this.releaseReferenceOfAllocatedRowElement(section, row);
+        this.resizeObserver.unobserve(element.container);
     }
 
     /*
@@ -321,15 +403,14 @@ class InfiniteSheet extends AbstractViewController {
      */
 
     build() {
+        this.calculateElementBounds();
         this.renderVisible();
     }
 
     renderVisible() {
-        this.calculateElementBounds();
-
         this.container.style.height = `${this.lastPosition}px`;
 
-        const preload_area_distance = 4 * this.getHeightOfElement(0, 0);
+        const preload_area_distance = 0.5 * window.innerHeight;
 
         // get viewport coordinates (topLeft to bottomRight)
         // const viewport_x1 = window.scrollX;
@@ -353,10 +434,21 @@ class InfiniteSheet extends AbstractViewController {
                 else this.hideRowOnce(i, j);
             }
         }
+    }
 
-        // call this.getRowElement(section, item) for those tasks
-
-        // append those elements to root
+    rePosition() {
+        for (let i = 0; i < this.numberOfSections(); i++) {
+            if (this.isReferenceSetForSectionElement(i)) {
+                const sectionElement = this.getReferenceOfAllocatedSectionElement(i);
+                sectionElement.setPosition(this.headerElementBounds[i].y1);
+            }
+            for (let j = 0; j < this.numberOfRowsPerSection(i); j++) {
+                if (this.isReferenceSetForRowElement(i, j)) {
+                    const rowElement = this.getReferenceOfAllocatedRowElement(i, j);
+                    rowElement.setPosition(this.itemElementBounds[i][j].y1);
+                }
+            }
+        }
     }
 
     /*
@@ -366,7 +458,6 @@ class InfiniteSheet extends AbstractViewController {
      *
      *
      */
-
 }
 
 export default InfiniteSheet;
