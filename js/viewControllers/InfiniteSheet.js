@@ -107,6 +107,13 @@ class InfiniteSheet extends AbstractViewController {
         this.visibleHeaderElements = {};
         this.visibleRowElements = {};
 
+        this.margins = {
+            pageBeginning: 100,
+            beforeSectionHeader: 40,
+            betweenSectionHeaderAndItsFirstRow: 20,
+            betweenRows: 20,
+            pageEnding: 300,
+        };
 
         document.addEventListener("scroll", this.renderVisible.bind(this));
     }
@@ -144,20 +151,30 @@ class InfiniteSheet extends AbstractViewController {
         let headerElementBounds = [];
         let lastPosition = 0;
 
-        lastPosition += this.getPaddingTopForTable();
+        lastPosition += this.margins.pageBeginning;
 
         for (let i = 0; i < this.numberOfSections(); i++) {
+            lastPosition += this.margins.beforeSectionHeader;
+
             const headerHeight = this.getHeightOfSectionHeader(i);
             headerElementBounds.push({ y1: lastPosition, y2: lastPosition + headerHeight });
             lastPosition += headerHeight;
 
+            lastPosition += this.margins.betweenSectionHeaderAndItsFirstRow;
+
             itemElementBounds.push([]);
             for (let j = 0; j < this.numberOfRowsPerSection(i); j++) {
+                if (j !== 0) {
+                    lastPosition += this.margins.betweenRows;
+                }
+
                 const itemHeight = this.getHeightOfElement(i, j);
                 itemElementBounds[i].push({ y1: lastPosition, y2: lastPosition + itemHeight });
                 lastPosition += itemHeight;
             }
         }
+
+        lastPosition += this.margins.pageEnding;
 
         this.itemElementBounds = itemElementBounds;
         this.headerElementBounds = headerElementBounds;
