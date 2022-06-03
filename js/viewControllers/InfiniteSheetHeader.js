@@ -9,6 +9,14 @@ class InfiniteSheetHeader extends AbstractViewController {
         this.container = createElement("div", ["header-positioner"], [this.header]);
     }
 
+    prepareForFree() {
+        this.container.style.visibility = "hidden";
+    }
+
+    prepareForUse() {
+        this.container.style.visibility = "visible";
+    }
+
     setContent(title) {
         this.header.innerText = title;
     }

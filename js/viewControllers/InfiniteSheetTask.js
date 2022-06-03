@@ -8,6 +8,14 @@ class InfiniteSheetTask extends AbstractViewController {
         this.container = createElement("div", ["task-positioner"], [this.task]);
     }
 
+    prepareForFree() {
+        this.container.style.visibility = "hidden";
+    }
+
+    prepareForUse() {
+        this.container.style.visibility = "visible";
+    }
+
     setContent(newContent) {
         this.task.innerText = newContent;
     }
