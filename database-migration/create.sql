@@ -149,7 +149,7 @@ CREATE FUNCTION update_task_degree(v_task_id UUID, v_increment INT) RETURNS UUID
     END
 $$ LANGUAGE 'plpgsql';
 
-CREATE FUNCTION update_task_readineess(v_task_id UUID) RETURNS UUID AS $$
+CREATE FUNCTION update_task_readiness(v_task_id UUID) RETURNS UUID AS $$
     DECLARE
         v_undone_children "TASK";
         v_readiness BOOLEAN;
@@ -157,7 +157,7 @@ CREATE FUNCTION update_task_readineess(v_task_id UUID) RETURNS UUID AS $$
     BEGIN
         -- TODO: IT CAN RETURN UUID[] IF PARENTS OF PARENTS TAKEN INTO CALCULATION
 
-        -- RAISE NOTICE 'update_task_readineess is running for %', v_task_id;
+        -- RAISE NOTICE 'update_task_readiness is running for %', v_task_id;
 
         SELECT *
         INTO v_undone_children
@@ -349,7 +349,7 @@ CREATE FUNCTION reattach_task(v_task_id UUID, v_new_parent_id UUID) RETURNS SETO
                 v_updated_task_list,
                 update_task_degree(v_task_old."parent_id", -1 * v_task_old."degree")
             );
-            PERFORM update_task_readineess(v_task_old."parent_id");
+            PERFORM update_task_readiness(v_task_old."parent_id");
         END IF;
 
         -- UPDATE NEW PARENT:
@@ -360,7 +360,7 @@ CREATE FUNCTION reattach_task(v_task_id UUID, v_new_parent_id UUID) RETURNS SETO
             v_updated_task_list,
             update_task_degree(v_new_parent_id, v_task_old."degree")
         );
-        PERFORM update_task_readineess(v_new_parent_id);
+        PERFORM update_task_readiness(v_new_parent_id);
         v_updated_task_list = array_cat(
             v_updated_task_list,
             update_task_depth(v_task_id)
@@ -392,7 +392,7 @@ CREATE FUNCTION mark_a_task_done(v_task_id UUID) RETURNS SETOF "TASK" AS $$
         IF v_task IS NOT NULL THEN
             v_updated_task_list = array_append(
                 v_updated_task_list,
-                update_task_readineess(v_task."parent_id") 
+                update_task_readiness(v_task."parent_id") 
             );
         END IF;
 
