@@ -10,21 +10,17 @@
     font-size: 1.1rem;
     color: black;
     padding: calc(0.4rem + 1px) 1rem 0.4rem;
-    /* margin: calc(18pt + 40px) 0 calc(9pt + 2 * 10px); */
 }
 
 #infinite-sheet.context-menu-open .header-positioner {
-    opacity: 0.33;
-    transform: scale(0.975)
+    opacity: 0.1;
 }
 
 .task-positioner {
     position: absolute;
     top: 0;
     left: 0;
-    /* width: var(--task-width); */
-    /* transition: transform var(--auto-focus-task-positioner-transition-duration) var(--auto-focus-task-positioner-transition-timing-function); */
-    transition: 60ms ease-out opacity, 120ms ease-out transform;
+    transition: 60ms ease-out opacity, 200ms cubic-bezier(0.2, 1.4, 0.7, 1.2) transform;
 }
 
 .task {
@@ -41,10 +37,6 @@
     user-select: text;
     cursor: auto;
 
-    /* borders: 2px solid transparent; */
-
-    /* transition: all var(--auto-focus-highlight-transition-duration) var(--auto-focus-highlight-transition-timing-function); */
-    box-shadow: 0 0 20px -20px #00000055;
     transform: scale(1);
 
     color: var(--text-color);
@@ -74,8 +66,10 @@
     height: 400px;
 }
 
+#infinite-sheet.context-menu-open .task-positioner.context-menu-focused-on {
+    transform: scale(1.05);
+}
+
 #infinite-sheet.context-menu-open .task-positioner:not(.context-menu-focused-on) {
-    opacity: 0.33;
-    /* -webkit-filter: grayscale(1); */
-    transform: scale(0.95);
+    opacity: 0.1;
 }
