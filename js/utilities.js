@@ -344,3 +344,12 @@ fillCSSVariablesForDynamicViewportSize();
 window.addEventListener("resize", function () {
     fillCSSVariablesForDynamicViewportSize();
 });
+
+export function addEventListenerForNonTouchScreen(targetElement, eventType, callback, options) {
+    executeWhenDocumentIsReady(function () {
+        targetElement.addEventListener(eventType, callback, options);
+        targetElement.addEventListener("touchstart", function () {
+            targetElement.removeEventListener(eventType, callback, options);
+        });
+    });
+}
