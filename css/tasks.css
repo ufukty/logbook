@@ -34,8 +34,10 @@
 
     /* -webkit-user-drag: element; */
 
-    user-select: text;
-    cursor: auto;
+    /* user-select: none;
+    -webkit-user-select: none; */
+
+    cursor: default;
 
     transform: scale(1);
 
