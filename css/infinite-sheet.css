@@ -25,6 +25,7 @@
     height: 100%;
 
     padding: 0 var(--padding-left);
+    box-sizing: content-box;
 }
 
 #infinite-sheet .anchor-position {
