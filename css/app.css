@@ -23,10 +23,10 @@
     text-decoration: inherit;
     cursor: default;
     user-select: none;
-    font-size: 12pt;
+    /* font-size: 12pt; */
 }
 
-/* @media screen and (min-width: 800px) {
+@media screen and (min-width: 800px) {
     * {
         font-size: 10pt;
     }
@@ -42,7 +42,7 @@
     * {
         font-size: 12pt;
     }
-} */
+}
 
 body {
     position: relative;
