@@ -6,6 +6,9 @@ class ContextMenu extends AbstractViewController {
     constructor() {
         super();
         this.container = document.getElementById("context-menu");
+
+    setActiveTaskId(taskId) {
+        this.activeTaskId = taskId;
     }
 
     setPosition(posX, posY) {
