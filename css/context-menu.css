@@ -40,13 +40,13 @@
     color: #ff4e4e;
 }
 
-#context-menu .context-menu-item:hover {
+/* #context-menu .context-menu-item:hover {
     background-color: rgba(0, 0, 0, 0.05)
 }
 
 #context-menu .context-menu-item:hover .scale {
     transform: scale(1.05);
-}
+} */
 
 /* .context-menu-item:not(:first-of-type)::before {
     content: "";

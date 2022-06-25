@@ -10,9 +10,13 @@ export function executeWhenDocumentIsReady(func) {
     }
 }
 
+class AbstractViewController {
+    build() {}
+}
+
 class DOMElementReuseCollector {
     constructor() {
-        /**  @type {PhotoGridItemViewController[]} */
+        /**  @type {AbstractViewController[]} */
         this._freeItems = {};
         this._constructors = {};
     }
@@ -34,7 +38,7 @@ class DOMElementReuseCollector {
 
     /**
      * @param {String} itemTypeIdentifier
-     * @returns {PhotoGridItemViewController}
+     * @returns {AbstractViewController}
      */
     get(itemTypeIdentifier) {
         let itemController;
@@ -353,3 +357,26 @@ export function addEventListenerForNonTouchScreen(targetElement, eventType, call
         });
     });
 }
+
+class PersistentSymbolizer {
+    constructor() {
+        this.cache = new Map();
+        this.cacheReverse = new Map();
+    }
+
+    get(value) {
+        if (this.cache.has(value)) {
+            return this.cache.get(value);
+        } else {
+            const symbol = Symbol(value);
+            this.cache.set(value, symbol);
+            this.cacheReverse.set(symbol, value);
+            return symbol;
+        }
+    }
+
+    reverse(symbol) {
+        return this.cacheReverse.get(symbol);
+    }
+}
+export const pSymbol = new PersistentSymbolizer();

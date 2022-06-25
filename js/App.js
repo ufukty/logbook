@@ -6,11 +6,12 @@ import {
 } from "./utilities.js";
 
 import ModeSelector from "./viewControllers/ModeSelector.js";
-import InfiniteSheet from "./viewControllers/InfiniteSheet.js";
+import { InfiniteSheet } from "./viewControllers/InfiniteSheet.js";
 import ContextMenu from "./viewControllers/ContextMenu.js";
 import InfiniteSheetTask from "./viewControllers/InfiniteSheetTask.js";
 import InfiniteSheetHeader from "./viewControllers/InfiniteSheetHeader.js";
 import { UserInputResolver } from "./userInputResolver.js";
+import { DataSource } from "./dataSource.js";
 
 import { Task } from "./models/Task.js";
 import { ChronologicalDocumentOverview } from "./models/DocumentOverviewChronological.js";
@@ -39,7 +40,6 @@ class App {
 
         this.modeSelector = new ModeSelector(this.updateMode.bind(this));
         this.infiniteSheet = new InfiniteSheet();
-        this.contextMenu = new ContextMenu();
 
         // prettier-ignore
         domElementReuseCollector.registerItemIdentifier("infiniteSheetRow", function () {
@@ -47,13 +47,17 @@ class App {
             adoption(this.infiniteSheet.anchorPosition, [cell.container]);            
             return cell;
         }.bind(this));
-
         // prettier-ignore
         domElementReuseCollector.registerItemIdentifier("infiniteSheetHeader", function () {
             const cell = new InfiniteSheetHeader();
             adoption(this.infiniteSheet.anchorPosition, [cell.container]);
             return cell;
         }.bind(this));
+
+        this.contextMenu = new ContextMenu();
+        this.contextMenu.delegates = {
+            delete: this.deleteTask.bind(this),
+        };
 
         // prettier-ignore
         addEventListenerForNonTouchScreen(document, "contextmenu", this.userInputManager.contextMenuEventReceiver.bind(this.userInputManager));
@@ -72,6 +76,15 @@ class App {
 
         // const documentId = "61bbc44a-c61c-4d49-8804-486181081fa7";
         // this.fetchDocumentFromServer(documentId);
+
+        this.dataSource = new DataSource();
+        this.dataSource.delegates.placementUpdate = this.placementUpdateFromData.bind(this);
+        // FIXME: connect to server and fetch document/placement details
+        this.dataSource.loadTestDataset();
+
+        this.infiniteSheet.config.dataSourceRef = this.dataSource;
+
+        // localSourceOfTruth.delegates.linearizedHierarchicalOrdering = this.hierarchicalOrderingUpdate.bind(this);
     }
 
     updateMode(newMode) {
@@ -107,8 +120,8 @@ class App {
 
         this.contextMenu.setPosition(posX, posY);
         this.contextMenu.setTransformOrigin(transformOriginX, transformOriginY);
-        this.contextMenu.show();
         this.contextMenu.setActiveTaskId(taskId);
+        this.contextMenu.show();
 
         this.infiniteSheet.container.classList.add("context-menu-open");
         taskPositionerElement.classList.add("context-menu-focused-on");
@@ -169,6 +182,20 @@ class App {
                     // }));
                 }
             );
+    }
+
+    hierarchicalOrderingUpdate() {}
+
+    placementUpdateFromData() {
+        this.infiniteSheet.config.placement = this.dataSource.placement.export();
+        this.infiniteSheet.updateViewFromData();
+    }
+
+    /** @param {string} taskId */
+    deleteTask(taskId) {
+        this.infiniteSheet.deleteTask(taskId);
+        console.log("delete:", taskId);
+        alert("delete");
     }
 }
 

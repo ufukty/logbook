@@ -1,11 +1,24 @@
 import { createElement, toggleAnimationWithClass } from "../utilities.js";
 
-import AbstractViewController from "./AbstractViewController.js";
+import { AbstractViewController } from "./AbstractViewController.js";
 
 class ContextMenu extends AbstractViewController {
     constructor() {
         super();
         this.container = document.getElementById("context-menu");
+        this.delegates = {
+            delete: () => {}, // should be assigned by callee
+        };
+        const deleteButton = document.getElementById("context-menu-delete");
+        deleteButton.addEventListener("click", (e) => {
+            e.preventDefault();
+            alert("delete");
+            this.delegates.delete(this.activeTaskId);
+        });
+        deleteButton.addEventListener("touchend", () => {
+            alert("delete");
+        });
+    }
 
     setActiveTaskId(taskId) {
         this.activeTaskId = taskId;
@@ -33,6 +46,8 @@ class ContextMenu extends AbstractViewController {
         });
         animatedElement.classList.add(triggerClass);
     }
+
+    deleteButtonHandler() {}
 
     show() {
         this.container.style.visibility = "visible";

@@ -10,10 +10,8 @@ import {
     createElement,
 } from "../utilities.js";
 
-class AbstractViewController {
+export class AbstractViewController {
     constructor() {
         this.container = createElement("div");
     }
 }
-
-export default AbstractViewController;
