@@ -79,10 +79,13 @@ class App {
 
         this.dataSource = new DataSource();
         this.dataSource.delegates.placementUpdate = this.placementUpdateFromData.bind(this);
+        // TODO: 
+        // TODO: this.dataSource.delegates.notifyGUI = this.infiniteSheet.updateData // updateData should be a callable
+        // TODO: this.infiniteSheet.delegates.notifyDataSource = this.dataSource.updateData // updateData should be a callable
+        this.infiniteSheet.config.structuredDataMedium = this.dataSource.medium.data; // FIXME: 
+        this.infiniteSheet.dataSource = this.dataSource;
         // FIXME: connect to server and fetch document/placement details
         this.dataSource.loadTestDataset();
-
-        this.infiniteSheet.config.dataSourceRef = this.dataSource;
 
         // localSourceOfTruth.delegates.linearizedHierarchicalOrdering = this.hierarchicalOrderingUpdate.bind(this);
     }
@@ -187,7 +190,7 @@ class App {
     hierarchicalOrderingUpdate() {}
 
     placementUpdateFromData() {
-        this.infiniteSheet.config.placement = this.dataSource.placement.export();
+        this.infiniteSheet.config.placement = this.dataSource.medium.export();
         this.infiniteSheet.updateViewFromData();
     }
 

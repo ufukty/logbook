@@ -2,20 +2,32 @@ import { createElement } from "../utilities.js";
 import { AbstractViewController } from "./AbstractViewController.js";
 
 export class AbstractTableCellViewController extends AbstractViewController {
-    /**
-     * @param {number} newPosition
-     * @param {boolean} withAnimation
-     */
-    setPositionY(newPosition, withAnimation) {
-        console.error("Abstract class method .setPositionY() is called directly.");
+    constructor() {
+        super();
+        this.task = createElement("div", ["task", "done"]);
+        this.container = createElement("div", ["task-positioner"], [this.task]);
     }
 
-    /**
-     * @param {number} newPosition
-     * @param {boolean} withAnimation
-     */
-    setPositionX(newPosition, withAnimation) {
-        console.error("Abstract class method .setPositionX() is called directly.");
+    prepareForFree() {
+        this.container.style.visibility = "hidden";
+        // TODO: clear data that are set by .setData()
+    }
+
+    prepareForUse() {
+        this.container.style.visibility = "visible";
+    }
+
+    setContent(newContent) {
+        this.task.innerText = newContent;
+    }
+
+    setData(kv) {
+        for (const key in kv) {
+            if (Object.hasOwnProperty.call(kv, key)) {
+                const value = kv[key];
+                this.container.dataset[`${key}`] = value;
+            }
+        }
     }
 
     /**
