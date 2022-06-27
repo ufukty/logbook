@@ -97,8 +97,9 @@ export class DataSource {
     constructor() {
         this.medium = new TableViewStructuredDataMedium();
 
+        /** @type { Object.<string, Array.<function>> } */
         this.delegates = {
-            placementUpdate: undefined,
+            placementUpdate: [],
         };
 
         this.textContent = {
@@ -115,7 +116,9 @@ export class DataSource {
     }
 
     notifyDelegateFor(event) {
-        this.delegates[event]();
+        this.delegates[event].forEach((delegate) => {
+            delegate();
+        });
     }
 
     loadTestDataset() {

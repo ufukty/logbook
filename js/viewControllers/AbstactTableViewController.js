@@ -7,7 +7,7 @@ function inBetween(a, b, c) {
     else return false;
 }
 
-function checkCollusion(item_y1, item_y2, viewport_y1, viewport_y2) {
+function checkCollision(item_y1, item_y2, viewport_y1, viewport_y2) {
     /*
             * * * * * * *  (y1)                     * * * * * * *  (y1)                
             *           *                           *           *              
@@ -34,11 +34,9 @@ function checkCollusion(item_y1, item_y2, viewport_y1, viewport_y2) {
  * @returns {Set.<string>}
  */
 function mergeMapKeys() {
-    console.log(arguments);
-    debugger;
     let set_ = new Set();
     for (let i = 0; i < arguments.length; i++) {
-        for (const key of arguments[i].keys()) set_.add(key);
+        if (arguments[i]) for (const key of arguments[i].keys()) set_.add(key);
     }
     return set_;
 }
@@ -81,12 +79,6 @@ export class AbstractTableViewController extends AbstractViewController {
         this.anchorPosition = createElement("div", ["anchor-position"]);
         adoption(this.container, [adoption(this.contentArea, [this.anchorPosition])]);
 
-        // this.allocatedSectionElements = {};
-        // this.allocatedItemElements = {};
-        // this.visibleHeaderElements = {};
-        // this.visibleRowElements = {};
-        // this.computedHeights = {};
-
         this.config = {
             /** @type { TableViewStructuredDataMedium } */
             structuredDataMedium: undefined,
@@ -128,21 +120,97 @@ export class AbstractTableViewController extends AbstractViewController {
         };
 
         this.computedValues = {
-            /**
-             * @type { Map.<Symbol, AbstractTableCellViewController> }
-             * Bind objectSymbol and allocated cell on domElementReuseCollector.get() call
-             */
-            computedHeights: new Map(),
-            allocatedCells: new Map(),
-            pageHeight: undefined,
-            /** set and use when nodes above viewport changes their sizings */
-            scrollShift: undefined,
-            /**  */
-            positions: {
+            current: {
+                /** @type { Map.<Symbol, > } */
+                computedHeights: new Map(),
+                /**
+                 * @type { Map.<Symbol, AbstractTableCellViewController> }
+                 * Bind objectSymbol and allocated cell on domElementReuseCollector.get() call
+                 */
+                allocatedCells: new Map(),
+                pageHeight: undefined,
+                /** set and use when nodes above viewport changes their sizings */
+                scrollShift: undefined,
                 /** @type {Map.<Symbol, { starts: number, ends: number, height: number }>} */
-                current: new Map(),
+                positions: new Map(),
+                /**
+                 * Holds the set of object symbols from current and next iterations of update.
+                 * Intended to be used by update functions.
+                 * @type {Set.<Symbol>}
+                 */
+                mergedObjectSymbols: undefined,
+                /** @type { { inViewport: Set.<Symbol>, inPreload: Set.<Symbol>, inParking: Set.<Symbol> } } */
+                zoneCollusions: {
+                    inViewport: new Set(),
+                    inPreload: new Set(),
+                    inParking: new Set(),
+                },
+                /** @type { { viewport: { starts: number, ends: number }, preload: { starts: number, ends: number }, parking: { starts: number, ends: number } } } */
+                boundaries: {
+                    viewport: {},
+                    /** an area which its height is 3 times of
+                     * viewport (1 above, 1 below) */
+                    preload: {},
+                    /** an area which its height is 5 times of
+                     * viewport (2 above, 2 below) */
+                    parking: {},
+                },
+                classifiedObjects: {
+                    toConstruct: new Set(),
+                    toAppear: new Set(),
+                    toUpdatePositionY: new Set(),
+                    toUpdatePositionX: new Set(), // indentation
+                    toUpdateFolding: new Set(),
+                    toUpdateExistance: new Set(),
+                    toDisappear: new Set(),
+                    toDestruct: new Set(),
+                },
+            },
+            next: {
+                /** @type { Map.<Symbol, > } */
+                computedHeights: new Map(),
+                /**
+                 * @type { Map.<Symbol, AbstractTableCellViewController> }
+                 * Bind objectSymbol and allocated cell on domElementReuseCollector.get() call
+                 */
+                allocatedCells: new Map(),
+                pageHeight: undefined,
+                /** set and use when nodes above viewport changes their sizings */
+                scrollShift: undefined,
                 /** @type {Map.<Symbol, { starts: number, ends: number, height: number }>} */
-                next: undefined, // initialized later
+                positions: new Map(),
+                /**
+                 * Holds the set of object symbols from current and next iterations of update.
+                 * Intended to be used by update functions.
+                 * @type {Set.<Symbol>}
+                 */
+                mergedObjectSymbols: undefined,
+                /** @type { { inViewport: Set.<Symbol>, inPreload: Set.<Symbol>, inParking: Set.<Symbol> } } */
+                zoneCollusions: {
+                    inViewport: new Set(),
+                    inPreload: new Set(),
+                    inParking: new Set(),
+                },
+                /** @type { { viewport: { starts: number, ends: number }, preload: { starts: number, ends: number }, parking: { starts: number, ends: number } } } */
+                boundaries: {
+                    viewport: {},
+                    /** an area which its height is 3 times of
+                     * viewport (1 above, 1 below) */
+                    preload: {},
+                    /** an area which its height is 5 times of
+                     * viewport (2 above, 2 below) */
+                    parking: {},
+                },
+                classifiedObjects: {
+                    toConstruct: new Set(),
+                    toAppear: new Set(),
+                    toUpdatePositionY: new Set(),
+                    toUpdatePositionX: new Set(), // indentation
+                    toUpdateFolding: new Set(),
+                    toUpdateExistance: new Set(),
+                    toDisappear: new Set(),
+                    toDestruct: new Set(),
+                },
             },
         };
 
@@ -163,8 +231,8 @@ export class AbstractTableViewController extends AbstractViewController {
     }
 
     /**
-     * Embeds the user supplied cell constructor with a function
-     * that creates custom positioner view controller and wraps
+     * Embeds the user-supplied cell constructor with a function
+     * that creates a custom positioner view controller and wraps
      * the cell returned by user-supplied cell constructor with it.
      */
     registerCellConstructor(reuseIdentifier, cellConstructor) {
@@ -216,11 +284,30 @@ export class AbstractTableViewController extends AbstractViewController {
         console.error("abstract function is called");
     }
 
-    /**
-     * @param {{sections: [], rows: {}}} placements
-     * @param {{}} heights
-     * @param {{}}
-     */
+    updateZoneBoundaries() {
+        const preloadZoneOffset = 1 * window.innerHeight;
+        const parkingZoneOffset = 2 * window.innerHeight;
+
+        this.computedValues.next.boundaries = {
+            viewport: {
+                starts: window.scrollY,
+                ends: window.scrollY + window.innerHeight,
+            },
+            /** an area which its height is 3 times of
+             * viewport (1 above, 1 below) */
+            preload: {
+                starts: window.scrollY - preloadZoneOffset,
+                ends: window.scrollY + window.innerHeight + preloadZoneOffset,
+            },
+            /** an area which its height is 5 times of
+             * viewport (2 above, 2 below) */
+            parking: {
+                starts: window.scrollY - parkingZoneOffset,
+                ends: window.scrollY + window.innerHeight + parkingZoneOffset,
+            },
+        };
+    }
+
     calculateComponentPositions() {
         // TODO: don't mind tasks that their parents are folded.
         let lastPosition = 0;
@@ -234,12 +321,12 @@ export class AbstractTableViewController extends AbstractViewController {
 
             lastPosition += this.config.margins.section.before;
 
-            const headerHeight = this.computedValues.computedHeights.has(sectionID)
-                ? this.computedValues.computedHeights.get(sectionID)
+            const headerHeight = this.computedValues.next.computedHeights.has(sectionID)
+                ? this.computedValues.next.computedHeights.get(sectionID)
                 : this.getDefaultHeightOfObject(sectionID);
 
             // save object positions
-            this.computedValues.positions.next.set(sectionID, {
+            this.computedValues.next.positions.set(sectionID, {
                 starts: lastPosition,
                 ends: lastPosition + headerHeight,
                 height: headerHeight,
@@ -252,12 +339,12 @@ export class AbstractTableViewController extends AbstractViewController {
                 if (rowIndex === 0) lastPosition += this.config.margins.row.before;
                 else lastPosition += this.config.margins.row.between;
 
-                const itemHeight = this.computedValues.computedHeights.has(rowID)
-                    ? this.computedValues.computedHeights.get(rowID)
+                const itemHeight = this.computedValues.next.computedHeights.has(rowID)
+                    ? this.computedValues.next.computedHeights.get(rowID)
                     : this.getDefaultHeightOfObject(rowID);
 
                 // save object positions
-                this.computedValues.positions.next.set(rowID, {
+                this.computedValues.next.positions.set(rowID, {
                     starts: lastPosition,
                     ends: lastPosition + itemHeight,
                     height: itemHeight,
@@ -271,108 +358,173 @@ export class AbstractTableViewController extends AbstractViewController {
         this.computedValues.pageHeight = lastPosition;
     }
 
-    /**
-     * Compares previous and next states for positioning, existance, folding etc.
-     * Then classifies tasks by operations to perform on them.
-     * @param {Map.<string, {x: number, y: number, height: number}>} positions_current
-     * @param {Map.<string, {x: number, y: number, height: number}>} positions_next
-     * @param {Set} foldObject_current
-     * @param {Set} foldObjects_next
-     * @param {Set} objectsInViewbox_current
-     * @param {Set} objectsInViewbox_next
-     * @param {{viewport: {starts: number, ends: number}, preloadArea: {starts: number, ends: number}, releaseArea: {starts: number, ends: number}, focusPoint: number}} viewportPositions
-     */
-    updateComponents(
-        foldObject_current,
-        foldObjects_next,
-        constructedObjects_current,
-        constructedObjects_next,
-        objectsInDestructionArea_next,
-        objectsInViewbox_current,
-        objectsInViewbox_next,
-        viewportPositions
-    ) {
-        let mergedObjectIDs = mergeMapKeys(this.computedValues.positions.current, this.computedValues.positions.next);
-        let totalScrollShift = 0;
-        // debugger;
+    /** @access private */
+    classifyObjectsByCollidedZones() {
+        this.computedValues.next.zoneCollusions = {
+            inViewport: new Set(),
+            inPreload: new Set(),
+            inParking: new Set(),
+        };
 
-        for (const objectSymbol of mergedObjectIDs) {
+        for (const [objectSymbol, objectPos] of this.computedValues.next.positions) {
+            const inViewport = checkCollision(
+                objectPos.starts,
+                objectPos.ends,
+                this.computedValues.next.boundaries.viewport.starts,
+                this.computedValues.next.boundaries.viewport.ends
+            );
+            const inPreload = checkCollision(
+                objectPos.starts,
+                objectPos.ends,
+                this.computedValues.next.boundaries.preload.starts,
+                this.computedValues.next.boundaries.preload.ends
+            );
+            const inParking = checkCollision(
+                objectPos.starts,
+                objectPos.ends,
+                this.computedValues.next.boundaries.parking.starts,
+                this.computedValues.next.boundaries.parking.ends
+            );
+            if (inViewport) this.computedValues.next.zoneCollusions.inViewport.add(objectSymbol);
+            if (inPreload) this.computedValues.next.zoneCollusions.inPreload.add(objectSymbol);
+            if (inParking) this.computedValues.next.zoneCollusions.inParking.add(objectSymbol);
+        }
+    }
+
+    mergeObjectSymbolsWithPreviousIteration() {
+        this.computedValues.mergedObjectSymbols = mergeMapKeys(
+            this.computedValues.current.positions,
+            this.computedValues.next.positions
+        );
+    }
+
+    calculateFocusShift() {
+        let totalScrollShift = 0;
+        for (const objectSymbol of this.computedValues.mergedObjectSymbols) {
             // calculate scroll shift; if there is any change in height of object
-            if (positions_current.has(objectSymbol) && positions_next.has(objectSymbol)) {
-                if (positions_current.get(objectSymbol).height !== positions_next.get(objectSymbol).height) {
-                    if (positions_next.get(objectSymbol).y < viewportPositions.focusPoint) {
+            if (
+                this.computedValues.current.positions.has(objectSymbol) &&
+                this.computedValues.next.positions.has(objectSymbol)
+            ) {
+                if (
+                    this.computedValues.current.positions.get(objectSymbol).height !==
+                    this.computedValues.next.positions.get(objectSymbol).height
+                ) {
+                    if (this.computedValues.next.positions.get(objectSymbol).y < viewportPositions.focusPoint) {
                         totalScrollShift +=
-                            positions_next.get(objectSymbol).height - positions_current.get(objectSymbol).height;
+                            this.computedValues.next.positions.get(objectSymbol).height -
+                            this.computedValues.current.positions.get(objectSymbol).height;
                     }
                 }
             }
+        }
+        this.computedValues.scrollShift = totalScrollShift;
+    }
 
-            let waitForTransitionEnd = false;
-            /** @type {AbstractTableCellViewController} object */
-            let cell;
-
+    classifyComponentsByUpdateTypes() {
+        for (const objectSymbol of this.computedValues.mergedObjectSymbols) {
             // "to construct"
-            if (!constructedObjects_current.has(objectSymbol) && constructedObjects_next.has(objectSymbol)) {
-                cell = this.getCellForObjectId(objectSymbol);
-
-                // let objectInitializationPositionY, objectInitializationPositionX;
-                // if (positions_current.has(objectSymbol)) {
-                //     objectInitializationPositionY = positions_current.get(objectSymbol).y;
-                //     objectInitializationPositionX = positions_current.get(objectSymbol).x;
-                // } else if (positions_next.has(objectSymbol)) {
-                //     objectInitializationPositionY = positions_next.get(objectSymbol).y;
-                //     objectInitializationPositionX = positions_next.get(objectSymbol).x;
-                // }
-                // object.setPositionY(objectInitializationPositionY, false);
-                // object.setPositionX(objectInitializationPositionX, false);
-                // object.setContent(this.config.structuredDataMedium.getTextContent(objectSymbol));
+            if (
+                !this.computedValues.current.zoneCollusions.inPreload.has(objectSymbol) &&
+                this.computedValues.next.zoneCollusions.inPreload.has(objectSymbol)
+            ) {
+                this.computedValues.next.classifiedObjects.toConstruct.push(objectSymbol);
             }
 
             // "to appear"
-            if (!objectsInViewbox_current.has(objectSymbol) && objectsInViewbox_next.has(objectSymbol)) {
+            if (
+                !this.computedValues.current.zoneCollusions.inViewport.has(objectSymbol) &&
+                this.computedValues.next.zoneCollusions.inViewport.has(objectSymbol)
+            ) {
+                this.computedValues.next.classifiedObjects.toAppear.push(objectSymbol);
             }
 
-            // existance change
-            if (positions_current.has(objectSymbol) && !positions_next.has(objectSymbol)) {
-                // "to delete" content
-                // TODO:
-                waitForTransitionEnd = true;
-            } else if (positions_current.has(objectSymbol) && !positions_next.has(objectSymbol)) {
-                // "to create" content
-                // TODO:
-                waitForTransitionEnd = true;
-            }
+            // // existance change
+            // if (
+            //     this.computedValues.current.positions.has(objectSymbol) &&
+            //     !this.computedValues.next.positions.has(objectSymbol)
+            // ) {
+            // } else if (
+            //     this.computedValues.current.positions.get(objectSymbol) &&
+            //     !this.computedValues.next.positions.has(objectSymbol)
+            // ) {
+            //     // "to create" content
+            //     // TODO:
+            //     waitForTransitionEnd = true;
+            // }
 
-            // position change
-            if (positions_current.get(objectSymbol).y !== positions_next.get(objectSymbol).y) {
-                // TODO:
-                waitForTransitionEnd = true;
-                cell.setPosition(positions_next.get(objectSymbol).y, true);
-            }
+            // // position change
+            // if (
+            //     this.computedValues.current.positions.get(objectSymbol).y !==
+            //     this.computedValues.next.positions.get(objectSymbol).y
+            // ) {
+            //     // TODO:
+            //     waitForTransitionEnd = true;
+            //     cell.setPosition(this.computedValues.next.positions.get(objectSymbol).y, true);
+            // }
 
-            // folding change
-            if (foldObject_current.has(objectSymbol) && !foldObjects_next.has(objectSymbol)) {
-                // unfold
-                // TODO:
-                cell.unfold();
-            } else if (!foldObject_current.has(objectSymbol) && foldObjects_next.has(objectSymbol)) {
-                // fold
-                // TODO:
-                cell.fold();
-            }
+            // // folding change
+            // if (foldObject_current.has(objectSymbol) && !foldObjects_next.has(objectSymbol)) {
+            //     // unfold
+            //     // TODO:
+            //     cell.unfold();
+            // } else if (!foldObject_current.has(objectSymbol) && foldObjects_next.has(objectSymbol)) {
+            //     // fold
+            //     // TODO:
+            //     cell.fold();
+            // }
 
             // to disappear
-            if (objectsInViewbox_current.has(objectSymbol) && !objectsInViewbox_next.has(objectSymbol)) {
+            if (
+                this.computedValues.current.zoneCollusions.inViewport.has(objectSymbol) &&
+                !this.computedValues.next.zoneCollusions.inViewport.has(objectSymbol)
+            ) {
+                this.computedValues.next.classifiedObjects.toDisappear.push(objectSymbol);
             }
 
-            // "to destruct"
-            if (objectsInDestructionArea_next.has(objectSymbol)) {
-                var f = () => {
-                    domElementReuseCollector.free(this.objectReuseIdentifiers[objectSymbol], cell);
-                };
-                if (waitForTransitionEnd) cell.container.addEventListener("transitionend", f, { once: true });
-                else f();
+            // to destruct
+            if (
+                this.computedValues.current.zoneCollusions.inParking.has(objectSymbol) &&
+                !this.computedValues.next.zoneCollusions.inParking.has(objectSymbol)
+            ) {
+                this.computedValues.next.classifiedObjects.toDestruct.push(objectSymbol);
             }
+        }
+    }
+
+    updateComponents() {
+        // "to construct"
+        for (const objectSymbol of this.computedValues.next.classifiedObjects.toConstruct) {
+            cell = this.getCellForObject(objectSymbol);
+            this.computedValues.allocatedCells.set(objectSymbol, cell);
+
+            let objectInitializationPositionY, objectInitializationPositionX;
+            if (this.computedValues.current.positions.has(objectSymbol)) {
+                objectInitializationPositionY = this.computedValues.current.positions.get(objectSymbol).y;
+                objectInitializationPositionX = this.computedValues.current.positions.get(objectSymbol).x;
+            } else if (this.computedValues.next.positions.has(objectSymbol)) {
+                objectInitializationPositionY = this.computedValues.next.positions.get(objectSymbol).y;
+                objectInitializationPositionX = this.computedValues.next.positions.get(objectSymbol).x;
+            }
+            object.setPositionY(objectInitializationPositionY, false);
+            object.setPositionX(objectInitializationPositionX, false);
+            object.setContent(this.config.structuredDataMedium.getTextContent(objectSymbol));
+        }
+
+        // "to appear"
+        for (const objectSymbol of this.computedValues.next.classifiedObjects.toAppear) {
+        }
+
+        // existance change
+        // position change
+        // folding change
+
+        // "to disappear"
+        for (const objectSymbol of this.computedValues.next.classifiedObjects.toDisappear) {
+        }
+
+        // "to destruct"
+        for (const objectSymbol of this.computedValues.next.classifiedObjects.toDestruct) {
         }
     }
 
@@ -381,15 +533,63 @@ export class AbstractTableViewController extends AbstractViewController {
     }
 
     updateViewFromData() {
-        // debugger;
-        this.computedValues.positions.next = new Map();
+        this.computedValues.next = {
+            /** @type { Map.<Symbol, number> } */
+            computedHeights: new Map(),
+            /**
+             * @type { Map.<Symbol, AbstractTableCellViewController> }
+             * Bind objectSymbol and allocated cell on domElementReuseCollector.get() call
+             */
+            allocatedCells: new Map(),
+            pageHeight: undefined,
+            /** set and use when nodes above viewport changes their sizings */
+            scrollShift: undefined,
+            /** @type {Map.<Symbol, { starts: number, ends: number, height: number }>} */
+            positions: new Map(),
+            /**
+             * Holds the set of object symbols from current and next iterations of update.
+             * Intended to be used by update functions.
+             * @type {Set.<Symbol>}
+             */
+            mergedObjectSymbols: undefined,
+            /** @type { { inViewport: Set.<Symbol>, inPreload: Set.<Symbol>, inParking: Set.<Symbol> } } */
+            zoneCollusions: {
+                inViewport: new Set(),
+                inPreload: new Set(),
+                inParking: new Set(),
+            },
+            /** @type { { viewport: { starts: number, ends: number }, preload: { starts: number, ends: number }, parking: { starts: number, ends: number } } } */
+            boundaries: {
+                viewport: {},
+                /** an area which its height is 3 times of
+                 * viewport (1 above, 1 below) */
+                preload: {},
+                /** an area which its height is 5 times of
+                 * viewport (2 above, 2 below) */
+                parking: {},
+            },
+            classifiedObjects: {
+                toConstruct: new Set(),
+                toAppear: new Set(),
+                toUpdatePositionY: new Set(),
+                toUpdatePositionX: new Set(), // indentation
+                toUpdateFolding: new Set(),
+                toUpdateExistance: new Set(),
+                toDisappear: new Set(),
+                toDestruct: new Set(),
+            },
+        };
 
+        this.updateZoneBoundaries();
         this.calculateComponentPositions();
+        this.classifyObjectsByCollidedZones();
+        this.mergeObjectSymbolsWithPreviousIteration();
+        this.calculateFocusShift();
         this.updateContainer();
         this.updateComponents();
 
-        delete this.computedValues.positions.current; // forget positions computed on previous call
-        this.computedValues.positions.current = this.computedValues.positions.next;
+        delete this.computedValues.current; // forget positions computed on previous call
+        this.computedValues.current = this.computedValues.next;
     }
 
     build() {
