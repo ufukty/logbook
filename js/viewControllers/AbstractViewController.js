@@ -12,6 +12,6 @@ import {
 
 export class AbstractViewController {
     constructor() {
-        this.container = createElement("div");
+        this.container = undefined; // createElement("div");
     }
 }

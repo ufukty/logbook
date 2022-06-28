@@ -40,19 +40,20 @@ class App {
 
         this.modeSelector = new ModeSelector(this.updateMode.bind(this));
         this.infiniteSheet = new InfiniteSheet();
+        document.getElementById("infinite-sheet").appendChild(this.infiniteSheet.container);
 
-        // prettier-ignore
-        domElementReuseCollector.registerItemIdentifier("infiniteSheetRow", function () {
-            const cell = new InfiniteSheetTask();
-            adoption(this.infiniteSheet.anchorPosition, [cell.container]);            
-            return cell;
-        }.bind(this));
-        // prettier-ignore
-        domElementReuseCollector.registerItemIdentifier("infiniteSheetHeader", function () {
-            const cell = new InfiniteSheetHeader();
-            adoption(this.infiniteSheet.anchorPosition, [cell.container]);
-            return cell;
-        }.bind(this));
+        // // prettier-ignore
+        // domElementReuseCollector.registerItemIdentifier("infiniteSheetRow", function () {
+        //     const cell = new InfiniteSheetTask();
+        //     adoption(this.infiniteSheet.anchorPosition, [cell.container]);            
+        //     return cell;
+        // }.bind(this));
+        // // prettier-ignore
+        // domElementReuseCollector.registerItemIdentifier("infiniteSheetHeader", function () {
+        //     const cell = new InfiniteSheetHeader();
+        //     adoption(this.infiniteSheet.anchorPosition, [cell.container]);
+        //     return cell;
+        // }.bind(this));
 
         this.contextMenu = new ContextMenu();
         this.contextMenu.delegates = {
@@ -100,7 +101,7 @@ class App {
     }
 
     build() {
-        this.infiniteSheet.build();
+        // this.infiniteSheet.build();
     }
 
     /** @param {MouseEvent} e */

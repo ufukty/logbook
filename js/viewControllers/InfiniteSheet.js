@@ -20,15 +20,15 @@ export class InfiniteSheet extends AbstractTableViewController {
             },
             section: {
                 before: 100,
-                between: 100,
+                between: 0,
             },
             row: {
-                before: 100,
-                between: 20,
+                before: 50,
+                between: 30,
             },
         };
 
-        this.registerCellConstructor(this.regularCellId, () => {
+        this.registerCellIdentifier(this.regularCellId, () => {
             return new InfiniteSheetTableCellViewController();
         });
     }
@@ -42,13 +42,14 @@ export class InfiniteSheet extends AbstractTableViewController {
     }
 
     /** @returns { AbstractTableCellViewController } */
-    getCellForObjectId(objectSymbol) {
+    getCellForObject(objectSymbol) {
         // TODO: variable cell type
         // const objectType = this.config.structuredDataMedium;
 
-        /** @type { AbstractTableCellViewController } */
-        const cell = this.getRecycledCell(this.regularCellId);
-        cell.setContent(this.dataSource.getTextContent(objectSymbol));
+        const cellContainer = this.requestReusableCellContainer(this.regularCellId);
+        cellContainer.cell.setContent(this.dataSource.getTextContent(objectSymbol));
+
+        return cellContainer;
     }
 
     deleteTask(taskId) {

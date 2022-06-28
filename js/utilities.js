@@ -118,8 +118,16 @@ export function configureElementWithProps(element, classList, style, nodePropert
  * @param {HTMLElement[]} childrenList
  */
 export function adoption(element, childrenList) {
-    if (childrenList !== undefined && childrenList.length > 0)
-        childrenList.forEach((childNode) => element.appendChild(childNode));
+    if (childrenList !== undefined) {
+        if (Array.isArray(childrenList)) {
+            if (childrenList.length > 0)
+               childrenList.forEach((childNode) => element.appendChild(childNode));
+        }
+        else {
+            element.appendChild(childrenList)
+        }
+
+    }
     return element;
 }
 

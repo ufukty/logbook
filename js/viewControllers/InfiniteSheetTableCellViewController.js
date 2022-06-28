@@ -1,3 +1,4 @@
+import { createElement } from "../utilities.js";
 import { AbstractTableCellViewController } from "./AbstractTableCellViewController.js";
 
 const LockKind = {
@@ -40,14 +41,12 @@ export class InfiniteSheetTableCellViewController extends AbstractTableCellViewC
         this.container.style.opacity = "1";
     }
 
-    setPositionY() {
-        this.container.style.top = `${posY}px`;
-        // this.container.style.transform = `translateY(${posY}px)`;
-    }
-
-    setPositionX() {
-        this.container.style.left = `${posY}px`;
-        // this.container.style.transform = `translateY(${posY}px)`;
+    /**
+     * @param {number} newOpacity
+     * @param {boolean} withAnimation
+     */
+    setOpacity(newOpacity, withAnimation) {
+        console.error("Abstract class method .setOpacity() is called directly.");
     }
 
     setContent(newContent) {
