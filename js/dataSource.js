@@ -100,24 +100,13 @@ export class DataSource {
         /** @type { Object.<string, Array.<function>> } */
         this.delegates = {
             placementUpdate: [],
-        };
-
-        this.textContent = {
-            "sectionID#123": "section 123 header",
-            "sectionID#124": "section 124 header",
-            "sectionID#125": "section 125 header",
-            "taskID#234": "Lorem ipsum dolor sit amet, consectetur adipiscing elit",
-            "taskID#235": "Vivamus vitae nibh nec tortor porta congue quis eu ante",
-            "taskID#236": "Aliquam rhoncus tortor nec elit molestie, a rutrum odio hendrerit",
-            "taskID#237": "Donec varius feugiat purus id sagittis",
-            "taskID#238": "Nunc quis fringilla tellus, sed aliquam dui",
-            "taskID#239": "Proin molestie dolor eget purus molestie, a cursus mi iaculis",
+            objectUpdate: [],
         };
     }
 
-    notifyDelegateFor(event) {
+    notifyDelegateFor(event, ...args) {
         this.delegates[event].forEach((delegate) => {
-            delegate();
+            delegate(...args);
         });
     }
 
@@ -126,114 +115,241 @@ export class DataSource {
         this.medium.addSection("sectionID#124");
         this.medium.addSection("sectionID#125");
 
-        this.medium.addRowToSection("sectionID#123", "taskID#1");
-        this.medium.addRowToSection("sectionID#123", "taskID#2");
-        this.medium.addRowToSection("sectionID#123", "taskID#3");
-        this.medium.addRowToSection("sectionID#123", "taskID#4");
-        this.medium.addRowToSection("sectionID#123", "taskID#5");
-        this.medium.addRowToSection("sectionID#123", "taskID#6");
-        this.medium.addRowToSection("sectionID#123", "taskID#7");
-        this.medium.addRowToSection("sectionID#123", "taskID#8");
-        this.medium.addRowToSection("sectionID#123", "taskID#9");
-        this.medium.addRowToSection("sectionID#123", "taskID#10");
-        this.medium.addRowToSection("sectionID#123", "taskID#11");
-        this.medium.addRowToSection("sectionID#123", "taskID#12");
-        this.medium.addRowToSection("sectionID#123", "taskID#13");
-        this.medium.addRowToSection("sectionID#123", "taskID#14");
-        this.medium.addRowToSection("sectionID#123", "taskID#15");
-        this.medium.addRowToSection("sectionID#123", "taskID#16");
-        this.medium.addRowToSection("sectionID#123", "taskID#17");
-        this.medium.addRowToSection("sectionID#123", "taskID#18");
-        this.medium.addRowToSection("sectionID#123", "taskID#19");
-        this.medium.addRowToSection("sectionID#123", "taskID#20");
-        this.medium.addRowToSection("sectionID#123", "taskID#21");
-        this.medium.addRowToSection("sectionID#123", "taskID#22");
-        this.medium.addRowToSection("sectionID#123", "taskID#23");
-        this.medium.addRowToSection("sectionID#123", "taskID#24");
-        this.medium.addRowToSection("sectionID#123", "taskID#25");
-        this.medium.addRowToSection("sectionID#123", "taskID#26");
+        this.rowSections = new Map([
+            ["taskID#1", "sectionID#123"],
+            ["taskID#2", "sectionID#123"],
+            ["taskID#3", "sectionID#123"],
+            ["taskID#4", "sectionID#123"],
+            ["taskID#5", "sectionID#123"],
+            ["taskID#6", "sectionID#123"],
+            ["taskID#7", "sectionID#123"],
+            ["taskID#8", "sectionID#123"],
+            ["taskID#9", "sectionID#123"],
+            ["taskID#10", "sectionID#123"],
+            ["taskID#11", "sectionID#123"],
+            ["taskID#12", "sectionID#123"],
+            ["taskID#13", "sectionID#123"],
+            ["taskID#14", "sectionID#123"],
+            ["taskID#15", "sectionID#123"],
+            ["taskID#16", "sectionID#123"],
+            ["taskID#17", "sectionID#123"],
+            ["taskID#18", "sectionID#123"],
+            ["taskID#19", "sectionID#123"],
+            ["taskID#20", "sectionID#123"],
+            ["taskID#21", "sectionID#123"],
+            ["taskID#22", "sectionID#123"],
+            ["taskID#23", "sectionID#123"],
+            ["taskID#24", "sectionID#123"],
+            ["taskID#25", "sectionID#123"],
+            ["taskID#26", "sectionID#123"],
+            ["taskID#27", "sectionID#124"],
+            ["taskID#28", "sectionID#124"],
+            ["taskID#29", "sectionID#124"],
+            ["taskID#30", "sectionID#124"],
+            ["taskID#31", "sectionID#124"],
+            ["taskID#32", "sectionID#124"],
+            ["taskID#33", "sectionID#124"],
+            ["taskID#34", "sectionID#124"],
+            ["taskID#35", "sectionID#124"],
+            ["taskID#36", "sectionID#124"],
+            ["taskID#37", "sectionID#124"],
+            ["taskID#38", "sectionID#124"],
+            ["taskID#39", "sectionID#124"],
+            ["taskID#40", "sectionID#124"],
+            ["taskID#41", "sectionID#124"],
+            ["taskID#42", "sectionID#124"],
+            ["taskID#43", "sectionID#124"],
+            ["taskID#44", "sectionID#124"],
+            ["taskID#45", "sectionID#124"],
+            ["taskID#46", "sectionID#124"],
+            ["taskID#47", "sectionID#124"],
+            ["taskID#48", "sectionID#124"],
+            ["taskID#49", "sectionID#124"],
+            ["taskID#50", "sectionID#124"],
+            ["taskID#51", "sectionID#124"],
+            ["taskID#52", "sectionID#124"],
+            ["taskID#53", "sectionID#124"],
+            ["taskID#54", "sectionID#124"],
+            ["taskID#55", "sectionID#124"],
+            ["taskID#56", "sectionID#124"],
+            ["taskID#57", "sectionID#124"],
+            ["taskID#58", "sectionID#124"],
+            ["taskID#59", "sectionID#124"],
+            ["taskID#60", "sectionID#125"],
+            ["taskID#61", "sectionID#125"],
+            ["taskID#62", "sectionID#125"],
+            ["taskID#63", "sectionID#125"],
+            ["taskID#64", "sectionID#125"],
+            ["taskID#65", "sectionID#125"],
+            ["taskID#66", "sectionID#125"],
+            ["taskID#67", "sectionID#125"],
+            ["taskID#68", "sectionID#125"],
+            ["taskID#69", "sectionID#125"],
+            ["taskID#70", "sectionID#125"],
+            ["taskID#71", "sectionID#125"],
+            ["taskID#72", "sectionID#125"],
+            ["taskID#73", "sectionID#125"],
+            ["taskID#74", "sectionID#125"],
+            ["taskID#75", "sectionID#125"],
+            ["taskID#76", "sectionID#125"],
+            ["taskID#77", "sectionID#125"],
+            ["taskID#78", "sectionID#125"],
+            ["taskID#79", "sectionID#125"],
+            ["taskID#80", "sectionID#125"],
+            ["taskID#81", "sectionID#125"],
+            ["taskID#82", "sectionID#125"],
+            ["taskID#83", "sectionID#125"],
+            ["taskID#84", "sectionID#125"],
+            ["taskID#85", "sectionID#125"],
+            ["taskID#86", "sectionID#125"],
+            ["taskID#87", "sectionID#125"],
+            ["taskID#88", "sectionID#125"],
+            ["taskID#89", "sectionID#125"],
+            ["taskID#90", "sectionID#125"],
+            ["taskID#91", "sectionID#125"],
+            ["taskID#92", "sectionID#125"],
+            ["taskID#93", "sectionID#125"],
+            ["taskID#94", "sectionID#125"],
+            ["taskID#95", "sectionID#125"],
+            ["taskID#96", "sectionID#125"],
+            ["taskID#97", "sectionID#125"],
+            ["taskID#98", "sectionID#125"],
+            ["taskID#99", "sectionID#125"],
+            ["taskID#00", "sectionID#125"],
+        ]);
 
-        this.medium.addRowToSection("sectionID#124", "taskID#27");
-        this.medium.addRowToSection("sectionID#124", "taskID#28");
-        this.medium.addRowToSection("sectionID#124", "taskID#29");
-        this.medium.addRowToSection("sectionID#124", "taskID#30");
-        this.medium.addRowToSection("sectionID#124", "taskID#31");
-        this.medium.addRowToSection("sectionID#124", "taskID#32");
-        this.medium.addRowToSection("sectionID#124", "taskID#33");
-        this.medium.addRowToSection("sectionID#124", "taskID#34");
-        this.medium.addRowToSection("sectionID#124", "taskID#35");
-        this.medium.addRowToSection("sectionID#124", "taskID#36");
-        this.medium.addRowToSection("sectionID#124", "taskID#37");
-        this.medium.addRowToSection("sectionID#124", "taskID#38");
-        this.medium.addRowToSection("sectionID#124", "taskID#39");
-        this.medium.addRowToSection("sectionID#124", "taskID#40");
-        this.medium.addRowToSection("sectionID#124", "taskID#41");
-        this.medium.addRowToSection("sectionID#124", "taskID#42");
-        this.medium.addRowToSection("sectionID#124", "taskID#43");
-        this.medium.addRowToSection("sectionID#124", "taskID#44");
-        this.medium.addRowToSection("sectionID#124", "taskID#45");
-        this.medium.addRowToSection("sectionID#124", "taskID#46");
-        this.medium.addRowToSection("sectionID#124", "taskID#47");
-        this.medium.addRowToSection("sectionID#124", "taskID#48");
-        this.medium.addRowToSection("sectionID#124", "taskID#49");
-        this.medium.addRowToSection("sectionID#124", "taskID#50");
-        this.medium.addRowToSection("sectionID#124", "taskID#51");
-        this.medium.addRowToSection("sectionID#124", "taskID#52");
-        this.medium.addRowToSection("sectionID#124", "taskID#53");
-        this.medium.addRowToSection("sectionID#124", "taskID#54");
-        this.medium.addRowToSection("sectionID#124", "taskID#55");
-        this.medium.addRowToSection("sectionID#124", "taskID#56");
-        this.medium.addRowToSection("sectionID#124", "taskID#57");
-        this.medium.addRowToSection("sectionID#124", "taskID#58");
-        this.medium.addRowToSection("sectionID#124", "taskID#59");
+        this.objectContents = new Map([
+            ["sectionID#123", "text content for sectionID#123"],
+            ["sectionID#124", "text content for sectionID#124"],
+            ["sectionID#125", "text content for sectionID#125"],
+            ["taskID#1", "text content for taskID#1"],
+            ["taskID#2", "text content for taskID#2"],
+            ["taskID#3", "text content for taskID#3"],
+            ["taskID#4", "text content for taskID#4"],
+            ["taskID#5", "text content for taskID#5"],
+            ["taskID#6", "text content for taskID#6"],
+            ["taskID#7", "text content for taskID#7"],
+            ["taskID#8", "text content for taskID#8"],
+            ["taskID#9", "text content for taskID#9"],
+            ["taskID#10", "text content for taskID#10"],
+            ["taskID#11", "text content for taskID#11"],
+            ["taskID#12", "text content for taskID#12"],
+            ["taskID#13", "text content for taskID#13"],
+            ["taskID#14", "text content for taskID#14"],
+            ["taskID#15", "text content for taskID#15"],
+            ["taskID#16", "text content for taskID#16"],
+            ["taskID#17", "text content for taskID#17"],
+            ["taskID#18", "text content for taskID#18"],
+            ["taskID#19", "text content for taskID#19"],
+            ["taskID#20", "text content for taskID#20"],
+            ["taskID#21", "text content for taskID#21"],
+            ["taskID#22", "text content for taskID#22"],
+            ["taskID#23", "text content for taskID#23"],
+            ["taskID#24", "text content for taskID#24"],
+            ["taskID#25", "text content for taskID#25"],
+            ["taskID#26", "text content for taskID#26"],
 
-        this.medium.addRowToSection("sectionID#125", "taskID#60");
-        this.medium.addRowToSection("sectionID#125", "taskID#61");
-        this.medium.addRowToSection("sectionID#125", "taskID#62");
-        this.medium.addRowToSection("sectionID#125", "taskID#63");
-        this.medium.addRowToSection("sectionID#125", "taskID#64");
-        this.medium.addRowToSection("sectionID#125", "taskID#65");
-        this.medium.addRowToSection("sectionID#125", "taskID#66");
-        this.medium.addRowToSection("sectionID#125", "taskID#67");
-        this.medium.addRowToSection("sectionID#125", "taskID#68");
-        this.medium.addRowToSection("sectionID#125", "taskID#69");
-        this.medium.addRowToSection("sectionID#125", "taskID#70");
-        this.medium.addRowToSection("sectionID#125", "taskID#71");
-        this.medium.addRowToSection("sectionID#125", "taskID#72");
-        this.medium.addRowToSection("sectionID#125", "taskID#73");
-        this.medium.addRowToSection("sectionID#125", "taskID#74");
-        this.medium.addRowToSection("sectionID#125", "taskID#75");
-        this.medium.addRowToSection("sectionID#125", "taskID#76");
-        this.medium.addRowToSection("sectionID#125", "taskID#77");
-        this.medium.addRowToSection("sectionID#125", "taskID#78");
-        this.medium.addRowToSection("sectionID#125", "taskID#79");
-        this.medium.addRowToSection("sectionID#125", "taskID#80");
-        this.medium.addRowToSection("sectionID#125", "taskID#81");
-        this.medium.addRowToSection("sectionID#125", "taskID#82");
-        this.medium.addRowToSection("sectionID#125", "taskID#83");
-        this.medium.addRowToSection("sectionID#125", "taskID#84");
-        this.medium.addRowToSection("sectionID#125", "taskID#85");
-        this.medium.addRowToSection("sectionID#125", "taskID#86");
-        this.medium.addRowToSection("sectionID#125", "taskID#87");
-        this.medium.addRowToSection("sectionID#125", "taskID#88");
-        this.medium.addRowToSection("sectionID#125", "taskID#89");
-        this.medium.addRowToSection("sectionID#125", "taskID#90");
-        this.medium.addRowToSection("sectionID#125", "taskID#91");
-        this.medium.addRowToSection("sectionID#125", "taskID#92");
-        this.medium.addRowToSection("sectionID#125", "taskID#93");
-        this.medium.addRowToSection("sectionID#125", "taskID#94");
-        this.medium.addRowToSection("sectionID#125", "taskID#95");
-        this.medium.addRowToSection("sectionID#125", "taskID#96");
-        this.medium.addRowToSection("sectionID#125", "taskID#97");
-        this.medium.addRowToSection("sectionID#125", "taskID#98");
-        this.medium.addRowToSection("sectionID#125", "taskID#99");
-        this.medium.addRowToSection("sectionID#125", "taskID#00");
+            ["taskID#27", "text content for taskID#27"],
+            ["taskID#28", "text content for taskID#28"],
+            ["taskID#29", "text content for taskID#29"],
+            ["taskID#30", "text content for taskID#30"],
+            ["taskID#31", "text content for taskID#31"],
+            ["taskID#32", "text content for taskID#32"],
+            ["taskID#33", "text content for taskID#33"],
+            ["taskID#34", "text content for taskID#34"],
+            ["taskID#35", "text content for taskID#35"],
+            ["taskID#36", "text content for taskID#36"],
+            ["taskID#37", "text content for taskID#37"],
+            ["taskID#38", "text content for taskID#38"],
+            ["taskID#39", "text content for taskID#39"],
+            ["taskID#40", "text content for taskID#40"],
+            ["taskID#41", "text content for taskID#41"],
+            ["taskID#42", "text content for taskID#42"],
+            ["taskID#43", "text content for taskID#43"],
+            ["taskID#44", "text content for taskID#44"],
+            ["taskID#45", "text content for taskID#45"],
+            ["taskID#46", "text content for taskID#46"],
+            ["taskID#47", "text content for taskID#47"],
+            ["taskID#48", "text content for taskID#48"],
+            ["taskID#49", "text content for taskID#49"],
+            ["taskID#50", "text content for taskID#50"],
+            ["taskID#51", "text content for taskID#51"],
+            ["taskID#52", "text content for taskID#52"],
+            ["taskID#53", "text content for taskID#53"],
+            ["taskID#54", "text content for taskID#54"],
+            ["taskID#55", "text content for taskID#55"],
+            ["taskID#56", "text content for taskID#56"],
+            ["taskID#57", "text content for taskID#57"],
+            ["taskID#58", "text content for taskID#58"],
+            ["taskID#59", "text content for taskID#59"],
+
+            ["taskID#60", "text content for taskID#60"],
+            ["taskID#61", "text content for taskID#61"],
+            ["taskID#62", "text content for taskID#62"],
+            ["taskID#63", "text content for taskID#63"],
+            ["taskID#64", "text content for taskID#64"],
+            ["taskID#65", "text content for taskID#65"],
+            ["taskID#66", "text content for taskID#66"],
+            ["taskID#67", "text content for taskID#67"],
+            ["taskID#68", "text content for taskID#68"],
+            ["taskID#69", "text content for taskID#69"],
+            ["taskID#70", "text content for taskID#70"],
+            ["taskID#71", "text content for taskID#71"],
+            ["taskID#72", "text content for taskID#72"],
+            ["taskID#73", "text content for taskID#73"],
+            ["taskID#74", "text content for taskID#74"],
+            ["taskID#75", "text content for taskID#75"],
+            ["taskID#76", "text content for taskID#76"],
+            ["taskID#77", "text content for taskID#77"],
+            ["taskID#78", "text content for taskID#78"],
+            ["taskID#79", "text content for taskID#79"],
+            ["taskID#80", "text content for taskID#80"],
+            ["taskID#81", "text content for taskID#81"],
+            ["taskID#82", "text content for taskID#82"],
+            ["taskID#83", "text content for taskID#83"],
+            ["taskID#84", "text content for taskID#84"],
+            ["taskID#85", "text content for taskID#85"],
+            ["taskID#86", "text content for taskID#86"],
+            ["taskID#87", "text content for taskID#87"],
+            ["taskID#88", "text content for taskID#88"],
+            ["taskID#89", "text content for taskID#89"],
+            ["taskID#90", "text content for taskID#90"],
+            ["taskID#91", "text content for taskID#91"],
+            ["taskID#92", "text content for taskID#92"],
+            ["taskID#93", "text content for taskID#93"],
+            ["taskID#94", "text content for taskID#94"],
+            ["taskID#95", "text content for taskID#95"],
+            ["taskID#96", "text content for taskID#96"],
+            ["taskID#97", "text content for taskID#97"],
+            ["taskID#98", "text content for taskID#98"],
+            ["taskID#99", "text content for taskID#99"],
+            ["taskID#00", "text content for taskID#00"],
+        ]);
+
+        for (const [rowID, sectionID] of this.rowSections.entries()) {
+            this.medium.addRowToSection(sectionID, rowID);
+        }
 
         this.notifyDelegateFor("placementUpdate");
+
+        const prom = new Promise((resolve, reject) => {
+            setTimeout(resolve, 1000);
+        });
+
+        prom.then(() => {
+            this.objectContents.set(
+                "taskID#1",
+                "Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis voluptatum labore in hic possimus dolor. Aliquam tempore unde quia natus hic optio modi excepturi. Reprehenderit natus recusandae dolores rerum omnis?"
+            );
+            // this.notifyDelegateFor("placementUpdate");
+            this.notifyDelegateFor("objectUpdate", new Set([pSymbol.get("taskID#1")]));
+        }).then(() => {
+            console.log("updated");
+        });
     }
 
     getTextContent(objectSymbol) {
         const objectID = pSymbol.reverse(objectSymbol);
-        return `text: ${objectID}`;
+        return this.objectContents.get(objectID);
     }
 }

@@ -1,6 +1,9 @@
 import { adoption, domElementReuseCollector, pSymbol } from "../utilities.js";
 import { InfiniteSheetTableCellViewController } from "./InfiniteSheetTableCellViewController.js";
-import { AbstractTableViewController } from "./AbstactTableViewController.js";
+import {
+    AbstractTableViewCellContainerViewController,
+    AbstractTableViewController,
+} from "./AbstactTableViewController.js";
 import { AbstractTableCellViewController } from "./AbstractTableCellViewController.js";
 import { DataSource } from "../dataSource.js";
 
@@ -8,7 +11,7 @@ export class InfiniteSheet extends AbstractTableViewController {
     constructor() {
         super();
 
-        /** @type { DataSource } */
+        /** @type {DataSource} */
         this.dataSource = undefined; // should be assigned by callee
 
         this.regularCellId = pSymbol.get("regularCellViewContainer");
@@ -41,7 +44,7 @@ export class InfiniteSheet extends AbstractTableViewController {
         return 25;
     }
 
-    /** @returns { AbstractTableCellViewController } */
+    /** @returns {AbstractTableCellViewController} */
     getCellForObject(objectSymbol) {
         // TODO: variable cell type
         // const objectType = this.config.structuredDataMedium;
@@ -50,6 +53,35 @@ export class InfiniteSheet extends AbstractTableViewController {
         cellContainer.cell.setContent(this.dataSource.getTextContent(objectSymbol));
 
         return cellContainer;
+    }
+
+    /**
+     * This function will be called for each cell that enters into the viewport.
+     * Implementer can use this method to perform UI updates on rest of the cell.
+     * @param {Symbol} objectSymbol
+     * @param {AbstractTableCellViewController} cellPositioner
+     */
+    cellAppears(objectSymbol, cellPositioner) {
+        // console.log(`${objectSymbol.toString()} has appeared.`);
+    }
+
+    /**
+     * This function will be called for each cell that exits from the viewport.
+     * Implementer can use this method to perform UI updates on rest of the cell.
+     * @param {Symbol} objectSymbol
+     * @param {AbstractTableCellViewController} cellPositioner
+     */
+    cellDisappears(objectSymbol, cellPositioner) {
+        // console.log(`${objectSymbol.toString()} has disappeared.`);
+    }
+
+    /**
+     * @param { Symbol } objectSymbol
+     * @param { AbstractTableViewCellContainerViewController } cellContainer
+     */
+    updateCellIfNecessary(objectSymbol, cellContainer) {
+        const newContent = this.dataSource.getTextContent(objectSymbol);
+        cellContainer.cell.setContent(newContent);
     }
 
     deleteTask(taskId) {

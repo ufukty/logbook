@@ -120,13 +120,10 @@ export function configureElementWithProps(element, classList, style, nodePropert
 export function adoption(element, childrenList) {
     if (childrenList !== undefined) {
         if (Array.isArray(childrenList)) {
-            if (childrenList.length > 0)
-               childrenList.forEach((childNode) => element.appendChild(childNode));
+            if (childrenList.length > 0) childrenList.forEach((childNode) => element.appendChild(childNode));
+        } else {
+            element.appendChild(childrenList);
         }
-        else {
-            element.appendChild(childrenList)
-        }
-
     }
     return element;
 }
@@ -372,6 +369,10 @@ class PersistentSymbolizer {
         this.cacheReverse = new Map();
     }
 
+    /**
+     * @param {string} value
+     * @returns {Symbol}
+     */
     get(value) {
         if (this.cache.has(value)) {
             return this.cache.get(value);
@@ -383,6 +384,10 @@ class PersistentSymbolizer {
         }
     }
 
+    /**
+     * @param {Symbol} value
+     * @returns {string}
+     */
     reverse(symbol) {
         return this.cacheReverse.get(symbol);
     }

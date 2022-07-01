@@ -45,7 +45,7 @@ class App {
         // // prettier-ignore
         // domElementReuseCollector.registerItemIdentifier("infiniteSheetRow", function () {
         //     const cell = new InfiniteSheetTask();
-        //     adoption(this.infiniteSheet.anchorPosition, [cell.container]);            
+        //     adoption(this.infiniteSheet.anchorPosition, [cell.container]);
         //     return cell;
         // }.bind(this));
         // // prettier-ignore
@@ -80,6 +80,9 @@ class App {
 
         this.dataSource = new DataSource();
         this.dataSource.delegates.placementUpdate.push(this.placementUpdateFromData.bind(this));
+        this.dataSource.delegates.objectUpdate.push((a) => {
+            this.infiniteSheet.requestContentUpdateForObjectsIfNecessary(a);
+        });
         // TODO:
         // TODO: this.dataSource.delegates.notifyGUI = this.infiniteSheet.updateData // updateData should be a callable
         // TODO: this.infiniteSheet.delegates.notifyDataSource = this.dataSource.updateData // updateData should be a callable
@@ -192,7 +195,7 @@ class App {
 
     placementUpdateFromData() {
         this.infiniteSheet.config.placement = this.dataSource.medium.data;
-        this.infiniteSheet.updateViewFromData();
+        this.infiniteSheet.updateView();
     }
 
     /** @param {string} taskId */

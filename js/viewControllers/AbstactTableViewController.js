@@ -1,4 +1,4 @@
-import { adoption, domElementReuseCollector, createElement, toggleAnimationWithClass } from "../utilities.js";
+import { adoption, domElementReuseCollector, createElement, toggleAnimationWithClass, pSymbol } from "../utilities.js";
 import { AbstractViewController } from "./AbstractViewController.js";
 import { TableViewStructuredDataMedium } from "../dataSource.js";
 import { AbstractTableCellViewController } from "./AbstractTableCellViewController.js";
@@ -42,9 +42,22 @@ function mergeMapKeys() {
     return set_;
 }
 
-class AbstractTableViewCellContainerViewController extends AbstractViewController {
+/**
+ * @param {Set} leftSet
+ * @param {Set} rightSet
+ * Returns a set represents intersection of two input sets. */
+function setIntersect(leftSet, rightSet) {
+    const intersection = new Set();
+    for (const k of leftSet) {
+        if (rightSet.has(k)) intersection.add(k);
+    }
+    return intersection;
+}
+
+export class AbstractTableViewCellContainerViewController extends AbstractViewController {
     constructor() {
         super();
+        /** @type {HTMLElement} */
         this.container = undefined;
 
         /** Filled by CellScrollerViewController. Don't modify that.
@@ -56,6 +69,11 @@ class AbstractTableViewCellContainerViewController extends AbstractViewControlle
          * @type { Symbol }
          */
         this.reuseIdentifier = undefined;
+
+        /** Filled by CellScrollerViewController. Don't modify that.
+         * @type {Symbol}
+         */
+        this.objectSymbol = undefined;
     }
 
     /**
@@ -75,7 +93,7 @@ class AbstractTableViewCellContainerViewController extends AbstractViewControlle
     }
 }
 
-class BasicTableCellContainerViewController extends AbstractTableViewCellContainerViewController {
+export class BasicTableCellContainerViewController extends AbstractTableViewCellContainerViewController {
     constructor() {
         super();
         this.container = createElement("div", ["abstract-cell-scroller-view-cell-positioner"]);
@@ -96,9 +114,29 @@ class BasicTableCellContainerViewController extends AbstractTableViewCellContain
      * @param {number} newPosition
      * @param {boolean} withAnimation
      */
-    setPositionY(newPosition, withAnimation) {
-        // TODO: withAnimation option
-        this.container.style.top = `${newPosition}px`;
+    setPositionY(newPosition, withAnimation = false) {
+        if (withAnimation) {
+            const currentPos = this.container.style.top.match(/\d+/);
+            const deltaPos = newPosition - currentPos;
+
+            // prettier-ignore
+            const keyframes = [
+                { transform: "translateY(0px)" }, 
+                { transform: `translateY(${deltaPos}px)` }
+            ]
+            const config = {
+                duration: 1000,
+                iterations: 1,
+                fill: "none",
+                // easing: "cubic-bezier(0.1, 1.2, 0.5, 1.0)",
+            };
+            this.container.animate(keyframes, config).finished.then(() => {
+                console.log("pos");
+                this.container.style.top = `${newPosition}px`;
+            });
+        } else {
+            this.container.style.top = `${newPosition}px`;
+        }
     }
 
     /**
@@ -140,8 +178,6 @@ export class AbstractTableViewController extends AbstractViewController {
                     between: 10,
                 },
             },
-            /** @type { Map.<Symbol, number> } */
-            defaultHeightForReuseId: new Map(),
             /** The ordering of sections and rows in them.
              * Each `Symbol` represents an `objectSymbol`
              * (either a `sectionID` or `rowID`). */
@@ -166,9 +202,9 @@ export class AbstractTableViewController extends AbstractViewController {
         this.computedValues = {
             /** @type { Map.<Symbol, AbstractTableViewCellContainerViewController> } */
             objectToCellContainers: new Map(),
+            /** @type {Map.<Symbol, number>} */
+            lastRecordedObjectHeight: new Map(),
             current: {
-                /** @type { Map.<Symbol, > } */
-                computedHeights: new Map(),
                 pageHeight: undefined,
                 /** set and use when nodes above viewport changes their sizings */
                 scrollShift: undefined,
@@ -208,8 +244,6 @@ export class AbstractTableViewController extends AbstractViewController {
                 },
             },
             next: {
-                /** @type { Map.<Symbol, > } */
-                computedHeights: new Map(),
                 pageHeight: undefined,
                 /** set and use when nodes above viewport changes their sizings */
                 scrollShift: undefined,
@@ -250,20 +284,20 @@ export class AbstractTableViewController extends AbstractViewController {
             },
         };
 
-        document.addEventListener("scroll", this.updateViewFromData.bind(this));
+        document.addEventListener("scroll", this.updateView.bind(this));
 
-        // this.resizeObserver = new ResizeObserver((entries) => {
-        //     entries.forEach((entry) => {
-        //         const element = entry.target;
-        //         const section = element.dataset.section;
-        //         const row = element.dataset.row;
-        //         const height = entry.contentRect.height;
-        //         this.updateComputedHeightOfElement(this.getReferenceOfAllocatedRowElement(section, row), section, row);
-        //     });
-        //     this.calculateElementBounds();
-        //     this.rePosition();
-        //     // this.renderVisible();
-        // });
+        this.resizeObserver = new ResizeObserver((entries) => {
+            entries.forEach((entry) => {
+                const height = Math.ceil(entry.contentRect.height);
+
+                const cellContainer_container = entry.target;
+                const objectId = cellContainer_container.dataset["objectId"];
+                const objectSymbol = pSymbol.get(objectId);
+
+                this.computedValues.lastRecordedObjectHeight.set(objectSymbol, height);
+            });
+            this.updateView();
+        });
     }
 
     /**
@@ -282,7 +316,7 @@ export class AbstractTableViewController extends AbstractViewController {
                 adoption(cellContainer.container,
                     userProvidedCell.container
             ));
-            // this.resizeObserver.observe(userProvidedCell.container);
+            this.resizeObserver.observe(cellContainer.container);
             return cellContainer;
         });
     }
@@ -292,10 +326,32 @@ export class AbstractTableViewController extends AbstractViewController {
      * only sends the nested user-supplied custom cell, instead
      * the positioner cell that wraps it from the constructor
      * registered by .registerCellConstructor().
-     * @returns { AbstractTableViewCellContainerViewController }
+     * @returns {AbstractTableViewCellContainerViewController}
      */
     requestReusableCellContainer(cellIdentifier) {
         return domElementReuseCollector.get(cellIdentifier);
+    }
+
+    /**
+     * User should implement this method.
+     * Request an empty cell from .getFreeCell()
+     * with previously registered cellIdentifier
+     * Then populate content accordingly to
+     * specified objectSymbol.
+     * @returns {AbstractTableViewCellContainerViewController}
+     */
+    getCellForObject(objectSymbol) {
+        console.error("abstract function is called directly");
+    }
+
+    /**
+     * Implementation of this method should check if content of cell
+     * needs to get updated, then update it.
+     * @param { Symbol } objectSymbol
+     * @param {AbstractTableViewCellContainerViewController} cellContainer
+     */
+    updateCellIfNecessary(objectSymbol, cellContainer) {
+        console.error("abstract function is called directly");
     }
 
     /**
@@ -308,21 +364,9 @@ export class AbstractTableViewController extends AbstractViewController {
         console.error("abstract function is called directly");
     }
 
-    /**
-     * User should implement this method.
-     * Request an empty cell from .getFreeCell()
-     * with previously registered cellIdentifier
-     * Then populate content accordingly to
-     * specified objectSymbol.
-     * @returns { AbstractTableViewCellContainerViewController }
-     */
-    getCellForObject(objectSymbol) {
-        console.error("abstract function is called directly");
-    }
-
     updateZoneBoundaries() {
-        const preloadZoneOffset = 1 * window.innerHeight;
-        const parkingZoneOffset = 2 * window.innerHeight;
+        const preloadZoneOffset = Math.floor(0.5 * window.innerHeight);
+        const parkingZoneOffset = Math.floor(0.75 * window.innerHeight);
 
         this.computedValues.next.boundaries = {
             viewport: {
@@ -357,8 +401,8 @@ export class AbstractTableViewController extends AbstractViewController {
 
             lastPosition += this.config.margins.section.before;
 
-            const headerHeight = this.computedValues.next.computedHeights.has(sectionID)
-                ? this.computedValues.next.computedHeights.get(sectionID)
+            const headerHeight = this.computedValues.lastRecordedObjectHeight.has(sectionID)
+                ? this.computedValues.lastRecordedObjectHeight.get(sectionID)
                 : this.getDefaultHeightOfObject(sectionID);
 
             // save object positions
@@ -375,8 +419,8 @@ export class AbstractTableViewController extends AbstractViewController {
                 if (rowIndex === 0) lastPosition += this.config.margins.row.before;
                 else lastPosition += this.config.margins.row.between;
 
-                const itemHeight = this.computedValues.next.computedHeights.has(rowID)
-                    ? this.computedValues.next.computedHeights.get(rowID)
+                const itemHeight = this.computedValues.lastRecordedObjectHeight.has(rowID)
+                    ? this.computedValues.lastRecordedObjectHeight.get(rowID)
                     : this.getDefaultHeightOfObject(rowID);
 
                 // save object positions
@@ -446,7 +490,10 @@ export class AbstractTableViewController extends AbstractViewController {
                     this.computedValues.current.positions.get(objectSymbol).height !==
                     this.computedValues.next.positions.get(objectSymbol).height
                 ) {
-                    if (this.computedValues.next.positions.get(objectSymbol).y < viewportPositions.focusPoint) {
+                    if (
+                        this.computedValues.next.positions.get(objectSymbol).ends <
+                        this.computedValues.next.boundaries.viewport.starts
+                    ) {
                         totalScrollShift +=
                             this.computedValues.next.positions.get(objectSymbol).height -
                             this.computedValues.current.positions.get(objectSymbol).height;
@@ -489,15 +536,17 @@ export class AbstractTableViewController extends AbstractViewController {
             //     waitForTransitionEnd = true;
             // }
 
-            // // position change
-            // if (
-            //     this.computedValues.current.positions.get(objectSymbol).y !==
-            //     this.computedValues.next.positions.get(objectSymbol).y
-            // ) {
-            //     // TODO:
-            //     waitForTransitionEnd = true;
-            //     cell.setPosition(this.computedValues.next.positions.get(objectSymbol).y, true);
-            // }
+            // for objects already allocated a cell and put in the page
+            if (this.computedValues.objectToCellContainers.has(objectSymbol)) {
+                // position change
+                if (
+                    !this.computedValues.current.positions.has(objectSymbol) ||
+                    this.computedValues.current.positions.get(objectSymbol).starts !==
+                        this.computedValues.next.positions.get(objectSymbol).starts
+                ) {
+                    this.computedValues.next.classifiedObjects.toUpdatePositionY.add(objectSymbol);
+                }
+            }
 
             // // folding change
             // if (foldObject_current.has(objectSymbol) && !foldObjects_next.has(objectSymbol)) {
@@ -541,20 +590,25 @@ export class AbstractTableViewController extends AbstractViewController {
 
         // "to disappear"
         for (const objectSymbol of this.computedValues.next.classifiedObjects.toDisappear) {
+            const cellContainer = this.computedValues.objectToCellContainers.get(objectSymbol);
+            this.cellDisappears(objectSymbol, cellContainer);
         }
 
         // existance change
-        // position change
         // folding change
 
         // "to appear"
         for (const objectSymbol of this.computedValues.next.classifiedObjects.toAppear) {
+            const cellContainer = this.computedValues.objectToCellContainers.get(objectSymbol);
+            this.cellAppears(objectSymbol, cellContainer);
         }
 
         // "to construct"
         for (const objectSymbol of this.computedValues.next.classifiedObjects.toConstruct) {
-            const cell = this.getCellForObject(objectSymbol);
-            this.computedValues.objectToCellContainers.set(objectSymbol, cell);
+            const cellContainer = this.getCellForObject(objectSymbol);
+            this.computedValues.objectToCellContainers.set(objectSymbol, cellContainer);
+            cellContainer.objectSymbol = objectSymbol;
+            cellContainer.container.dataset["objectId"] = pSymbol.reverse(objectSymbol);
 
             let objectInitializationPositionY, objectInitializationPositionX;
             if (this.computedValues.current.positions.has(objectSymbol)) {
@@ -564,11 +618,19 @@ export class AbstractTableViewController extends AbstractViewController {
                 objectInitializationPositionY = this.computedValues.next.positions.get(objectSymbol).starts;
                 objectInitializationPositionX = this.computedValues.next.positions.get(objectSymbol).x;
             }
-            cell.setPositionY(objectInitializationPositionY, false);
-            cell.setPositionX(objectInitializationPositionX, false);
-
-            // cell.setContent(this.config.structuredDataMedium.getTextContent(objectSymbol));
+            cellContainer.setPositionY(objectInitializationPositionY, false);
+            cellContainer.setPositionX(objectInitializationPositionX, false);
         }
+
+        // "to update position Y"
+        for (const objectSymbol of this.computedValues.next.classifiedObjects.toUpdatePositionY) {
+            const cellContainer = this.computedValues.objectToCellContainers.get(objectSymbol);
+            const newPosition = this.computedValues.next.positions.get(objectSymbol).starts;
+            if (!cellContainer) console.log(objectSymbol);
+            cellContainer.setPositionY(newPosition, true);
+        }
+
+        // "to update position X"
     }
 
     updateContainer() {
@@ -577,8 +639,6 @@ export class AbstractTableViewController extends AbstractViewController {
 
     prepareComputedValuesForTheUpdate() {
         this.computedValues.next = {
-            /** @type { Map.<Symbol, number> } */
-            computedHeights: new Map(),
             allocatedCells: new Map(),
             pageHeight: undefined,
             /** set and use when nodes above viewport changes their sizings */
@@ -620,22 +680,14 @@ export class AbstractTableViewController extends AbstractViewController {
         };
     }
 
-    updateViewFromData() {
-        if (
-            this.lastUpdateScrollPos !== undefined &&
-            Math.abs(window.scrollY - this.lastUpdateScrollPos) < window.innerHeight
-        ) {
-            // console.log("update [passed]");
-            return;
-        } else {
-            this.lastUpdateScrollPos = window.scrollY;
-        }
-        // console.log("update [start]");
+    updateView(trigger) {
+        console.log("update [start]");
         this.prepareComputedValuesForTheUpdate();
 
         this.updateZoneBoundaries();
         this.calculateComponentPositions();
         this.classifyObjectsByCollidedZones();
+
         this.mergeObjectSymbolsWithPreviousIteration();
         this.calculateFocusShift();
         this.updateContainer();
@@ -645,6 +697,43 @@ export class AbstractTableViewController extends AbstractViewController {
         delete this.computedValues.current; // forget positions computed on previous call
         this.computedValues.current = this.computedValues.next;
 
-        // console.log("update [end]");
+        console.log("update [end]");
+    }
+
+    /**
+     * This function will be called for each cell that enters into the viewport.
+     * Implementer can use this method to perform UI updates on rest of the cell.
+     * @param {Symbol} objectSymbol
+     * @param {AbstractTableCellViewController} cellPositioner
+     */
+    cellAppears(objectSymbol, cellPositioner) {
+        console.error("abstract function is called directly");
+    }
+
+    /**
+     * This function will be called for each cell that exits from the viewport.
+     * Implementer can use this method to perform UI updates on rest of the cell.
+     * @param {Symbol} objectSymbol
+     * @param {AbstractTableCellViewController} cellPositioner
+     */
+    cellDisappears(objectSymbol, cellPositioner) {
+        console.error("abstract function is called directly");
+    }
+
+    /**
+     * Calling this function will trigger getCellForObject() method implemented by subclass if those objects are in preload area
+     * @param {Set.<Symbol>} symbolsOfObjectsToUpdate - Symbols of objects
+     */
+    requestContentUpdateForObjectsIfNecessary(symbolsOfObjectsToUpdate) {
+        const intersect = new Set();
+        for (const objectSymbolAllocated of this.computedValues.objectToCellContainers.keys()) {
+            if (symbolsOfObjectsToUpdate.has(objectSymbolAllocated)) intersect.add(objectSymbolAllocated);
+        }
+        for (const objectSymbol of intersect) {
+            this.updateCellIfNecessary(objectSymbol, this.computedValues.objectToCellContainers.get(objectSymbol));
+        }
+        if (intersect.size > 0) {
+            this.updateView();
+        }
     }
 }
