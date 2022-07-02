@@ -40,7 +40,8 @@ class App {
 
         this.modeSelector = new ModeSelector(this.updateMode.bind(this));
         this.infiniteSheet = new InfiniteSheet();
-        document.getElementById("infinite-sheet").appendChild(this.infiniteSheet.container);
+        this.infiniteSheetWrapper = document.getElementById("infinite-sheet");
+        this.infiniteSheetWrapper.appendChild(this.infiniteSheet.container);
 
         // // prettier-ignore
         // domElementReuseCollector.registerItemIdentifier("infiniteSheetRow", function () {
@@ -130,7 +131,7 @@ class App {
         this.contextMenu.setActiveTaskId(taskId);
         this.contextMenu.show();
 
-        this.infiniteSheet.container.classList.add("context-menu-open");
+        this.infiniteSheetWrapper.classList.add("context-menu-open");
         taskPositionerElement.classList.add("context-menu-focused-on");
     }
 
@@ -139,7 +140,7 @@ class App {
 
         this.contextMenu.hide();
 
-        this.infiniteSheet.container.classList.remove("context-menu-open");
+        this.infiniteSheetWrapper.classList.remove("context-menu-open");
         taskPositionerElement.classList.remove("context-menu-focused-on");
 
         this.isContextMenuOpen = false;

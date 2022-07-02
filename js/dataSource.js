@@ -114,6 +114,7 @@ export class DataSource {
         this.medium.addSection("sectionID#123");
         this.medium.addSection("sectionID#124");
         this.medium.addSection("sectionID#125");
+        this.medium.addSection("sectionID#126");
 
         this.rowSections = new Map([
             ["taskID#1", "sectionID#123"],
@@ -330,6 +331,10 @@ export class DataSource {
             this.medium.addRowToSection(sectionID, rowID);
         }
 
+        for (let i = 101; i < 1000; i++) {
+            this.medium.addRowToSection("sectionID#126", `taskID#${i.toString()}`);
+        }
+
         this.notifyDelegateFor("placementUpdate");
 
         const prom = new Promise((resolve, reject) => {
@@ -344,12 +349,15 @@ export class DataSource {
             // this.notifyDelegateFor("placementUpdate");
             this.notifyDelegateFor("objectUpdate", new Set([pSymbol.get("taskID#1")]));
         }).then(() => {
-            console.log("updated");
+            // console.log("updated");
         });
     }
 
     getTextContent(objectSymbol) {
         const objectID = pSymbol.reverse(objectSymbol);
-        return this.objectContents.get(objectID);
+        // const match = objectID.match(/section/)
+        // if (match.length > 0)
+        if (this.objectContents.has(objectID)) return this.objectContents.get(objectID);
+        return `loop generated task content for ${objectID}`;
     }
 }

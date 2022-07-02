@@ -102,7 +102,12 @@ export class BasicTableCellContainerViewController extends AbstractTableViewCell
 
     prepareForFree() {
         this.container.style.visibility = "hidden";
+        if (this.animation) {
+            this.animation.cancel();
+            delete this.animation;
+        }
         this.cell.prepareForFree();
+        this.container.style.top = `0px`;
     }
 
     prepareForUse() {
@@ -116,6 +121,8 @@ export class BasicTableCellContainerViewController extends AbstractTableViewCell
      */
     setPositionY(newPosition, withAnimation = false) {
         if (withAnimation) {
+            const objectSymbolAtAnimationStart = this.objectSymbol;
+
             const currentPos = this.container.style.top.match(/\d+/);
             const deltaPos = newPosition - currentPos;
 
@@ -125,15 +132,21 @@ export class BasicTableCellContainerViewController extends AbstractTableViewCell
                 { transform: `translateY(${deltaPos}px)` }
             ]
             const config = {
-                duration: 1000,
+                duration: 200,
                 iterations: 1,
                 fill: "none",
-                // easing: "cubic-bezier(0.1, 1.2, 0.5, 1.0)",
+                // easing: "cubic-bezier(0.5, 1.2, 0.8, 1.0)",
             };
-            this.container.animate(keyframes, config).finished.then(() => {
-                console.log("pos");
-                this.container.style.top = `${newPosition}px`;
-            });
+            this.animation = this.container.animate(keyframes, config);
+            this.animation.finished
+                .then(() => {
+                    if (objectSymbolAtAnimationStart === this.objectSymbol) {
+                        this.container.style.top = `${newPosition}px`;
+                    }
+                })
+                .catch(() => {
+                    // console.log("animation is aborted");
+                });
         } else {
             this.container.style.top = `${newPosition}px`;
         }
@@ -536,18 +549,6 @@ export class AbstractTableViewController extends AbstractViewController {
             //     waitForTransitionEnd = true;
             // }
 
-            // for objects already allocated a cell and put in the page
-            if (this.computedValues.objectToCellContainers.has(objectSymbol)) {
-                // position change
-                if (
-                    !this.computedValues.current.positions.has(objectSymbol) ||
-                    this.computedValues.current.positions.get(objectSymbol).starts !==
-                        this.computedValues.next.positions.get(objectSymbol).starts
-                ) {
-                    this.computedValues.next.classifiedObjects.toUpdatePositionY.add(objectSymbol);
-                }
-            }
-
             // // folding change
             // if (foldObject_current.has(objectSymbol) && !foldObjects_next.has(objectSymbol)) {
             //     // unfold
@@ -574,6 +575,21 @@ export class AbstractTableViewController extends AbstractViewController {
             ) {
                 // console.log("to destruct");
                 this.computedValues.next.classifiedObjects.toDestruct.add(objectSymbol);
+            }
+
+            // for objects already allocated a cell and put in the page
+            if (
+                this.computedValues.objectToCellContainers.has(objectSymbol) &&
+                !this.computedValues.next.classifiedObjects.toDestruct.has(objectSymbol)
+            ) {
+                // position change
+                if (
+                    !this.computedValues.current.positions.has(objectSymbol) ||
+                    this.computedValues.current.positions.get(objectSymbol).starts !==
+                        this.computedValues.next.positions.get(objectSymbol).starts
+                ) {
+                    this.computedValues.next.classifiedObjects.toUpdatePositionY.add(objectSymbol);
+                }
             }
         }
     }
@@ -604,6 +620,7 @@ export class AbstractTableViewController extends AbstractViewController {
         }
 
         // "to construct"
+        this.computedValues.next.needsRelayout = false;
         for (const objectSymbol of this.computedValues.next.classifiedObjects.toConstruct) {
             const cellContainer = this.getCellForObject(objectSymbol);
             this.computedValues.objectToCellContainers.set(objectSymbol, cellContainer);
@@ -620,16 +637,17 @@ export class AbstractTableViewController extends AbstractViewController {
             }
             cellContainer.setPositionY(objectInitializationPositionY, false);
             cellContainer.setPositionX(objectInitializationPositionX, false);
+            this.computedValues.lastRecordedObjectHeight.set(objectSymbol, cellContainer.container.clientHeight);
+            this.computedValues.next.needsRelayout = true;
         }
 
         // "to update position Y"
         for (const objectSymbol of this.computedValues.next.classifiedObjects.toUpdatePositionY) {
             const cellContainer = this.computedValues.objectToCellContainers.get(objectSymbol);
             const newPosition = this.computedValues.next.positions.get(objectSymbol).starts;
-            if (!cellContainer) console.log(objectSymbol);
             cellContainer.setPositionY(newPosition, true);
         }
-
+        
         // "to update position X"
     }
 
@@ -681,7 +699,7 @@ export class AbstractTableViewController extends AbstractViewController {
     }
 
     updateView(trigger) {
-        console.log("update [start]");
+        // console.log("update [start]");
         this.prepareComputedValuesForTheUpdate();
 
         this.updateZoneBoundaries();
@@ -697,7 +715,8 @@ export class AbstractTableViewController extends AbstractViewController {
         delete this.computedValues.current; // forget positions computed on previous call
         this.computedValues.current = this.computedValues.next;
 
-        console.log("update [end]");
+        // console.log("update [end]");
+        if (this.computedValues.next.needsRelayout) this.updateView();
     }
 
     /**

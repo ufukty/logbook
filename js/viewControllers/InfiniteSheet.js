@@ -6,6 +6,7 @@ import {
 } from "./AbstactTableViewController.js";
 import { AbstractTableCellViewController } from "./AbstractTableCellViewController.js";
 import { DataSource } from "../dataSource.js";
+import InfiniteSheetHeader from "./InfiniteSheetHeader.js";
 
 export class InfiniteSheet extends AbstractTableViewController {
     constructor() {
@@ -13,8 +14,6 @@ export class InfiniteSheet extends AbstractTableViewController {
 
         /** @type {DataSource} */
         this.dataSource = undefined; // should be assigned by callee
-
-        this.regularCellId = pSymbol.get("regularCellViewContainer");
 
         this.config.margins = {
             pageContent: {
@@ -31,8 +30,14 @@ export class InfiniteSheet extends AbstractTableViewController {
             },
         };
 
+        this.regularCellId = pSymbol.get("regularCellViewContainer");
+        this.headerCellId = pSymbol.get("headerCellViewContainer");
+
         this.registerCellIdentifier(this.regularCellId, () => {
             return new InfiniteSheetTableCellViewController();
+        });
+        this.registerCellIdentifier(this.headerCellId, () => {
+            return new InfiniteSheetHeader();
         });
     }
 
@@ -49,8 +54,14 @@ export class InfiniteSheet extends AbstractTableViewController {
         // TODO: variable cell type
         // const objectType = this.config.structuredDataMedium;
 
-        const cellContainer = this.requestReusableCellContainer(this.regularCellId);
-        cellContainer.cell.setContent(this.dataSource.getTextContent(objectSymbol));
+        let cellContainer;
+        if (this.dataSource.medium.data.rows.has(objectSymbol)) {
+            cellContainer = this.requestReusableCellContainer(this.headerCellId);
+            cellContainer.cell.setContent(this.dataSource.getTextContent(objectSymbol));
+        } else {
+            cellContainer = this.requestReusableCellContainer(this.regularCellId);
+            cellContainer.cell.setContent(this.dataSource.getTextContent(objectSymbol));
+        }
 
         return cellContainer;
     }
