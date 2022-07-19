@@ -1,0 +1,10 @@
+@apiUrl = https://localhost:8080
+
+// Create Document
+POST {{apiUrl}}/document HTTP/1.1
+Content-Type: application/json
+
+{
+    "displayName": "My Test Document" 
+}
+
