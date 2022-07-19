@@ -27,8 +27,7 @@ func CreateDocument() (Document, []error) {
 	return document, nil
 }
 
-func GetDocumentByDocumentId(documentId string) (Document, []error) {
-	document := Document{DocumentId: documentId}
+func (d *Document) Get() []error {
 	query := `
 		SELECT 
 			"created_at",
@@ -36,99 +35,77 @@ func GetDocumentByDocumentId(documentId string) (Document, []error) {
 		FROM
 			"DOCUMENT"
 		WHERE
-			"document_id"=$1`
+			"user_id"=$1
+			AND "document_id"=$2`
 	err := pool.QueryRow(
 		context.Background(),
 		query,
-		documentId,
+		d.UserId,
+		d.DocumentId,
 	).Scan(
-		&document.CreatedAt,
-		&document.ActiveTask,
+		&d.CreatedAt,
+		&d.ActiveTask,
 	)
 	if err != nil {
-		return document, []error{err, ErrGetDocumentByDocumentId}
+		return []error{err, ErrGetDocumentByDocumentId}
 	}
-	return document, nil
+	return nil
 }
 
-func GetDocumentOverviewWithDocumentId(documentId string) ([]Task, []error) {
-	tasks := []Task{}
+func (d *Document) GetHierarchicalPlacement() ([]string, []error) {
+	taskIds := []string{}
 	query := `
-		SELECT
-			"task_id", 
-			"document_id", 
-			"parent_id", 
-			"content", 
-			"degree", 
-			"depth", 
-			"created_at", 
-			COALESCE("completed_at", '0001-01-01'),
-			"ready_to_pick_up"
-		FROM document_overview($1)`
-	rows, err := pool.Query(context.Background(), query, documentId)
+		SELECT * 
+		FROM hierarchical_placement(
+			v_user_id => $1,
+			v_document_id => $2'
+		)`
+	rows, err := pool.Query(context.Background(), query, rd.userId, rd.documentId)
 	if err != nil {
-		return nil, []error{err, ErrGetDocumentOverviewWithDocumentIdQuery}
+		return nil, []error{err, ErrGetHierarchicalViewItemsQuery}
 	}
 	for rows.Next() {
-		task := Task{}
-		rows.Scan(
-			&task.TaskId,
-			&task.DocumentId,
-			&task.ParentId,
-			&task.Content,
-			&task.Degree,
-			&task.Depth,
-			&task.CreatedAt,
-			&task.CompletedAt,
-			&task.ReadyToPickUp,
-		)
+		var taskId string
+		err := rows.Scan(&taskId)
 		if err != nil {
-			return nil, []error{err, ErrGetDocumentOverviewWithDocumentIdScan}
+			return nil, []error{err, ErrGetHierarchicalViewItemsScan}
 		}
-		tasks = append(tasks, task)
+		taskIds = append(taskIds, taskId)
 	}
-	return tasks, nil
+	return taskIds, nil
 }
 
-func GetChronologicalViewItems(documentId string, limit int, offset int) ([]Task, []error) {
-	tasks := []Task{}
+func (d *Document) GetChronologicalPlacement() ([]string, []error) {
+	taskIds := []string{}
+
+	// The rows skipped by an OFFSET clause still have to be
+	// computed inside the server; therefore a large OFFSET
+	// might be inefficient.
+
+	// So, hardcoded limit value is used for now. Later,
+	// implement a mutable caching mechanism that doesn't
+	// re-computes whole task ordering after each modification.
+	// And instead, computes and overwrites changed range.
 	query := `
-		SELECT
-			"task_id", 
-			"document_id", 
-			"parent_id", 
-			"content", 
-			"degree", 
-			"depth", 
-			"created_at", 
-			"completed_at", 
-			"ready_to_pick_up"
-		FROM "TASK" 
-		WHERE "document_id" = $1 
+		SELECT "task_id" 
+		FROM "TASK"
+		WHERE "user_id" = $1
+			AND "document_id" = $2
+			AND "archived" = FALSE
 		ORDER BY "created_at" ASC
-		LIMIT $2 OFFSET $3
+		LIMIT 100000
 		`
-	rows, err := pool.Query(context.Background(), query, documentId, limit, offset)
+	rows, err := pool.Query(context.Background(), query, rd.userId, rd.documentId)
 	if err != nil {
 		return nil, []error{err, ErrGetChronologicalViewItemsQuery}
 	}
 	for rows.Next() {
-		task := Task{}
-		err := rows.Scan(
-			&(task.TaskId),
-			&(task.DocumentId),
-			&(task.ParentId),
-			&(task.Content),
-			&(task.Degree),
-			&(task.Depth),
-			&(task.CreatedAt),
-			&(task.CompletedAt),
-			&(task.ReadyToPickUp),
-		)
+		var taskId string
+		rows.Scan(&taskId)
 		if err != nil {
 			return nil, []error{err, ErrGetChronologicalViewItemsScan}
 		}
-		tasks = append(tasks, task)
+		taskIds = append(taskIds, taskId)
 	}
-	return tasks, nil
+	return taskIds, nil
 }

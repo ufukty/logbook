@@ -5,8 +5,6 @@ import (
 	"logbook/main/controller/document"
 	"logbook/main/controller/task"
 
-	// "logbook/main/controller/document/overview/chronological"
-
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -19,7 +17,7 @@ type Endpoint struct {
 }
 
 func rootURIHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Hello world. Read our documentation to start.")
+	fmt.Fprintln(w, "Logbook API is for 1st party use only.")
 }
 
 func registerEndpoints(r *mux.Router) {
@@ -30,15 +28,19 @@ func registerEndpoints(r *mux.Router) {
 
 	r.HandleFunc("/", rootURIHandler).Methods("GET")
 
+	// r.HandleFunc("/auth/user", authUserCreate).
+	// 	Methods("POST").
+	// 	Queries("email_address", "{email_address}")
+
+	// r.HandleFunc("/auth/session", authSessionCreate).
+	// 	Methods("POST").
+	// 	Queries("email_address", "{email_address}").
+	// 	Queries("password_kdf", "{password_kdf}")
+
 	r.HandleFunc("/document", document.Create).Methods("POST")
-	r.HandleFunc("/document/overview/{document_id}", documentOverviewHierarchical.Responder).Methods("GET")
-	r.HandleFunc("/document/overview/chronological/{document_id}", documentOverviewChronological.Responder).Methods("GET").Queries("limit", "{limit}").Queries("offset", "{offset}")
+	r.HandleFunc("/document/{id}/placement/hierarchical", documentOverviewHierarchical.Responder).Methods("GET")
+	r.HandleFunc("/document/{id}/placement/chronological", documentOverviewChronological.Responder).Methods("GET").Queries("limit", "{limit}", "offset", "{offset}")
 
 	r.HandleFunc("/task", task.Create).Methods("POST")
 
-	// {"/group/{document_id}", "GET", group.Get},
-
-	// {"/task/{document_id}/{task_id}", "GET", task.Read},
-	// {"/task/{document_id}/{task_id}", "PATCH", task.Update},
-	// {"/task/{document_id}/{task_id}", "DELETE", task.Delete},
 }

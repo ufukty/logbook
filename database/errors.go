@@ -17,12 +17,12 @@ var ErrInvalidTaskGroupId error
 var ErrStrToTaskStatusNoMatchingRecord = errors.New("ErrStrToTaskStatusNoMatchingRecord")
 
 var (
-	ErrCreateDocument                         = errors.New("ErrCreateDocument")
-	ErrGetDocumentByDocumentId                = errors.New("ErrGetDocumentByDocumentId")
-	ErrGetDocumentOverviewWithDocumentIdQuery = errors.New("ErrGetDocumentOverviewWithDocumentIdQuery")
-	ErrGetDocumentOverviewWithDocumentIdScan  = errors.New("ErrGetDocumentOverviewWithDocumentIdScan")
-	ErrGetChronologicalViewItemsQuery         = errors.New("ErrGetChronologicalViewItemsQuery")
-	ErrGetChronologicalViewItemsScan          = errors.New("ErrGetChronologicalViewItemsScan")
+	ErrCreateDocument                 = errors.New("ErrCreateDocument")
+	ErrGetDocumentByDocumentId        = errors.New("ErrGetDocumentByDocumentId")
+	ErrGetHierarchicalViewItemsQuery  = errors.New("ErrGetHierarchicalViewItemsQuery")
+	ErrGetHierarchicalViewItemsScan   = errors.New("ErrGetHierarchicalViewItemsScan")
+	ErrGetChronologicalViewItemsQuery = errors.New("ErrGetChronologicalViewItemsQuery")
+	ErrGetChronologicalViewItemsScan  = errors.New("ErrGetChronologicalViewItemsScan")
 )
 
 var (
@@ -35,19 +35,6 @@ var (
 	ErrUpdateTaskItem            = errors.New("ErrUpdateTaskItem")
 	ErrMarkATaskDone             = errors.New("ErrMarkATaskDone")
 )
-
-func CheckDocumentId(documentId string) []error {
-	// check existance
-	if documentId == "" {
-		return []error{ErrEmptyDocumentId}
-	}
-	// check validity
-	if _, err := GetDocumentByDocumentId(documentId); err != nil {
-		return append(err, ErrInvalidDocumentId)
-	}
-	return nil
-}
-
 func CheckTaskId(taskId string) []error { // TODO:
 	return nil
 }

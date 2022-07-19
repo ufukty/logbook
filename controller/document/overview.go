@@ -7,12 +7,15 @@ import (
 	db "logbook/main/database"
 	"net/http"
 
+	m "logbook/main/models"
+
 	"github.com/gorilla/mux"
 )
 
 type CDocumentOverviewHierarchical struct {
 	userInput struct {
-		DocumentId string
+		UserId     m.UUID
+		DocumentId m.UUID
 		Limit      int // TODO:
 		Offset     int // TODO:
 	}
@@ -20,7 +23,11 @@ type CDocumentOverviewHierarchical struct {
 
 func (s *CDocumentOverviewHierarchical) sanitizer(r *http.Request) (string, []error) {
 	vars := mux.Vars(r)
+	userId := vars["user_id"] // FIXME:
 	documentId := vars["document_id"]
+	if !v.IsValidUUID(documentId) {
+		return "", []error{c.ErrDocumentIdInputIsNotValidUUID}
+	}
 	if !v.IsValidUUID(documentId) {
 		return "", []error{c.ErrDocumentIdInputIsNotValidUUID}
 	}
@@ -39,7 +46,11 @@ func (s *CDocumentOverviewHierarchical) executor(r *http.Request) ([]db.Task, *e
 	}
 
 	// create document table record
-	tasks, errs = db.GetDocumentOverviewWithDocumentId(documentId)
+	requestedDocument := db.RequestedDocument{
+		UserId:     userId,
+		DocumentId: m.UUID(documentId),
+	}
+	tasks, errs = requestedDocument.GetDetails()
 	if errs != nil {
 		return nil, e.New(errs)
 	}

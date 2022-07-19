@@ -9,105 +9,317 @@ CREATE DATABASE logbook_dev;
 
 \c logbook_dev;
 
-CREATE TABLE "DOCUMENT" (
-    "document_id"       UUID UNIQUE DEFAULT gen_random_UUID(), 
-    "created_at"        TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- MARK: Enums
+
+CREATE TYPE "ACCESS_EVENT_TYPE" AS ENUM (
+    'SUCCESSFUL_LOGIN',
+    'FAILED_LOGIN_ATTEMPT',
+    'LOGOUT'
 );
 
-CREATE TABLE "ACCESS"(
-    "document_id"       UUID NOT NULL REFERENCES "DOCUMENT" ("document_id"),
-    "created_at"        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    "user-agent"        VARCHAR(256),
-    "ip-address"        INET NOT NULL
+CREATE TYPE "CONTENT_TYPE" AS ENUM (
+    'USER_GENERATED_TASK',
+    'JOINED_BY_INVITATION',
+    'DUPLICATED_FROM_BLUEPRINT'
 );
+
+CREATE TYPE "TASK_UPDATE_KIND" AS ENUM (
+    'CREATION',
+    'INVITATION',
+    'JOIN',
+    'REOPEN',
+    'RESTART',  -- delete all sub-tasks and start over to resolution
+    'COMPLETION'
+);
+
+-- MARK: Table definitions
+
+CREATE TABLE "USER" (
+    "user_id"                   UUID        UNIQUE DEFAULT gen_random_UUID(),
+    "email_address"             TEXT        NOT NULL,
+    "email_address_without_punctuation" 
+                                TEXT        NOT NULL UNIQUE,
+    "password_kdf"              TEXT        NOT NULL,
+    "activated"                 BOOLEAN     DEFAULT FALSE,
+    
+    "created_at"                TIMESTAMP   DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE "ACCESS_EVENT_LOG"(
+    "user_id"                   UUID        NOT NULL REFERENCES "USER" ("user_id"),
+    "event_type"                "ACCESS_EVENT_TYPE" NOT NULL,
+    "user-agent"                TEXT,
+    "ip-address"                INET        NOT NULL,
+    "created_at"                TIMESTAMP   DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE "DOCUMENT" (
+    "document_id"               UUID        UNIQUE DEFAULT gen_random_UUID(), 
+    "user_id"                   UUID        NOT NULL REFERENCES "USER" ("user_id"),
+    "created_at"                TIMESTAMP   DEFAULT CURRENT_TIMESTAMP
+);
+
+
+
+
+
 
 CREATE TABLE "TASK" (
-    "task_id"           UUID UNIQUE DEFAULT gen_random_UUID(),
-    "document_id"       UUID NOT NULL REFERENCES "DOCUMENT" ("document_id"),
-    "parent_id"         UUID NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000',
-    "content"           TEXT NOT NULL,
-    "degree"            INT NOT NULL DEFAULT 1,
-    "depth"             INT NOT NULL DEFAULT 1,
-    "created_at"        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    "completed_at"      DATE, -- FIXME: MAKE IT TIMESTAMP AND UPDATE document_overview FUNCTION
-    "ready_to_pick_up"  BOOLEAN NOT NULL DEFAULT TRUE
+    "task_id"                   UUID        UNIQUE DEFAULT gen_random_UUID(),
+    
+    "user_id"                   UUID        NOT NULL REFERENCES "USER" ("user_id"),
+    "document_id"               UUID        NOT NULL REFERENCES "DOCUMENT" ("document_id"),
+
+    "content"                   TEXT        NOT NULL,
+
+    "parent_id"                 UUID        NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000',
+    "degree"                    INT         NOT NULL DEFAULT 0,
+    "depth"                     INT         NOT NULL DEFAULT 0,
+    "index"                     INT         NOT NULL DEFAULT 0,
+    "ready_to_pick_up"          BOOLEAN     NOT NULL DEFAULT TRUE,
+
+    "completion_pct"            REAL        DEFAULT 0,
+    "completed_at"              TIMESTAMP,
+
+    "created_at"                TIMESTAMP   DEFAULT CURRENT_TIMESTAMP,
+    
+    "collaboration_enabled"     BOOLEAN     NOT NULL DEFAULT FALSE,
+    "takes_enabled"             BOOLEAN     NOT NULL DEFAULT FALSE, -- replace with unique "take_id" that shared by all takes of a task
+
+    "archived"                  BOOLEAN     NOT NULL DEFAULT FALSE,
+    "fold"                      BOOLEAN     NOT NULL DEFAULT FALSE
 );
 
-ALTER TABLE "DOCUMENT" ADD 
-    "active_task"       UUID REFERENCES "TASK" ("task_id");
+-- ALTER TABLE "DOCUMENT" ADD "active_task" UUID REFERENCES "TASK" ("task_id");
+
+CREATE TABLE "TASK_UPDATE" (
+    "user_id"                   UUID                NOT NULL,
+    "update_kind"               "TASK_UPDATE_KIND"  NOT NULL,
+    "new_content"               TEXT,
+    "new_parent"                UUID                REFERENCES "TASK" ("task_id"),
+    "created_at"                TIMESTAMP           DEFAULT CURRENT_TIMESTAMP
+);
+
+-- -- A task placed in a document does not have to be created by
+-- -- document owner. Instead, owner might be just an attendee of 
+-- -- a blueprint or collaboration enabled task-tree. 
+-- CREATE TABLE "FOREIGN_TASK_TREE" (
+
+--     "item_id"           UUID        UNIQUE DEFAULT gen_random_UUID(),
+--     -- generate auto
+--     "user_id" 
+--     "document_id"
+--     "item_type"
+--     -- TASK | DOCUMENT
+    
+--     -- if item type is "TASK"
+--     "root_task_id"
+    
+--     -- if 
+--     "take_id"
+--     "folded" 
+--      -- false
+--     ""
+
+-- );
+
+
+
+
+
+
+-- CREATE TABLE "DOCUMENT_CONTENT" (
+--     "content_id"                UUID            UNIQUE DEFAULT gen_random_UUID(),
+--     "document_id"               UUID            NOT NULL REFERENCES "DOCUMENT" ("document_id"),
+--     "user_id"                   UUID            NOT NULL REFERENCES "USER" ("user_id"),
+--     "task_id"                   UUID            UNIQUE NOT NULL REFERENCES "TASK" ("task_id"),
+--     "content_type"              "CONTENT_TYPE"  NOT NULL DEFAULT 'USER_GENERATED_TASK',
+--     "next_content_id"           UUID,
+--     "created_at"                TIMESTAMP       DEFAULT CURRENT_TIMESTAMP
+-- );
+
+
+
+
+
+-- CREATE TABLE "BLUEPRINT" (
+--     "blueprint_id"              UUID        UNIQUE DEFAULT gen_random_UUID(),
+--     "original_user_id"          UUID        NOT NULL REFERENCES "USER" ("user_id"),
+--     "original_document_id"      UUID        NOT NULL REFERENCES "DOCUMENT" ("document_id"),
+--     "original_task_id"          UUID        NOT NULL REFERENCES "TASK" ("task_id"),
+--     -- "entry_point"               UUID        REFERENCES "BLUEPRINT_TASK" ("blueprint_id"),
+--     "progress_tracking"         BOOLEAN     NOT NULL DEFAULT FALSE,
+--     "sharing_uri"               TEXT        UNIQUE NOT NULL,
+    
+--     "created_at"                TIMESTAMP   DEFAULT CURRENT_TIMESTAMP,
+    
+--     "archived"                  BOOLEAN     NOT NULL DEFAULT FALSE
+-- );
+
+-- -- Freeze 
+-- CREATE TABLE "BLUEPRINT_TASK" (
+--     "blueprint_task_id"         UUID        UNIQUE DEFAULT gen_random_UUID(),
+--     "blueprint_id"              UUID        NOT NULL,
+
+--     "content"                   TEXT        NOT NULL,
+
+--     "parent_blueprint_task_id"  UUID        NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000',
+--     "degree"                    INT         NOT NULL DEFAULT 0,
+--     "depth"                     INT         NOT NULL DEFAULT 0,
+--     "index"                     INT         NOT NULL DEFAULT 0,
+
+--     "created_at"                TIMESTAMP   DEFAULT CURRENT_TIMESTAMP
+-- );
+
+-- -- entry_point should be nullable to avoid circular dependency
+-- ALTER TABLE "BLUEPRINT" ADD "entry_point" UUID REFERENCES "BLUEPRINT_TASK" ("blueprint_id"); 
+
+-- CREATE TABLE "BLUEPRINT_RECEIVER_CONFIGURATION" (
+--     "user_id"                   UUID        REFERENCES "USER" ("user_id"),
+--     "blueprint_id"              UUID        REFERENCES "BLUEPRINT" ("blueprint_id"),
+--     "progress_tracking"         BOOLEAN     DEFAULT FALSE,
+--     "placed_document_id"        UUID        REFERENCES "DOCUMENT" ("document_id"),
+--     "entry_point"               UUID        REFERENCES "TASK" ("task_id")
+-- );
+
+
+
+CREATE TABLE "TAKES" (
+    "take_id"                   UUID,
+    "user_id"                   UUID,
+    "document_id"               UUID,
+    "original_task_id"          UUID,
+    "entry_task_id"             UUID
+);
+
+-- MARK: Procedure definitions
 
 -- CREATE VIEW tasks_linearized AS SELECT * FROM tasks;
 
 -- DROP FUNCTION IF EXISTS create_document_with_task_groups;
-CREATE FUNCTION create_document() RETURNS "DOCUMENT" AS $$
+CREATE FUNCTION create_document(
+    v_user_id UUID
+) 
+RETURNS "DOCUMENT" 
+AS $$
     DECLARE
         document "DOCUMENT";
     BEGIN
-        INSERT INTO "DOCUMENT" DEFAULT VALUES RETURNING * INTO document;
+        INSERT INTO "DOCUMENT" ("user_id") VALUES (v_user_id) RETURNING * INTO document;
         RETURN document;
     END
 $$ LANGUAGE 'plpgsql';
 
--- TO GET THE LIST OF TASKS THAT ARE:
---   * COMPLETED WITHIN LAST 10 DAYS (<200 ITEM),
---   * ACTIVE,
---   * READY-TO-PICK-UP
---   * DRAWER (TO-DO)
-CREATE FUNCTION document_overview(v_document_id UUID) RETURNS SETOF "TASK" AS $$
-    BEGIN
-        RETURN QUERY (
-            (
-                -- ARCHIVED TASKS (LATEST 200 FROM LAST 10 DAYS)
-                SELECT *
-                FROM "TASK"
-                WHERE "completed_at" IN (
-                    SELECT DISTINCT ON ("completed_at") 
-                        "completed_at"
-                    FROM "TASK" 
-                    WHERE "document_id" = v_document_id
-                    ORDER BY "completed_at" DESC
-                    LIMIT 10
-                )
-                LIMIT 200
-            ) 
-            UNION ALL
-            (
-                -- ACTIVE TASK
-                SELECT *
-                FROM "TASK"
-                WHERE "task_id" = (
-                    SELECT "active_task"
-                    FROM "DOCUMENT"
-                    WHERE "document_id" = v_document_id
-                )
-            )
-            UNION ALL
-            (
-                -- READY-TO-PICK-UPS (100)
-                SELECT *
-                FROM "TASK"
-                WHERE 
-                    "completed_at" IS NULL
-                    AND "ready_to_pick_up" = TRUE
-                    AND "document_id" = v_document_id
-                ORDER BY "created_at" ASC
-                LIMIT 100
-            )
-            UNION ALL
-            (
-                -- DRAWER (20)
-                SELECT *
-                FROM "TASK"
-                WHERE 
-                    "completed_at" IS NULL
-                    AND "ready_to_pick_up" = FALSE
-                    AND "document_id" = v_document_id
-                ORDER BY "degree" DESC
-                LIMIT 20
-            )
-        );
-    END
+
+-- CREATE FUNCTION hierarchical_overview
+
+
+CREATE FUNCTION hierarchical_placement(
+	v_user_id UUID,
+	v_document_id UUID,
+	v_parent_id UUID DEFAULT '00000000-0000-0000-0000-000000000000'
+) RETURNS TABLE ("task_id" UUID) AS $$
+	DECLARE
+		v_child_id UUID;
+	BEGIN
+
+        IF v_parent_id <> '00000000-0000-0000-0000-000000000000'
+        THEN
+            RETURN QUERY SELECT v_parent_id;
+        END IF;
+	
+		FOR v_child_id IN 
+		
+			SELECT t."task_id" 
+			FROM "TASK" as t
+			WHERE "user_id" = v_user_id
+				AND "document_id" = v_document_id
+				AND "parent_id" = v_parent_id
+                AND "archived" = FALSE
+                AND "fold" = FALSE
+			ORDER BY "index"
+
+		LOOP
+		
+			-- TODO: cycle detection
+
+            -- RAISE NOTICE 'parent_id: % child_id: %', v_parent_id, v_child_id;
+			
+			RETURN QUERY 
+				SELECT r."task_id"
+                FROM hierarchical_placement(
+					v_user_id,
+					v_document_id,
+					v_child_id
+				) AS r;
+
+		END LOOP;
+	END
 $$ LANGUAGE 'plpgsql';
+
+
+-- -- TO GET THE LIST OF TASKS THAT ARE:
+-- --   * COMPLETED WITHIN LAST 10 DAYS (<200 ITEM),
+-- --   * ACTIVE,
+-- --   * READY-TO-PICK-UP
+-- --   * DRAWER (TO-DO)
+-- CREATE FUNCTION document_overview(
+--     v_user_id UUID, 
+--     v_document_id UUID, 
+--     v_limit INT DEFAULT 1000, 
+--     v_offset INT DEFAULT 0
+-- ) 
+-- RETURNS SETOF "TASK" 
+-- AS $$
+--     DECLARE
+--         last_row_selected       "DOCUMENT_CONTENT";
+--         dfs_next_content_id     UUID;
+--         limit_counter           INT DEFAULT 1;
+--     BEGIN
+       
+--         SELECT *
+--             INTO last_row_selected
+--             FROM "DOCUMENT_CONTENT" dc
+--             WHERE 
+--                 dc."document_id" = v_document_id
+--                 AND dc."user_id" = v_user_id
+--             ORDER BY dc."created_at" ASC
+--             LIMIT 1
+--             OFFSET v_offset;
+
+--         IF NOT FOUND THEN
+--             RAISE EXCEPTION 'Document does not found.';
+--         END IF;
+
+--         RETURN NEXT last_row_selected;
+
+--         LOOP
+
+--             dfs_next_content_id := last_row_selected."next_content_id";
+--             IF dfs_next_content_id IS NULL THEN
+--                 RETURN;
+--             END IF;
+
+--             SELECT *
+--                 INTO last_row_selected
+--                 FROM "DOCUMENT_CONTENT" dc
+--                 WHERE 
+--                     dc."document_id" = v_document_id
+--                     AND dc."user_id" = v_user_id
+--                     AND dc."task_id" = dfs_next_content_id;
+
+--             RETURN NEXT last_row_selected;
+
+--             limit_counter := limit_counter + 1;
+--             IF limit_counter = v_limit THEN
+--                 RETURN;
+--             END IF;
+
+--         END LOOP;
+
+
+--     END
+-- $$ LANGUAGE 'plpgsql';
 
 -- RECURSIVE HELPER FUNCTION FOR:
 --    * create_task
@@ -244,7 +456,9 @@ $$ LANGUAGE 'plpgsql';
 CREATE FUNCTION array_to_sorted_row_list(v_id_array UUID[], v_task_id UUID) RETURNS SETOF "TASK" AS $$
     BEGIN
         RETURN QUERY (
-            SELECT * FROM "TASK" t WHERE t."task_id" = ANY(v_id_array) 
+            SELECT * 
+            FROM "TASK" t 
+            WHERE t."task_id" = ANY(v_id_array) 
             ORDER BY CASE WHEN t."task_id" = v_task_id THEN 0 ELSE 1 END
         );
     END
@@ -253,10 +467,14 @@ $$ LANGUAGE 'plpgsql';
 -- Add new task to document with:
 --   * updating the degree of parent task (and theirs, recursively).
 --   * minding the depth of parent task.
+--   * create references in "DOCUMENT_CONTENT" table and "TASK_HISTORY" table
 -- Returns the list of updated tasks.
+-- FIXME: Fill "index" column correctly for new task
 CREATE FUNCTION create_task(
     v_document_id UUID, 
-    v_content VARCHAR,
+    v_user_id UUID, 
+    v_content VARCHAR, 
+    v_index INTEGER,
     v_parent_id UUID DEFAULT '00000000-0000-0000-0000-000000000000'
 ) RETURNS SETOF "TASK" AS $$
     DECLARE
@@ -287,8 +505,8 @@ CREATE FUNCTION create_task(
         END IF;
 
         -- WRITE NEW TASK INTO DB
-        INSERT INTO "TASK"("document_id", "parent_id", "content", "degree", "depth")
-        VALUES (v_document_id, v_parent_id, v_content, v_degree, v_depth)
+        INSERT INTO "TASK"("document_id", "user_id", "parent_id", "content", "degree", "depth", "index")
+        VALUES (v_document_id, v_user_id, v_parent_id, v_content, v_degree, v_depth, v_index)
         RETURNING * INTO v_task;
 
         -- INITIALIZE THE RETURN LIST
@@ -400,158 +618,243 @@ CREATE FUNCTION mark_a_task_done(v_task_id UUID) RETURNS SETOF "TASK" AS $$
     END
 $$ LANGUAGE 'plpgsql';
 
+CREATE FUNCTION update_task(
+    task_id UUID,
+    user_id UUID,
+    document_id UUID,
+    content TEXT,
+    parent_id
+) RETURNS TABLE ("task_id" UUID) AS $$
+    DECLARE
+    
+    BEGIN
+
+    END
+$$ LANGUAGE 'plpgsql';
+
+-- get all takes of a 
+
+-- CREATE FUNCTION get_all_takes_of_a_task("user_id", "document_id", "") RETURNS VOID AS $$ $$ LANGUAGE "plpgsql";
+
+
+
+-- CREATE FUNCTION create_blueprint_from_task(v_user_id UUID, v_document_id UUID, v_task_id UUID, progress_tracking BOOLEAN, enabled_tasks UUID[]) RETURNS VOID AS $$
+--     DECLARE
+--         v_blueprint_id UUID,
+
+--     BEGIN
+--         -- check degree of root task is under allowed limit for user
+--         SELECT degree
+--             FROM "TASK"
+--             WHERE 
+--                 "user_id" = v_user_id
+--                 AND "document_id" = v_document_id
+--                 AND "task_id" = v_task_id;
+--         IF degree > allowed_max_bluelimit_degree THEN
+--             RAISE EXCEPTION 'Depth of task exceeds the limit.';
+--         END IF;
+
+--         -- create a "BLUEPRINT" record, keep its ID
+--         INSERT INTO "BLUEPRINT"(
+--             "original_user_id", 
+--             "original_document_id", 
+--             "original_task_id",
+--             "progress_tracking",
+
+--         ) 
+--         VALUES()
+--         RETURNING "blueprint_id" INTO v_blueprint_id;
+
+--         -- with blueprint_id, create a "BLUEPRINT_TASK" row for "TASK" keep its ID
+
+--         -- dfs on "TASK" starting from root, children found by matches on "parent_id", repeat previous step
+
+--         -- save the blueprint_id of root task to "BLUEPRINT" record
+--         UPDATE TABLE "BLUEPRINT"
+--             SET "entry_point" = v_blueprint_root_id
+--             WHERE "blueprint_id" = v_blueprint_id;
+
+--         RETURN QUERY (
+--             SELECT sharing_uri 
+--                 FROM "BLUEPRINT" 
+--                 WHERE "blueprint_id" = v_blueprint_id;
+--         );
+--     END
+-- $$ LANGUAGE "plpgsql";
+
+
+
+-- CREATE FUNCTION () RETURNS VOID AS $$ $$ LANGUAGE "plpgsql";
+-- CREATE FUNCTION () RETURNS VOID AS $$ $$ LANGUAGE "plpgsql";
+-- CREATE FUNCTION () RETURNS VOID AS $$ $$ LANGUAGE "plpgsql";
+-- CREATE FUNCTION () RETURNS VOID AS $$ $$ LANGUAGE "plpgsql";
+-- CREATE FUNCTION () RETURNS VOID AS $$ $$ LANGUAGE "plpgsql";
+
+
+
+
+
+-- MARK: Test dataset
+
 CREATE PROCEDURE load_test_dataset() AS $$
     DECLARE
-        v_document_id UUID DEFAULT '61bbc44a-c61c-4d49-8804-486181081fa7';
-        v_task_1 UUID;
-        v_task_2 UUID;
-        v_task_3 UUID;
-        v_task_4 UUID;
-        v_task_5 UUID;
-        v_task_6 UUID;
-        v_task_7 UUID;
-        v_task_8 UUID;
-        v_task_9 UUID;
-        v_task_10 UUID;
-        v_task_11 UUID;
-        v_task_12 UUID;
-        v_task_13 UUID;
-        v_task_14 UUID;
-        v_task_15 UUID;
-        v_task_16 UUID;
-        v_task_17 UUID;
-        v_task_18 UUID;
-        v_task_19 UUID;
-        v_task_20 UUID;
-        v_task_21 UUID;
-        v_task_22 UUID;
-        v_task_23 UUID;
-        v_task_24 UUID;
-        v_task_25 UUID;
-        v_task_26 UUID;
-        v_task_27 UUID;
-        v_task_28 UUID;
-        v_task_29 UUID;
-        v_task_30 UUID;
-        v_task_31 UUID;
-        v_task_32 UUID;
-        v_task_33 UUID;
-        v_task_34 UUID;
-        v_task_35 UUID;
+        v_user_id                               UUID DEFAULT '13600fd8-2c4a-50df-80e2-5cc0d0e711df';
+        v_user_email_address                    TEXT DEFAULT 'admin@logbook';
+        v_email_address_without_punctuation     TEXT DEFAULT 'admin@logbook';
+        v_user_password_kdf                     TEXT DEFAULT 'Ft7isEJgIrKdWgA496C9GnPHvAhlo2x4';
+        v_document_id                           UUID DEFAULT '61bbc44a-c61c-4d49-8804-486181081fa7';
+        v_task_1                                UUID;
+        v_task_2                                UUID;
+        v_task_3                                UUID;
+        v_task_4                                UUID;
+        v_task_5                                UUID;
+        v_task_6                                UUID;
+        v_task_7                                UUID;
+        v_task_8                                UUID;
+        v_task_9                                UUID;
+        v_task_10                               UUID;
+        v_task_11                               UUID;
+        v_task_12                               UUID;
+        v_task_13                               UUID;
+        v_task_14                               UUID;
+        v_task_15                               UUID;
+        v_task_16                               UUID;
+        v_task_17                               UUID;
+        v_task_18                               UUID;
+        v_task_19                               UUID;
+        v_task_20                               UUID;
+        v_task_21                               UUID;
+        v_task_22                               UUID;
+        v_task_23                               UUID;
+        v_task_24                               UUID;
+        v_task_25                               UUID;
+        v_task_26                               UUID;
+        v_task_27                               UUID;
+        v_task_28                               UUID;
+        v_task_29                               UUID;
+        v_task_30                               UUID;
+        v_task_31                               UUID;
+        v_task_32                               UUID;
+        v_task_33                               UUID;
+        v_task_34                               UUID;
+        v_task_35                               UUID;
     BEGIN
         -- SELECT "document_id" INTO v_document_id FROM create_document();
-        INSERT INTO "DOCUMENT"("document_id") VALUES (v_document_id);
+        INSERT INTO "USER"("user_id", "email_address", "email_address_without_punctuation", "password_kdf") 
+            VALUES (v_user_id, v_user_email_address, v_email_address_without_punctuation, v_user_password_kdf);
 
+        INSERT INTO "DOCUMENT"("document_id", "user_id") VALUES (v_document_id, v_user_id);
+        RAISE NOTICE 'user_id: %', v_user_id;
         RAISE NOTICE 'document_id: %', v_document_id; 
 
         -- FIRST ROOT TASK
 
-        SELECT "task_id" INTO v_task_1 FROM create_task(v_document_id => v_document_id, v_content => 'deploy redis cluster on multi DC');
-        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '20 DAYS' WHERE "task_id" = v_task_1;
+        SELECT "task_id" INTO v_task_1 FROM create_task(v_document_id => v_document_id, v_user_id => v_user_id, v_content => 'deploy redis cluster on multi DC', v_index => 0);
+        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '40 DAYS' WHERE "task_id" = v_task_1;
         
-        SELECT "task_id" INTO v_task_2 FROM create_task(v_document_id, 'deploy redis cluster on 1 DC', v_task_1);
-        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '20 DAYS' WHERE "task_id" = v_task_2;
+        SELECT "task_id" INTO v_task_2 FROM create_task(v_document_id, v_user_id, 'deploy redis cluster on 1 DC', 0, v_task_1);
+        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '39 DAYS' - INTERVAL '14 HOURS' WHERE "task_id" = v_task_2;
 
-        SELECT "task_id" INTO v_task_3 FROM create_task(v_document_id, 'Revoke passwordless sudo rights after provision at cluster', v_task_1);
-        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '20 DAYS' WHERE "task_id" = v_task_18;
+        SELECT "task_id" INTO v_task_3 FROM create_task(v_document_id, v_user_id, 'Revoke passwordless sudo rights after provision at cluster', 1, v_task_1);
+        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '39 DAYS' - INTERVAL '13 HOURS' WHERE "task_id" = v_task_18;
         
-        SELECT "task_id" INTO v_task_4 FROM create_task(v_document_id, 'iptables for redis', v_task_3);
-        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '20 DAYS' WHERE "task_id" = v_task_29;
+        SELECT "task_id" INTO v_task_4 FROM create_task(v_document_id, v_user_id, 'iptables for redis', 0, v_task_3);
+        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '39 DAYS' - INTERVAL '12 HOURS' WHERE "task_id" = v_task_29;
         
-        SELECT "task_id" INTO v_task_5 FROM create_task(v_document_id, 'terraform for redis', v_task_4);
-        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '20 DAYS' WHERE "task_id" = v_task_3;
+        SELECT "task_id" INTO v_task_5 FROM create_task(v_document_id, v_user_id, 'terraform for redis', 0, v_task_4);
+        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '39 DAYS' - INTERVAL '11 HOURS' WHERE "task_id" = v_task_3;
         
-        SELECT "task_id" INTO v_task_6 FROM create_task(v_document_id, 'Update redis/tf file according to prod.tfvars file', v_task_4);
-        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '20 DAYS' WHERE "task_id" = v_task_6;
+        SELECT "task_id" INTO v_task_6 FROM create_task(v_document_id, v_user_id, 'Update redis/tf file according to prod.tfvars file', 1, v_task_4);
+        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '39 DAYS' - INTERVAL '10 HOURS' WHERE "task_id" = v_task_6;
 
-        SELECT "task_id" INTO v_task_7 FROM create_task(v_document_id, 'Remove: seperator from ovpn-auth', v_task_2);
-        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '19 DAYS' WHERE "task_id" = v_task_7;
+        SELECT "task_id" INTO v_task_7 FROM create_task(v_document_id, v_user_id, 'Remove: seperator from ovpn-auth', 0, v_task_2);
+        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '34 DAYS' WHERE "task_id" = v_task_7;
         
-        SELECT "task_id" INTO v_task_8 FROM create_task(v_document_id, 'Write tests for ovpn-auth', v_task_3);
-        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '18 DAYS' WHERE "task_id" = v_task_8;
+        SELECT "task_id" INTO v_task_8 FROM create_task(v_document_id, v_user_id, 'Write tests for ovpn-auth', 1, v_task_3);
+        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '33 DAYS' - INTERVAL '12 HOURS' WHERE "task_id" = v_task_8;
         
-        SELECT "task_id" INTO v_task_9 FROM create_task(v_document_id, 'Decrease timing gap of ovpn-auth under 1ms', v_task_3);
-        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '18 DAYS' WHERE "task_id" = v_task_9;
+        SELECT "task_id" INTO v_task_9 FROM create_task(v_document_id, v_user_id, 'Decrease timing gap of ovpn-auth under 1ms', 2, v_task_3);
+        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '33 DAYS' - INTERVAL '11 HOURS' WHERE "task_id" = v_task_9;
         
-        SELECT "task_id" INTO v_task_10 FROM create_task(v_document_id, 'Prepare releases for ovpn-auth', v_task_4);
-        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '18 DAYS' WHERE "task_id" = v_task_10;
+        SELECT "task_id" INTO v_task_10 FROM create_task(v_document_id, v_user_id, 'Prepare releases for ovpn-auth', 2, v_task_4);
+        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '33 DAYS' - INTERVAL '10 HOURS' WHERE "task_id" = v_task_10;
         
-        SELECT "task_id" INTO v_task_11 FROM create_task(v_document_id, 'Provision golden-image for gitlab-runner', v_task_10);
-        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '18 DAYS' WHERE "task_id" = v_task_11;
+        SELECT "task_id" INTO v_task_11 FROM create_task(v_document_id, v_user_id, 'Provision golden-image for gitlab-runner', 0, v_task_10);
+        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '30 DAYS' WHERE "task_id" = v_task_11;
 
         -- SECOND ROOT TASK
 
-        SELECT "task_id" INTO v_task_12 FROM create_task(v_document_id => v_document_id, v_content => 'gitlab-runner --(vpn)--> DNS ----> gitlab');
-        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '17 DAYS' WHERE "task_id" = v_task_12;
+        SELECT "task_id" INTO v_task_12 FROM create_task(v_document_id => v_document_id, v_user_id => v_user_id, v_content => 'gitlab-runner --(vpn)--> DNS ----> gitlab', v_index => 1);
+        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '28 DAYS' - INTERVAL '23 HOURS' WHERE "task_id" = v_task_12;
        
-        SELECT "task_id" INTO v_task_13 FROM create_task(v_document_id, 'Firewall & unbound rules update from prov script (VPN)', v_task_12);
-        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '17 DAYS' WHERE "task_id" = v_task_13;
+        SELECT "task_id" INTO v_task_13 FROM create_task(v_document_id, v_user_id, 'Firewall & unbound rules update from prov script (VPN)', 0, v_task_12);
+        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '28 DAYS' - INTERVAL '22 HOURS' WHERE "task_id" = v_task_13;
         
-        SELECT "task_id" INTO v_task_14 FROM create_task(v_document_id, 'Script pic_gitlab_runner_post_creation', v_task_13);
-        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '17 DAYS' WHERE "task_id" = v_task_14;
+        SELECT "task_id" INTO v_task_14 FROM create_task(v_document_id, v_user_id, 'Script pic_gitlab_runner_post_creation', 0, v_task_13);
+        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '28 DAYS' - INTERVAL '21 HOURS' WHERE "task_id" = v_task_14;
         
-        SELECT "task_id" INTO v_task_15 FROM create_task(v_document_id, 'Execute 1 CI/CD pipeline on gitlab-runner', v_task_14);
-        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '17 DAYS' WHERE "task_id" = v_task_15;
+        SELECT "task_id" INTO v_task_15 FROM create_task(v_document_id, v_user_id, 'Execute 1 CI/CD pipeline on gitlab-runner', 0, v_task_14);
+        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '28 DAYS' - INTERVAL '20 HOURS' WHERE "task_id" = v_task_15;
         
-        SELECT "task_id" INTO v_task_16 FROM create_task(v_document_id, 'gitlab-runner provisioner with resolv.conf/docker/runner-register', v_task_12);
-        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '17 DAYS' WHERE "task_id" = v_task_16;
+        SELECT "task_id" INTO v_task_16 FROM create_task(v_document_id, v_user_id, 'gitlab-runner provisioner with resolv.conf/docker/runner-register', 1, v_task_12);
+        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '28 DAYS' - INTERVAL '19 HOURS' WHERE "task_id" = v_task_16;
         
-        SELECT "task_id" INTO v_task_17 FROM create_task(v_document_id, 'prepare gitlab-ci for ovpn-auth repo', v_task_13);
-        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '17 DAYS' WHERE "task_id" = v_task_17;
+        SELECT "task_id" INTO v_task_17 FROM create_task(v_document_id, v_user_id, 'prepare gitlab-ci for ovpn-auth repo', 1, v_task_13);
+        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '28 DAYS' - INTERVAL '17 HOURS' WHERE "task_id" = v_task_17;
         
-        SELECT "task_id" INTO v_task_18 FROM create_task(v_document_id, 'PAM for SSH', v_task_14);
-        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '17 DAYS' WHERE "task_id" = v_task_18;
+        SELECT "task_id" INTO v_task_18 FROM create_task(v_document_id, v_user_id, 'PAM for SSH', 1, v_task_14);
+        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '28 DAYS' - INTERVAL '16 HOURS' WHERE "task_id" = v_task_18;
         
-        SELECT "task_id" INTO v_task_19 FROM create_task(v_document_id, 'ACL - Redis', v_task_13);
-        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '16 DAYS' WHERE "task_id" = v_task_19;
+        SELECT "task_id" INTO v_task_19 FROM create_task(v_document_id, v_user_id, 'ACL - Redis', 2, v_task_13);
+        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '28 DAYS' - INTERVAL '15 HOURS' WHERE "task_id" = v_task_19;
         
-        SELECT "task_id" INTO v_task_20 FROM create_task(v_document_id, 'Redis security', v_task_13);
-        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '16 DAYS' WHERE "task_id" = v_task_20;
+        SELECT "task_id" INTO v_task_20 FROM create_task(v_document_id, v_user_id, 'Redis security', 3, v_task_13);
+        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '27 DAYS' WHERE "task_id" = v_task_20;
         
-        SELECT "task_id" INTO v_task_21 FROM create_task(v_document_id, 'TOTP for SSH', v_task_14);
-        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '16 DAYS' WHERE "task_id" = v_task_21;
+        SELECT "task_id" INTO v_task_21 FROM create_task(v_document_id, v_user_id, 'TOTP for SSH', 2, v_task_14);
+        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '26 DAYS' WHERE "task_id" = v_task_21;
         
-        SELECT "task_id" INTO v_task_22 FROM create_task(v_document_id, 'API gateway without redis', v_task_15);
-        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '15 DAYS' WHERE "task_id" = v_task_22;
+        SELECT "task_id" INTO v_task_22 FROM create_task(v_document_id, v_user_id, 'API gateway without redis', 0, v_task_15);
+        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '25 DAYS' - INTERVAL '10 HOURS' WHERE "task_id" = v_task_22;
         
-        SELECT "task_id" INTO v_task_23 FROM create_task(v_document_id, 'Golden image interitance re-organize', v_task_16);
-        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '15 DAYS' WHERE "task_id" = v_task_23;
+        SELECT "task_id" INTO v_task_23 FROM create_task(v_document_id, v_user_id, 'Golden image interitance re-organize', 0, v_task_16);
+        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '25 DAYS' - INTERVAL '9 HOURS' WHERE "task_id" = v_task_23;
         
-        SELECT "task_id" INTO v_task_24 FROM create_task(v_document_id, 'Postgres', v_task_12);
-        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '14 DAYS' WHERE "task_id" = v_task_24;
+        SELECT "task_id" INTO v_task_24 FROM create_task(v_document_id, v_user_id, 'Postgres', 2, v_task_12);
+        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '25 DAYS' - INTERVAL '5 HOURS' WHERE "task_id" = v_task_24;
         
-        SELECT "task_id" INTO v_task_25 FROM create_task(v_document_id, 'Auth service', v_task_13);
-        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '14 DAYS' WHERE "task_id" = v_task_25;
+        SELECT "task_id" INTO v_task_25 FROM create_task(v_document_id, v_user_id, 'Auth service', 4, v_task_13);
+        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '24 DAYS' WHERE "task_id" = v_task_25;
         
-        SELECT "task_id" INTO v_task_26 FROM create_task(v_document_id, 'MQ', v_task_15);
-        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '14 DAYS' WHERE "task_id" = v_task_26;
+        SELECT "task_id" INTO v_task_26 FROM create_task(v_document_id, v_user_id, 'MQ', 1, v_task_15);
+        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '23 DAYS' - INTERVAL '10 HOURS' WHERE "task_id" = v_task_26;
         
-        SELECT "task_id" INTO v_task_27 FROM create_task(v_document_id, 'Federated learning', v_task_16);
-        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '13 DAYS' WHERE "task_id" = v_task_27;
+        SELECT "task_id" INTO v_task_27 FROM create_task(v_document_id, v_user_id, 'Federated learning', 1, v_task_16);
+        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '23 DAYS' - INTERVAL '9 HOURS' WHERE "task_id" = v_task_27;
         
-        SELECT "task_id" INTO v_task_28 FROM create_task(v_document_id, 'Bluetooth transmission test', v_task_12);
-        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '13 DAYS' WHERE "task_id" = v_task_28;
+        SELECT "task_id" INTO v_task_28 FROM create_task(v_document_id, v_user_id, 'Bluetooth transmission test', 3, v_task_12);
+        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '23 DAYS' - INTERVAL '8 HOURS' WHERE "task_id" = v_task_28;
         
-        SELECT "task_id" INTO v_task_29 FROM create_task(v_document_id, 'Intrusion detection system (centralised) (OSSEC', v_task_12);
-        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '12 DAYS' WHERE "task_id" = v_task_29;
+        SELECT "task_id" INTO v_task_29 FROM create_task(v_document_id, v_user_id, 'Intrusion detection system (centralised) (OSSEC', 4, v_task_12);
+        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '22 DAYS' - INTERVAL '15 HOURS' WHERE "task_id" = v_task_29;
         
-        SELECT "task_id" INTO v_task_30 FROM create_task(v_document_id, 'Envoy - HAProxy - NGiNX', v_task_12);
-        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '12 DAYS' WHERE "task_id" = v_task_30;
+        SELECT "task_id" INTO v_task_30 FROM create_task(v_document_id, v_user_id, 'Envoy - HAProxy - NGiNX', 5, v_task_12);
+        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '22 DAYS' - INTERVAL '14 HOURS' WHERE "task_id" = v_task_30;
         
-        SELECT "task_id" INTO v_task_31 FROM create_task(v_document_id, 'web-front/Privacy against [friend/pubic/company/attackers]', v_task_13);
-        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '12 DAYS' WHERE "task_id" = v_task_31;
+        SELECT "task_id" INTO v_task_31 FROM create_task(v_document_id, v_user_id, 'web-front/Privacy against [friend/pubic/company/attackers]', 5, v_task_13);
+        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '22 DAYS' - INTERVAL '13 HOURS' WHERE "task_id" = v_task_31;
         
-        SELECT "task_id" INTO v_task_32 FROM create_task(v_document_id, 'Redis/cluster script test for multi datacenter', v_task_13);
-        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '12 DAYS' WHERE "task_id" = v_task_32;
+        SELECT "task_id" INTO v_task_32 FROM create_task(v_document_id, v_user_id, 'Redis/cluster script test for multi datacenter', 6, v_task_13);
+        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '22 DAYS' - INTERVAL '12 HOURS' WHERE "task_id" = v_task_32;
         
-        SELECT "task_id" INTO v_task_33 FROM create_task(v_document_id, 'gitlab-runner firewall rules: close public internet', v_task_14);
-        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '12 DAYS' WHERE "task_id" = v_task_33;
+        SELECT "task_id" INTO v_task_33 FROM create_task(v_document_id, v_user_id, 'gitlab-runner firewall rules: close public internet', 3, v_task_14);
+        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '22 DAYS' - INTERVAL '11 HOURS' WHERE "task_id" = v_task_33;
         
-        SELECT "task_id" INTO v_task_34 FROM create_task(v_document_id, 'static-challange for ovpn-auth', v_task_20);
-        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '11 DAYS' WHERE "task_id" = v_task_34;
+        SELECT "task_id" INTO v_task_34 FROM create_task(v_document_id, v_user_id, 'static-challange for ovpn-auth', 0, v_task_20);
+        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '22 DAYS' - INTERVAL '10 HOURS' WHERE "task_id" = v_task_34;
         
-        SELECT "task_id" INTO v_task_35 FROM create_task(v_document_id, 'Golden image for vpn server', v_task_21);
-        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '11 DAYS' WHERE "task_id" = v_task_35;
+        SELECT "task_id" INTO v_task_35 FROM create_task(v_document_id, v_user_id, 'Golden image for vpn server', 0, v_task_21);
+        UPDATE "TASK" SET "created_at" = CURRENT_TIMESTAMP - INTERVAL '21 DAYS' WHERE "task_id" = v_task_35;
 
         -- COMPLETE SOME TASKS
 
@@ -606,8 +909,15 @@ CREATE PROCEDURE load_test_dataset() AS $$
 
         PERFORM reattach_task(v_task_13, v_task_1);
         PERFORM reattach_task(v_task_27, v_task_15);
-        PERFORM reattach_task(v_task_31, v_task_5);
+        PERFORM reattach_task(v_task_31, v_task_5); 
+
     END
 $$ LANGUAGE 'plpgsql';
 
 CALL load_test_dataset();
+
+-- SELECT * FROM hierarchical_placement(
+--     v_user_id => '13600fd8-2c4a-50df-80e2-5cc0d0e711df',
+--     v_document_id => '61bbc44a-c61c-4d49-8804-486181081fa7'
+-- ); -- OFFSET 2 LIMIT 10
+

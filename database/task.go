@@ -220,9 +220,9 @@ func GetTaskByParentId(parentId string) ([]Task, []error) {
 
 // Returns a list of updated items in addition to
 // the marked task in first item.
-func MarkATaskDone(taskId string) ([]Task, []error) {
+func (t *Task) MarkATaskDone() ([]Task, []error) {
 	query := `SELECT mark_a_task_done($1)`
-	rows, err := pool.Query(context.Background(), query, taskId)
+	rows, err := pool.Query(context.Background(), query, t.TaskId)
 	if err != nil {
 		return nil, []error{err, ErrMarkATaskDone}
 	}
@@ -235,7 +235,7 @@ func MarkATaskDone(taskId string) ([]Task, []error) {
 			&task.ParentId,
 			&task.Content,
 			&task.Degree,
-			&task.Depth,
+			&task.Depth, 
 			&task.CreatedAt,
 			&task.CompletedAt,
 			&task.ReadyToPickUp,
@@ -248,28 +248,23 @@ func MarkATaskDone(taskId string) ([]Task, []error) {
 	return tasks, nil
 }
 
-// Returns a list of updated items in addition to
-// the reattached task in first item.
-func ReattachTask(taskId string, newParentId string) ([]Task, []error) {
-	query := `SELECT reattach_task($1, $2)`
-	rows, err := pool.Query(context.Background(), query, taskId, newParentId)
+// Returns list of changed resources. Use it for cache invalidation.
+func (t *Task) Reattach(newParentId string) ([]Task, []error) {
+	query := `
+		SELECT 
+			"task_id"
+		FROM reattach_task(
+			v_task_id => $1, 
+			v_new_parent_id => $2
+		)`
+	rows, err := pool.Query(context.Background(), query, t.TaskId, newParentId)
 	if err != nil {
 		return nil, []error{err, ErrMarkATaskDone}
 	}
 	tasks := []Task{}
 	for rows.Next() {
 		task := Task{}
-		err := rows.Scan(
-			&task.TaskId,
-			&task.DocumentId,
-			&task.ParentId,
-			&task.Content,
-			&task.Degree,
-			&task.Depth,
-			&task.CreatedAt,
-			&task.CompletedAt,
-			&task.ReadyToPickUp,
-		)
+		err := rows.Scan(&task.TaskId)
 		if err != nil {
 			return nil, []error{err}
 		}
