@@ -57,7 +57,7 @@ CREATE TABLE "ACCESS_EVENT_LOG"(
     "created_at"                TIMESTAMP                   DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TYPE "OPERATION_SUMMARY" AS ENUM (
+CREATE TYPE "TASK_OPERATION_SUMMARY" AS ENUM (
     'CREATE',
     'REORDER',
     'DELETE',
@@ -76,7 +76,7 @@ CREATE TYPE "OPERATION_SUMMARY" AS ENUM (
     'HISTORY_FASTFORWARD'
 );
 
-CREATE TYPE "OPERATION_STATUS" AS ENUM (
+CREATE TYPE "TASK_OPERATION_STATUS" AS ENUM (
     'IN_REVIEW',
     'PRIV_ACCEPTED',
     'PRIV_REJECTED',
@@ -88,15 +88,15 @@ CREATE TYPE "OPERATION_STATUS" AS ENUM (
     'MANAGER_SELECTION_REJECTED'
 );
 
-CREATE TABLE "OPERATION" (
+CREATE TABLE "TASK_OPERATION" (
     "operation_id"              UUID                        UNIQUE DEFAULT gen_random_UUID(),
 
     "revision_id"               UUID                        UNIQUE DEFAULT gen_random_UUID(),
     "previous_revision_id"      UUID                        NOT NULL,
 
     "user_id"                   UUID                        NOT NULL,
-    "operation_summary"         "OPERATION_SUMMARY"    NOT NULL,
-    "operation_status"          "OPERATION_STATUS"     NOT NULL,
+    "operation_summary"         "TASK_OPERATION_SUMMARY"    NOT NULL,
+    "operation_status"          "TASK_OPERATION_STATUS"     NOT NULL,
 
     "task_id"                   UUID                        NOT NULL, -- id of updated task
     "link_id"                   UUID                        NOT NULL, -- id of updated link
@@ -105,16 +105,16 @@ CREATE TABLE "OPERATION" (
     "archived_at"               TIMESTAMP                   -- user can delete task history items that they don't want to see again in history
 );
 
-CREATE TYPE "ROLE" AS ENUM (
+CREATE TYPE "TASK_ROLE" AS ENUM (
     'MANAGER',
     'CREATOR',
     'COLLABORATOR'
 );
 
-CREATE TABLE "PRIVILEGE" (
+CREATE TABLE "TASK_PRIVILEGE" (
     "revision_id"               UUID                        NOT NULL,
     "task_id"                   UUID                        NOT NULL,
-    "role"                      "ROLE"                      NOT NULL,
+    "role"                      "TASK_ROLE"                      NOT NULL,
     "created_at"                TIMESTAMP                   DEFAULT CURRENT_TIMESTAMP
 );
 

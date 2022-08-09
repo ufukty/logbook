@@ -5,9 +5,10 @@ import (
 	e "logbook/main/controller/utilities/errors"
 	v "logbook/main/controller/utilities/validate"
 	db "logbook/main/database"
+
 	"net/http"
 
-	m "logbook/main/models"
+	m "logbook/main/controller/models"
 
 	"github.com/gorilla/mux"
 )

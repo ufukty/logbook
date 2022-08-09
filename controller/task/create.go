@@ -5,16 +5,32 @@ import (
 	e "logbook/main/controller/utilities/errors"
 	v "logbook/main/controller/utilities/validate"
 	db "logbook/main/database"
+
+	p "logbook/main/controller/parameters"
 	"net/http"
 )
 
 const MaximumDepth = 50
 
-func sanitizeUserInput(r *http.Request) (*db.Task, []error) {
+func sanitizeUserInput(r *http.Request) (*p.TaskCreate, []error) {
 
 	err := r.ParseForm()
 	if err != nil {
 		return nil, []error{c.ErrCreateTaskParseForm}
+	}
+
+	parameters := p.TaskCreate{}
+	parameters.newRequest(r)
+
+	parameters.Request.UserId = (p.UserId)(r.Form.Get("user_id"))
+	parameters.Request.SuperTaskId = (p.TaskId)(r.Form.Get("super_task_id"))
+
+	if parameters.Request.UserId.TypeCheck() == false {
+		return nil, []error{c.ErrTypeCheckUserId}
+	}
+
+	if parameters.Request.SuperTaskId.TypeCheck() == false {
+		return nil, []error{c.ErrTypeCheckSuperTaskId}
 	}
 
 	var (
@@ -38,6 +54,8 @@ func sanitizeUserInput(r *http.Request) (*db.Task, []error) {
 	} else if !v.IsValidUUID(parentId) {
 		return nil, []error{c.ErrCreateTaskInvalidParentId}
 	}
+
+	return parameters
 
 	task := db.Task{
 		DocumentId: documentId,
