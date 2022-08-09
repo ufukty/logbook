@@ -17,6 +17,10 @@ var ErrInvalidTaskGroupId error
 var ErrStrToTaskStatusNoMatchingRecord = errors.New("ErrStrToTaskStatusNoMatchingRecord")
 
 var (
+	ErrCreateUser = errors.New("ErrCreateUser")
+)
+
+var (
 	ErrCreateDocument                 = errors.New("ErrCreateDocument")
 	ErrGetDocumentByDocumentId        = errors.New("ErrGetDocumentByDocumentId")
 	ErrGetHierarchicalViewItemsQuery  = errors.New("ErrGetHierarchicalViewItemsQuery")
@@ -35,6 +39,7 @@ var (
 	ErrUpdateTaskItem            = errors.New("ErrUpdateTaskItem")
 	ErrMarkATaskDone             = errors.New("ErrMarkATaskDone")
 )
+
 func CheckTaskId(taskId string) []error { // TODO:
 	return nil
 }

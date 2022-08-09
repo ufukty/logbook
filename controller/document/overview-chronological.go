@@ -12,10 +12,10 @@ import (
 )
 
 const (
-	OFFSET_ALLOWED_RANGE_MIN = 0
-	OFFSET_ALLOWED_RANGE_MAX = 10000000
-	LIMIT_ALLOWED_RANGE_MIN  = 1
-	LIMIT_ALLOWED_RANGE_MAX  = 100000
+	OFFSET_MIN = 0
+	OFFSET_MAX = 10000000
+	LIMIT_MIN  = 1
+	LIMIT_MAX  = 100000
 )
 
 type CDocumentOverviewChronological struct {
@@ -38,7 +38,7 @@ func (s *CDocumentOverviewChronological) sanitizer(r *http.Request) []error {
 	if err != nil {
 		return []error{err, c.ErrOffsetInputIsNotValidInteger}
 	}
-	if offset < OFFSET_ALLOWED_RANGE_MIN || OFFSET_ALLOWED_RANGE_MAX < offset {
+	if offset < OFFSET_MIN || OFFSET_MAX < offset {
 		return []error{c.ErrOffsetInputIsNotInAllowedRange}
 	}
 
@@ -46,7 +46,7 @@ func (s *CDocumentOverviewChronological) sanitizer(r *http.Request) []error {
 	if err != nil {
 		return []error{err, c.ErrLimitInputIsNotValidInteger}
 	}
-	if limit < LIMIT_ALLOWED_RANGE_MIN || LIMIT_ALLOWED_RANGE_MAX < limit {
+	if limit < LIMIT_MIN || LIMIT_MAX < limit {
 		return []error{c.ErrLimitInputIsNotInAllowedRange}
 	}
 

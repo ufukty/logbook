@@ -2,47 +2,60 @@ package database
 
 import "testing"
 
-func TestDatabaseForGetAndCreateFunctions(t *testing.T) {
+func TestCreateUser(t *testing.T) {
 
 	// Initialize database connection with test database
-	Init("postgres://postgres:password@localhost:5432/testdatabase")
+	Init("postgres://ufuktan:password@localhost:5432/logbook_dev")
 	defer Close()
 
-	var (
-		test_document       Document
-		test_modified_tasks []Task
-		test_task           Task
-		err                 []error
-	)
+	// Create USER
 
-	test_document, err = CreateDocument()
+	myUser, err := UserCreate(
+		"Name Surname",
+		"test.test@test.tld",
+		"testtest@test.tld",
+		"$argon2id$v=19$m=4096,t=3,p=1$bG9yZW1pcHN1bQ$6ASAMXM/1Czod3ixSuEe6x+nb96mFkTWjlruH+fAGtY",
+	)
 	if err != nil {
-		t.Fatalf("Failed on create 'document' object.\nError details: %s", err)
+		t.Fatalf("Failed on UserCreate() : %s", err)
 	}
 
-	test_modified_tasks, err = CreateTask(Task{
-		DocumentId: test_document.DocumentId,
+	// Create DOCUMENT
+
+	myDoc, err := DocumentCreate(myUser.UserId)
+	if err != nil {
+		t.Fatalf("Failed on DocumentCreate() : %s", err)
+	}
+
+	// Create USER
+
+	test_modified_tasks, err := CreateTask(Task{
+		DocumentId: myDoc.DocumentId,
 		Content:    "One difficult task for testing go package.",
 		ParentId:   "00000000-0000-0000-0000-000000000000",
 	})
 	if err != nil {
-		t.Fatalf("Failed on create 'task' object.\nError details: %s", err)
+		t.Fatalf("Failed on CreateTask() : %s", err)
 	}
-	test_task = test_modified_tasks[0]
+	test_task := test_modified_tasks[0]
+
+
 
 	verify_task, err := GetTaskByTaskId(test_task.TaskId)
 	if err != nil {
-		t.Fatalf("Failed on getTaskByTaskId(test_task.TaskId)\nError details: %s", err)
+		t.Fatalf("Failed on GetTaskByTaskId() : %s", err)
 	}
 	if verify_task.Content != test_task.Content {
-		t.Fatalf("Failed on comparing result of getTaskByTaskId(test_task.TaskId)")
+		t.Fatalf("Failed on comparing result of GetTaskByTaskId(test_task.TaskId)")
 	}
 
-	verify_document, err := GetDocumentByDocumentId(test_document.DocumentId)
+	
+
+	myDocGot, err := DocumentGet(myUser.UserId, myDoc.DocumentId)
 	if err != nil {
-		t.Fatalf("Failed on getDocumentByDocumentId(test_document.DocumentId)\nError details: %s", err)
+		t.Fatalf("Failed on DocumentGet(test_document.DocumentId)\nError details: %s", err)
 	}
-	if verify_document.CreatedAt != test_document.CreatedAt {
-		t.Fatalf("Failed on comparing result of getDocumentByDocumentId(test_document.DocumentId)")
+	if myDocGot.CreatedAt != myDoc.CreatedAt {
+		t.Fatalf("Failed on comparing result of DocumentGet(test_document.DocumentId)")
 	}
 }

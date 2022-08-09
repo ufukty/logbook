@@ -4,55 +4,61 @@ import (
 	"context"
 )
 
-func CreateDocument() (Document, []error) {
-	document := Document{}
+// Document object should have UserID. Rest will be overwritten.
+func DocumentCreate(userId string) (*Document, []error) {
+	doc := Document{}
 	query := `
-		INSERT INTO "DOCUMENT" 
-		DEFAULT VALUES
+		INSERT INTO "DOCUMENT" ("user_id")
+		VALUES ($1)
 		RETURNING
 			"document_id", 
-			"created_at",
-			COALESCE("active_task", '00000000-0000-0000-0000-000000000000')`
+			"user_id",
+			"created_at"`
 	err := pool.QueryRow(
 		context.Background(),
 		query,
+		userId,
 	).Scan(
-		&document.DocumentId,
-		&document.CreatedAt,
-		&document.ActiveTask,
+		&doc.DocumentId,
+		&doc.UserId,
+		&doc.CreatedAt,
 	)
 	if err != nil {
-		return document, []error{err, ErrCreateDocument}
+		return &doc, []error{err, ErrCreateDocument}
 	}
-	return document, nil
+	return &doc, nil
 }
 
-func (d *Document) Get() []error {
+func DocumentGet(userId string, documentId string) (*Document, []error) {
+	doc := Document{}
 	query := `
 		SELECT 
-			"created_at",
-			COALESCE("active_task", '00000000-0000-0000-0000-000000000000')
-		FROM
-			"DOCUMENT"
+			"document_id", 
+			"user_id",
+			"created_at"
+		FROM "DOCUMENT"
 		WHERE
 			"user_id"=$1
 			AND "document_id"=$2`
 	err := pool.QueryRow(
 		context.Background(),
 		query,
-		d.UserId,
-		d.DocumentId,
+		userId,
+		documentId,
 	).Scan(
-		&d.CreatedAt,
-		&d.ActiveTask,
+		&doc.DocumentId,
+		&doc.UserId,
+		&doc.CreatedAt,
 	)
 	if err != nil {
-		return []error{err, ErrGetDocumentByDocumentId}
+		return &doc, []error{err, ErrGetDocumentByDocumentId}
 	}
-	return nil
+	return &doc, nil
 }
 
-func (d *Document) GetHierarchicalPlacement() ([]string, []error) {
+// return value is intended to be used for caching, and only
+// the client-requested portion will be sent to client.
+func DocumentPlacementHierarchicalGet(userId string, documentId string) ([]string, []error) {
 	taskIds := []string{}
 	query := `
 		SELECT * 
@@ -60,7 +66,7 @@ func (d *Document) GetHierarchicalPlacement() ([]string, []error) {
 			v_user_id => $1,
 			v_document_id => $2'
 		)`
-	rows, err := pool.Query(context.Background(), query, rd.userId, rd.documentId)
+	rows, err := pool.Query(context.Background(), query, userId, documentId)
 	if err != nil {
 		return nil, []error{err, ErrGetHierarchicalViewItemsQuery}
 	}
@@ -75,9 +81,12 @@ func (d *Document) GetHierarchicalPlacement() ([]string, []error) {
 	return taskIds, nil
 }
 
-func (d *Document) GetChronologicalPlacement() ([]string, []error) {
+// return value is intended to be used for caching, and only
+// the client-requested portion will be sent to client.
+func DocumentPlacementChronologicalGet(userId string, documentId string) ([]string, []error) {
 	taskIds := []string{}
 
+	// TODO:
 	// The rows skipped by an OFFSET clause still have to be
 	// computed inside the server; therefore a large OFFSET
 	// might be inefficient.
@@ -95,7 +104,7 @@ func (d *Document) GetChronologicalPlacement() ([]string, []error) {
 		ORDER BY "created_at" ASC
 		LIMIT 100000
 		`
-	rows, err := pool.Query(context.Background(), query, rd.userId, rd.documentId)
+	rows, err := pool.Query(context.Background(), query, userId, documentId)
 	if err != nil {
 		return nil, []error{err, ErrGetChronologicalViewItemsQuery}
 	}

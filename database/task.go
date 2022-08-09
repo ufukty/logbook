@@ -19,7 +19,7 @@ func CreateTask(task Task) ([]Task, []error) {
 			"completed_at", 
 			"ready_to_pick_up"
 		FROM
-			create_task($1, $2, $3)`
+			create_task($1, $2, $3, $4)`
 	rows, err := pool.Query(
 		context.Background(),
 		query,

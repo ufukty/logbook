@@ -14,7 +14,7 @@ func createExecutor() (db.Document, *e.Error) {
 	)
 
 	// create document table record
-	document, errs = db.CreateDocument()
+	document, errs = db.DocumentCreate(userId)
 	if errs != nil {
 		return db.Document{}, e.New(errs)
 	}
