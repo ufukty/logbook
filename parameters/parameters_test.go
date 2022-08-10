@@ -22,7 +22,7 @@ func TestUserCreate(t *testing.T) {
 		"password": "123456789"
 	}`))
 	parameters := UserCreate{}
-	if err := parameters.Sanitize(r); err != nil {
+	if err := parameters.InputSanitizer(r); err != nil {
 		t.Errorf(err.Error())
 	} else {
 		t.Log(err)
@@ -33,7 +33,7 @@ func TestUserCreate(t *testing.T) {
 		"email_address": "testUserCreate@golang.example.com"
 	}`))
 	parameters = UserCreate{}
-	if err := parameters.Sanitize(r); err == nil {
+	if err := parameters.InputSanitizer(r); err == nil {
 		t.Errorf("Misconfigured input has accepted.")
 	} else {
 		t.Log(err)
@@ -51,7 +51,7 @@ func TestTaskCreate(t *testing.T) {
 		"content": "First task"
 	}`))
 	parameters := TaskCreate{}
-	if err := parameters.Sanitize(r); err != nil {
+	if err := parameters.InputSanitizer(r); err != nil {
 		t.Errorf(err.Error())
 	} else {
 		t.Log(err)
@@ -62,7 +62,7 @@ func TestTaskCreate(t *testing.T) {
 		"content": "First task"
 	}`))
 	parameters = TaskCreate{}
-	if err := parameters.Sanitize(r); err == nil {
+	if err := parameters.InputSanitizer(r); err == nil {
 		t.Errorf(err.Error())
 	} else {
 		t.Log(err)

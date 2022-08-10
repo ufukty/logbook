@@ -7,6 +7,10 @@ import (
 	"github.com/google/uuid"
 )
 
+type TypeCheckable interface {
+	TypeCheck() error
+}
+
 func (s *NonEmptyString) TypeCheck() error {
 	if (*s) == "" {
 		return errors.New("NonEmptyString is empty")

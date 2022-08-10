@@ -1,4 +1,4 @@
-package controller
+package responder
 
 import (
 	"encoding/json"
@@ -9,8 +9,6 @@ import (
 
 	"github.com/google/uuid"
 	"gopkg.in/yaml.v2"
-
-	e "logbook/main/controller/utilities/errors"
 )
 
 // Errors from [GET]/document/details
@@ -56,33 +54,27 @@ type ControllerLoggingFields struct {
 	Status        int         `json:"status" yaml:"status"`
 	IncidentId    string      `json:"incident_id" yaml:"incident_id"`
 	ErrorHint     string      `json:"error_hint" yaml:"error_hint"`
-	ErrorStack    []string    `json:"error_stack" yaml:"error_stack"`
+	ErrorStack    error       `json:"error_stack" yaml:"error_stack"`
 	RequestHeader interface{} `json:"request_header" yaml:"request_header"`
 	RequestForm   interface{} `json:"request_form" yaml:"request_form"`
 	Endpoint      string      `json:"endpoint" yaml:"endpoint"`
 }
 
-func serializeControllerError(errs []error) []string {
-	errs_str := []string{}
-	for _, err := range errs {
-		errs_str = append(errs_str, err.Error())
-	}
-	return errs_str
-}
-
 func InternalErrorHandler(
 	r *http.Request,
 	incidentId string,
-	errs *e.Error,
+	statusCode int,
+	errorMessageForResponse string,
+	errStackForLogs error,
 	endpoint string,
 ) {
 	byte_str, err := yaml.Marshal(ControllerLoggingFields{
 		IncidentId:    incidentId,
-		ErrorHint:     errs.HttpResponseHint,
-		ErrorStack:    serializeControllerError(errs.ErrorTrace),
+		ErrorHint:     errorMessageForResponse,
+		ErrorStack:    errStackForLogs,
 		RequestHeader: r.Header,
 		RequestForm:   r.PostForm,
-		Status:        errs.HttpResponseCode,
+		Status:        statusCode,
 		Endpoint:      endpoint,
 	})
 	if err != nil {
@@ -94,12 +86,13 @@ func InternalErrorHandler(
 func PublicFacingErrorHandler(
 	w http.ResponseWriter,
 	incidentId string,
-	errs *e.Error,
+	statusCode int,
+	errorMessageForResponse string,
 ) {
-	w.WriteHeader(errs.HttpResponseCode)
+	w.WriteHeader(statusCode)
 	json.NewEncoder(w).Encode(ControllerResponseFields{
-		Status:     errs.HttpResponseCode,
-		ErrorHint:  errs.HttpResponseHint,
+		Status:     statusCode,
+		ErrorHint:  errorMessageForResponse,
 		IncidentId: incidentId,
 	})
 }
@@ -107,10 +100,12 @@ func PublicFacingErrorHandler(
 func ErrorHandler(
 	w http.ResponseWriter,
 	r *http.Request,
-	errs *e.Error,
+	statusCode int,
+	errorMessageForResponse string,
+	errStackForLogs error,
 ) {
-	errorId := uuid.New().String()
-	PublicFacingErrorHandler(w, errorId, errs)
+	incidentId := uuid.New().String()
+	PublicFacingErrorHandler(w, incidentId, statusCode, errorMessageForResponse)
 
 	var endpoint string
 	pc, _, _, ok := runtime.Caller(1)
@@ -121,7 +116,7 @@ func ErrorHandler(
 		endpoint = "could not traced the endpoint"
 	}
 
-	InternalErrorHandler(r, errorId, errs, endpoint)
+	InternalErrorHandler(r, incidentId, statusCode, errorMessageForResponse, errStackForLogs, endpoint)
 }
 
 func ResponseHandler(
@@ -141,6 +136,7 @@ func SuccessHandler(
 	r *http.Request,
 	resource interface{},
 ) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	pc, _, _, ok := runtime.Caller(1)
 	details := runtime.FuncForPC(pc)
 	if ok && details != nil {
