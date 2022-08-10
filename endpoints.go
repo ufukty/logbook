@@ -2,8 +2,7 @@ package main
 
 import (
 	"fmt"
-	"logbook/main/controller/document"
-	"logbook/main/controller/task"
+	"logbook/main/controllers"
 
 	"net/http"
 
@@ -17,14 +16,17 @@ type Endpoint struct {
 }
 
 func rootURIHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Logbook API is for 1st party use only.")
+	fmt.Fprintln(w, `<b>Forbidden</b><hr>Logbook API is not provided for 3rd party use.<br>
+	Go to main website and create an account. 
+	There is no guarantee for a future release won't break your code.`)
+	w.Header().Set("Content-Type", "text/html")
 }
 
 func registerEndpoints(r *mux.Router) {
-	var (
-		documentOverviewHierarchical  = document.CDocumentOverviewHierarchical{}
-		documentOverviewChronological = document.CDocumentOverviewChronological{}
-	)
+	// var (
+	// 	documentOverviewHierarchical  = document.CDocumentOverviewHierarchical{}
+	// 	documentOverviewChronological = document.CDocumentOverviewChronological{}
+	// )
 
 	r.HandleFunc("/", rootURIHandler).Methods("GET")
 
@@ -37,10 +39,13 @@ func registerEndpoints(r *mux.Router) {
 	// 	Queries("email_address", "{email_address}").
 	// 	Queries("password_kdf", "{password_kdf}")
 
-	r.HandleFunc("/document", document.Create).Methods("POST")
-	r.HandleFunc("/document/{id}/placement/hierarchical", documentOverviewHierarchical.Responder).Methods("GET")
-	r.HandleFunc("/document/{id}/placement/chronological", documentOverviewChronological.Responder).Methods("GET").Queries("limit", "{limit}", "offset", "{offset}")
+	r.HandleFunc("/account", controllers.UserCreate).Methods("POST")
 
-	r.HandleFunc("/task", task.Create).Methods("POST")
+	r.HandleFunc("/task", controllers.TaskCreate).Methods("POST")
+	// r.HandleFunc("/task/super", controllers.TaskPatchSuper.Methods("PATCH"))
+	// r.HandleFunc("/task/content", controllers.TaskPatchContent).Methods("PATCH")
+
+	r.HandleFunc("/placement-array/hiearchical", controllers.PlacementArrayHierarchical).Methods("POST")
+	// r.HandleFunc("/placement-array/chronological", controllers.PlacementArrayChronological).Methods("POST")
 
 }

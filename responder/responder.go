@@ -2,41 +2,12 @@ package responder
 
 import (
 	"encoding/json"
-	"errors"
 	"log"
 	"net/http"
 	"runtime"
 
 	"github.com/google/uuid"
 	"gopkg.in/yaml.v2"
-)
-
-// Errors from [GET]/document/details
-var (
-	ErrDocumentIdInputIsNotValidUUID = errors.New("ErrDocumentIdInputIsNotValidUUID")
-	ErrCreateTaskParseForm           = errors.New("ErrCreateTaskParseForm")
-	ErrCreateTaskEmptyContent        = errors.New("ErrCreateTaskEmptyContent")
-	ErrCreateTaskEmptyDocumentId     = errors.New("ErrCreateTaskEmptyDocumentId")
-	ErrCreateTaskInvalidDocumentId   = errors.New("ErrCreateTaskInvalidDocumentId")
-	ErrCreateTaskEmptyParentId       = errors.New("ErrCreateTaskEmptyParentId")
-	ErrCreateTaskInvalidParentId     = errors.New("ErrCreateTaskInvalidParentId")
-)
-
-// Errors from [POST]/task
-var (
-	ErrUpdateParentParentCheck         = errors.New("UpdateParent faced with an error when running db.GetTaskByTaskId(task.ParentId) to check if parent task id is valid")
-	ErrUpdateParentSaveChanges         = errors.New("UpdateParent faced with an error when trying to save changes into database")
-	ErrUpdateParentMaximumDepthReached = errors.New("ErrUpdateParentMaximumDepthReached")
-	ErrUpdateParentNextTaskCheck       = errors.New("UpdateParent faced with an error when trying to check next child task")
-	ErrTaskCreateUpdateParents         = errors.New("Task/createExecutor faced with an error while trying to ")
-)
-
-// Errors from [GET]/document/overview/chronological
-var (
-	ErrOffsetInputIsNotValidInteger   = errors.New("ErrOffsetInputIsNotValidInteger")
-	ErrOffsetInputIsNotInAllowedRange = errors.New("ErrOffsetInputIsNotInAllowedRange")
-	ErrLimitInputIsNotValidInteger    = errors.New("ErrLimitInputIsNotValidInteger")
-	ErrLimitInputIsNotInAllowedRange  = errors.New("ErrLimitInputIsNotInAllowedRange")
 )
 
 // Used for both error and success messages

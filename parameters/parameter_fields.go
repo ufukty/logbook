@@ -1,5 +1,7 @@
 package parameters
 
+import "time"
+
 type UserCreate struct {
 	Request struct {
 		EmailAddress NonEmptyString `json:"email_address"`
@@ -7,8 +9,7 @@ type UserCreate struct {
 		Password     NonEmptyString `json:"password"`
 	}
 	Response struct {
-		Status       bool           `json:"status"`
-		ErrorMessage NonEmptyString `json:"error_message"`
+		UserId UserId `json:"user_id"`
 	}
 }
 
@@ -17,10 +18,7 @@ type UserDelete struct {
 		AuthorizationToken NonEmptyString `json:"authorization_token"`
 		UserId             UserId         `json:"user_id"`
 	}
-	Response struct {
-		Status       bool           `json:"status"`
-		ErrorMessage NonEmptyString `json:"error_message"`
-	}
+	Response struct{}
 }
 
 type BookmarkCreate struct {
@@ -31,8 +29,7 @@ type BookmarkCreate struct {
 		DisplayName        NonEmptyString `json:"display_name"`
 		RootBookmark       bool           `json:"root_bookmark"`
 	}
-	Response struct {
-	}
+	Response struct{}
 }
 
 type BookmarkList struct {
@@ -41,8 +38,6 @@ type BookmarkList struct {
 		UserId             UserId         `json:"user_id"`
 	}
 	Response struct {
-		Status    bool           `json:"status"`
-		ErrorCode NonEmptyString `json:"error_code"`
 		Bookmarks []struct {
 			DisplayName NonEmptyString `json:"display_name"`
 			TaskId      TaskId         `json:"task_id"`
@@ -50,7 +45,7 @@ type BookmarkList struct {
 	}
 }
 
-type ChronologicalViewPlacementArray struct {
+type PlacementArrayHierarchical struct {
 	Request struct {
 		AuthorizationToken NonEmptyString `json:"authorization_token"`
 		UserId             UserId         `json:"user_id"`
@@ -59,6 +54,20 @@ type ChronologicalViewPlacementArray struct {
 		Limit              int            `json:"limit"`
 	}
 	Response struct {
+		TotalItem int      `json:"total_item"`
+		Offset    int      `json:"offset"`
+		Limit     int      `json:"limit"`
+		Items     []TaskId `json:"items"`
+	}
+}
+
+type PlacementArrayChronological struct {
+	Request struct {
+		AuthorizationToken NonEmptyString `json:"authorization_token"`
+		UserId             UserId         `json:"user_id"`
+		StartingTime       time.Time      `json:"root_task_id"`
+		Offset             int            `json:"offset"`
+		Limit              int            `json:"limit"`
 	}
 }
 
@@ -82,8 +91,7 @@ type TaskUpdateContent struct {
 		NewContent         NonEmptyString `json:"new_content"`
 		CurrentRevisionId  NonEmptyString `json:"current_revision_id"`
 	}
-	Response struct {
-	}
+	Response struct{}
 }
 
 type TaskReattach struct {
@@ -93,8 +101,7 @@ type TaskReattach struct {
 		NewSuperTaskId     TaskId         `json:"new_super_task_id"`
 		CurrentRevisionId  NonEmptyString `json:"current_revision_id"`
 	}
-	Response struct {
-	}
+	Response struct{}
 }
 
 type TaskCreateByWrapping struct {
@@ -103,13 +110,13 @@ type TaskCreateByWrapping struct {
 		UserId             UserId
 		TaskIds            []TaskId
 	}
+	Response struct{}
 }
 
-type AuthorizationRequiredRequestTemplate struct {
+type TemplateForAuthorizationRequiredRequests struct {
 	Request struct {
 		AuthorizationToken NonEmptyString `json:"authorization_token"`
 		UserId             UserId         `json:"user_id"`
 	}
-	Response struct {
-	}
+	Response struct{}
 }
