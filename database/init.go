@@ -1,26 +1,35 @@
 package database
 
 import (
-	"context"
 	"log"
 
-	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/pkg/errors"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
-var pool *pgxpool.Pool
+var Db *gorm.DB
 
-func initDatabaseConnection(connection string) {
+func InitGORM(DSN string) {
 	var err error
-	pool, err = pgxpool.Connect(context.Background(), connection)
+	Db, err = gorm.Open(
+		postgres.New(
+			postgres.Config{
+				DSN:                  DSN,
+				PreferSimpleProtocol: false, // when True: it disables implicit prepared statement usage
+			},
+		),
+		&gorm.Config{},
+	)
 	if err != nil {
-		log.Fatalf("Could not initialize Database connection using pgx.\n^ Error details: %s", err)
+		log.Fatalln(errors.Wrap(err, "Error on connecting to database trough GORM"))
 	}
 }
 
-func Init(connection string) {
-	initDatabaseConnection(connection)
-}
-
-func Close() {
-	pool.Close()
+func CloseDatabaseConnections() {
+	sqlDb, err := Db.DB()
+	if err != nil {
+		log.Fatalln("Couldn't close database connections because failed to retrieve database object from GORM")
+	}
+	sqlDb.Close()
 }

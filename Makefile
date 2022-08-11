@@ -1,5 +1,8 @@
 PSQL_USER = ufuktan
 
+make:
+	echo ""
+
 docker-build:
 	docker build -t test .
 

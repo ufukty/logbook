@@ -40,7 +40,7 @@ CREATE TABLE "USER" (
     "username"                  TEXT                        NOT NULL,
     "email_address"             TEXT                        NOT NULL, 
     "email_address_truncated"   TEXT                        NOT NULL UNIQUE, -- dots and other non alpha-numerical characters wiped on the username. @ and domain saved
-    "password_hash_encoded"     TEXT                        NOT NULL, -- should be start with algo name, parameters, salt and resulting hash
+    "password_hash_encoded"     TEXT                        NOT NULL, -- should be start with algo name, algo-parameters, salt and resulting hash
     
     "activated"                 BOOLEAN                     DEFAULT FALSE,
     
@@ -226,26 +226,6 @@ CREATE TABLE "BOOKMARK" (
 -- );
 
 -- MARK: Procedure definitions
-
--- CREATE VIEW tasks_linearized AS SELECT * FROM tasks;
-
--- DROP FUNCTION IF EXISTS create_document_with_task_groups;
--- CREATE FUNCTION create_document(
---     v_user_id UUID
--- ) 
--- RETURNS "DOCUMENT" 
--- AS $$
---     DECLARE
---         document "DOCUMENT";
---     BEGIN
---         INSERT INTO "DOCUMENT" ("user_id") VALUES (v_user_id) RETURNING * INTO document;
---         RETURN document;
---     END
--- $$ LANGUAGE 'plpgsql';
-
-
--- -- CREATE FUNCTION hierarchical_overview
-
 
 -- CREATE FUNCTION hierarchical_placement(
 -- 	v_user_id UUID,

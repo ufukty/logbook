@@ -24,8 +24,8 @@ func main() {
 	flag.Parse()
 
 	// Initialize database connection pool
-	db.Init("postgres://ufuktan:password@localhost:5432/logbook_dev") // os.Getenv("DATABASE_URL")
-	defer db.Close()
+	db.InitGORM("host=localhost user=ufuktan password=password dbname=logbook_dev port=5432 sslmode=disable TimeZone=utc") // os.Getenv("DATABASE_URL")
+	defer db.CloseDatabaseConnections()
 
 	//
 	r := mux.NewRouter()

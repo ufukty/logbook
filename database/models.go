@@ -40,72 +40,83 @@ const (
 )
 
 type User struct {
-	UserId                string    `json:"user_id"`
-	Username              string    `json:"username"`
-	EmailAddress          string    `json:"email_address"`
-	EmailAddressTruncated string    `json:"email_address_truncated"`
-	PasswordHashEncoded   string    `json:"password_hash_encoded"`
-	Activated             bool      `json:"activated"`
-	CreatedAt             time.Time `json:"created_at"`
+	UserId                string    `gorm:"<-:create;->;not null;unique;default:gen_random_UUID()"`
+	Username              string    `gorm:"<-:create;->;not null;unique"`
+	EmailAddress          string    `gorm:"<-:create;->;not null"`
+	EmailAddressTruncated string    `gorm:"<-:create;->;not null;unique"`
+	PasswordHashEncoded   string    `gorm:"<-:create;->;not null"`
+	Activated             bool      `gorm:"not null;default:FALSE"`
+	CreatedAt             time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
 }
 
 type TaskOperation struct {
-	OperationId        string               `json:"operation_id"`
-	RevisionId         string               `json:"revision_id"`
-	PreviousRevisionId string               `json:"previous_revision_id"`
-	TaskId             string               `json:"task_id"`
-	Summary            TaskOperationSummary `json:"operation_summary"`
-	Status             TaskOperationStatus  `json:"operation_status"`
-	UserId             string               `json:"user_id"`
-	CreatedAt          time.Time            `json:"created_at"`
-	ArchivedAt         time.Time            `json:"archived_at"`
+	OperationId        string               `gorm:""`
+	RevisionId         string               `gorm:""`
+	PreviousRevisionId string               `gorm:""`
+	TaskId             string               `gorm:""`
+	Summary            TaskOperationSummary `gorm:""`
+	Status             TaskOperationStatus  `gorm:""`
+	UserId             string               `gorm:""`
+	CreatedAt          time.Time            `gorm:"not null;default:CURRENT_TIMESTAMP"`
+	ArchivedAt         time.Time            `gorm:""`
 }
 
 type Task struct {
-	RevisionId            string    `json:"revision_id"`
-	TaskId                string    `json:"task_id"`
-	OriginalCreatorUserId string    `json:"original_creator_user_id"`
-	ResponsibleUserId     string    `json:"responsible_user_id"`
-	Content               string    `json:"content"`
-	Notes                 string    `json:"notes"`
-	CreatedAt             time.Time `json:"created_at"`
-	CompletedAt           time.Time `json:"completed_at"`
-	ArchivedAt            time.Time `json:"archived_at"`
-	Archived              bool      `json:"archived"`
+	RevisionId            string    `gorm:"<-:create;->;not null;primaryKey"`
+	TaskId                string    `gorm:"<-:create;->;not null;default:gen_random_UUID()"`
+	OriginalCreatorUserId string    `gorm:"not null"`
+	ResponsibleUserId     string    `gorm:"not null"`
+	Content               string    `gorm:"not null"`
+	Notes                 string    `gorm:""`
+	CreatedAt             time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
+	CompletedAt           time.Time `gorm:""`
+	ArchivedAt            time.Time `gorm:""`
+	Archived              bool      `gorm:""`
 }
 
 type TaskLink struct {
-	LinkId              string    `json:"link_id"`
-	RevisionId          string    `json:"revision_id"`
-	TaskId              string    `json:"task_id"`
-	TaskRevisionId      string    `json:"task_revision_id"`
-	SuperTaskId         string    `json:"super_task_id"`
-	SuperTaskRevisionId string    `json:"super_task_revision_id"`
-	Index               string    `json:"index"`
-	PrimaryLink         string    `json:"primary_link"`
-	CreatedAt           time.Time `json:"created_at"`
+	LinkId              string    `gorm:""`
+	RevisionId          string    `gorm:""`
+	TaskId              string    `gorm:""`
+	TaskRevisionId      string    `gorm:""`
+	SuperTaskId         string    `gorm:""`
+	SuperTaskRevisionId string    `gorm:""`
+	Index               string    `gorm:""`
+	PrimaryLink         string    `gorm:""`
+	CreatedAt           time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
 }
 
 type TaskLinkUserPreferences struct {
-	LinkId string `json:"link_id"`
-	UserId string `json:"user_id"`
-	Fold   bool   `json:"fold"`
+	LinkId string `gorm:""`
+	UserId string `gorm:""`
+	Fold   bool   `gorm:""`
 }
 
 type TaskProps struct {
-	RevisionId           string  `json:"revision_id"`
-	TaskId               string  `json:"task_id"`
-	UserId               string  `json:"user_id"`
-	Degree               int     `json:"degree"`
-	Depth                int     `json:"depth"`
-	CompletionPercentage float64 `json:"completion_percentage"`
+	RevisionId           string  `gorm:""`
+	TaskId               string  `gorm:""`
+	UserId               string  `gorm:""`
+	Degree               int     `gorm:""`
+	Depth                int     `gorm:""`
+	CompletionPercentage float64 `gorm:""`
 }
 
 type Bookmark struct {
-	UserId       string    `json:"user_id"`
-	TaskId       string    `json:"task_id"`
-	DisplayName  string    `json:"display_name"`
-	RootBookmark string    `json:"root_bookmark"`
-	CreatedAt    time.Time `json:"created_at"`
-	DeletedAt    string    `json:"deleted_at"`
+	UserId       string    `gorm:""`
+	TaskId       string    `gorm:""`
+	DisplayName  string    `gorm:""`
+	RootBookmark string    `gorm:""`
+	CreatedAt    time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
+	DeletedAt    string    `gorm:""`
+}
+
+type TaskPermission struct {
+}
+
+func (Task) TableName() string {
+	return `"TASK"`
+}
+
+func (User) TableName() string {
+	return `"USER"`
 }
