@@ -2,15 +2,20 @@ package database
 
 import (
 	"log"
+	"regexp"
 
 	"github.com/pkg/errors"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
+const (
+	TEST_DB_DSN = "host=localhost user=ufuktan password=password dbname=logbook_dev port=5432 sslmode=disable TimeZone=utc"
+)
+
 var Db *gorm.DB
 
-func InitGORM(DSN string) {
+func initGORM(DSN string) {
 	var err error
 	Db, err = gorm.Open(
 		postgres.New(
@@ -32,4 +37,32 @@ func CloseDatabaseConnections() {
 		log.Fatalln("Couldn't close database connections because failed to retrieve database object from GORM")
 	}
 	sqlDb.Close()
+}
+
+var regularExpressionForSQLStateNumber *regexp.Regexp
+
+func initRegex() {
+	var err error
+	regularExpressionForSQLStateNumber, err = regexp.Compile(`\(SQLSTATE ([0-9]*)\)$`)
+	if err != nil {
+		log.Fatalln(errors.Wrap(err, "Could not compile regex"))
+	}
+}
+
+// Use this function to strip SQLSTATE error code at the end
+// of error message sent by PostgreSQL
+// Meaning of error codes:
+// https://www.postgresql.org/docs/14/errcodes-appendix.html
+func StripSQLState(errorMessage string) string {
+	results := regularExpressionForSQLStateNumber.FindStringSubmatch(errorMessage)
+	if len(results) < 2 {
+		return "-1"
+	} else {
+		return results[1]
+	}
+}
+
+func Init(DSN string) {
+	initRegex()
+	initGORM(DSN)
 }

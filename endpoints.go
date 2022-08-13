@@ -9,12 +9,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type Endpoint struct {
-	Path    string
-	Method  string
-	Handler func(http.ResponseWriter, *http.Request)
-}
-
 func rootURIHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, `<b>Forbidden</b><hr>Logbook API is not provided for 3rd party use.<br>
 	Go to main website and create an account. 
@@ -47,5 +41,4 @@ func registerEndpoints(r *mux.Router) {
 
 	r.HandleFunc("/placement-array/hiearchical", controllers.PlacementArrayHierarchical).Methods("POST")
 	// r.HandleFunc("/placement-array/chronological", controllers.PlacementArrayChronological).Methods("POST")
-
 }

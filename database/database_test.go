@@ -1,14 +1,36 @@
 package database
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
+
+func TestPostgresErrorsStripSQLState(t *testing.T) {
+	initRegex()
+	sqlError := `ERROR: duplicate key value violates unique constraint "USER_email_address_key" (SQLSTATE 23505)`
+	expectedResult := "23505"
+	if expectedResult != StripSQLState(sqlError) {
+		t.Fail()
+	}
+}
 
 func TestCreateUser(t *testing.T) {
 
-	// // Initialize database connection with test database
-	// Init("postgres://ufuktan:password@localhost:5432/logbook_dev")
-	// defer Close()
+	// Initialize database connection with test database
+	Init("postgres://ufuktan:password@localhost:5432/logbook_dev")
+	defer CloseDatabaseConnections()
 
-	// // Create USER
+	// Create USER
+	myUser := User{
+		NameSurname:    string("Name Surname"),
+		EmailAddress:   string("testUserCreate@golang.example.com"),
+		Salt:           string("loremipsum"),
+		HashedPassword: string("$argon2id$v=19$m=4096,t=3,p=1$bG9yZW1pcHN1bQ$6ASAMXM/1Czod3ixSuEe6x+nb96mFkTWjlruH+fAGtY"),
+	}
+	result := Db.Create(&myUser)
+	if result.Error != nil {
+		fmt.Println()
+	}
 
 	// var (
 	// 	myUser *User

@@ -1,13 +1,22 @@
 package parameters
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/http"
+	"net/http/httptest"
 
 	"github.com/pkg/errors"
 )
 
-func decodeContentTypeJSON(param interface{}, r *http.Request) error {
+func PrepareRequestForContentTypeJSON(method string, target string, json []byte) *http.Request {
+	body := bytes.NewBuffer(json)
+	r := httptest.NewRequest(method, target, body)
+	r.Header.Set("Content-Type", "application/json; charset=utf-8")
+	return r
+}
+
+func DecodeContentTypeJSON(param interface{}, r *http.Request) error {
 	err := json.NewDecoder(r.Body).Decode(&param)
 	if err != nil {
 		return errors.Wrap(err, "decodeContentTypeJSON")
@@ -19,7 +28,7 @@ func sanitizeFields(fields []interface{}) error {
 	for _, field := range fields {
 		if typeCheckableField, ok := field.(TypeCheckable); ok {
 			if err := typeCheckableField.TypeCheck(); err != nil {
-				return errors.Wrap(err, "sanitizeFields")
+				return errors.Wrapf(err, "sanitizeFields parameter = <%s>", field)
 			}
 		}
 	}

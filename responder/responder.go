@@ -2,6 +2,7 @@ package responder
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"runtime"
@@ -25,7 +26,7 @@ type ControllerLoggingFields struct {
 	Status        int         `json:"status" yaml:"status"`
 	IncidentId    string      `json:"incident_id" yaml:"incident_id"`
 	ErrorHint     string      `json:"error_hint" yaml:"error_hint"`
-	ErrorStack    error       `json:"error_stack" yaml:"error_stack"`
+	ErrorStack    string      `json:"error_stack" yaml:"error_stack"`
 	RequestHeader interface{} `json:"request_header" yaml:"request_header"`
 	RequestForm   interface{} `json:"request_form" yaml:"request_form"`
 	Endpoint      string      `json:"endpoint" yaml:"endpoint"`
@@ -40,12 +41,12 @@ func InternalErrorHandler(
 	endpoint string,
 ) {
 	byte_str, err := yaml.Marshal(ControllerLoggingFields{
+		Status:        statusCode,
 		IncidentId:    incidentId,
 		ErrorHint:     errorMessageForResponse,
-		ErrorStack:    errStackForLogs,
+		ErrorStack:    fmt.Sprint(errStackForLogs),
 		RequestHeader: r.Header,
 		RequestForm:   r.PostForm,
-		Status:        statusCode,
 		Endpoint:      endpoint,
 	})
 	if err != nil {

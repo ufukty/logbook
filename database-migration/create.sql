@@ -37,13 +37,12 @@ CREATE TYPE "COLLABORATION_SETTINGS_UPDATE_TYPE" AS ENUM (
 CREATE TABLE "USER" (
     "user_id"                   UUID                        UNIQUE DEFAULT gen_random_UUID(),
 
-    "username"                  TEXT                        NOT NULL,
-    "email_address"             TEXT                        NOT NULL, 
-    "email_address_truncated"   TEXT                        NOT NULL UNIQUE, -- dots and other non alpha-numerical characters wiped on the username. @ and domain saved
-    "password_hash_encoded"     TEXT                        NOT NULL, -- should be start with algo name, algo-parameters, salt and resulting hash
-    
+    "name_surname"              TEXT                        NOT NULL,
+    "email_address"             TEXT                        NOT NULL UNIQUE, 
+    "salt"                      TEXT                        NOT NULL,
+    "hashed_password"           TEXT                        NOT NULL, -- should be start with algo name, algo-parameters, salt and resulting hash
     "activated"                 BOOLEAN                     DEFAULT FALSE,
-    
+    "activated_at"              TIMESTAMP                   ,
     "created_at"                TIMESTAMP                   DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -52,7 +51,7 @@ CREATE TABLE "USER" (
 CREATE TABLE "ACCESS_EVENT_LOG"(
     "user_id"                   UUID                        NOT NULL REFERENCES "USER" ("user_id"),
     "event_type"                "ACCESS_EVENT_TYPE"         NOT NULL,
-    "user-agent"                TEXT,
+    "user-agent"                TEXT                        ,
     "ip-address"                INET                        NOT NULL,
     "created_at"                TIMESTAMP                   DEFAULT CURRENT_TIMESTAMP
 );

@@ -4,12 +4,12 @@ import "time"
 
 type UserCreate struct {
 	Request struct {
+		NameSurname  NonEmptyString `json:"name_surname"`
 		EmailAddress NonEmptyString `json:"email_address"`
-		Salt         NonEmptyString `json:"salt"`
+		RandomNumber NonEmptyString `json:"random_number"`
 		Password     NonEmptyString `json:"password"`
 	}
 	Response struct {
-		UserId UserId `json:"user_id"`
 	}
 }
 

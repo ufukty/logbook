@@ -1,9 +1,10 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 
-	. "logbook/main/database"
+	database "logbook/main/database"
 	parameters "logbook/main/parameters"
 	responder "logbook/main/responder"
 )
@@ -14,7 +15,22 @@ func TaskCreate(w http.ResponseWriter, r *http.Request) {
 		responder.ErrorHandler(w, r, http.StatusBadRequest, "Check your parameters", err)
 	}
 
-	Db.First()
+	result := database.Db.Create(
+		database.Task{
+			RevisionId:            "00000000-0000-0000-0000-000000000000",
+			OriginalCreatorUserId: "00000000-0000-0000-0000-000000000000",
+			ResponsibleUserId:     "00000000-0000-0000-0000-000000000000",
+			Content:               "Lorem ipsum dolor sit amet",
+			Notes:                 "Consectetur adipiscing elit",
+		},
+	)
+
+	if result.Error != nil {
+		fmt.Println(result.Error)
+	}
+	if result.RowsAffected != 1 {
+		fmt.Println("no")
+	}
 
 	// check auth
 

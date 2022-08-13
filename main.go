@@ -24,7 +24,7 @@ func main() {
 	flag.Parse()
 
 	// Initialize database connection pool
-	db.InitGORM("host=localhost user=ufuktan password=password dbname=logbook_dev port=5432 sslmode=disable TimeZone=utc") // os.Getenv("DATABASE_URL")
+	db.Init(db.TEST_DB_DSN) // os.Getenv("DATABASE_URL")
 	defer db.CloseDatabaseConnections()
 
 	//

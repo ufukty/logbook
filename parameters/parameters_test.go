@@ -1,18 +1,9 @@
 package parameters
 
 import (
-	"bytes"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 )
-
-func PrepareRequestForContentTypeJSON(method string, target string, json []byte) *http.Request {
-	body := bytes.NewBuffer(json)
-	r := httptest.NewRequest(method, target, body)
-	r.Header.Set("Content-Type", "application/json; charset=utf-8")
-	return r
-}
 
 func TestUserCreate(t *testing.T) {
 	t.Log("should PASS")

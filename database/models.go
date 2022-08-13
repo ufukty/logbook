@@ -40,13 +40,14 @@ const (
 )
 
 type User struct {
-	UserId                string    `gorm:"<-:create;->;not null;unique;default:gen_random_UUID()"`
-	Username              string    `gorm:"<-:create;->;not null;unique"`
-	EmailAddress          string    `gorm:"<-:create;->;not null"`
-	EmailAddressTruncated string    `gorm:"<-:create;->;not null;unique"`
-	PasswordHashEncoded   string    `gorm:"<-:create;->;not null"`
-	Activated             bool      `gorm:"not null;default:FALSE"`
-	CreatedAt             time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
+	UserId         string    `gorm:"<-:create;->;not null;unique;default:gen_random_UUID()"`
+	NameSurname    string    `gorm:"<-:create;->;not null"`
+	EmailAddress   string    `gorm:"<-:create;->;not null;unique"`
+	Salt           string    `gorm:"<-:create;->;not null"`
+	HashedPassword string    `gorm:"<-:create;->;not null"`
+	Activated      bool      `gorm:"not null;default:FALSE"`
+	ActivatedAt    time.Time `gorm:""`
+	CreatedAt      time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
 }
 
 type TaskOperation struct {
