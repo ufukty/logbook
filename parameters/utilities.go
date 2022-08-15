@@ -3,20 +3,25 @@ package parameters
 import (
 	"bytes"
 	"encoding/json"
+	"log"
 	"net/http"
 	"net/http/httptest"
 
 	"github.com/pkg/errors"
 )
 
-func PrepareRequestForContentTypeJSON(method string, target string, json []byte) *http.Request {
-	body := bytes.NewBuffer(json)
-	r := httptest.NewRequest(method, target, body)
+func PrepareJSONRequest(method string, target string, requestParams interface{}) *http.Request {
+	var buf bytes.Buffer
+	err := json.NewEncoder(&buf).Encode(requestParams)
+	if err != nil {
+		log.Fatalln(errors.Wrap(err, "Could not convert struct to json formed response body"))
+	}
+	r := httptest.NewRequest(method, target, &buf)
 	r.Header.Set("Content-Type", "application/json; charset=utf-8")
 	return r
 }
 
-func DecodeContentTypeJSON(param interface{}, r *http.Request) error {
+func DecodeJSONRequest(param interface{}, r *http.Request) error {
 	err := json.NewDecoder(r.Body).Decode(&param)
 	if err != nil {
 		return errors.Wrap(err, "decodeContentTypeJSON")
@@ -24,11 +29,21 @@ func DecodeContentTypeJSON(param interface{}, r *http.Request) error {
 	return nil
 }
 
-func sanitizeFields(fields []interface{}) error {
+func DecodeJSONResponse(param interface{}, w *httptest.ResponseRecorder) error {
+	res := w.Result()
+	defer res.Body.Close()
+	err := json.NewDecoder(res.Body).Decode(param)
+	if err != nil {
+		return errors.Wrap(err, "decodeContentTypeJSON")
+	}
+	return nil
+}
+
+func typeCheckAllFields(fields []interface{}) error {
 	for _, field := range fields {
 		if typeCheckableField, ok := field.(TypeCheckable); ok {
 			if err := typeCheckableField.TypeCheck(); err != nil {
-				return errors.Wrapf(err, "sanitizeFields parameter = <%s>", field)
+				return errors.Wrap(err, "typeCheckAllFields")
 			}
 		}
 	}

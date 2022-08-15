@@ -1,43 +1,77 @@
 package controllers
 
 import (
-	"fmt"
-	"math/rand"
+	"bytes"
+	"log"
 	"net/http"
 	"net/http/httptest"
+	"os/exec"
 	"testing"
 
 	"logbook/main/database"
 	"logbook/main/parameters"
+
+	"github.com/pkg/errors"
 )
 
-func TestUserCreate(t *testing.T) {
-	// test happy path
-
-	// test failing conditions
-	//   missing parameters
-	//     dsd
-	//// second registration -> same username / e-mail
-
+func LoadTestDatabase() {
 	database.Init(database.TEST_DB_DSN)
+}
 
-	randomEmail := fmt.Sprintf("test_user_%s", rand.Int())
-	randomNumber := rand.Int()
+func ResetTestDatabase() {
+	cmd := exec.Command("make", "migrate")
+	cmd.Dir = "../"
 
-	r := parameters.PrepareRequestForContentTypeJSON(http.MethodPost, "/user", []byte(`{
-		"email_address": "testUserCreate@golang.example.com",
-		"random_number": "loremipsumdolorsitamet",
-		"password": "123456789"
-	}`))
+	// cmd.Stdin = strings.NewReader("and old falcon")
+
+	var stdout bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stdout
+
+	err := cmd.Run()
+
+	if err != nil {
+		log.Fatalln(stdout.String(), err)
+	}
+	log.Println(stdout.String())
+}
+
+func UserCreateMissingParameters(t *testing.T) {
 	w := httptest.NewRecorder()
+	params := parameters.UserCreate{}
+	params.Request.EmailAddress = "testUserCreate@golang.example.com"
+	r := parameters.PrepareJSONRequest(http.MethodPost, "/user", params.Request)
 	UserCreate(w, r)
-	// res := w.Result()
-	// defer res.Body.Close()
-	// data, err := ioutil.ReadAll(res.Body)
-	// if err != nil {
-	// 	t.Errorf("expected error to be nil got %v", err)
-	// }
-	// if string(data) != "ABC" {
-	// 	t.Errorf("expected ABC got %v", string(data))
-	// }
+	err := parameters.DecodeJSONResponse(params.Response, w)
+	if err != nil {
+		log.Println(errors.Wrap(err, "UserCreateMissingParameters()"))
+		t.Fail()
+	}
+	log.Println(params.Response)
+}
+
+// test happy path
+// test failing conditions:
+// - missing parameters
+// - invalid ant-CSRF token
+// - second registration -> same username / e-mail
+func TestUserCreate(t *testing.T) {
+	ResetTestDatabase()
+	database.Init(database.TEST_DB_DSN)
+	defer database.CloseConnection()
+
+	UserCreateMissingParameters(t)
+	// SHOULD FAIL: because empty/invalid ant-CSRF token
+
+	// SHOULD PASS:
+	// r = parameters.PrepareJSONRequest(http.MethodPost, "/user", []byte(`{
+	// 	"email_address": "testUserCreate@golang.example.com",
+	// 	"random_number": "loremipsumdolorsitamet",
+	// 	"password": "123456789"
+	// }`))
+	// UserCreate(w, r)
+
+	// SHOULD FAIL: Register twice
+
+	// parameters.DecodeContentTypeJSON(parameters
 }

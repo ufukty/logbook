@@ -1,7 +1,10 @@
 package database
 
 import (
+	"bytes"
+	"fmt"
 	"log"
+	"os/exec"
 	"regexp"
 
 	"github.com/pkg/errors"
@@ -31,12 +34,30 @@ func initGORM(DSN string) {
 	}
 }
 
-func CloseDatabaseConnections() {
+func CloseConnection() {
 	sqlDb, err := Db.DB()
 	if err != nil {
 		log.Fatalln("Couldn't close database connections because failed to retrieve database object from GORM")
 	}
 	sqlDb.Close()
+}
+
+func ReloadTestDatabase() {
+	cmd := exec.Command("make", "migrate")
+	cmd.Dir = "../"
+
+	// cmd.Stdin = strings.NewReader("and old falcon")
+
+	var stdout bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stdout
+
+	err := cmd.Run()
+
+	if err != nil {
+		log.Fatalln(stdout.String(), errors.Wrap(err, "ReloadTestDatabase()"))
+	}
+	fmt.Println(stdout.String())
 }
 
 var regularExpressionForSQLStateNumber *regexp.Regexp
@@ -45,7 +66,7 @@ func initRegex() {
 	var err error
 	regularExpressionForSQLStateNumber, err = regexp.Compile(`\(SQLSTATE ([0-9]*)\)$`)
 	if err != nil {
-		log.Fatalln(errors.Wrap(err, "Could not compile regex"))
+		log.Fatalln(errors.Wrap(err, "initRegex() Could not compile regex"))
 	}
 }
 

@@ -7,7 +7,7 @@ import (
 
 func TestUserCreate(t *testing.T) {
 	t.Log("should PASS")
-	r := PrepareRequestForContentTypeJSON(http.MethodPost, "/user", []byte(`{
+	r := PrepareJSONRequest(http.MethodPost, "/user", []byte(`{
 		"email_address": "testUserCreate@golang.example.com",
 		"salt": "loremipsumdolorsitamet",
 		"password": "123456789"
@@ -20,7 +20,7 @@ func TestUserCreate(t *testing.T) {
 		t.Log(parameters)
 	}
 	t.Log("should FAIL")
-	r = PrepareRequestForContentTypeJSON(http.MethodPost, "/user", []byte(`{
+	r = PrepareJSONRequest(http.MethodPost, "/user", []byte(`{
 		"email_address": "testUserCreate@golang.example.com"
 	}`))
 	parameters = UserCreate{}
@@ -34,7 +34,7 @@ func TestUserCreate(t *testing.T) {
 
 func TestTaskCreate(t *testing.T) {
 	t.Log("should PASS")
-	r := PrepareRequestForContentTypeJSON(http.MethodPost, "/task/create", []byte(`{
+	r := PrepareJSONRequest(http.MethodPost, "/task/create", []byte(`{
 		"authorization_token": "TODO: implement auth later",
 		"user_id": "00000000-0000-0000-0000-000000000000",
 		"super_task_id": "00000000-0000-0000-0000-000000000000",
@@ -49,7 +49,7 @@ func TestTaskCreate(t *testing.T) {
 		t.Log(parameters)
 	}
 	t.Log("should FAIL")
-	r = PrepareRequestForContentTypeJSON(http.MethodPost, "/task/create", []byte(`{
+	r = PrepareJSONRequest(http.MethodPost, "/task/create", []byte(`{
 		"content": "First task"
 	}`))
 	parameters = TaskCreate{}

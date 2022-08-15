@@ -18,7 +18,7 @@ func TestCreateUser(t *testing.T) {
 
 	// Initialize database connection with test database
 	Init("postgres://ufuktan:password@localhost:5432/logbook_dev")
-	defer CloseDatabaseConnections()
+	defer CloseConnection()
 
 	// Create USER
 	myUser := User{

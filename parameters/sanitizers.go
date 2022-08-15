@@ -11,7 +11,7 @@ func (param *UserCreate) InputSanitizer(r *http.Request) error {
 	if err := json.NewDecoder(r.Body).Decode(&param.Request); err != nil {
 		return errors.Wrap(err, "InputSanitizer/Decoding")
 	}
-	if err := sanitizeFields([]interface{}{
+	if err := typeCheckAllFields([]interface{}{
 		&(param.Request.EmailAddress),
 		&(param.Request.Password),
 		&(param.Request.RandomNumber),
@@ -22,10 +22,10 @@ func (param *UserCreate) InputSanitizer(r *http.Request) error {
 }
 
 func (param *TaskCreate) InputSanitizer(r *http.Request) error {
-	if err := DecodeContentTypeJSON(&param.Request, r); err != nil {
+	if err := DecodeJSONRequest(&param.Request, r); err != nil {
 		return errors.Wrap(err, "InputSanitizer/Decoding")
 	}
-	if err := sanitizeFields([]interface{}{
+	if err := typeCheckAllFields([]interface{}{
 		&(param.Request.AuthorizationToken),
 		&(param.Request.UserId),
 		&(param.Request.Content),
@@ -38,10 +38,10 @@ func (param *TaskCreate) InputSanitizer(r *http.Request) error {
 }
 
 func (param *PlacementArrayHierarchical) InputSanitizer(r *http.Request) error {
-	if err := DecodeContentTypeJSON(&param.Request, r); err != nil {
+	if err := DecodeJSONRequest(&param.Request, r); err != nil {
 		return errors.Wrap(err, "InputSanitizer/Decoding")
 	}
-	if err := sanitizeFields([]interface{}{
+	if err := typeCheckAllFields([]interface{}{
 		&(param.Request.AuthorizationToken),
 		&(param.Request.UserId),
 		&(param.Request.RootTaskId),

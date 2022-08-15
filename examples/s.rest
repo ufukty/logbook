@@ -1,9 +1,20 @@
-@apiUrl = https://localhost:8080
+@apiUrl = 127.0.0.1:8080
 
-// Create Document
+## Create Document
+
+POST http://{{apiUrl}}/account HTTP/1.1
+Content-Type: application/json
+{
+    "name_surname": "Lightning McQueen",
+    "email_address": "ka-chow@test.balaasad.com",
+    "random_number": "87227308",
+    "password": "sally-carrera"
+}
+
+### Create Document
+
 POST {{apiUrl}}/document HTTP/1.1
 Content-Type: application/json
-
 {
     "displayName": "My Test Document" 
 }
