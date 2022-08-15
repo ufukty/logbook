@@ -32,7 +32,7 @@ func DecodeJSONRequest(param interface{}, r *http.Request) error {
 func DecodeJSONResponse(param interface{}, w *httptest.ResponseRecorder) error {
 	res := w.Result()
 	defer res.Body.Close()
-	err := json.NewDecoder(res.Body).Decode(param)
+	err := json.NewDecoder(res.Body).Decode(&param)
 	if err != nil {
 		return errors.Wrap(err, "decodeContentTypeJSON")
 	}

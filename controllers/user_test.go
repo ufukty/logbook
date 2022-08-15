@@ -10,6 +10,7 @@ import (
 
 	"logbook/main/database"
 	"logbook/main/parameters"
+	responder "logbook/main/responder"
 
 	"github.com/pkg/errors"
 )
@@ -42,6 +43,8 @@ func UserCreateMissingParameters(t *testing.T) {
 	params.Request.EmailAddress = "testUserCreate@golang.example.com"
 	r := parameters.PrepareJSONRequest(http.MethodPost, "/user", params.Request)
 	UserCreate(w, r)
+	apiResponseTemplate := responder.ControllerResponseFields{}
+	apiResponseTemplate.Resource = params.Response
 	err := parameters.DecodeJSONResponse(params.Response, w)
 	if err != nil {
 		log.Println(errors.Wrap(err, "UserCreateMissingParameters()"))
