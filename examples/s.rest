@@ -1,9 +1,10 @@
 @apiUrl = 127.0.0.1:8080
 
-## Create Document
+### Create Document
 
 POST http://{{apiUrl}}/account HTTP/1.1
 Content-Type: application/json
+
 {
     "name_surname": "Lightning McQueen",
     "email_address": "ka-chow@test.balaasad.com",
@@ -15,6 +16,7 @@ Content-Type: application/json
 
 POST {{apiUrl}}/document HTTP/1.1
 Content-Type: application/json
+
 {
     "displayName": "My Test Document" 
 }
