@@ -1,34 +1,38 @@
 package parameters
 
 import (
+	"log"
 	"net/http"
 	"testing"
+
+	"github.com/pkg/errors"
 )
 
+// check for if InputSanitizer works/fails when it is appropriate (for different inputs)
 func TestUserCreate(t *testing.T) {
-	t.Log("should PASS")
+	log.Println("should PASS")
 	r := PrepareJSONRequest(http.MethodPost, "/user", []byte(`{
 		"email_address": "testUserCreate@golang.example.com",
-		"salt": "loremipsumdolorsitamet",
+		"name_surname": "Quality Assurance",
 		"password": "123456789"
 	}`))
-	parameters := UserCreate{}
-	if err := parameters.InputSanitizer(r); err != nil {
-		t.Errorf(err.Error())
+	params := UserCreate{}
+	if err := params.InputSanitizer(r); err != nil {
+		t.Error(errors.Wrap(err, "TestUserCreate()"))
 	} else {
-		t.Log(err)
-		t.Log(parameters)
+		log.Println(err)
+		log.Println(params)
 	}
-	t.Log("should FAIL")
+	log.Println("should FAIL")
 	r = PrepareJSONRequest(http.MethodPost, "/user", []byte(`{
 		"email_address": "testUserCreate@golang.example.com"
 	}`))
-	parameters = UserCreate{}
-	if err := parameters.InputSanitizer(r); err == nil {
+	params = UserCreate{}
+	if err := params.InputSanitizer(r); err == nil {
 		t.Errorf("Misconfigured input has accepted.")
 	} else {
-		t.Log(err)
-		t.Log(parameters)
+		log.Println(err)
+		log.Println(params)
 	}
 }
 

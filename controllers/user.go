@@ -12,6 +12,12 @@ import (
 	"github.com/pkg/errors"
 )
 
+const (
+	INVALID_PARAMETERS = "INVALID_PARAMETERS"
+	INTERNAL_SERVER    = "INTERNAL_SERVER"
+	INVALID_EMAIL      = "INVALID_EMAIL"
+)
+
 // Objectives for this function
 // * Sanitize user input
 // TODO: * Secure against timing-attacks
@@ -22,18 +28,18 @@ import (
 func UserCreate(w http.ResponseWriter, r *http.Request) {
 	params := parameters.UserCreate{}
 	if err := params.InputSanitizer(r); err != nil {
-		responder.ErrorHandler(w, r, http.StatusBadRequest, "INVALID_PARAMETERS", errors.Wrap(err, "UserCreate"))
+		responder.ErrorHandler(w, r, http.StatusBadRequest, INVALID_PARAMETERS, errors.Wrap(err, "UserCreate"))
 		return
 	}
 
 	salt, err := crypto.NewSalt()
 	if err != nil {
-		responder.ErrorHandler(w, r, http.StatusInternalServerError, "INTERNAL_SERVER", errors.Wrap(err, "UserCreate()"))
+		responder.ErrorHandler(w, r, http.StatusInternalServerError, INTERNAL_SERVER, errors.Wrap(err, "UserCreate()"))
 	}
 
 	hashedPassword, err := crypto.Argon2Hash([]byte(params.Request.Password), salt)
 	if err != nil {
-		responder.ErrorHandler(w, r, http.StatusInternalServerError, "INTERNAL_SERVER", errors.Wrap(err, "UserCreate()"))
+		responder.ErrorHandler(w, r, http.StatusInternalServerError, INTERNAL_SERVER, errors.Wrap(err, "UserCreate()"))
 		return
 	}
 
@@ -48,10 +54,10 @@ func UserCreate(w http.ResponseWriter, r *http.Request) {
 	if result.Error != nil {
 		errorCode := database.StripSQLState(fmt.Sprint(result.Error))
 		if errorCode == pgerrcode.UniqueViolation {
-			responder.ErrorHandler(w, r, http.StatusBadRequest, "INVALID_EMAIL", errors.Wrap(result.Error, "UserCreate()"))
+			responder.ErrorHandler(w, r, http.StatusBadRequest, INVALID_EMAIL, errors.Wrap(result.Error, "UserCreate()"))
 			return
 		}
-		responder.ErrorHandler(w, r, http.StatusInternalServerError, "INVALID_PARAMETERS", errors.Wrap(result.Error, "UserCreate()"))
+		responder.ErrorHandler(w, r, http.StatusInternalServerError, INVALID_PARAMETERS, errors.Wrap(result.Error, "UserCreate()"))
 		return
 	}
 

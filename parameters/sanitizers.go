@@ -21,7 +21,7 @@ func (param *UserCreate) InputSanitizer(r *http.Request) error {
 }
 
 func (param *TaskCreate) InputSanitizer(r *http.Request) error {
-	if err := DecodeJSONRequest(&param.Request, r); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&param.Request); err != nil {
 		return errors.Wrap(err, "InputSanitizer/Decoding")
 	}
 	if err := typeCheckAllFields([]interface{}{
@@ -37,7 +37,7 @@ func (param *TaskCreate) InputSanitizer(r *http.Request) error {
 }
 
 func (param *PlacementArrayHierarchical) InputSanitizer(r *http.Request) error {
-	if err := DecodeJSONRequest(&param.Request, r); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&param.Request); err != nil {
 		return errors.Wrap(err, "InputSanitizer/Decoding")
 	}
 	if err := typeCheckAllFields([]interface{}{
