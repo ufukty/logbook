@@ -26,16 +26,20 @@ func UserCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hashedPassword, err := crypto.Hash(string(params.Request.Password), string(params.Request.RandomNumber))
+	salt, err := crypto.NewSalt()
 	if err != nil {
-		responder.ErrorHandler(w, r, http.StatusInternalServerError, "INVALID_PARAMETERS", errors.Wrap(err, "UserCreate()"))
+		responder.ErrorHandler(w, r, http.StatusInternalServerError, "INTERNAL_SERVER", errors.Wrap(err, "UserCreate()"))
+	}
+
+	hashedPassword, err := crypto.Argon2Hash([]byte(params.Request.Password), salt)
+	if err != nil {
+		responder.ErrorHandler(w, r, http.StatusInternalServerError, "INTERNAL_SERVER", errors.Wrap(err, "UserCreate()"))
 		return
 	}
 
 	user := database.User{
 		NameSurname:    string(params.Request.NameSurname),
 		EmailAddress:   string(params.Request.EmailAddress),
-		Salt:           string(params.Request.RandomNumber),
 		HashedPassword: hashedPassword,
 	}
 

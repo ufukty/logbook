@@ -14,7 +14,6 @@ func (param *UserCreate) InputSanitizer(r *http.Request) error {
 	if err := typeCheckAllFields([]interface{}{
 		&(param.Request.EmailAddress),
 		&(param.Request.Password),
-		&(param.Request.RandomNumber),
 	}); err != nil {
 		return errors.Wrap(err, "InputSanitizer/Sanitization")
 	}

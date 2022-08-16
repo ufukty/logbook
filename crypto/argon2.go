@@ -5,6 +5,8 @@ import (
 	"github.com/tvdburgt/go-argon2"
 )
 
+const MAX_SALT_SIZE_IN_BYTES = 16
+
 var defaultArgon2Config = &argon2.Context{
 	Iterations:  3,
 	Memory:      1 << 12, // 4 MiB
@@ -14,18 +16,18 @@ var defaultArgon2Config = &argon2.Context{
 	Version:     argon2.Version13,
 }
 
-func VerifyHash(storedHash, clearText string) (bool, error) {
-	result, err := argon2.VerifyEncoded(storedHash, []byte(clearText))
+func Argon2Hash(clearText []byte, salt []byte) (string, error) {
+	hashedString, err := argon2.HashEncoded(defaultArgon2Config, clearText, salt)
 	if err != nil {
-		return false, errors.Wrap(err, "VerifyHash()")
-	}
-	return result, nil
-}
-
-func Hash(clear, salt string) (string, error) {
-	hashedString, err := argon2.HashEncoded(defaultArgon2Config, []byte(clear), []byte(salt))
-	if err != nil {
-		return "", errors.Wrap(err, "Hash()")
+		return "", errors.Wrap(err, "Argon2Hash()")
 	}
 	return hashedString, nil
+}
+
+func Argon2Verify(storedHash string, clearText []byte) (bool, error) {
+	result, err := argon2.VerifyEncoded(storedHash, clearText)
+	if err != nil {
+		return false, errors.Wrap(err, "Argon2Verify()")
+	}
+	return result, nil
 }

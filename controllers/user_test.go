@@ -45,12 +45,15 @@ func UserCreateMissingParameters(t *testing.T) {
 	UserCreate(w, r)
 	apiResponseTemplate := responder.ControllerResponseFields{}
 	apiResponseTemplate.Resource = params.Response
-	err := parameters.DecodeJSONResponse(params.Response, w)
+	err := parameters.DecodeJSONResponse(&apiResponseTemplate, w)
 	if err != nil {
 		log.Println(errors.Wrap(err, "UserCreateMissingParameters()"))
 		t.Fail()
 	}
-	log.Println(params.Response)
+	log.Printf("%#v", apiResponseTemplate)
+	if apiResponseTemplate.Status != http.StatusBadRequest {
+		t.Fail()
+	}
 }
 
 // test happy path
@@ -64,6 +67,9 @@ func TestUserCreate(t *testing.T) {
 	defer database.CloseConnection()
 
 	UserCreateMissingParameters(t)
+	// UserCreateInvalidAntiCSRFToken(t)
+	// UserCreateTwiceRegistration(t)
+	// UserCreatePerfectCase(t)
 	// SHOULD FAIL: because empty/invalid ant-CSRF token
 
 	// SHOULD PASS:

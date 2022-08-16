@@ -6,7 +6,6 @@ type UserCreate struct {
 	Request struct {
 		NameSurname  NonEmptyString `json:"name_surname"`
 		EmailAddress NonEmptyString `json:"email_address"`
-		RandomNumber NonEmptyString `json:"random_number"`
 		Password     NonEmptyString `json:"password"`
 	}
 	Response struct {
