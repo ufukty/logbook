@@ -8,6 +8,7 @@ const base64Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123
 
 var encoder = base64.NewEncoding(base64Alphabet)
 
+// Adds (=) as padding at the end of output if the length is not multiples of 4
 func Base64Encode(input []byte) []byte {
 	length := encoder.EncodedLen(len(input))
 	output := make([]byte, length)
@@ -31,6 +32,7 @@ func AddPadding(input []byte) []byte {
 	return input
 }
 
+// Expects (=) padding at the end of input, if input length is not multiples of 4
 func Base64Decode(input []byte) ([]byte, error) {
 	output := make([]byte, encoder.DecodedLen(len(input)))
 	n, err := encoder.Decode(output, input)

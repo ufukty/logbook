@@ -9,6 +9,7 @@ import (
 	responder "logbook/main/responder"
 )
 
+// TODO: Check user input for script tags in order to prevent XSS attempts
 func TaskCreate(w http.ResponseWriter, r *http.Request) {
 	params := parameters.TaskCreate{}
 	if err := params.InputSanitizer(r); err != nil {
@@ -21,7 +22,7 @@ func TaskCreate(w http.ResponseWriter, r *http.Request) {
 			OriginalCreatorUserId: "00000000-0000-0000-0000-000000000000",
 			ResponsibleUserId:     "00000000-0000-0000-0000-000000000000",
 			Content:               "Lorem ipsum dolor sit amet",
-			Notes:                 "Consectetur adipiscing elit",
+			// Notes:                 "Consectetur adipiscing elit",
 		},
 	)
 

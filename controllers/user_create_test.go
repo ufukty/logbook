@@ -34,83 +34,91 @@ func ResetTestDatabase() {
 	if err != nil {
 		log.Fatalln(stdout.String(), err)
 	}
-	log.Println(stdout.String())
+	// log.Println(stdout.String())
 }
 
-func UserCreateMissingParameters(t *testing.T) {
+func SendUserCreateRequest(params *parameters.UserCreate) (*responder.ControllerResponseFields, error) {
 	w := httptest.NewRecorder()
-	params := parameters.UserCreate{}
-	params.Request.EmailAddress = "unit-test@golang.example.com"
 	r := PrepareJSONRequest(http.MethodPost, "/user", params.Request)
 	UserCreate(w, r)
 	apiResponseTemplate := responder.ControllerResponseFields{}
 	apiResponseTemplate.Resource = params.Response
 	err := DecodeJSONResponse(&apiResponseTemplate, w)
 	if err != nil {
-		t.Log(errors.Wrap(err, "UserCreateMissingParameters()"))
+		return nil, errors.Wrap(err, "UserCreateTwiceRegistration()")
 	}
-	log.Printf("%#v", apiResponseTemplate)
-	if apiResponseTemplate.Status != http.StatusBadRequest {
-		t.Fail()
-	}
-	if apiResponseTemplate.ErrorHint != "INVALID_PARAMETERS" {
-		t.Fail()
-	}
+	return &apiResponseTemplate, nil
 }
 
-func UserCreatePerfectCase(t *testing.T) {
-	w := httptest.NewRecorder()
-	params := parameters.UserCreate{}
-	params.Request.EmailAddress = "unit-test@golang.example.com"
-	params.Request.NameSurname = "Quality Assurance"
-	params.Request.Password = "lorem-ipsum-dolor-sit-amet"
-	r := PrepareJSONRequest(http.MethodPost, "/user", params.Request)
-	UserCreate(w, r)
-	apiResponseTemplate := responder.ControllerResponseFields{}
-	apiResponseTemplate.Resource = params.Response
-	err := DecodeJSONResponse(&apiResponseTemplate, w)
-	if err != nil {
-		t.Log(errors.Wrap(err, "UserCreatePerfectCase()"))
-	}
-	log.Printf("%#v", apiResponseTemplate)
-	if apiResponseTemplate.Status != http.StatusOK {
-		t.Fail()
-	}
-	if apiResponseTemplate.ErrorHint != "" {
-		t.Fail()
-	}
-}
-
-func UserCreateTwiceRegistration(t *testing.T) {
-	w := httptest.NewRecorder()
-	params := parameters.UserCreate{}
-	params.Request.EmailAddress = "unit-test@golang.example.com"
-	params.Request.NameSurname = "Quality Assurance"
-	params.Request.Password = "lorem-ipsum-dolor-sit-amet"
-	r := PrepareJSONRequest(http.MethodPost, "/user", params.Request)
-	UserCreate(w, r)
-	apiResponseTemplate := responder.ControllerResponseFields{}
-	apiResponseTemplate.Resource = params.Response
-	err := DecodeJSONResponse(&apiResponseTemplate, w)
-	if err != nil {
-		t.Log(errors.Wrap(err, "UserCreateTwiceRegistration()"))
-	}
-	log.Printf("%#v", apiResponseTemplate)
-	if apiResponseTemplate.Status != http.StatusBadRequest {
-		t.Fail()
-	}
-	if apiResponseTemplate.ErrorHint != "INVALID_EMAIL" {
-		t.Fail()
-	}
-}
-
-func TestUserCreate(t *testing.T) {
+func TestUserCreateMissingParameters(t *testing.T) {
 	ResetTestDatabase()
 	database.Init(database.TEST_DB_DSN)
 	defer database.CloseConnection()
 
-	UserCreateMissingParameters(t)
-	// UserCreateInvalidAntiCSRFToken(t)
-	UserCreatePerfectCase(t)
-	UserCreateTwiceRegistration(t)
+	params := parameters.UserCreate{}
+	params.Request.EmailAddress = "unit-test@golang.example.com"
+	response, err := SendUserCreateRequest(&params)
+	if err != nil {
+		t.Error(err)
+	}
+	if response.Status == http.StatusOK {
+		t.Errorf("Unexpected success for missing parameters")
+		t.Errorf("%#v", response)
+	}
+}
+
+func TestUserCreatePerfectCase(t *testing.T) {
+	ResetTestDatabase()
+	database.Init(database.TEST_DB_DSN)
+	defer database.CloseConnection()
+
+	params := parameters.UserCreate{}
+	params.Request.EmailAddress = "unit-test@golang.example.com"
+	params.Request.NameSurname = "Quality Assurance"
+	params.Request.Password = "lorem-ipsum-dolor-sit-amet"
+	response, err := SendUserCreateRequest(&params)
+	if err != nil {
+		t.Error(err)
+	}
+	if response.Status != http.StatusOK {
+		t.Errorf("Unexpected failure")
+		t.Errorf("%#v", response)
+	}
+}
+
+func TestUserCreateTwiceRegistration(t *testing.T) {
+	ResetTestDatabase()
+	database.Init(database.TEST_DB_DSN)
+	defer database.CloseConnection()
+
+	params := parameters.UserCreate{}
+	params.Request.EmailAddress = "unit-test@golang.example.com"
+	params.Request.NameSurname = "Quality Assurance"
+	params.Request.Password = "lorem-ipsum-dolor-sit-amet"
+	response, err := SendUserCreateRequest(&params)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if response.Status != http.StatusOK {
+		t.Errorf("Unexpected failure at first registration")
+		t.Errorf("%#v", response)
+	}
+
+	response, err = SendUserCreateRequest(&params)
+	if err != nil {
+		t.Error(err)
+	}
+	if response.Status == http.StatusOK {
+		t.Errorf("Unexpected success at second registration")
+		t.Errorf("%#v", response)
+	}
+}
+
+func TestUserCreateInvalidAntiCSRFToken(t *testing.T) {
+	ResetTestDatabase()
+	database.Init(database.TEST_DB_DSN)
+	defer database.CloseConnection()
+
+	t.Errorf("IMPLEMENT")
 }

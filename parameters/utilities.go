@@ -15,11 +15,11 @@ func PrepareJSONRequest(method string, target string, json []byte) *http.Request
 	return r
 }
 
-func typeCheckAllFields(fields []interface{}) error {
-	for _, field := range fields {
+func typeCheckAllFields(fields map[string]interface{}) error {
+	for handle, field := range fields {
 		if typeCheckableField, ok := field.(TypeCheckable); ok {
 			if err := typeCheckableField.TypeCheck(); err != nil {
-				return errors.Wrap(err, "typeCheckAllFields")
+				return errors.Wrapf(err, "typeCheckAllFields %s", handle)
 			}
 		}
 	}

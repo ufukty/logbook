@@ -39,8 +39,8 @@ CREATE TABLE "USER" (
 
     "name_surname"              TEXT                        NOT NULL,
     "email_address"             TEXT                        NOT NULL UNIQUE, 
-    "salt"                      TEXT                        NOT NULL,
-    "hashed_password"           TEXT                        NOT NULL, -- should be start with algo name, algo-parameters, salt and resulting hash
+    "salt_base64_encoded"       TEXT                        NOT NULL,
+    "hash_encoded"              TEXT                        NOT NULL, -- should be start with algo name, algo-parameters, salt and resulting hash
     "activated"                 BOOLEAN                     DEFAULT FALSE,
     "activated_at"              TIMESTAMP                   ,
     "created_at"                TIMESTAMP                   DEFAULT CURRENT_TIMESTAMP
@@ -56,16 +56,16 @@ CREATE TABLE "ACCESS_EVENT_LOG"(
     "created_at"                TIMESTAMP                   DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TYPE "TASK_OPERATION_SUMMARY" AS ENUM (
-    'CREATE',
-    'REORDER',
-    'DELETE',
-    'CONTENT_EDIT',
+CREATE TYPE "OPERATION_SUMMARY" AS ENUM (
+    'TASK_CREATE',
+    'TASK_REORDER',
+    'TASK_DELETE',
+    'TASK_CONTENT_EDIT',
+    'TASK_MARK_COMPLETE',
+    'TASK_MARK_UNCOMPLETE',
     'NOTE_CREATE',
     'NOTE_EDIT',
     'NOTE_DELETE',
-    'MARK_COMPLETE',
-    'MARK_UNCOMPLETE',
     'COLLABORATION_ASSIGN',
     'COLLABORATION_UNASSIGN',
     'COLLABORATION_RESTRICT',
@@ -75,7 +75,8 @@ CREATE TYPE "TASK_OPERATION_SUMMARY" AS ENUM (
     'HISTORY_FASTFORWARD'
 );
 
-CREATE TYPE "TASK_OPERATION_STATUS" AS ENUM (
+CREATE TYPE "OPERATION_STATUS" AS ENUM (
+    'SERVER_ORIGINATED',
     'IN_REVIEW',
     'PRIV_ACCEPTED',
     'PRIV_REJECTED',
@@ -87,18 +88,14 @@ CREATE TYPE "TASK_OPERATION_STATUS" AS ENUM (
     'MANAGER_SELECTION_REJECTED'
 );
 
-CREATE TABLE "TASK_OPERATION" (
+CREATE TABLE "OPERATION" (
     "operation_id"              UUID                        UNIQUE DEFAULT gen_random_UUID(),
-
-    "revision_id"               UUID                        UNIQUE DEFAULT gen_random_UUID(),
-    "previous_revision_id"      UUID                        NOT NULL,
+    "previous_operation_id"     UUID                        ,
 
     "user_id"                   UUID                        NOT NULL,
-    "operation_summary"         "TASK_OPERATION_SUMMARY"    NOT NULL,
-    "operation_status"          "TASK_OPERATION_STATUS"     NOT NULL,
 
-    "task_id"                   UUID                        NOT NULL, -- id of updated task
-    "link_id"                   UUID                        NOT NULL, -- id of updated link
+    "summary"                   "OPERATION_SUMMARY"         NOT NULL,
+    "status"                    "OPERATION_STATUS"          NOT NULL,
 
     "created_at"                TIMESTAMP                   DEFAULT CURRENT_TIMESTAMP,
     "archived_at"               TIMESTAMP                   -- user can delete task history items that they don't want to see again in history
@@ -113,7 +110,7 @@ CREATE TYPE "TASK_ROLE" AS ENUM (
 CREATE TABLE "TASK_PRIVILEGE" (
     "revision_id"               UUID                        NOT NULL,
     "task_id"                   UUID                        NOT NULL,
-    "role"                      "TASK_ROLE"                      NOT NULL,
+    "role"                      "TASK_ROLE"                 NOT NULL,
     "created_at"                TIMESTAMP                   DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -126,12 +123,22 @@ CREATE TABLE "TASK" (
     "responsible_user_id"       UUID                        NOT NULL REFERENCES "USER" ("user_id"), -- handover resposible role when last one quits
 
     "content"                   TEXT                        NOT NULL,
-    "notes"                     TEXT                        NOT NULL,
+    -- "notes"                     TEXT                        NOT NULL,
 
     "created_at"                TIMESTAMP                   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "completed_at"              TIMESTAMP                   ,  
     "archived_at"               TIMESTAMP                   ,
-    "archived"                  BOOLEAN                     NOT NULL DEFAULT FALSE
+    "archived"                  BOOLEAN                     NOT NULL DEFAULT FALSE,
+
+    "root_task"                 BOOLEAN                     NOT NULL DEFAULT FALSE
+);
+
+CREATE TABLE "NOTE" (
+    "note_id"                   UUID                        DEFAULT gen_random_UUID(),
+    "revision_id"               UUID                        NOT NULL,
+    "task_id"                   UUID                        NOT NULL,
+    "creator_user_id"           UUID                        NOT NULL,
+    "content"                   UUID                        NOT NULL
 );
 
 CREATE TABLE "TASK_LINK" (

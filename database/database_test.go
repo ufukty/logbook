@@ -22,10 +22,10 @@ func TestCreateUser(t *testing.T) {
 
 	// Create USER
 	myUser := User{
-		NameSurname:    string("Name Surname"),
-		EmailAddress:   string("testUserCreate@golang.example.com"),
-		Salt:           string("loremipsum"),
-		HashedPassword: string("$argon2id$v=19$m=4096,t=3,p=1$bG9yZW1pcHN1bQ$6ASAMXM/1Czod3ixSuEe6x+nb96mFkTWjlruH+fAGtY"),
+		NameSurname:       string("Name Surname"),
+		EmailAddress:      string("testUserCreate@golang.example.com"),
+		SaltBase64Encoded: string("bG9yZW1pcHN1bQ=="),
+		HashEncoded:       string("$argon2id$v=19$m=4096,t=3,p=1$bG9yZW1pcHN1bQ$6ASAMXM/1Czod3ixSuEe6x+nb96mFkTWjlruH+fAGtY"),
 	}
 	result := Db.Create(&myUser)
 	if result.Error != nil {
