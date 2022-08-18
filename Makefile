@@ -14,3 +14,6 @@ run: build
 
 migrate:
 	cd database-migration && psql -U $(PSQL_USER) -d postgres -f create.sql
+
+psql-dev:
+	psql -U ufuktan -d logbook_dev
