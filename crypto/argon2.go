@@ -5,8 +5,6 @@ import (
 	"github.com/tvdburgt/go-argon2"
 )
 
-const MAX_SALT_SIZE_IN_BYTES = 16
-
 var defaultArgon2Config = &argon2.Context{
 	Iterations:  3,
 	Memory:      1 << 12, // 4 MiB
