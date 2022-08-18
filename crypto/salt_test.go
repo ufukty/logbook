@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"sort"
 	"testing"
+
+	"github.com/pkg/errors"
 )
 
 func Min(x, y int) int {
@@ -29,7 +31,7 @@ func TestNewSaltEncodingDecoding(t *testing.T) {
 	for i := 0; i < 100000; i++ {
 		saltInBytes, err := NewSalt()
 		if err != nil {
-			t.Fail()
+			t.Error(errors.Wrap(err, "TestNewSaltEncodingDecoding()"))
 		}
 		// log.Println("saltInBytes: ", saltInBytes)
 
@@ -38,14 +40,14 @@ func TestNewSaltEncodingDecoding(t *testing.T) {
 
 		saltDecoded, err := Base64Decode(saltEncoded)
 		if err != nil {
-			// log.Println(errors.Wrap(err, "Decoding encoded salt is failed"))
-			t.Fail()
+			t.Error(errors.Wrap(err, "Decoding encoded salt is failed"))
+
 		}
 		// log.Println("saltDecoded: ", saltDecoded)
 
 		if !bytes.Equal(saltDecoded, saltInBytes) {
-			// log.Println("Encoded decoded version is different than original salt.")
-			t.Fail()
+			t.Error("Encoded decoded version is different than original salt.")
+
 		}
 	}
 }
