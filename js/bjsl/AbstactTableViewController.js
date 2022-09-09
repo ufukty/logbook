@@ -1,13 +1,6 @@
-import {
-    adoption,
-    domElementReuseCollector,
-    createElement,
-    toggleAnimationWithClass,
-    symbolizer,
-} from "./utilities.js";
+import { adoption, domCollector, createElement, symbolizer } from "./utilities.js";
 import { AbstractViewController } from "./AbstractViewController.js";
 import { AbstractTableCellViewController } from "./AbstractTableCellViewController.js";
-import { AbstractTableDataMedium } from "./AbstractTableViewControllerDataMedium.js";
 
 function inBetween(a, b, c) {
     if (a <= b && c <= c) return true;
@@ -338,7 +331,7 @@ export class AbstractTableViewController extends AbstractViewController {
      * the cell returned by user-supplied cell constructor with it.
      */
     registerCellIdentifier(cellIdentifier, cellConstructor) {
-        domElementReuseCollector.registerItemIdentifier(cellIdentifier, () => {
+        domCollector.registerItemIdentifier(cellIdentifier, () => {
             const userProvidedCell = cellConstructor();
             const cellContainer = new BasicTableCellContainerViewController();
             cellContainer.cell = userProvidedCell;
@@ -361,7 +354,7 @@ export class AbstractTableViewController extends AbstractViewController {
      * @returns {AbstractTableViewCellContainerViewController}
      */
     requestReusableCellContainer(cellIdentifier) {
-        return domElementReuseCollector.get(cellIdentifier);
+        return domCollector.get(cellIdentifier);
     }
 
     /**
@@ -624,7 +617,7 @@ export class AbstractTableViewController extends AbstractViewController {
             // console.log(objectSymbol);
             const cellContainer = this.computedValues.objectToCellContainers.get(objectSymbol);
             const reuseIdentifier = cellContainer.reuseIdentifier;
-            domElementReuseCollector.free(reuseIdentifier, cellContainer);
+            domCollector.free(reuseIdentifier, cellContainer);
             this.computedValues.objectToCellContainers.delete(objectSymbol);
         }
 

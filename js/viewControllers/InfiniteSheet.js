@@ -1,4 +1,4 @@
-import { adoption, domElementReuseCollector, symbolizer } from "../bjsl/utilities.js";
+import { adoption, domCollector, symbolizer } from "../bjsl/utilities.js";
 import { InfiniteSheetTableCellViewController } from "./InfiniteSheetTableCellViewController.js";
 import {
     AbstractTableViewCellContainerViewController,

@@ -59,7 +59,7 @@ class DOMElementReuseCollector {
     }
 }
 
-export const domElementReuseCollector = new DOMElementReuseCollector();
+export const domCollector = new DOMElementReuseCollector();
 
 /**
  * @param {String} tagName

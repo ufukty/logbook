@@ -1,9 +1,4 @@
-import {
-    adoption,
-    addEventListenerForNonTouchScreen,
-    domElementReuseCollector,
-    executeWhenDocumentIsReady,
-} from "./bjsl/utilities.js";
+import { addEventListenerForNonTouchScreen, domCollector, executeWhenDocumentIsReady } from "./bjsl/utilities.js";
 
 import { ModeSelector } from "./viewControllers/ModeSelector.js";
 import { InfiniteSheet } from "./viewControllers/InfiniteSheet.js";
@@ -42,13 +37,13 @@ class App {
         this.infiniteSheetWrapper.appendChild(this.infiniteSheet.container);
 
         // // prettier-ignore
-        // domElementReuseCollector.registerItemIdentifier("infiniteSheetRow", function () {
+        // domCollector.registerItemIdentifier("infiniteSheetRow", function () {
         //     const cell = new InfiniteSheetTask();
         //     adoption(this.infiniteSheet.anchorPosition, [cell.container]);
         //     return cell;
         // }.bind(this));
         // // prettier-ignore
-        // domElementReuseCollector.registerItemIdentifier("infiniteSheetHeader", function () {
+        // domCollector.registerItemIdentifier("infiniteSheetHeader", function () {
         //     const cell = new InfiniteSheetHeader();
         //     adoption(this.infiniteSheet.anchorPosition, [cell.container]);
         //     return cell;

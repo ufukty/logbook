@@ -1,4 +1,3 @@
-import { createElement } from "./utilities.js";
 import { AbstractViewController } from "./AbstractViewController.js";
 
 export class AbstractTableCellViewController extends AbstractViewController {
