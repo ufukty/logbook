@@ -12,6 +12,12 @@ import {
 
 export class AbstractViewController {
     constructor() {
-        this.container = undefined; // createElement("div");
+        this.dom = {};
+        this.state = {};
+        this.config = {};
+    }
+
+    buildView() {
+        console.error("Abstract function has called directly.");
     }
 }

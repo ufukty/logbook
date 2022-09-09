@@ -1,4 +1,4 @@
-import { adoption, domElementReuseCollector, pSymbol } from "../bjsl/utilities.js";
+import { adoption, domElementReuseCollector, symbolizer } from "../bjsl/utilities.js";
 import { InfiniteSheetTableCellViewController } from "./InfiniteSheetTableCellViewController.js";
 import {
     AbstractTableViewCellContainerViewController,
@@ -15,8 +15,8 @@ export class InfiniteSheet extends AbstractTableViewController {
         /** @type {DataSource} */
         this.dataSource = undefined; // should be assigned by callee
 
-        const regularCellId = pSymbol.get("regularCellViewContainer");
-        const headerCellId = pSymbol.get("headerCellViewContainer");
+        const regularCellId = symbolizer.symbolize("regularCellViewContainer");
+        const headerCellId = symbolizer.symbolize("headerCellViewContainer");
 
         this.regularCellId = regularCellId;
         this.headerCellId = headerCellId;
@@ -48,7 +48,7 @@ export class InfiniteSheet extends AbstractTableViewController {
         let lastSectionTimestamp = -1;
         for (let i = 0; i < this.placement; i++) {
             const taskSymbol = this.placement[i];
-            const task = this.dataSource.cache.tasks.get(pSymbol.reverse(taskSymbol));
+            const task = this.dataSource.cache.tasks.get(symbolizer.desymbolize(taskSymbol));
             const timestamp = task.createdAt;
             if (day(timestamp) !== lastTimestamp) {
                 console.log("addSectionHeadersToPlacement");

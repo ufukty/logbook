@@ -1,4 +1,4 @@
-import { pSymbol } from "./bjsl/utilities.js";
+import { symbolizer } from "./bjsl/utilities.js";
 import { InfiniteSheetDataMedium } from "./viewControllers/InfiniteSheetDataMedium.js";
 
 function fetchRetry(url, delay, tries, options) {
@@ -386,7 +386,7 @@ export class DataSource {
                 "taskID#1",
                 "Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis voluptatum labore in hic possimus dolor. Aliquam tempore unde quia natus hic optio modi excepturi. Reprehenderit natus recusandae dolores rerum omnis?"
             );
-            this.notifyDelegateFor("objectUpdate", new Set([pSymbol.get("taskID#1")]));
+            this.notifyDelegateFor("objectUpdate", new Set([symbolizer.symbolize("taskID#1")]));
         }, 1000);
 
         setTimeout(() => {
@@ -449,7 +449,7 @@ export class DataSource {
                 "taskID#3",
                 "Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis voluptatum labore in hic possimus dolor. Aliquam tempore unde quia natus hic optio modi excepturi. Reprehenderit natus recusandae dolores rerum omnis?"
             );
-            this.notifyDelegateFor("objectUpdate", new Set([pSymbol.get("taskID#3")]));
+            this.notifyDelegateFor("objectUpdate", new Set([symbolizer.symbolize("taskID#3")]));
         }, 11000);
     }
 
@@ -521,7 +521,7 @@ export class DataSource {
     }
 
     getTextContent(objectSymbol) {
-        const objectID = pSymbol.reverse(objectSymbol);
+        const objectID = symbolizer.desymbolize(objectSymbol);
         // const match = objectID.match(/section/)
         // if (match.length > 0)
         if (this.objectContents.has(objectID)) return this.objectContents.get(objectID);

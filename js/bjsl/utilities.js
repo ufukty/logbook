@@ -10,15 +10,6 @@ export function executeWhenDocumentIsReady(func) {
     }
 }
 
-class AbstractViewController {
-    constructor() {
-        this.dom = {};
-        this.state = {};
-        this.config = {};
-    }
-    build() {}
-}
-
 class DOMElementReuseCollector {
     constructor() {
         /**  @type {AbstractViewController[]} */
@@ -370,6 +361,7 @@ export function addEventListenerForNonTouchScreen(targetElement, eventType, call
 
 class PersistentSymbolizer {
     constructor() {
+        // TODO: Implement LRU cache to reduce memory allocation
         this.cache = new Map();
         this.cacheReverse = new Map();
     }
@@ -378,7 +370,7 @@ class PersistentSymbolizer {
      * @param {string} value
      * @returns {Symbol}
      */
-    get(value) {
+    symbolize(value) {
         if (this.cache.has(value)) {
             return this.cache.get(value);
         } else {
@@ -393,8 +385,8 @@ class PersistentSymbolizer {
      * @param {Symbol} value
      * @returns {string}
      */
-    reverse(symbol) {
+    desymbolize(symbol) {
         return this.cacheReverse.get(symbol);
     }
 }
-export const pSymbol = new PersistentSymbolizer();
+export const symbolizer = new PersistentSymbolizer();

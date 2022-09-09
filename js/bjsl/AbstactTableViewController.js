@@ -1,4 +1,10 @@
-import { adoption, domElementReuseCollector, createElement, toggleAnimationWithClass, pSymbol } from "./utilities.js";
+import {
+    adoption,
+    domElementReuseCollector,
+    createElement,
+    toggleAnimationWithClass,
+    symbolizer,
+} from "./utilities.js";
 import { AbstractViewController } from "./AbstractViewController.js";
 import { AbstractTableCellViewController } from "./AbstractTableCellViewController.js";
 import { AbstractTableDataMedium } from "./AbstractTableViewControllerDataMedium.js";
@@ -318,7 +324,7 @@ export class AbstractTableViewController extends AbstractViewController {
 
                 const cellContainer_container = entry.target;
                 const objectId = cellContainer_container.dataset["objectId"];
-                const objectSymbol = pSymbol.get(objectId);
+                const objectSymbol = symbolizer.symbolize(objectId);
 
                 this.computedValues.lastRecordedObjectHeight.set(objectSymbol, height);
             });
@@ -643,7 +649,7 @@ export class AbstractTableViewController extends AbstractViewController {
             const cellContainer = this.getCellForObject(objectSymbol);
             this.computedValues.objectToCellContainers.set(objectSymbol, cellContainer);
             cellContainer.objectSymbol = objectSymbol;
-            cellContainer.container.dataset["objectId"] = pSymbol.reverse(objectSymbol);
+            cellContainer.container.dataset["objectId"] = symbolizer.desymbolize(objectSymbol);
 
             let objectInitializationPositionY, objectInitializationPositionX;
             if (this.computedValues.current.positions.has(objectSymbol)) {
