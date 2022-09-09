@@ -1,5 +1,5 @@
-import { createElement } from "../utilities.js";
-import { AbstractViewController } from "./AbstractViewController.js";
+import { createElement } from "../library/utilities.js";
+import { AbstractViewController } from "../library/AbstractViewController.js";
 
 class InfiniteSheetTask extends AbstractViewController {
     constructor() {

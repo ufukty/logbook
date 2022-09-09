@@ -11,6 +11,11 @@ export function executeWhenDocumentIsReady(func) {
 }
 
 class AbstractViewController {
+    constructor() {
+        this.dom = {};
+        this.state = {};
+        this.config = {};
+    }
     build() {}
 }
 

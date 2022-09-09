@@ -9,13 +9,13 @@ import {
     domElementReuseCollector,
     executeWhenDocumentIsReady,
     createElement,
-} from "../utilities.js";
+} from "../bjsl/utilities.js";
 
-import AbstractViewController from "./AbstractViewController.js"
+import AbstractViewController from "./AbstractViewController.js";
 
 class DocumentSheet extends AbstractViewController {
     build() {
-        console.log("hello world")
+        console.log("hello world");
         return createElement("div", ["document-sheet"]);
     }
 }

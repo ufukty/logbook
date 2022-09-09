@@ -1,20 +1,20 @@
 import * as constants from "../constants.js";
 
-class ModeSelector {
+export class ModeSelector {
     constructor(delegate) {
         this.container = document.getElementById("mode-selector");
         this.delegate = delegate;
 
         this.state = {
-            selectedMode: 0
+            selectedMode: 0,
         };
 
-        this.setListener()
+        this.setListener();
     }
 
     setListener() {
         document.addEventListener("keyup", this.keyboardEventListener.bind(this));
-        this.container.addEventListener("click", this.eventSwitchModes.bind(this))
+        this.container.addEventListener("click", this.eventSwitchModes.bind(this));
     }
 
     keyboardEventListener(e) {
@@ -29,19 +29,17 @@ class ModeSelector {
         this.state.selectedMode = 1 - this.state.selectedMode;
 
         this.updateView();
-        this.notifyDelegate()
+        this.notifyDelegate();
     }
 
     notifyDelegate() {
-        if (this.delegate !== undefined && typeof this.delegate === 'function') {
+        if (this.delegate !== undefined && typeof this.delegate === "function") {
             this.delegate([constants.DVM_CHRONO, constants.DVM_HIERARCH][this.state.selectedMode]);
         }
     }
 
     updateView() {
-        const selectedModeStringified = ["chronological", "hierarchical"][this.state.selectedMode]
-        this.container.dataset.selectedMode = selectedModeStringified
+        const selectedModeStringified = ["chronological", "hierarchical"][this.state.selectedMode];
+        this.container.dataset.selectedMode = selectedModeStringified;
     }
 }
-
-export default ModeSelector;

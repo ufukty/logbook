@@ -1,0 +1,3 @@
+export class AbstractTableDataMedium {
+    constructor() {}
+}

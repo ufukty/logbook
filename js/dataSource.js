@@ -1,107 +1,128 @@
-import { pSymbol } from "./utilities.js";
+import { pSymbol } from "./bjsl/utilities.js";
+import { InfiniteSheetDataMedium } from "./viewControllers/InfiniteSheetDataMedium.js";
 
-export class TableViewStructuredDataMedium {
-    constructor() {
-        /** @type {{sections: Array.Symbol, rows: Map.<Symbol, Symbol> }} */
-        this.data = {
-            sections: [],
-            rows: new Map(),
-        };
-        /** @type { Map.<Symbol, Symbol> } */
-        this.mapRowSection = new Map();
-    }
-
-    /**
-     * @param {string} sectionID - A string represents specific section. Could  be a UUID.
-     * @param {number=} index - Optional argument. Don't pass this if you want to add a new section to the end.
-     */
-    addSection(sectionID, index = undefined) {
-        const sectionSymbol = pSymbol.get(sectionID);
-        // append to a specific index (if specified) or to the end.
-        if (index === undefined) this.data.sections.push(sectionSymbol);
-        else this.data.sections.splice(index, 0, sectionSymbol);
-        this.data.rows.set(sectionSymbol, []);
-    }
-
-    deleteSection(sectionID) {
-        // TODO:
-    }
-
-    moveSection(sectionID, newIndex) {
-        // TODO:
-        const sectionSymbol = pSymbol.get(sectionID);
-    }
-
-    /** arguments are given as strings, not symbols */
-    addRowToSection(sectionID, rowID, index = undefined) {
-        const sectionSymbol = pSymbol.get(sectionID);
-        const rowSymbol = pSymbol.get(rowID);
-
-        /** @type {[]} */
-        const placement = this.data.rows.get(sectionSymbol);
-        // append to a specific index (if specified) or to the end.
-        if (index === undefined) placement.push(rowSymbol);
-        else placement.splice(index, 0, rowSymbol);
-
-        this.mapRowSection.set(rowSymbol, sectionSymbol);
-    }
-
-    moveRow(rowID, newIndex) {
-        const rowSymbol = pSymbol.get(rowID);
-        const sectionSymbol = this.mapRowSection.get(rowSymbol);
-
-        // remove row from old index
-        /** @type {[]} */
-        const placement = this.data.rows.get(sectionSymbol);
-        const index = placement.indexOf(rowID);
-        placement.splice(index, 1);
-
-        // add to new index
-        placement.splice(newIndex, 0, rowID);
-    }
-
-    deleteRow(rowID) {
-        const rowSymbol = pSymbol.get(rowID);
-        const sectionSymbol = this.mapRowSection.get(rowSymbol);
-
-        // remove row from old index
-        /** @type {[]} */
-        const placement = this.data.rows.get(sectionSymbol);
-        const index = placement.indexOf(rowID);
-        placement.splice(index, 1);
-
-        this.mapRowSection.delete(rowSymbol);
-    }
-
-    moveRowToAnotherSection(rowID, newSectionID, newIndex) {
-        const rowSymbol = pSymbol.get(rowID);
-        const currentSectionSymbol = this.mapRowSection.get(rowSymbol);
-        const nextSectionSymbol = pSymbol.get(newSectionID);
-
-        // remove row from old section & index
-        /** @type {[]} */
-        const currentSectionPlacement = this.data.rows.get(currentSectionSymbol);
-        const index = currentSectionPlacement.indexOf(rowID);
-        currentSectionPlacement.splice(index, 1);
-
-        // add to new section & index
-        /** @type {[]} */
-        const nextSectionPlacement = this.data.rows.get(nextSectionSymbol);
-        nextSectionPlacement.splice(newIndex, 0, rowID);
-
-        this.mapRowSection.set(rowSymbol, nextSectionSymbol);
-    }
+function fetchRetry(url, delay, tries, options) {
+    if (tries > 0)
+        return fetch(url, options).catch(() => {
+            setTimeout(() => {
+                fetchRetry(url, delay, tries - 1, options);
+            }, delay);
+        });
+    else return fetch(url, options);
 }
 
 export class DataSource {
     constructor() {
-        this.medium = new TableViewStructuredDataMedium();
+        this.medium = new InfiniteSheetDataMedium();
 
         /** @type { Object.<string, Array.<function>> } */
         this.delegates = {
             placementUpdate: [],
             objectUpdate: [],
         };
+
+        this.config = {
+            network: {
+                apiUrl: "https://localhost:8080",
+                endpoints: {
+                    task: {
+                        fold: "/task/fold",
+                        unfold: "/task/unfold",
+                        create: "/task/create",
+                        delete: "/task/delete",
+                        move: "/task/move",
+                        type: "/task/type",
+                    },
+                },
+                /** period of time to wait before try again for failed requests */
+                delay: 500,
+                /** period of time to wait before try again for failed requests */
+                retryCount: 10,
+            },
+        };
+
+        /** Acts like a cache. Remove invalidated data immediately. */
+        this.cache = {
+            placements: {
+                chronological: {
+                    /** Incomplete list of placement data.
+                     * @type {Array.<string>} */
+                    items: [],
+                    /** States what is the actual index of items[0]
+                     * @type {number} */
+                    offset: undefined,
+                },
+                hierarchical: {
+                    /** Incomplete list of placement data.
+                     * @type {Array.<string>} */
+                    items: [],
+                    /** States what is the actual index of items[0]
+                     * @type {number} */
+                    offset: undefined,
+                },
+                /** Total number of items in the document. That value is used
+                 * for estimation of full height of cell scroller for both
+                 * chronological and hierarchical view.
+                 * @type {number} */
+                totalNumberOfItems: undefined,
+            },
+            /** Remove invalidated tasks immediatelly after servers confirm the
+             * modification. Remove LRU keys to keep memory usage constant.
+             * @type {Map.<string,{parentId: string, depth: number, degree: number}>} */
+            tasks: new Map(),
+        };
+
+        this.computedData = {
+            serializedChronologicalPlacement: [], // only indexes -200 <-> +200 scroll position
+        };
+    }
+
+    /**
+     * This function will
+     * @param {string} taskId
+     * @returns {Promise.<Response>}
+     **/
+    fold(taskId) {
+        return fetchRetry("https://localhost:8080", this.config.network.delay, this.config.network.retryCount, {
+            method: "UPDATE",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+                taskId: taskId,
+            }),
+        }).then((result) => {
+            return result.json();
+        });
+    }
+
+    /**
+     * @param {number} focusedTaskIndex
+     * @param {number} offset number of tasks plus/minus focusedTaskIndex
+     * @example
+     * .getSerializeChronologicalPlacement(0, 100).then((json) => {
+     *   console.log(json)
+     * });
+     * @returns {Promise} JSON in a promise.
+     */
+    getSerializeChronologicalPlacement(focusedTaskIndex = 0, offset = 100) {
+        // TODO: seralize the part requested, attach section headers
+        // append to the cache
+        // and return
+
+        const lowerBound = focusedTaskIndex > offset ? focusedTaskIndex - offset : 0;
+        const url = `${apiRootURL}/document/placement/${documentId}?offset=${lowerBound}&limit=200`;
+        fetch(url)
+            .then((response) => {
+                console.log(response);
+                return response.json();
+            })
+            .then((json) => {
+                console.log(json);
+            });
+
+        for (let i = lowerBound; i < upperBound; i++) {
+            const chunkIndex = i - (i % 100);
+            const key = this.upToDateFetchData.placements.chronological.tasks.get();
+        }
     }
 
     notifyDelegateFor(event, ...args) {
@@ -219,32 +240,55 @@ export class DataSource {
             ["taskID#00", "sectionID#125"],
         ]);
 
+        // prettier-ignore
         this.objectContents = new Map([
-            ["sectionID#123", "text content for sectionID#123"],
-            ["sectionID#124", "text content for sectionID#124"],
-            ["sectionID#125", "text content for sectionID#125"],
-            ["taskID#1", "text content for taskID#1"],
-            ["taskID#2", "text content for taskID#2"],
-            ["taskID#3", "text content for taskID#3"],
-            ["taskID#4", "text content for taskID#4"],
-            ["taskID#5", "text content for taskID#5"],
-            ["taskID#6", "text content for taskID#6"],
-            ["taskID#7", "text content for taskID#7"],
-            ["taskID#8", "text content for taskID#8"],
-            ["taskID#9", "text content for taskID#9"],
-            ["taskID#10", "text content for taskID#10"],
-            ["taskID#11", "text content for taskID#11"],
-            ["taskID#12", "text content for taskID#12"],
-            ["taskID#13", "text content for taskID#13"],
-            ["taskID#14", "text content for taskID#14"],
-            ["taskID#15", "text content for taskID#15"],
-            ["taskID#16", "text content for taskID#16"],
-            ["taskID#17", "text content for taskID#17"],
-            ["taskID#18", "text content for taskID#18"],
-            ["taskID#19", "text content for taskID#19"],
-            ["taskID#20", "text content for taskID#20"],
-            ["taskID#21", "text content for taskID#21"],
-            ["taskID#22", "text content for taskID#22"],
+            ["sectionID#123", "August 21, 2022"],
+            ["sectionID#124", "August 22, 2022"],
+            ["sectionID#125", "August 23, 2022"],
+            // ["taskID#1", "Lorem ipsum dolor sit amet consectetur adipisicing elit. "],
+            // ["taskID#2", "Accusantium voluptatem excepturi suscipit quibusdam, pariatur deleniti ex provident, quaerat fuga earum quasi architecto aliquam natus dolores consequatur repellendus, quis exercitationem quod?"],
+            // ["taskID#3", "Assumenda sit repudiandae voluptatum ipsum nulla facilis eligendi aspernatur commodi asperiores, aperiam hic corporis aliquam sint. "],
+            // ["taskID#4", "Dolore autem, architecto neque recusandae, voluptatum esse accusantium repellendus corrupti adipisci molestiae culpa tenetur?"],
+            // ["taskID#5", "Temporibus autem quia nam dolorum, officiis debitis rem, ipsam quisquam at esse maiores, itaque pariatur nisi voluptate illum rerum laboriosam doloribus corporis. "],
+            // ["taskID#6", "Numquam porro soluta quaerat doloremque aspernatur voluptas minus!"],
+            // ["taskID#7", "Tenetur iure at voluptates quaerat, illum quae omnis quidem numquam consectetur maxime porro placeat eligendi ut, doloremque, recusandae magni. "],
+            // ["taskID#8", "Quo explicabo assumenda pariatur esse, ratione consequuntur perspiciatis ipsam similique blanditiis."],
+            // ["taskID#9", "Error distinctio fuga veritatis nisi! Iure quam harum quas ipsum voluptas deserunt. "],
+            // ["taskID#10", "Necessitatibus ad vero, voluptate reprehenderit ex odio quod architecto quibusdam, culpa officia mollitia tempora accusamus, consequuntur porro repudiandae?"],
+            // ["taskID#11", "Nisi, sunt vel. "],
+            // ["taskID#12", "Tempora numquam dolore earum tenetur animi cumque incidunt placeat, velit commodi, totam rerum! Nobis, consectetur eligendi assumenda nihil corporis praesentium maxime id, quidem amet aperiam nostrum? Voluptate."],
+            // ["taskID#13", "Nulla quos consectetur aspernatur odio magnam repellendus dolores quae possimus perferendis voluptates inventore, est exercitationem nihil blanditiis error. "],
+            // ["taskID#14", "Aspernatur at amet eaque accusantium atque cum molestias recusandae repudiandae velit necessitatibus?"],
+            // ["taskID#15", "Doloribus sunt, debitis necessitatibus ratione commodi, labore at, odit cum consectetur accusamus eligendi beatae sit natus. "],
+            // ["taskID#16", "Dolores delectus a veniam quam at cupiditate commodi magni, velit, voluptas dolorem reprehenderit accusamus."],
+            // ["taskID#17", "Ratione, nulla quibusdam. "],
+            // ["taskID#18", "Quidem nihil et repellat! Voluptatem vero natus aliquam nihil, quae quaerat accusamus quidem suscipit quasi debitis, perferendis voluptatum totam ratione nulla non ipsum. "],
+            // ["taskID#19", "Modi aliquid asperiores necessitatibus."],
+            // ["taskID#20", "Nisi incidunt magnam possimus quam. "],
+            // ["taskID#21", "Neque unde minima, accusamus minus asperiores iusto soluta harum ullam rem assumenda suscipit, alias ipsam, sunt atque amet dolorum quo. "],
+            // ["taskID#22", "Laudantium in repudiandae nostrum sunt."],
+            ["taskID#1", "taskID#1"],
+            ["taskID#2", "taskID#2"],
+            ["taskID#3", "taskID#3"],
+            ["taskID#4", "taskID#4"],
+            ["taskID#5", "taskID#5"],
+            ["taskID#6", "taskID#6"],
+            ["taskID#7", "taskID#7"],
+            ["taskID#8", "taskID#8"],
+            ["taskID#9", "taskID#9"],
+            ["taskID#10", "taskID#10"],
+            ["taskID#11", "taskID#11"],
+            ["taskID#12", "taskID#12"],
+            ["taskID#13", "taskID#13"],
+            ["taskID#14", "taskID#14"],
+            ["taskID#15", "taskID#15"],
+            ["taskID#16", "taskID#16"],
+            ["taskID#17", "taskID#17"],
+            ["taskID#18", "taskID#18"],
+            ["taskID#19", "taskID#19"],
+            ["taskID#20", "taskID#20"],
+            ["taskID#21", "taskID#21"],
+            ["taskID#22", "taskID#22"],
             ["taskID#23", "text content for taskID#23"],
             ["taskID#24", "text content for taskID#24"],
             ["taskID#25", "text content for taskID#25"],
@@ -337,20 +381,143 @@ export class DataSource {
 
         this.notifyDelegateFor("placementUpdate");
 
-        const prom = new Promise((resolve, reject) => {
-            setTimeout(resolve, 1000);
-        });
-
-        prom.then(() => {
+        setTimeout(() => {
             this.objectContents.set(
                 "taskID#1",
                 "Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis voluptatum labore in hic possimus dolor. Aliquam tempore unde quia natus hic optio modi excepturi. Reprehenderit natus recusandae dolores rerum omnis?"
             );
-            // this.notifyDelegateFor("placementUpdate");
             this.notifyDelegateFor("objectUpdate", new Set([pSymbol.get("taskID#1")]));
-        }).then(() => {
-            // console.log("updated");
-        });
+        }, 1000);
+
+        setTimeout(() => {
+            this.medium.moveRow("taskID#3", 3);
+            this.notifyDelegateFor("placementUpdate");
+        }, 2000);
+
+        setTimeout(() => {
+            this.medium.moveRow("taskID#3", 2);
+            this.medium.moveRow("taskID#1", 2);
+            this.medium.moveRow("taskID#7", 2);
+            this.medium.moveRow("taskID#7", 2);
+            this.medium.moveRow("taskID#8", 2);
+            this.medium.moveRow("taskID#1", 2);
+            this.medium.moveRow("taskID#1", 2);
+            this.medium.moveRow("taskID#7", 2);
+            this.medium.moveRow("taskID#2", 2);
+            this.medium.moveRow("taskID#7", 2);
+            this.medium.moveRow("taskID#4", 2);
+            this.notifyDelegateFor("placementUpdate");
+        }, 3000);
+
+        setTimeout(() => {
+            this.medium.moveRow("taskID#3", 20);
+            this.notifyDelegateFor("placementUpdate");
+        }, 4000);
+
+        setTimeout(() => {
+            this.medium.moveRowToAnotherSection("taskID#3", "sectionID#124", 0);
+            this.notifyDelegateFor("placementUpdate");
+        }, 5000);
+
+        setTimeout(() => {
+            this.medium.moveRow("taskID#3", 1);
+            this.notifyDelegateFor("placementUpdate");
+        }, 6000);
+
+        setTimeout(() => {
+            this.medium.moveRow("taskID#3", 2);
+            this.notifyDelegateFor("placementUpdate");
+        }, 7000);
+
+        setTimeout(() => {
+            this.medium.moveRow("taskID#3", 3);
+            this.notifyDelegateFor("placementUpdate");
+        }, 8000);
+
+        setTimeout(() => {
+            this.medium.moveRow("taskID#3", 4);
+            this.notifyDelegateFor("placementUpdate");
+        }, 9000);
+
+        setTimeout(() => {
+            this.medium.moveRow("taskID#3", 10);
+            this.notifyDelegateFor("placementUpdate");
+        }, 10000);
+
+        setTimeout(() => {
+            this.objectContents.set(
+                "taskID#3",
+                "Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis voluptatum labore in hic possimus dolor. Aliquam tempore unde quia natus hic optio modi excepturi. Reprehenderit natus recusandae dolores rerum omnis?"
+            );
+            this.notifyDelegateFor("objectUpdate", new Set([pSymbol.get("taskID#3")]));
+        }, 11000);
+    }
+
+    loadTestDataset2() {
+        setTimeout(() => {
+            this.cache.placements.totalNumberOfItems = 1000;
+
+            this.cache.placements.chronological = {
+                offset: 0,
+                items: [
+                    "task#123",
+                    "task#124",
+                    "task#125",
+                    "task#126",
+                    "task#127",
+                    "task#133",
+                    "task#134",
+                    "task#135",
+                    "task#136",
+                    "task#137",
+                    "task#143",
+                    "task#144",
+                    "task#145",
+                    "task#146",
+                    "task#147",
+                ],
+            };
+
+            this.cache.placements.hierarchical = {
+                offset: 0,
+                items: [
+                    "task#123",
+                    "task#143",
+                    "task#133",
+                    "task#124",
+                    "task#144",
+                    "task#134",
+                    "task#125",
+                    "task#145",
+                    "task#126",
+                    "task#146",
+                    "task#135",
+                    "task#127",
+                    "task#147",
+                    "task#136",
+                    "task#137",
+                ],
+            };
+
+            this.cache.tasks.set("task#123", { content: "task#123", parentId: "-1" });
+            this.cache.tasks.set("task#124", { content: "task#124", parentId: "-1" });
+            this.cache.tasks.set("task#125", { content: "task#125", parentId: "-1" });
+            this.cache.tasks.set("task#126", { content: "task#126", parentId: "-1" });
+            this.cache.tasks.set("task#127", { content: "task#127", parentId: "-1" });
+            this.cache.tasks.set("task#133", { content: "task#133", parentId: "-1" });
+            this.cache.tasks.set("task#134", { content: "task#134", parentId: "-1" });
+            this.cache.tasks.set("task#135", { content: "task#135", parentId: "-1" });
+            this.cache.tasks.set("task#136", { content: "task#136", parentId: "-1" });
+            this.cache.tasks.set("task#137", { content: "task#137", parentId: "-1" });
+            this.cache.tasks.set("task#143", { content: "task#143", parentId: "-1" });
+            this.cache.tasks.set("task#144", { content: "task#144", parentId: "-1" });
+            this.cache.tasks.set("task#145", { content: "task#145", parentId: "-1" });
+            this.cache.tasks.set("task#146", { content: "task#146", parentId: "-1" });
+            this.cache.tasks.set("task#147", { content: "task#147", parentId: "-1" });
+
+            this.notifyDelegateFor("placementUpdate");
+            console.log("test database 2 is loaded");
+        }, 2);
     }
 
     getTextContent(objectSymbol) {

@@ -1,7 +1,7 @@
-import { adoption, domElementReuseCollector, createElement, toggleAnimationWithClass, pSymbol } from "../utilities.js";
+import { adoption, domElementReuseCollector, createElement, toggleAnimationWithClass, pSymbol } from "./utilities.js";
 import { AbstractViewController } from "./AbstractViewController.js";
-import { TableViewStructuredDataMedium } from "../dataSource.js";
 import { AbstractTableCellViewController } from "./AbstractTableCellViewController.js";
+import { AbstractTableDataMedium } from "./AbstractTableViewControllerDataMedium.js";
 
 function inBetween(a, b, c) {
     if (a <= b && c <= c) return true;
@@ -107,7 +107,7 @@ export class BasicTableCellContainerViewController extends AbstractTableViewCell
             delete this.animation;
         }
         this.cell.prepareForFree();
-        this.container.style.top = `0px`;
+        // this.container.style.top = `0px`;
     }
 
     prepareForUse() {
@@ -191,18 +191,31 @@ export class AbstractTableViewController extends AbstractViewController {
                     between: 10,
                 },
             },
-            /** The ordering of sections and rows in them.
-             * Each `Symbol` represents an `objectSymbol`
-             * (either a `sectionID` or `rowID`). */
+            // /** The ordering of sections and rows in them.
+            //  * Each `Symbol` represents an `objectSymbol`
+            //  * (either a `sectionID` or `rowID`). */
+            // placement: {
+            //     /** @type { Array.<Symbol> } */
+            //     sections: [],
+            //     /** @type { Map.<Symbol, Array.<Symbol>> } */
+            //     rows: new Map(),
+            // },
             placement: {
-                /** @type { Array.<Symbol> } */
-                sections: [],
-                /** @type { Map.<Symbol, Array.<Symbol>> } */
-                rows: new Map(),
+                /** Incomplete list of placement data.
+                 * @type {Array.<Symbol>} */
+                objectIds: [],
+                /** States what is the actual index of items[0]
+                 * @type {number} */
+                offset: undefined,
+                /** Total number of items in the document. That value is used
+                 * for estimation of full height of cell scroller for both
+                 * chronological and hierarchical view.
+                 * @type {number} */
+                totalNumberOfItems: undefined,
             },
             /**
              * @type { Map.<Symbol, Symbol> }
-             * Maps `objectISymbol` to correct reuse identifiers.
+             * Maps `objectIdSymbol` to correct reuse identifiers.
              * Information will be used for requesting and
              * sending cells to `domElementReuseCollector`.
              * > **Note that**: Related constructors for each id
@@ -367,19 +380,24 @@ export class AbstractTableViewController extends AbstractViewController {
         console.error("abstract function is called directly");
     }
 
+    /** @returns {number} */
+    getAverageHeightForAnObject() {
+        return 20;
+    }
+
     /**
      * Default height is important to estimate overall height of
      * the page and make the scrollbar much more useful.
-     * @param { number } objectSymbol
-     * @returns { number }
+     * @param {number} objectSymbol
+     * @returns {number}
      */
     getDefaultHeightOfObject(objectSymbol) {
         console.error("abstract function is called directly");
     }
 
     updateZoneBoundaries() {
-        const preloadZoneOffset = Math.floor(0.5 * window.innerHeight);
-        const parkingZoneOffset = Math.floor(0.75 * window.innerHeight);
+        const preloadZoneOffset = Math.floor(0.4 * window.innerHeight);
+        const parkingZoneOffset = Math.floor(0.5 * window.innerHeight);
 
         this.computedValues.next.boundaries = {
             viewport: {
@@ -647,7 +665,7 @@ export class AbstractTableViewController extends AbstractViewController {
             const newPosition = this.computedValues.next.positions.get(objectSymbol).starts;
             cellContainer.setPositionY(newPosition, true);
         }
-        
+
         // "to update position X"
     }
 

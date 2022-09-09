@@ -1,10 +1,10 @@
-import { adoption, domElementReuseCollector, pSymbol } from "../utilities.js";
+import { adoption, domElementReuseCollector, pSymbol } from "../bjsl/utilities.js";
 import { InfiniteSheetTableCellViewController } from "./InfiniteSheetTableCellViewController.js";
 import {
     AbstractTableViewCellContainerViewController,
     AbstractTableViewController,
-} from "./AbstactTableViewController.js";
-import { AbstractTableCellViewController } from "./AbstractTableCellViewController.js";
+} from "../bjsl/AbstactTableViewController.js";
+import { AbstractTableCellViewController } from "../bjsl/AbstractTableCellViewController.js";
 import { DataSource } from "../dataSource.js";
 import InfiniteSheetHeader from "./InfiniteSheetHeader.js";
 
@@ -15,23 +15,26 @@ export class InfiniteSheet extends AbstractTableViewController {
         /** @type {DataSource} */
         this.dataSource = undefined; // should be assigned by callee
 
+        const regularCellId = pSymbol.get("regularCellViewContainer");
+        const headerCellId = pSymbol.get("headerCellViewContainer");
+
+        this.regularCellId = regularCellId;
+        this.headerCellId = headerCellId;
+
         this.config.margins = {
             pageContent: {
                 before: 100,
                 after: 300,
             },
-            section: {
+            headerCellId: {
                 before: 100,
                 between: 0,
             },
-            row: {
+            regularCellId: {
                 before: 50,
                 between: 30,
             },
         };
-
-        this.regularCellId = pSymbol.get("regularCellViewContainer");
-        this.headerCellId = pSymbol.get("headerCellViewContainer");
 
         this.registerCellIdentifier(this.regularCellId, () => {
             return new InfiniteSheetTableCellViewController();
@@ -41,12 +44,29 @@ export class InfiniteSheet extends AbstractTableViewController {
         });
     }
 
+    addSectionHeadersToPlacement() {
+        let lastSectionTimestamp = -1;
+        for (let i = 0; i < this.placement; i++) {
+            const taskSymbol = this.placement[i];
+            const task = this.dataSource.cache.tasks.get(pSymbol.reverse(taskSymbol));
+            const timestamp = task.createdAt;
+            if (day(timestamp) !== lastTimestamp) {
+                console.log("addSectionHeadersToPlacement");
+            }
+        }
+    }
+
     /**
      * @param {Symbol} objectSymbol
      * @returns {number} expected height of the specified object in pixels
      */
     getDefaultHeightOfObject(objectSymbol) {
-        return 25;
+        return 31;
+    }
+
+    /** @returns {number} */
+    getAverageHeightForAnObject() {
+        return 31;
     }
 
     /** @returns {AbstractTableCellViewController} */
@@ -61,6 +81,7 @@ export class InfiniteSheet extends AbstractTableViewController {
         } else {
             cellContainer = this.requestReusableCellContainer(this.regularCellId);
             cellContainer.cell.setContent(this.dataSource.getTextContent(objectSymbol));
+            // cellContainer.cell.container.dataset[]
         }
 
         return cellContainer;

@@ -1,5 +1,5 @@
-import { createElement } from "../utilities.js";
-import { AbstractTableCellViewController } from "./AbstractTableCellViewController.js";
+import { createElement } from "../bjsl/utilities.js";
+import { AbstractTableCellViewController } from "../bjsl/AbstractTableCellViewController.js";
 
 const LockKind = {
     Folding: Symbol("folding"),

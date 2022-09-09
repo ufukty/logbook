@@ -1,6 +1,6 @@
-import { createElement } from "../utilities.js";
+import { createElement } from "../bjsl/utilities.js";
 
-import { AbstractViewController } from "./AbstractViewController.js";
+import { AbstractViewController } from "../bjsl/AbstractViewController.js";
 
 class InfiniteSheetHeader extends AbstractViewController {
     constructor() {

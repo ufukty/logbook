@@ -3,13 +3,11 @@ import {
     addEventListenerForNonTouchScreen,
     domElementReuseCollector,
     executeWhenDocumentIsReady,
-} from "./utilities.js";
+} from "./bjsl/utilities.js";
 
-import ModeSelector from "./viewControllers/ModeSelector.js";
+import { ModeSelector } from "./viewControllers/ModeSelector.js";
 import { InfiniteSheet } from "./viewControllers/InfiniteSheet.js";
-import ContextMenu from "./viewControllers/ContextMenu.js";
-import InfiniteSheetTask from "./viewControllers/InfiniteSheetTask.js";
-import InfiniteSheetHeader from "./viewControllers/InfiniteSheetHeader.js";
+import { ContextMenu } from "./viewControllers/ContextMenu.js";
 import { UserInputResolver } from "./userInputResolver.js";
 import { DataSource } from "./dataSource.js";
 
@@ -90,7 +88,7 @@ class App {
         this.infiniteSheet.config.structuredDataMedium = this.dataSource.medium.data; // FIXME:
         this.infiniteSheet.dataSource = this.dataSource;
         // FIXME: connect to server and fetch document/placement details
-        this.dataSource.loadTestDataset();
+        this.dataSource.loadTestDataset2();
 
         // localSourceOfTruth.delegates.linearizedHierarchicalOrdering = this.hierarchicalOrderingUpdate.bind(this);
     }
@@ -113,6 +111,8 @@ class App {
         if (this.isContextMenuOpen) return;
         this.isContextMenuOpen = true;
 
+        console.log(taskPositionerElement);
+
         const contextMenuBounds = this.contextMenu.container.getBoundingClientRect();
         const contextMenuWidth = Math.floor(contextMenuBounds.width);
         const contextMenuHeight = Math.floor(contextMenuBounds.height);
@@ -128,7 +128,7 @@ class App {
 
         this.contextMenu.setPosition(posX, posY);
         this.contextMenu.setTransformOrigin(transformOriginX, transformOriginY);
-        this.contextMenu.setActiveTaskId(taskId);
+        this.contextMenu.setActiveTaskId(taskPositionerElement.parentNode.dataset["object-id"]);
         this.contextMenu.show();
 
         this.infiniteSheetWrapper.classList.add("context-menu-open");
@@ -201,9 +201,8 @@ class App {
 
     /** @param {string} taskId */
     deleteTask(taskId) {
-        this.infiniteSheet.deleteTask(taskId);
-        console.log("delete:", taskId);
-        alert("delete");
+        this.dataSource.medium.deleteRow(taskId);
+        this.infiniteSheet.updateView();
     }
 }
 

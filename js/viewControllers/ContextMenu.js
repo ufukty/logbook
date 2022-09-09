@@ -1,8 +1,8 @@
-import { createElement, toggleAnimationWithClass } from "../utilities.js";
+import { createElement, toggleAnimationWithClass } from "../bjsl/utilities.js";
 
-import { AbstractViewController } from "./AbstractViewController.js";
+import { AbstractViewController } from "../bjsl/AbstractViewController.js";
 
-class ContextMenu extends AbstractViewController {
+export class ContextMenu extends AbstractViewController {
     constructor() {
         super();
         this.container = document.getElementById("context-menu");
@@ -12,7 +12,7 @@ class ContextMenu extends AbstractViewController {
         const deleteButton = document.getElementById("context-menu-delete");
         deleteButton.addEventListener("click", (e) => {
             e.preventDefault();
-            alert("delete");
+            // alert("delete");
             this.delegates.delete(this.activeTaskId);
         });
         deleteButton.addEventListener("touchend", () => {

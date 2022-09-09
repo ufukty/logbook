@@ -8,7 +8,7 @@ import {
     setAttributes,
     domElementReuseCollector,
     createElement,
-} from "../utilities.js";
+} from "./utilities.js";
 
 export class AbstractViewController {
     constructor() {
