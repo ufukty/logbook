@@ -90,8 +90,6 @@ class App {
         if (this.isContextMenuOpen) return;
         this.isContextMenuOpen = true;
 
-        console.log(taskPositionerElement);
-
         const contextMenuBounds = this.contextMenu.container.getBoundingClientRect();
         const contextMenuWidth = Math.floor(contextMenuBounds.width);
         const contextMenuHeight = Math.floor(contextMenuBounds.height);
