@@ -390,3 +390,52 @@ class PersistentSymbolizer {
     }
 }
 export const symbolizer = new PersistentSymbolizer();
+
+export function isInBetween(a, b, c) {
+    if (a <= b && c <= c) return true;
+    else return false;
+}
+
+export function checkCollision(item_y1, item_y2, viewport_y1, viewport_y2) {
+    /*
+            * * * * * * *  (y1)                     * * * * * * *  (y1)                
+            *           *                           *           *              
+        + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +  (y1)
+        +   *           *                           *           *           +
+        +   * * * * * * *  (y2)                     *           *           +
+        +                                           *           *           +
+        +                                           *           *           +       <=  viewport
+        +                                           *           *           +
+        +                 * * * * * * *  (y1)       *           *           +
+        +                 *           *             *           *           +
+        + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +  (y2)
+                          *           *             *           *                              
+                          * * * * * * *  (y2)       * * * * * * *  (y2)                               
+    */
+    if (item_y2 < viewport_y1 || item_y1 > viewport_y2)
+        // if item starts after viewport ends, or item ends before viewport starts,
+        // then the item is not in viewport.
+        return false;
+    else return true;
+}
+
+/** @returns {Set.<string>} */
+export function mergeMapKeys() {
+    let set_ = new Set();
+    for (let i = 0; i < arguments.length; i++) {
+        if (arguments[i]) for (const key of arguments[i].keys()) set_.add(key);
+    }
+    return set_;
+}
+
+/**
+ * @param {Set} leftSet
+ * @param {Set} rightSet
+ * Returns a set represents intersection of two input sets. */
+export function setIntersect(leftSet, rightSet) {
+    const intersection = new Set();
+    for (const k of leftSet) {
+        if (rightSet.has(k)) intersection.add(k);
+    }
+    return intersection;
+}

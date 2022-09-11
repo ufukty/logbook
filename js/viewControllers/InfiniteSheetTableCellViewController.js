@@ -52,13 +52,4 @@ export class InfiniteSheetTableCellViewController extends AbstractTableCellViewC
     setContent(newContent) {
         this.task.innerText = newContent;
     }
-
-    setData(kv) {
-        for (const key in kv) {
-            if (Object.hasOwnProperty.call(kv, key)) {
-                const value = kv[key];
-                this.container.dataset[`${key}`] = value;
-            }
-        }
-    }
 }

@@ -4,12 +4,13 @@ import { ModeSelector } from "./viewControllers/ModeSelector.js";
 import { InfiniteSheet } from "./viewControllers/InfiniteSheet.js";
 import { ContextMenu } from "./viewControllers/ContextMenu.js";
 import { UserInputResolver } from "./userInputResolver.js";
-import { DataSource } from "./dataSource.js";
+import { DataSource, EVENT_OBJECT_UPDATE, EVENT_PLACEMENT_UPDATE } from "./dataSource.js";
 
 import { Task } from "./models/Task.js";
 import { ChronologicalDocumentOverview } from "./models/DocumentOverviewChronological.js";
 
 import { classifyTasksByDays } from "./dateTime.js";
+import { DVM_CHRONO, DVM_HIERARCH } from "./constants.js";
 
 class App {
     constructor() {
@@ -19,10 +20,6 @@ class App {
                 documentOverviewHierarchical: "/document/overview/hierarchical/",
                 documentOverviewChronological: "/document/overview/chronological/",
             },
-        };
-
-        this.state = {
-            documentMode: undefined,
         };
 
         this.userInputManager = new UserInputResolver();
@@ -35,19 +32,6 @@ class App {
         this.infiniteSheet = new InfiniteSheet();
         this.infiniteSheetWrapper = document.getElementById("infinite-sheet");
         this.infiniteSheetWrapper.appendChild(this.infiniteSheet.container);
-
-        // // prettier-ignore
-        // domCollector.registerItemIdentifier("infiniteSheetRow", function () {
-        //     const cell = new InfiniteSheetTask();
-        //     adoption(this.infiniteSheet.anchorPosition, [cell.container]);
-        //     return cell;
-        // }.bind(this));
-        // // prettier-ignore
-        // domCollector.registerItemIdentifier("infiniteSheetHeader", function () {
-        //     const cell = new InfiniteSheetHeader();
-        //     adoption(this.infiniteSheet.anchorPosition, [cell.container]);
-        //     return cell;
-        // }.bind(this));
 
         this.contextMenu = new ContextMenu();
         this.contextMenu.delegates = {
@@ -73,32 +57,32 @@ class App {
         // this.fetchDocumentFromServer(documentId);
 
         this.dataSource = new DataSource();
-        this.dataSource.delegates.placementUpdate.push(this.placementUpdateFromData.bind(this));
-        this.dataSource.delegates.objectUpdate.push((a) => {
+        this.dataSource.delegates.add(EVENT_PLACEMENT_UPDATE, () => {
+            if (this.modeSelector.state.selectedMode === DVM_CHRONO) {
+                this.infiniteSheet.config.placement.objectIds = this.dataSource.cache.placements.chronological.items;
+            } else {
+                this.infiniteSheet.config.placement.objectIds = this.dataSource.cache.placements.hierarchical.items;
+            }
+            this.infiniteSheet.updateView();
+        });
+        this.dataSource.delegates.add(EVENT_OBJECT_UPDATE, (a) => {
             this.infiniteSheet.requestContentUpdateForObjectsIfNecessary(a);
         });
-        // TODO:
+
         // TODO: this.dataSource.delegates.notifyGUI = this.infiniteSheet.updateData // updateData should be a callable
         // TODO: this.infiniteSheet.delegates.notifyDataSource = this.dataSource.updateData // updateData should be a callable
-        this.infiniteSheet.config.structuredDataMedium = this.dataSource.medium.data; // FIXME:
         this.infiniteSheet.dataSource = this.dataSource;
-        // FIXME: connect to server and fetch document/placement details
-        this.dataSource.loadTestDataset2();
-
-        // localSourceOfTruth.delegates.linearizedHierarchicalOrdering = this.hierarchicalOrderingUpdate.bind(this);
+        this.dataSource.loadTestDataset(); // FIXME:
     }
 
     updateMode(newMode) {
-        this.state.documentMode = newMode;
-        this.updateView();
-    }
-
-    updateView() {
-        this.infiniteSheet.build();
-    }
-
-    build() {
-        // this.infiniteSheet.build();
+        this.modeSelector.state.selectedMode = newMode;
+        if (this.modeSelector.state.selectedMode === DVM_CHRONO) {
+            this.infiniteSheet.config.placement.objectIds = this.dataSource.cache.placements.chronological.items;
+        } else {
+            this.infiniteSheet.config.placement.objectIds = this.dataSource.cache.placements.hierarchical.items;
+        }
+        this.infiniteSheet.updateView();
     }
 
     /** @param {MouseEvent} e */
@@ -187,13 +171,6 @@ class App {
             );
     }
 
-    hierarchicalOrderingUpdate() {}
-
-    placementUpdateFromData() {
-        this.infiniteSheet.config.placement = this.dataSource.medium.data;
-        this.infiniteSheet.updateView();
-    }
-
     /** @param {string} taskId */
     deleteTask(taskId) {
         this.dataSource.medium.deleteRow(taskId);
@@ -203,7 +180,6 @@ class App {
 
 executeWhenDocumentIsReady(function () {
     const app = new App();
-    app.build();
     // const body = document.getElementsByTagName("body")[0];
     // body.appendChild(app.container)
 });

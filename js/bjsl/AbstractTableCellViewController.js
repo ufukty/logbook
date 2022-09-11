@@ -18,12 +18,19 @@ export class AbstractTableCellViewController extends AbstractViewController {
     }
 
     setData(kv) {
-        console.error("abstract function is called directly");
+        for (const key in kv) {
+            if (Object.hasOwnProperty.call(kv, key)) {
+                const value = kv[key];
+                this.container.dataset[`${key}`] = value;
+            }
+        }
     }
 
     fold() {
-        console.error("abstract function is called directly");}
+        console.error("abstract function is called directly");
+    }
 
     unfold() {
-        console.error("abstract function is called directly");}
+        console.error("abstract function is called directly");
+    }
 }

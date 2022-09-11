@@ -1,12 +1,13 @@
 import { adoption, domCollector, symbolizer } from "../bjsl/utilities.js";
 import { InfiniteSheetTableCellViewController } from "./InfiniteSheetTableCellViewController.js";
-import {
-    AbstractTableViewCellContainerViewController,
-    AbstractTableViewController,
-} from "../bjsl/AbstactTableViewController.js";
+import { AbstractTableCellPositioner } from "../bjsl/AbstractTableCellPositioner.js";
 import { AbstractTableCellViewController } from "../bjsl/AbstractTableCellViewController.js";
 import { DataSource } from "../dataSource.js";
 import InfiniteSheetHeader from "./InfiniteSheetHeader.js";
+import { AbstractTableViewController } from "../bjsl/AbstactTableViewController.js";
+
+const REGULAR_CELL_SYMBOL = symbolizer.symbolize("regularCellViewContainer");
+const HEADER_CELL_SYMBOL = symbolizer.symbolize("headerCellViewContainer");
 
 export class InfiniteSheet extends AbstractTableViewController {
     constructor() {
@@ -15,31 +16,28 @@ export class InfiniteSheet extends AbstractTableViewController {
         /** @type {DataSource} */
         this.dataSource = undefined; // should be assigned by callee
 
-        const regularCellId = symbolizer.symbolize("regularCellViewContainer");
-        const headerCellId = symbolizer.symbolize("headerCellViewContainer");
-
-        this.regularCellId = regularCellId;
-        this.headerCellId = headerCellId;
+        this.regularCellId = REGULAR_CELL_SYMBOL;
+        this.headerCellId = HEADER_CELL_SYMBOL;
 
         this.config.margins = {
             pageContent: {
                 before: 100,
                 after: 300,
             },
-            headerCellId: {
+            [HEADER_CELL_SYMBOL]: {
                 before: 100,
                 between: 0,
             },
-            regularCellId: {
+            [REGULAR_CELL_SYMBOL]: {
                 before: 50,
                 between: 30,
             },
         };
 
-        this.registerCellIdentifier(this.regularCellId, () => {
+        this.registerCellIdentifier(REGULAR_CELL_SYMBOL, () => {
             return new InfiniteSheetTableCellViewController();
         });
-        this.registerCellIdentifier(this.headerCellId, () => {
+        this.registerCellIdentifier(HEADER_CELL_SYMBOL, () => {
             return new InfiniteSheetHeader();
         });
     }
@@ -75,16 +73,33 @@ export class InfiniteSheet extends AbstractTableViewController {
         // const objectType = this.config.structuredDataMedium;
 
         let cellContainer;
-        if (this.dataSource.medium.data.rows.has(objectSymbol)) {
-            cellContainer = this.requestReusableCellContainer(this.headerCellId);
-            cellContainer.cell.setContent(this.dataSource.getTextContent(objectSymbol));
-        } else {
-            cellContainer = this.requestReusableCellContainer(this.regularCellId);
+        if (
+            this.dataSource.cache.placements.chronological.headerSymbols.findIndex((symbol) => {
+                return symbol === objectSymbol;
+            }) != -1
+        ) {
+            cellContainer = this.requestReusableCellContainer(HEADER_CELL_SYMBOL);
             cellContainer.cell.setContent(this.dataSource.getTextContent(objectSymbol));
             // cellContainer.cell.container.dataset[]
+        } else {
+            cellContainer = this.requestReusableCellContainer(REGULAR_CELL_SYMBOL);
+            cellContainer.cell.setContent(this.dataSource.getTextContent(objectSymbol));
         }
 
         return cellContainer;
+    }
+
+    /** @param {Symbol} objectSymbol */
+    getCellKindForObject(objectSymbol) {
+        if (
+            this.dataSource.cache.placements.chronological.headerSymbols.findIndex((symbol) => {
+                return symbol === objectSymbol;
+            }) != -1
+        ) {
+            return HEADER_CELL_SYMBOL;
+        } else {
+            return REGULAR_CELL_SYMBOL;
+        }
     }
 
     /**
@@ -109,7 +124,7 @@ export class InfiniteSheet extends AbstractTableViewController {
 
     /**
      * @param { Symbol } objectSymbol
-     * @param { AbstractTableViewCellContainerViewController } cellContainer
+     * @param { AbstractTableCellPositioner } cellContainer
      */
     updateCellIfNecessary(objectSymbol, cellContainer) {
         const newContent = this.dataSource.getTextContent(objectSymbol);

@@ -6,7 +6,7 @@ export class ModeSelector {
         this.delegate = delegate;
 
         this.state = {
-            selectedMode: 0,
+            selectedMode: constants.DVM_CHRONO,
         };
 
         this.setListener();

@@ -1,13 +1,9 @@
-import { AbstractTableDataMedium } from "../bjsl/AbstractTableViewControllerDataMedium.js";
+import { symbolizer } from "../bjsl/utilities.js";
 
-export class InfiniteSheetDataMedium extends AbstractTableDataMedium {
+export class InfiniteSheetDataMedium {
     constructor() {
-        super();
         /** @type {{sections: Array.Symbol, rows: Map.<Symbol, Symbol> }} */
-        this.data = {
-            sections: [],
-            rows: new Map(),
-        };
+        
         /** @type { Map.<Symbol, Symbol> } */
         this.mapRowSection = new Map();
     }
@@ -17,7 +13,7 @@ export class InfiniteSheetDataMedium extends AbstractTableDataMedium {
      * @param {number=} index - Optional argument. Don't pass this if you want to add a new section to the end.
      */
     addSection(sectionID, index = undefined) {
-        const sectionSymbol = pSymbol.get(sectionID);
+        const sectionSymbol = symbolizer.get(sectionID);
         // append to a specific index (if specified) or to the end.
         if (index === undefined) this.data.sections.push(sectionSymbol);
         else this.data.sections.splice(index, 0, sectionSymbol);
@@ -30,13 +26,13 @@ export class InfiniteSheetDataMedium extends AbstractTableDataMedium {
 
     moveSection(sectionID, newIndex) {
         // TODO:
-        const sectionSymbol = pSymbol.get(sectionID);
+        const sectionSymbol = symbolizer.get(sectionID);
     }
 
     /** arguments are given as strings, not symbols */
     addRowToSection(sectionID, rowID, index = undefined) {
-        const sectionSymbol = pSymbol.get(sectionID);
-        const rowSymbol = pSymbol.get(rowID);
+        const sectionSymbol = symbolizer.get(sectionID);
+        const rowSymbol = symbolizer.get(rowID);
 
         /** @type {[]} */
         const placement = this.data.rows.get(sectionSymbol);
@@ -48,7 +44,7 @@ export class InfiniteSheetDataMedium extends AbstractTableDataMedium {
     }
 
     moveRow(rowID, newIndex) {
-        const rowSymbol = pSymbol.get(rowID);
+        const rowSymbol = symbolizer.get(rowID);
         const sectionSymbol = this.mapRowSection.get(rowSymbol);
 
         // remove row from old index
@@ -62,7 +58,7 @@ export class InfiniteSheetDataMedium extends AbstractTableDataMedium {
     }
 
     deleteRow(rowID) {
-        const rowSymbol = pSymbol.get(rowID);
+        const rowSymbol = symbolizer.get(rowID);
         const sectionSymbol = this.mapRowSection.get(rowSymbol);
 
         // remove row from old index
@@ -75,9 +71,9 @@ export class InfiniteSheetDataMedium extends AbstractTableDataMedium {
     }
 
     moveRowToAnotherSection(rowID, newSectionID, newIndex) {
-        const rowSymbol = pSymbol.get(rowID);
+        const rowSymbol = symbolizer.get(rowID);
         const currentSectionSymbol = this.mapRowSection.get(rowSymbol);
-        const nextSectionSymbol = pSymbol.get(newSectionID);
+        const nextSectionSymbol = symbolizer.get(newSectionID);
 
         // remove row from old section & index
         /** @type {[]} */
