@@ -15,6 +15,8 @@ export class AbstractTableViewController extends AbstractViewController {
                 this.anchorPosition
         ));
 
+        this.debug = true;
+
         this.config = {
             margins: {
                 pageContent: {
@@ -551,8 +553,28 @@ export class AbstractTableViewController extends AbstractViewController {
         };
     }
 
+    _debugUpdatedComponents() {
+        if (!this.debug) return;
+
+        console.log("AbstractTableViewController._debugUpdatedComponents");
+        const classes = [
+            "toConstruct",
+            "toAppear",
+            "toUpdatePositionY",
+            "toUpdatePositionX",
+            "toUpdateFolding",
+            "toUpdateExistance",
+            "toDisappear",
+            "toDestruct",
+        ];
+        classes.forEach((cls) => {
+            if (this.computedValues.next.classifiedObjects[cls].size > 0) {
+                console.log(cls, this.computedValues.next.classifiedObjects[cls]);
+            }
+        });
+    }
+
     updateView() {
-        // console.log("update [start]");
         this._prepareComputedValuesForTheUpdate();
 
         this._updateZoneBoundaries();
@@ -565,27 +587,13 @@ export class AbstractTableViewController extends AbstractViewController {
         this._classifyComponentsByUpdateTypes();
         this._updateComponents();
 
-        // const classes = [
-        //     "toConstruct",
-        //     "toAppear",
-        //     "toUpdatePositionY",
-        //     "toUpdatePositionX",
-        //     "toUpdateFolding",
-        //     "toUpdateExistance",
-        //     "toDisappear",
-        //     "toDestruct",
-        // ];
-        // classes.forEach((cls) => {
-        //     if (this.computedValues.next.classifiedObjects[cls].size > 0) {
-        //         console.log(cls, this.computedValues.next.classifiedObjects[cls]);
-        //     }
-        // });
+        this._debugUpdatedComponents();
 
         delete this.computedValues.current; // forget positions computed on previous call
         this.computedValues.current = this.computedValues.next;
 
-        // console.log("update [end]");
-        if (this.computedValues.next.needsRelayout) this.updateView();
+        // console.log(this.computedValues.next.needsRelayout);
+        // if (this.computedValues.next.needsRelayout) this.updateView();
     }
 
     /**
