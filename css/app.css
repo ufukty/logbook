@@ -18,40 +18,16 @@
     font-family: "Work Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-weight: 600;
     box-sizing: border-box;
-    font-size: 9pt;
     color: inherit;
     text-decoration: inherit;
     cursor: default;
     user-select: none;
-    /* font-size: 12pt; */
-}
-
-@media screen and (min-width: 800px) {
-    * {
-        font-size: 10pt;
-    }
-}
-
-@media screen and (min-width: 1000px) {
-    * {
-        font-size: 11pt;
-    }
-}
-
-@media screen and (min-width: 1200px) {
-    * {
-        font-size: 12pt;
-    }
+    font-size: 12pt;
 }
 
 body {
     position: relative;
 }
-
-/* .document-sheet {
-    width: 100vw;
-    overflow-x: hidden;
-} */
 
 .floating-corner {
     position: fixed;
@@ -118,25 +94,3 @@ body {
 #active-task-details>div.task:nth-of-type(4) {
     margin-left: 60px;
 }
-
-/* #settings-documentViewMode {
-    display: flex;
-}
-
-#settings-documentViewMode > div {
-    padding: 5px 10px;
-    border-radius: 8px;
-}
-
-#settings-documentViewMode > div.sc-picked {
-    background-color: var(--primary-color);
-    cursor: not-allowed;
-}
-
-#settings-documentViewMode > div:not(.sc-picked) {
-    cursor: pointer;
-}
-
-#settings-documentViewMode > div:not(.sc-picked):hover {
-    opacity: 0.75;
-} */

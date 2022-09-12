@@ -1,6 +1,8 @@
 #context-menu {
     background-color: #ffffffda;
     -webkit-backdrop-filter: blur(30px) saturate(5);
+    -moz-backdrop-filter: blur(30px) saturate(5);
+    backdrop-filter: blur(30px) saturate(5);
 
     position: absolute;
     top: 0;
@@ -40,13 +42,13 @@
     color: #ff4e4e;
 }
 
-/* #context-menu .context-menu-item:hover {
+#context-menu .context-menu-item:hover {
     background-color: rgba(0, 0, 0, 0.05)
 }
 
 #context-menu .context-menu-item:hover .scale {
     transform: scale(1.05);
-} */
+}
 
 /* .context-menu-item:not(:first-of-type)::before {
     content: "";
