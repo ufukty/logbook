@@ -484,7 +484,12 @@ export class AbstractTableViewController extends AbstractViewController {
             cellContainer.objectSymbol = objectSymbol;
             cellContainer.container.dataset["objectId"] = symbolizer.desymbolize(objectSymbol);
 
-            cellContainer.setPositionY(this.computedValues.next.positions.get(objectSymbol).starts, false);
+            if (this.computedValues.current.positions.has(objectSymbol)) {
+                cellContainer.setPositionY(this.computedValues.current.positions.get(objectSymbol).starts, false);
+                cellContainer.setPositionY(this.computedValues.next.positions.get(objectSymbol).starts, true);
+            } else {
+                cellContainer.setPositionY(this.computedValues.next.positions.get(objectSymbol).starts, false);
+            }
             this.computedValues.lastRecordedObjectHeight.set(objectSymbol, cellContainer.container.clientHeight);
             this.computedValues.next.needsRelayout = true;
         }
