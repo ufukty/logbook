@@ -43,7 +43,7 @@ export class BasicTableCellPositioner extends AbstractTableCellPositioner {
                 duration: 200,
                 iterations: 1,
                 fill: "none",
-                // easing: "cubic-bezier(0.5, 1.2, 0.8, 1.0)",
+                easing: "cubic-bezier(0.3, 0.2, 0.8, 0.9)",
             };
             this.animation = this.container.animate(keyframes, config);
             this.animation.finished

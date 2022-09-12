@@ -59,12 +59,12 @@ export class InfiniteSheet extends AbstractTableViewController {
      * @returns {number} expected height of the specified object in pixels
      */
     getDefaultHeightOfObject(objectSymbol) {
-        return 31;
+        return 32;
     }
 
     /** @returns {number} */
     getAverageHeightForAnObject() {
-        return 31;
+        return 32;
     }
 
     /** @returns {AbstractTableCellViewController} */
