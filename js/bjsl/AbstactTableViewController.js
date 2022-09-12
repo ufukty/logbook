@@ -484,16 +484,7 @@ export class AbstractTableViewController extends AbstractViewController {
             cellContainer.objectSymbol = objectSymbol;
             cellContainer.container.dataset["objectId"] = symbolizer.desymbolize(objectSymbol);
 
-            let objectInitializationPositionY, objectInitializationPositionX;
-            if (this.computedValues.current.positions.has(objectSymbol)) {
-                objectInitializationPositionY = this.computedValues.current.positions.get(objectSymbol).starts;
-                objectInitializationPositionX = this.computedValues.current.positions.get(objectSymbol).x;
-            } else if (this.computedValues.next.positions.has(objectSymbol)) {
-                objectInitializationPositionY = this.computedValues.next.positions.get(objectSymbol).starts;
-                objectInitializationPositionX = this.computedValues.next.positions.get(objectSymbol).x;
-            }
-            cellContainer.setPositionY(objectInitializationPositionY, false);
-            cellContainer.setPositionX(objectInitializationPositionX, false);
+            cellContainer.setPositionY(this.computedValues.next.positions.get(objectSymbol).starts, false);
             this.computedValues.lastRecordedObjectHeight.set(objectSymbol, cellContainer.container.clientHeight);
             this.computedValues.next.needsRelayout = true;
         }
@@ -509,7 +500,7 @@ export class AbstractTableViewController extends AbstractViewController {
     }
 
     _updateContainer() {
-        this.container.style.height = `${this.computedValues.pageHeight}px`;
+        this.container.style.height = `${this.computedValues.next.pageHeight}px`;
     }
 
     _prepareComputedValuesForTheUpdate() {
@@ -568,6 +559,22 @@ export class AbstractTableViewController extends AbstractViewController {
         this._updateContainer();
         this._classifyComponentsByUpdateTypes();
         this._updateComponents();
+
+        // const classes = [
+        //     "toConstruct",
+        //     "toAppear",
+        //     "toUpdatePositionY",
+        //     "toUpdatePositionX",
+        //     "toUpdateFolding",
+        //     "toUpdateExistance",
+        //     "toDisappear",
+        //     "toDestruct",
+        // ];
+        // classes.forEach((cls) => {
+        //     if (this.computedValues.next.classifiedObjects[cls].size > 0) {
+        //         console.log(cls, this.computedValues.next.classifiedObjects[cls]);
+        //     }
+        // });
 
         delete this.computedValues.current; // forget positions computed on previous call
         this.computedValues.current = this.computedValues.next;

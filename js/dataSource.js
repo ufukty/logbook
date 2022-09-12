@@ -203,21 +203,21 @@ export class DataSource {
         };
 
         // prettier-ignore
-        this.cache.tasks.set(symbols["task#123"], { content: "task#123", parentId: symbols["-1"] });
-        this.cache.tasks.set(symbols["task#143"], { content: "task#143", parentId: symbols["task#123"] });
-        this.cache.tasks.set(symbols["task#144"], { content: "task#144", parentId: symbols["task#143"] });
-        this.cache.tasks.set(symbols["task#126"], { content: "task#126", parentId: symbols["task#144"] });
-        this.cache.tasks.set(symbols["task#146"], { content: "task#146", parentId: symbols["task#144"] });
-        this.cache.tasks.set(symbols["task#134"], { content: "task#134", parentId: symbols["task#143"] });
-        this.cache.tasks.set(symbols["task#125"], { content: "task#125", parentId: symbols["task#143"] });
-        this.cache.tasks.set(symbols["task#137"], { content: "task#137", parentId: symbols["task#125"] });
-        this.cache.tasks.set(symbols["task#145"], { content: "task#145", parentId: symbols["task#143"] });
-        this.cache.tasks.set(symbols["task#135"], { content: "task#135", parentId: symbols["task#145"] });
-        this.cache.tasks.set(symbols["task#133"], { content: "task#133", parentId: symbols["task#123"] });
-        this.cache.tasks.set(symbols["task#127"], { content: "task#127", parentId: symbols["task#133"] });
-        this.cache.tasks.set(symbols["task#147"], { content: "task#147", parentId: symbols["task#133"] });
-        this.cache.tasks.set(symbols["task#136"], { content: "task#136", parentId: symbols["task#133"] });
-        this.cache.tasks.set(symbols["task#124"], { content: "task#124", parentId: symbols["task#123"] });
+        this.cache.tasks.set(symbols["task#123"], { content: "task#123", depth: 0, parentId: symbols["-1"] });
+        this.cache.tasks.set(symbols["task#143"], { content: "task#143", depth: 1, parentId: symbols["task#123"] });
+        this.cache.tasks.set(symbols["task#144"], { content: "task#144", depth: 2, parentId: symbols["task#143"] });
+        this.cache.tasks.set(symbols["task#126"], { content: "task#126", depth: 3, parentId: symbols["task#144"] });
+        this.cache.tasks.set(symbols["task#146"], { content: "task#146", depth: 3, parentId: symbols["task#144"] });
+        this.cache.tasks.set(symbols["task#134"], { content: "task#134", depth: 2, parentId: symbols["task#143"] });
+        this.cache.tasks.set(symbols["task#125"], { content: "task#125", depth: 2, parentId: symbols["task#143"] });
+        this.cache.tasks.set(symbols["task#137"], { content: "task#137", depth: 3, parentId: symbols["task#125"] });
+        this.cache.tasks.set(symbols["task#145"], { content: "task#145", depth: 2, parentId: symbols["task#143"] });
+        this.cache.tasks.set(symbols["task#135"], { content: "task#135", depth: 3, parentId: symbols["task#145"] });
+        this.cache.tasks.set(symbols["task#133"], { content: "task#133", depth: 1, parentId: symbols["task#123"] });
+        this.cache.tasks.set(symbols["task#127"], { content: "task#127", depth: 2, parentId: symbols["task#133"] });
+        this.cache.tasks.set(symbols["task#147"], { content: "task#147", depth: 2, parentId: symbols["task#133"] });
+        this.cache.tasks.set(symbols["task#136"], { content: "task#136", depth: 2, parentId: symbols["task#133"] });
+        this.cache.tasks.set(symbols["task#124"], { content: "task#124", depth: 1, parentId: symbols["task#123"] });
 
         this.delegates.nofify(EVENT_PLACEMENT_UPDATE);
     }

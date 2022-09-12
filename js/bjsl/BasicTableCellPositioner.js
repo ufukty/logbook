@@ -59,13 +59,4 @@ export class BasicTableCellPositioner extends AbstractTableCellPositioner {
             this.container.style.top = `${newPosition}px`;
         }
     }
-
-    /**
-     * @param {number} newPosition
-     * @param {boolean} withAnimation
-     */
-    setPositionX(newPosition, withAnimation) {
-        // TODO: withAnimation option
-        this.container.style.left = `${newPosition}px`;
-    }
 }

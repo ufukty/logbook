@@ -111,7 +111,7 @@ export function configureElementWithProps(element, classList, style, nodePropert
 /**
  * Adds classes and appends children nodes to <element>
  * @param {HTMLElement} element
- * @param {HTMLElement[]} childrenList
+ * @param {HTMLElement|HTMLElement[]} childrenList
  */
 export function adoption(element, childrenList) {
     if (childrenList !== undefined) {
