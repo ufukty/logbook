@@ -57,84 +57,8 @@ export class AbstractTableViewController extends AbstractViewController {
             objectToCellContainers: new Map(),
             /** @type {Map.<Symbol, number>} */
             lastRecordedObjectHeight: new Map(),
-            current: {
-                pageHeight: undefined,
-                /** set and use when nodes above viewport changes their sizings */
-                scrollShift: undefined,
-                /** @type {Map.<Symbol, { starts: number, ends: number, height: number }>} */
-                positions: new Map(),
-                /**
-                 * Holds the set of object symbols from current and next iterations of update.
-                 * Intended to be used by update functions.
-                 * @type {Set.<Symbol>}
-                 */
-                mergedObjectSymbols: undefined,
-                /** @type { { inViewport: Set.<Symbol>, inPreload: Set.<Symbol>, inParking: Set.<Symbol> } } */
-                zoneCollusions: {
-                    inViewport: new Set(),
-                    inPreload: new Set(),
-                    inParking: new Set(),
-                },
-                /** @type { { viewport: { starts: number, ends: number }, preload: { starts: number, ends: number }, parking: { starts: number, ends: number } } } */
-                boundaries: {
-                    viewport: {},
-                    /** an area which its height is 3 times of
-                     * viewport (1 above, 1 below) */
-                    preload: {},
-                    /** an area which its height is 5 times of
-                     * viewport (2 above, 2 below) */
-                    parking: {},
-                },
-                classifiedObjects: {
-                    toConstruct: new Set(),
-                    toAppear: new Set(),
-                    toUpdatePositionY: new Set(),
-                    toUpdatePositionX: new Set(), // indentation
-                    toUpdateFolding: new Set(),
-                    toUpdateExistance: new Set(),
-                    toDisappear: new Set(),
-                    toDestruct: new Set(),
-                },
-            },
-            next: {
-                pageHeight: undefined,
-                /** set and use when nodes above viewport changes their sizings */
-                scrollShift: undefined,
-                /** @type {Map.<Symbol, { starts: number, ends: number, height: number }>} */
-                positions: new Map(),
-                /**
-                 * Holds the set of object symbols from current and next iterations of update.
-                 * Intended to be used by update functions.
-                 * @type {Set.<Symbol>}
-                 */
-                mergedObjectSymbols: undefined,
-                /** @type { { inViewport: Set.<Symbol>, inPreload: Set.<Symbol>, inParking: Set.<Symbol> } } */
-                zoneCollusions: {
-                    inViewport: new Set(),
-                    inPreload: new Set(),
-                    inParking: new Set(),
-                },
-                /** @type { { viewport: { starts: number, ends: number }, preload: { starts: number, ends: number }, parking: { starts: number, ends: number } } } */
-                boundaries: {
-                    viewport: {},
-                    /** an area which its height is 3 times of
-                     * viewport (1 above, 1 below) */
-                    preload: {},
-                    /** an area which its height is 5 times of
-                     * viewport (2 above, 2 below) */
-                    parking: {},
-                },
-                classifiedObjects: {
-                    toConstruct: new Set(),
-                    toAppear: new Set(),
-                    toUpdatePositionY: new Set(),
-                    toUpdatePositionX: new Set(), // indentation
-                    toUpdateFolding: new Set(),
-                    toUpdateExistance: new Set(),
-                    toDisappear: new Set(),
-                    toDestruct: new Set(),
-                },
-            },
+            current: this._getTemplateForComputedValues(),
+            next: this._getTemplateForComputedValues(),
         };
 
         document.addEventListener("scroll", this.updateView.bind(this));
@@ -147,10 +71,13 @@ export class AbstractTableViewController extends AbstractViewController {
                 const objectId = cellContainer_container.dataset["objectId"];
                 const objectSymbol = symbolizer.symbolize(objectId);
 
+                console.log("height is changed", objectId, height);
                 this.computedValues.lastRecordedObjectHeight.set(objectSymbol, height);
             });
+            console.log("calling from resize notification");
             this.updateView();
         });
+        console.log("constructor end");
     }
 
     /**
@@ -228,22 +155,20 @@ export class AbstractTableViewController extends AbstractViewController {
     }
 
     _updateZoneBoundaries() {
-        const preloadZoneOffset = Math.floor(0.4 * window.innerHeight);
-        const parkingZoneOffset = Math.floor(0.5 * window.innerHeight);
+        const preloadZoneOffset = Math.floor(0.1 * window.innerHeight);
+        const parkingZoneOffset = Math.floor(0.2 * window.innerHeight);
 
         this.computedValues.next.boundaries = {
             viewport: {
                 starts: window.scrollY,
                 ends: window.scrollY + window.innerHeight,
             },
-            /** an area which its height is 3 times of
-             * viewport (1 above, 1 below) */
+            /** an area which its height is 3 times of viewport (1 above, 1 below) */
             preload: {
                 starts: window.scrollY - preloadZoneOffset,
                 ends: window.scrollY + window.innerHeight + preloadZoneOffset,
             },
-            /** an area which its height is 5 times of
-             * viewport (2 above, 2 below) */
+            /** an area which its height is 5 times of viewport (2 above, 2 below) */
             parking: {
                 starts: window.scrollY - parkingZoneOffset,
                 ends: window.scrollY + window.innerHeight + parkingZoneOffset,
@@ -378,12 +303,22 @@ export class AbstractTableViewController extends AbstractViewController {
 
     _classifyComponentsByUpdateTypes() {
         for (const objectSymbol of this.computedValues.next.mergedObjectSymbols) {
-            // "to construct"
+            // "to first-construct"
             if (
                 !this.computedValues.objectToCellContainers.has(objectSymbol) &&
-                this.computedValues.next.zoneCollusions.inPreload.has(objectSymbol)
+                this.computedValues.next.zoneCollusions.inPreload.has(objectSymbol) &&
+                !this.computedValues.current.positions.has(objectSymbol)
             ) {
-                this.computedValues.next.classifiedObjects.toConstruct.add(objectSymbol);
+                this.computedValues.next.classifiedObjects.toFirstConstruct.add(objectSymbol);
+            }
+
+            // "to repeating-construct"
+            if (
+                !this.computedValues.objectToCellContainers.has(objectSymbol) &&
+                this.computedValues.next.zoneCollusions.inPreload.has(objectSymbol) &&
+                this.computedValues.current.positions.has(objectSymbol)
+            ) {
+                this.computedValues.next.classifiedObjects.toRepeatingConstruct.add(objectSymbol);
             }
 
             // "to appear"
@@ -478,22 +413,33 @@ export class AbstractTableViewController extends AbstractViewController {
             this.cellAppears(objectSymbol, cellContainer);
         }
 
-        // "to construct"
-        this.computedValues.next.needsRelayout = false;
-        for (const objectSymbol of this.computedValues.next.classifiedObjects.toConstruct) {
+        // "to first-construct"
+        for (const objectSymbol of this.computedValues.next.classifiedObjects.toFirstConstruct) {
             const cellContainer = this.getCellForObject(objectSymbol);
             this.computedValues.objectToCellContainers.set(objectSymbol, cellContainer);
             cellContainer.objectSymbol = objectSymbol;
             cellContainer.container.dataset["objectId"] = symbolizer.desymbolize(objectSymbol);
 
-            if (this.computedValues.current.positions.has(objectSymbol)) {
-                cellContainer.setPositionY(this.computedValues.current.positions.get(objectSymbol).starts, false);
-                cellContainer.setPositionY(this.computedValues.next.positions.get(objectSymbol).starts, true);
-            } else {
-                cellContainer.setPositionY(this.computedValues.next.positions.get(objectSymbol).starts, false);
-            }
+            // this case is when item emerges from non-existance
+            // TODO: animate emergence?
+            // cellContainer.setPositionY(this.computedValues.next.positions.get(objectSymbol).starts + 10, false);
+            cellContainer.setPositionY(this.computedValues.next.positions.get(objectSymbol).starts, false);
+
             this.computedValues.lastRecordedObjectHeight.set(objectSymbol, cellContainer.container.clientHeight);
-            this.computedValues.next.needsRelayout = true;
+        }
+
+        // "to repeating-construct"
+        for (const objectSymbol of this.computedValues.next.classifiedObjects.toRepeatingConstruct) {
+            const cellContainer = this.getCellForObject(objectSymbol);
+            this.computedValues.objectToCellContainers.set(objectSymbol, cellContainer);
+            cellContainer.objectSymbol = objectSymbol;
+            cellContainer.container.dataset["objectId"] = symbolizer.desymbolize(objectSymbol);
+
+            // this case is when item emerges from non-existance
+            cellContainer.setPositionY(this.computedValues.current.positions.get(objectSymbol).starts, false);
+            cellContainer.setPositionY(this.computedValues.next.positions.get(objectSymbol).starts, true);
+
+            this.computedValues.lastRecordedObjectHeight.set(objectSymbol, cellContainer.container.clientHeight);
         }
 
         // "to update position Y"
@@ -510,8 +456,8 @@ export class AbstractTableViewController extends AbstractViewController {
         this.container.style.height = `${this.computedValues.next.pageHeight}px`;
     }
 
-    _prepareComputedValuesForTheUpdate() {
-        this.computedValues.next = {
+    _getTemplateForComputedValues() {
+        return {
             allocatedCells: new Map(),
             pageHeight: undefined,
             /** set and use when nodes above viewport changes their sizings */
@@ -541,7 +487,8 @@ export class AbstractTableViewController extends AbstractViewController {
                 parking: {},
             },
             classifiedObjects: {
-                toConstruct: new Set(),
+                toFirstConstruct: new Set(),
+                toRepeatingConstruct: new Set(),
                 toAppear: new Set(),
                 toUpdatePositionY: new Set(),
                 toUpdatePositionX: new Set(), // indentation
@@ -558,7 +505,8 @@ export class AbstractTableViewController extends AbstractViewController {
 
         console.log("AbstractTableViewController._debugUpdatedComponents");
         const classes = [
-            "toConstruct",
+            "toFirstConstruct",
+            "toRepeatingConstruct",
             "toAppear",
             "toUpdatePositionY",
             "toUpdatePositionX",
@@ -575,7 +523,7 @@ export class AbstractTableViewController extends AbstractViewController {
     }
 
     updateView() {
-        this._prepareComputedValuesForTheUpdate();
+        this.computedValues.next = this._getTemplateForComputedValues();
 
         this._updateZoneBoundaries();
         this._calculateComponentPositions();
@@ -591,6 +539,8 @@ export class AbstractTableViewController extends AbstractViewController {
 
         delete this.computedValues.current; // forget positions computed on previous call
         this.computedValues.current = this.computedValues.next;
+
+        console.log("debugger");
 
         // console.log(this.computedValues.next.needsRelayout);
         // if (this.computedValues.next.needsRelayout) this.updateView();

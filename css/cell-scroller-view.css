@@ -39,5 +39,6 @@
     position: absolute;
     top: 0;
     left: 0;
-    transition: 60ms ease-out opacity, 200ms cubic-bezier(0.2, 1.4, 0.7, 1.2) transform;
+    visibility: hidden;
+    /* transition: 60ms ease-out opacity, 200ms cubic-bezier(0.2, 1.4, 0.7, 1.2) transform; */
 }
