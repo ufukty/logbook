@@ -64,18 +64,27 @@ export class AbstractTableViewController extends AbstractViewController {
         document.addEventListener("scroll", this.updateView.bind(this));
 
         this.resizeObserver = new ResizeObserver((entries) => {
+            var nothingIsChanged = true;
             entries.forEach((entry) => {
                 const height = Math.ceil(entry.contentRect.height);
-
                 const cellContainer_container = entry.target;
                 const objectId = cellContainer_container.dataset["objectId"];
                 const objectSymbol = symbolizer.symbolize(objectId);
-
-                console.log("height is changed", objectId, height);
-                this.computedValues.lastRecordedObjectHeight.set(objectSymbol, height);
+                if (
+                    !(
+                        this.computedValues.lastRecordedObjectHeight.has(objectSymbol) &&
+                        this.computedValues.lastRecordedObjectHeight.get(objectSymbol) === height
+                    )
+                ) {
+                    nothingIsChanged = false;
+                    console.log("height is changed", objectId, height);
+                    this.computedValues.lastRecordedObjectHeight.set(objectSymbol, height);
+                }
             });
-            console.log("calling from resize notification");
-            this.updateView();
+            if (!nothingIsChanged) {
+                console.log("calling from resize notification");
+                this.updateView();
+            }
         });
         console.log("constructor end");
     }
