@@ -439,3 +439,25 @@ export function setIntersect(leftSet, rightSet) {
     }
     return intersection;
 }
+
+export function clamp(x, min, max) {
+    return Math.min(max, Math.max(x, min))
+}
+
+/**
+ *   A ------------------------------ B
+ *   ^      ^                         ^
+ *   4     20%                        9
+ * This function returns 5 for parameters: 4, 9, 20%
+ */
+export function lerp(start, end, pct) {
+    return start + (end - start) * pct;
+}
+
+export function linearInterpolation(x0, y0, x1, y1, x) {
+    return y0 + (y0 - y1) / (x0 - x1) * (x1 - x);
+}
+
+export function linearInterpolationWithProgressPercentageFromP0(x0, y0, x1, y1, progressPercentageFromP0) {
+    return linearInterpolation()
+}

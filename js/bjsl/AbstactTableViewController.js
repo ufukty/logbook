@@ -15,7 +15,7 @@ export class AbstractTableViewController extends AbstractViewController {
                 this.anchorPosition
         ));
 
-        this.debug = true;
+        this.debug = false;
 
         this.config = {
             margins: {
@@ -546,13 +546,8 @@ export class AbstractTableViewController extends AbstractViewController {
 
         this._debugUpdatedComponents();
 
-        delete this.computedValues.current; // forget positions computed on previous call
+        delete this.computedValues.current;
         this.computedValues.current = this.computedValues.next;
-
-        console.log("debugger");
-
-        // console.log(this.computedValues.next.needsRelayout);
-        // if (this.computedValues.next.needsRelayout) this.updateView();
     }
 
     /**
