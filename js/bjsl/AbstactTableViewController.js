@@ -16,7 +16,7 @@ export class AbstractTableViewController extends AbstractViewController {
         ));
 
         Object.assign(this.config, {
-            debug: true,
+            // debug: true,
             margins: {
                 pageContent: {
                     before: 10,
@@ -94,6 +94,7 @@ export class AbstractTableViewController extends AbstractViewController {
                 const cellContainer_container = entry.target;
                 const objectId = cellContainer_container.dataset["objectId"];
                 const objectSymbol = symbolizer.symbolize(objectId);
+                if (!this.computedValues.objectToCellContainers.has(objectSymbol)) return;
                 if (
                     !(
                         this.computedValues.lastRecordedObjectHeight.has(objectSymbol) &&
@@ -101,6 +102,7 @@ export class AbstractTableViewController extends AbstractViewController {
                     )
                 ) {
                     nothingIsChanged = false;
+
                     this.computedValues.lastRecordedObjectHeight.set(objectSymbol, height);
                     this._debug("height is changed:", objectId, height);
                 } else {
@@ -108,7 +110,7 @@ export class AbstractTableViewController extends AbstractViewController {
                 }
             });
             if (!nothingIsChanged) {
-                this.updateView();
+                requestAnimationFrame(this.updateView.bind(this)); // to avoid infinite resize loops
             }
         });
     }
@@ -469,8 +471,8 @@ export class AbstractTableViewController extends AbstractViewController {
             cellContainer.container.dataset["objectId"] = symbolizer.desymbolize(objectSymbol);
 
             // this case is when item emerges from non-existance
-            cellContainer.setPositionY(this.computedValues.current.positions.get(objectSymbol).starts, false);
-            cellContainer.setPositionY(this.computedValues.next.positions.get(objectSymbol).starts, true);
+            // cellContainer.setPositionY(this.computedValues.current.positions.get(objectSymbol).starts, false);
+            cellContainer.setPositionY(this.computedValues.next.positions.get(objectSymbol).starts, false);
 
             // this.computedValues.lastRecordedObjectHeight.set(objectSymbol, cellContainer.container.clientHeight);
         }
