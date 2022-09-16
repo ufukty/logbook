@@ -112,13 +112,13 @@ class App {
         taskPositionerElement.classList.add("context-menu-focused-on");
     }
 
-    closeContextMenuOnce(taskPositionerElement) {
+    closeContextMenuOnce() {
         if (!this.isContextMenuOpen) return;
 
         this.contextMenu.hide();
 
         this.infiniteSheetWrapper.classList.remove("context-menu-open");
-        taskPositionerElement.classList.remove("context-menu-focused-on");
+        this.userInputManager.taskElementThatIsContextMenuFocusedOn.classList.remove("context-menu-focused-on");
 
         this.isContextMenuOpen = false;
     }

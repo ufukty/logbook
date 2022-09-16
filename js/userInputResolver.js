@@ -34,7 +34,7 @@ export class UserInputResolver {
         if (!this.flags.contextMenuModeIsActive) return;
         this.flags.contextMenuModeIsActive = false;
 
-        this.delegates.closeContextMenu(this.taskElementThatIsContextMenuFocusedOn);
+        this.delegates.closeContextMenu();
         this.taskElementThatIsContextMenuFocusedOn = undefined;
     }
 
