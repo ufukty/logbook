@@ -5,20 +5,17 @@ import { AbstractTableCellViewController } from "../bjsl/AbstractTableCellViewCo
 class InfiniteSheetHeader extends AbstractTableCellViewController {
     constructor() {
         super();
-        this.header = createElement("div", ["header"]);
-        this.container = createElement("div", ["header-positioner"], [this.header]);
+        this.container = createElement("div", ["infinite-sheet-header"]);
     }
+
+    prepareForUse() {}
 
     prepareForFree() {
-        this.container.style.visibility = "hidden";
-    }
-
-    prepareForUse() {
-        this.container.style.visibility = "visible";
+        this.container.innerText = "";
     }
 
     setContent(title) {
-        this.header.innerText = title;
+        this.container.innerText = title;
     }
 }
 

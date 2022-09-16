@@ -1,10 +1,10 @@
 import { adoption, domCollector, symbolizer } from "../bjsl/utilities.js";
-import { InfiniteSheetTableCellViewController } from "./InfiniteSheetTableCellViewController.js";
 import { AbstractTableCellPositioner } from "../bjsl/AbstractTableCellPositioner.js";
 import { AbstractTableCellViewController } from "../bjsl/AbstractTableCellViewController.js";
 import { DataSource } from "../dataSource.js";
 import InfiniteSheetHeader from "./InfiniteSheetHeader.js";
 import { AbstractTableViewController } from "../bjsl/AbstactTableViewController.js";
+import InfiniteSheetTask from "./InfiniteSheetTask.js";
 
 const REGULAR_CELL_SYMBOL = symbolizer.symbolize("regularCellViewContainer");
 const HEADER_CELL_SYMBOL = symbolizer.symbolize("headerCellViewContainer");
@@ -25,17 +25,17 @@ export class InfiniteSheet extends AbstractTableViewController {
                 after: 300,
             },
             [HEADER_CELL_SYMBOL]: {
-                before: 100,
+                before: 20,
                 between: 0,
             },
             [REGULAR_CELL_SYMBOL]: {
-                before: 50,
-                between: 30,
+                before: 10,
+                between: 5,
             },
         };
 
         this.registerCellIdentifier(REGULAR_CELL_SYMBOL, () => {
-            return new InfiniteSheetTableCellViewController();
+            return new InfiniteSheetTask();
         });
         this.registerCellIdentifier(HEADER_CELL_SYMBOL, () => {
             return new InfiniteSheetHeader();
@@ -84,6 +84,9 @@ export class InfiniteSheet extends AbstractTableViewController {
         } else {
             cellContainer = this.requestReusableCellContainer(REGULAR_CELL_SYMBOL);
             cellContainer.cell.setContent(this.dataSource.getTextContent(objectSymbol));
+            cellContainer.cell.setData({
+                taskType: ["solo", "collaborated"][Math.round(Math.random())],
+            });
         }
 
         return cellContainer;

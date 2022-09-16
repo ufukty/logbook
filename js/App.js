@@ -86,7 +86,7 @@ class App {
     }
 
     /** @param {MouseEvent} e */
-    openContextMenuOnce(taskPositionerElement, taskElement, taskId, taskSection, taskRow, clickPosX, clickPosY) {
+    openContextMenuOnce(taskPositionerElement, taskElement, objectId, clickPosX, clickPosY) {
         if (this.isContextMenuOpen) return;
         this.isContextMenuOpen = true;
 

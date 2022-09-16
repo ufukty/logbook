@@ -24,12 +24,10 @@ export class UserInputResolver {
         this.flags.contextMenuModeIsActive = true;
 
         const taskPositionerElement = taskElement.parentNode;
-        const taskId = taskPositionerElement.dataset["taskId"];
-        const section = taskPositionerElement.dataset["section"];
-        const row = taskPositionerElement.dataset["row"];
+        const objectId = taskPositionerElement.dataset["objectId"];
 
         this.taskElementThatIsContextMenuFocusedOn = taskPositionerElement;
-        this.delegates.openContextMenu(taskPositionerElement, taskElement, taskId, section, row, clickPosX, clickPosY);
+        this.delegates.openContextMenu(taskPositionerElement, taskElement, objectId, clickPosX, clickPosY);
     }
 
     disableContextMenuOnce() {
@@ -52,7 +50,7 @@ export class UserInputResolver {
         const targetElement = e.target;
 
         // console.log(e);
-        if (targetElement.classList.contains("task")) {
+        if (targetElement.classList.contains("infinite-sheet-task")) {
             e.stopPropagation();
 
             const taskElement = targetElement;
@@ -98,7 +96,7 @@ export class UserInputResolver {
     touchEndEventReceiver(e) {
         const targetElement = e.target;
 
-        if (targetElement.classList.contains("task")) {
+        if (targetElement.classList.contains("infinite-sheet-task")) {
             const taskElement = targetElement;
             const taskPositionerElement = taskElement.parentNode;
 

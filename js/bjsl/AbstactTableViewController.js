@@ -16,37 +16,62 @@ export class AbstractTableViewController extends AbstractViewController {
         ));
 
         Object.assign(this.config, {
-            debug: false,
+            debug: true,
             margins: {
                 pageContent: {
                     before: 10,
                     after: 10,
                 },
             },
-            /** The ordering of sections and rows in them.
+            /**
+             * Number values for zones represents how many times window height
+             *   will be extended from up and down to find top and bottom edges of
+             *   each zone. Suggestion: preload < parking
+             *
+             * Items that came inside of preload area will be assigned to a cell.
+             * Items that went outside of parking area will be unassigned from
+             *   a cell.
+             *
+             * Smaller numbers means less objects created at DOM and less memory
+             *   usage but also the user will notice absense of items when scrolling
+             *   fast.
+             */
+            zoneOffsets: {
+                preload: 0.4,
+                parking: 0.5,
+            },
+            /**
+             * The ordering of sections and rows in them.
              * Each `Symbol` represents an `objectSymbol`
-             * (either a `sectionID` or `rowID`). */
+             * (either a `sectionID` or `rowID`).
+             */
             placement: {
-                /** Incomplete list of placement data.
-                 * @type {Array.<Symbol>} */
+                /**
+                 * Incomplete list of placement data.
+                 * @type {Array.<Symbol>}
+                 */
                 objectIds: [],
-                /** States what is the actual index of items[0]
-                 * @type {number} */
+                /**
+                 * States what is the actual index of items[0]
+                 * @type {number}
+                 */
                 offset: undefined,
-                /** Total number of items in the document. That value is used
-                 * for estimation of full height of cell scroller for both
-                 * chronological and hierarchical view.
-                 * @type {number} */
+                /**
+                 * Total number of items in the document. That value is used
+                 *   for estimation of full height of cell scroller for both
+                 *   chronological and hierarchical view.
+                 * @type {number}
+                 */
                 totalNumberOfItems: undefined,
             },
             /**
              * @type { Map.<Symbol, Symbol> }
              * Maps `objectIdSymbol` to correct reuse identifiers.
-             * Information will be used for requesting and
-             * sending cells to `domElementReuseCollector`.
-             * > **Note that**: Related constructors for each id
-             * given as key to this map, should've
-             * registered to `domElementReuseCollector` already.
+             *   Information will be used for requesting and
+             *   sending cells to `domElementReuseCollector`.
+             * Note that: Related constructors for each id
+             *   given as key to this map, should've
+             *   registered to `domElementReuseCollector` already.
              */
             objectReuseIdentifiers: new Map(),
         });
@@ -77,6 +102,9 @@ export class AbstractTableViewController extends AbstractViewController {
                 ) {
                     nothingIsChanged = false;
                     this.computedValues.lastRecordedObjectHeight.set(objectSymbol, height);
+                    this._debug("height is changed:", objectId, height);
+                } else {
+                    this._debug("height is NOT changed:", objectId, height);
                 }
             });
             if (!nothingIsChanged) {
@@ -160,8 +188,8 @@ export class AbstractTableViewController extends AbstractViewController {
     }
 
     _updateZoneBoundaries() {
-        const preloadZoneOffset = Math.floor(0.1 * window.innerHeight);
-        const parkingZoneOffset = Math.floor(0.2 * window.innerHeight);
+        const preloadZoneOffset = Math.floor(this.config.zoneOffsets.preload * window.innerHeight);
+        const parkingZoneOffset = Math.floor(this.config.zoneOffsets.parking * window.innerHeight);
 
         this.computedValues.next.boundaries = {
             viewport: {

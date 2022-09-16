@@ -1,37 +1,20 @@
-import { createElement } from "../library/utilities.js";
-import { AbstractViewController } from "../library/AbstractViewController.js";
+import { createElement } from "../bjsl/utilities.js";
+import { AbstractTableCellViewController } from "../bjsl/AbstractTableCellViewController.js";
 
-class InfiniteSheetTask extends AbstractViewController {
+class InfiniteSheetTask extends AbstractTableCellViewController {
     constructor() {
         super();
-        this.task = createElement("div", ["task", "done"]);
-        this.container = createElement("div", ["task-positioner"], [this.task]);
+        this.container = createElement("div", ["infinite-sheet-task", "done"]);
     }
 
     prepareForFree() {
-        this.container.style.visibility = "hidden";
+        this.container.innerText = "";
     }
 
-    prepareForUse() {
-        this.container.style.visibility = "visible";
-    }
+    prepareForUse() {}
 
     setContent(newContent) {
-        this.task.innerText = newContent;
-    }
-
-    setPosition(posY) {
-        this.container.style.top = `${posY}px`;
-        // this.container.style.transform = `translateY(${posY}px)`;
-    }
-
-    setData(kv) {
-        for (const key in kv) {
-            if (Object.hasOwnProperty.call(kv, key)) {
-                const value = kv[key];
-                this.container.dataset[`${key}`] = value;
-            }
-        }
+        this.container.innerText = newContent;
     }
 }
 
