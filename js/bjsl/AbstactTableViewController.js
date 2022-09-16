@@ -15,9 +15,8 @@ export class AbstractTableViewController extends AbstractViewController {
                 this.anchorPosition
         ));
 
-        this.debug = false;
-
-        this.config = {
+        Object.assign(this.config, {
+            debug: false,
             margins: {
                 pageContent: {
                     before: 10,
@@ -50,7 +49,7 @@ export class AbstractTableViewController extends AbstractViewController {
              * registered to `domElementReuseCollector` already.
              */
             objectReuseIdentifiers: new Map(),
-        };
+        });
 
         this.computedValues = {
             /** @type { Map.<Symbol, AbstractTableCellPositioner> } */
@@ -77,16 +76,13 @@ export class AbstractTableViewController extends AbstractViewController {
                     )
                 ) {
                     nothingIsChanged = false;
-                    console.log("height is changed", objectId, height);
                     this.computedValues.lastRecordedObjectHeight.set(objectSymbol, height);
                 }
             });
             if (!nothingIsChanged) {
-                console.log("calling from resize notification");
                 this.updateView();
             }
         });
-        console.log("constructor end");
     }
 
     /**
@@ -130,12 +126,12 @@ export class AbstractTableViewController extends AbstractViewController {
      * @returns {AbstractTableCellPositioner}
      */
     getCellForObject(objectSymbol) {
-        console.error("abstract function is called directly");
+        this._error("abstract function is called directly");
     }
 
     /** @param {Symbol} objectSymbol */
     getCellKindForObject(objectSymbol) {
-        console.error("Abstract method has called directly.");
+        this._error("Abstract method has called directly.");
     }
 
     /**
@@ -145,7 +141,7 @@ export class AbstractTableViewController extends AbstractViewController {
      * @param {AbstractTableCellPositioner} cellContainer
      */
     updateCellIfNecessary(objectSymbol, cellContainer) {
-        console.error("abstract function is called directly");
+        this._error("abstract function is called directly");
     }
 
     /** @returns {number} */
@@ -160,7 +156,7 @@ export class AbstractTableViewController extends AbstractViewController {
      * @returns {number}
      */
     getDefaultHeightOfObject(objectSymbol) {
-        console.error("abstract function is called directly");
+        this._error("abstract function is called directly");
     }
 
     _updateZoneBoundaries() {
@@ -510,7 +506,7 @@ export class AbstractTableViewController extends AbstractViewController {
     }
 
     _debugUpdatedComponents() {
-        if (!this.debug) return;
+        if (!this.config.debug) return;
 
         console.log("AbstractTableViewController._debugUpdatedComponents");
         const classes = [
@@ -557,7 +553,7 @@ export class AbstractTableViewController extends AbstractViewController {
      * @param {AbstractTableCellViewController} cellPositioner
      */
     cellAppears(objectSymbol, cellPositioner) {
-        console.error("abstract function is called directly");
+        this._error("abstract function is called directly");
     }
 
     /**
@@ -567,7 +563,7 @@ export class AbstractTableViewController extends AbstractViewController {
      * @param {AbstractTableCellViewController} cellPositioner
      */
     cellDisappears(objectSymbol, cellPositioner) {
-        console.error("abstract function is called directly");
+        this._error("abstract function is called directly");
     }
 
     /**

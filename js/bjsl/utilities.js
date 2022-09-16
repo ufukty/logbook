@@ -441,7 +441,7 @@ export function setIntersect(leftSet, rightSet) {
 }
 
 export function clamp(x, min, max) {
-    return Math.min(max, Math.max(x, min))
+    return Math.min(max, Math.max(x, min));
 }
 
 /**
@@ -455,9 +455,17 @@ export function lerp(start, end, pct) {
 }
 
 export function linearInterpolation(x0, y0, x1, y1, x) {
-    return y0 + (y0 - y1) / (x0 - x1) * (x1 - x);
+    return y0 + ((y0 - y1) / (x0 - x1)) * (x1 - x);
 }
 
 export function linearInterpolationWithProgressPercentageFromP0(x0, y0, x1, y1, progressPercentageFromP0) {
-    return linearInterpolation()
+    return linearInterpolation();
+}
+
+export function avg(...data) {
+    var sum = 0;
+    data.forEach((dat) => {
+        sum += dat;
+    });
+    return sum / data.length;
 }
