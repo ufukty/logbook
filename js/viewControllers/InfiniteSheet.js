@@ -19,20 +19,26 @@ export class InfiniteSheet extends AbstractTableViewController {
         this.regularCellId = REGULAR_CELL_SYMBOL;
         this.headerCellId = HEADER_CELL_SYMBOL;
 
-        this.config.margins = {
-            pageContent: {
-                before: 100,
-                after: 300,
+        Object.assign(this.config, {
+            zoneOffsets: {
+                preload: 0.1,
+                parking: 0.2,
             },
-            [HEADER_CELL_SYMBOL]: {
-                before: 20,
-                between: 0,
+            margins: {
+                pageContent: {
+                    before: 100,
+                    after: 300,
+                },
+                [HEADER_CELL_SYMBOL]: {
+                    before: 20,
+                    between: 0,
+                },
+                [REGULAR_CELL_SYMBOL]: {
+                    before: 10,
+                    between: 5,
+                },
             },
-            [REGULAR_CELL_SYMBOL]: {
-                before: 10,
-                between: 5,
-            },
-        };
+        });
 
         this.registerCellIdentifier(REGULAR_CELL_SYMBOL, () => {
             return new InfiniteSheetTask();
