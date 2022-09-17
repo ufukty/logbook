@@ -1,4 +1,4 @@
-import { adoption, domCollector, symbolizer } from "../bjsl/utilities.js";
+import { adoption, domCollector, pick, symbolizer } from "../bjsl/utilities.js";
 import { AbstractTableCellPositioner } from "../bjsl/AbstractTableCellPositioner.js";
 import { AbstractTableCellViewController } from "../bjsl/AbstractTableCellViewController.js";
 import { DataSource } from "../dataSource.js";
@@ -21,8 +21,8 @@ export class InfiniteSheet extends AbstractTableViewController {
 
         Object.assign(this.config, {
             zoneOffsets: {
-                preload: 0.1,
-                parking: 0.2,
+                preload: 0.3,
+                parking: 0.4,
             },
             margins: {
                 pageContent: {
@@ -30,7 +30,7 @@ export class InfiniteSheet extends AbstractTableViewController {
                     after: 300,
                 },
                 [HEADER_CELL_SYMBOL]: {
-                    before: 20,
+                    before: 100,
                     between: 0,
                 },
                 [REGULAR_CELL_SYMBOL]: {
@@ -90,8 +90,11 @@ export class InfiniteSheet extends AbstractTableViewController {
         } else {
             cellContainer = this.requestReusableCellContainer(REGULAR_CELL_SYMBOL);
             cellContainer.cell.setContent(this.dataSource.getTextContent(objectSymbol));
+            const details = this.dataSource.cache.tasks.get(objectSymbol);
             cellContainer.cell.setData({
-                taskType: ["solo", "collaborated"][Math.round(Math.random())],
+                isCollaborated: details.isCollaborated,
+                isTarget: details.isTarget,
+                isCompleted: details.isCompleted,
             });
         }
 

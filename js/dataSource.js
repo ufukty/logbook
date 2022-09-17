@@ -1,4 +1,4 @@
-import { symbolizer } from "./bjsl/utilities.js";
+import { symbolizer, pick } from "./bjsl/utilities.js";
 import { DelegateRegistry } from "./bjsl/DelegateRegistry.js";
 import { InfiniteSheetDataMedium } from "./viewControllers/InfiniteSheetDataMedium.js";
 
@@ -90,7 +90,8 @@ export class DataSource {
             },
             /** Remove invalidated tasks immediatelly after servers confirm the
              * modification. Remove LRU keys to keep memory usage constant.
-             * @type {Map.<string,{parentId: string, depth: number, degree: number}>} */
+             * @type {Map.<string, {parentId: string,depth: number,degree: number,isCollaborated: bool,isTarget: bool, isCompleted: bool}>}
+             */
             tasks: new Map(),
         };
 
@@ -167,7 +168,12 @@ export class DataSource {
             symbols.set(taskId, taskSymbol);
             this.cache.placements.hierarchical.items.push(taskSymbol);
             this.cache.placements.chronological.items.push(taskSymbol);
-            this.cache.tasks.set(taskSymbol, { content: taskId });
+            this.cache.tasks.set(taskSymbol, {
+                content: taskId,
+                isCompleted: pick([true, false]),
+                isCollaborated: pick([true, false]),
+                isTarget: pick([true, false]),
+            });
         });
         shuffle(this.cache.placements.hierarchical.items);
         this.delegates.nofify(EVENT_PLACEMENT_UPDATE);

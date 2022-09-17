@@ -23,7 +23,7 @@ export class BasicTableCellPositioner extends AbstractTableCellPositioner {
 
         this.config = {
             anim: {
-                duration: 300,
+                duration: 2000,
                 iterations: 1,
                 fill: "forwards",
                 easing: "ease-out",
@@ -39,6 +39,7 @@ export class BasicTableCellPositioner extends AbstractTableCellPositioner {
             this.state.isAnimationOngoing = false;
         }
         this.cell.prepareForFree();
+        this.container.style.top = "0px";
     }
 
     prepareForUse() {

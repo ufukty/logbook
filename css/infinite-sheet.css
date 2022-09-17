@@ -1,10 +1,6 @@
 #infinite-sheet {
-
-    --body-width: min(600px, 90vw);
-    --padding-left: calc((100vw - var(--body-width)) / 2);
-
     width: 100%;
-    min-height: 150vh;
+    height: 100%;
 
     /* overscroll */
 
@@ -18,6 +14,14 @@
     /* left: 0;
     transition: transform var(--auto-focus-shift-transition-duration) var(--auto-focus-shift-transition-timing-function); */
     /* transition-delay: 400ms; */
+}
+
+#infinite-sheet>div.abstract-cell-scroller-view {
+    --body-width: min(600px, 90vw);
+    --horizontal-padding: calc((100vw - var(--body-width)) / 2);
+
+    width: 100%;
+    padding: 0 var(--horizontal-padding);
 }
 
 

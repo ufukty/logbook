@@ -35,7 +35,7 @@
 #context-menu .context-menu-item .scale {
     cursor: inherit;
     display: inline-block;
-    /* transition: 60ms ease-out transform */
+    transition: 60ms ease-out transform
 }
 
 #context-menu .context-menu-item.destructive-action {
@@ -47,7 +47,7 @@
 }
 
 #context-menu .context-menu-item:hover .scale {
-    transform: scale(1.05);
+    transform: scale(1.03);
 }
 
 /* .context-menu-item:not(:first-of-type)::before {

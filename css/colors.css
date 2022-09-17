@@ -8,6 +8,9 @@
 
     --clr-solo-task: #DDFF5D;
     --clr-collaborated-task: #B4FCFF;
+    --clr-target-bg: #F7F7F7;
+    --clr-target-solo-fg: #9CC500;
+    --clr-target-collaborated-fg: #00AEB6;
 }
 
 .floating-corner.white {

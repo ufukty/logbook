@@ -469,3 +469,7 @@ export function avg(...data) {
     });
     return sum / data.length;
 }
+
+export function pick(arr) {
+    return arr[Math.round(Math.random() * (arr.length - 1))];
+}
