@@ -95,16 +95,19 @@ export class AbstractTableViewController extends AbstractViewController {
         this.resizeObserver = new ResizeObserver(this._resizeObserverNotificationHandler.bind(this));
     }
 
-    _resizeObserverNotificationHandler(elements) {
+    /**
+     * @param {Array.<ResizeObserverEntry>} entries
+     */
+    _resizeObserverNotificationHandler(entries) {
         var ignoreChanges = true;
-        elements.forEach((element) => {
-            const height = Math.ceil(element.contentRect.height);
-            const cellContainer_container = element.target;
-            const objectId = cellContainer_container.dataset["objectId"];
+        entries.forEach((entry) => {
+            const height = Math.ceil(entry.contentRect.height);
+            const cellPositioner = entry.target;
+            const objectId = cellPositioner.dataset["objectId"];
             const objectSymbol = symbolizer.symbolize(objectId);
 
-            const isAllocated = this.computedValues.cellPositioners.has(objectSymbol);
-            if (!isAllocated) return;
+            const isStillAllocated = this.computedValues.cellPositioners.has(objectSymbol);
+            if (!isStillAllocated) return;
 
             const isSameHeight =
                 this.computedValues.lastRecordedObjectHeight.has(objectSymbol) &&
