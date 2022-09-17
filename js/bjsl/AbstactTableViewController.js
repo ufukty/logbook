@@ -4,6 +4,10 @@ import { AbstractTableCellPositioner } from "./AbstractTableCellPositioner.js";
 import { AbstractTableCellViewController } from "./AbstractTableCellViewController.js";
 import { BasicTableCellPositioner } from "./BasicTableCellPositioner.js";
 
+export const TRIGGER_REPLACEMENT = "TRIGGER_REPLACEMENT";
+export const TRIGGER_SCROLL_LISTENER = "TRIGGER_SCROLL_LISTENER";
+export const TRIGGER_RESIZE_OBSERVER = "TRIGGER_RESIZE_OBSERVER";
+
 export class AbstractTableViewController extends AbstractViewController {
     constructor() {
         super();
@@ -72,7 +76,7 @@ export class AbstractTableViewController extends AbstractViewController {
             /**
              * @type { Map.<Symbol, Symbol> }
              * Maps `objectIdSymbol` to correct reuse identifiers.
-             *   Information will be used for requesting and
+             * Information will be used for requesting and
              *   sending cells to `domElementReuseCollector`.
              * Note that: Related constructors for each id
              *   given as key to this map, should've
@@ -90,7 +94,9 @@ export class AbstractTableViewController extends AbstractViewController {
             next: this._getTemplateForComputedValues(),
         };
 
-        document.addEventListener("scroll", this.updateView.bind(this));
+        document.addEventListener("scroll", () => {
+            this.updateView(TRIGGER_SCROLL_LISTENER);
+        });
 
         this.resizeObserver = new ResizeObserver(this._resizeObserverNotificationHandler.bind(this));
     }
@@ -122,7 +128,10 @@ export class AbstractTableViewController extends AbstractViewController {
             }
         });
         if (ignoreChanges) return;
-        requestAnimationFrame(this.updateView.bind(this)); // to avoid infinite resize loops
+        // to avoid infinite resize loops
+        requestAnimationFrame(() => {
+            this.updateView(TRIGGER_RESIZE_OBSERVER);
+        });
     }
 
     /**
@@ -449,20 +458,22 @@ export class AbstractTableViewController extends AbstractViewController {
         }
     }
 
-    _updateComponents() {
+    /**
+     * @param {boolean} withAnimation
+     */
+    _updateComponents(withAnimation) {
         // "to destruct"
         for (const objectSymbol of this.computedValues.next.classifiedObjects.toDestruct) {
-            // console.log(objectSymbol);
-            const cellContainer = this.computedValues.cellPositioners.get(objectSymbol);
-            const reuseIdentifier = cellContainer.reuseIdentifier;
-            domCollector.free(reuseIdentifier, cellContainer);
+            const cellPositioner = this.computedValues.cellPositioners.get(objectSymbol);
+            const reuseIdentifier = cellPositioner.reuseIdentifier;
+            domCollector.free(reuseIdentifier, cellPositioner);
             this.computedValues.cellPositioners.delete(objectSymbol);
         }
 
         // "to disappear"
         for (const objectSymbol of this.computedValues.next.classifiedObjects.toDisappear) {
-            const cellContainer = this.computedValues.cellPositioners.get(objectSymbol);
-            this.cellDisappears(objectSymbol, cellContainer);
+            const cellPositioner = this.computedValues.cellPositioners.get(objectSymbol);
+            this.cellDisappears(objectSymbol, cellPositioner);
         }
 
         // existance change
@@ -470,56 +481,54 @@ export class AbstractTableViewController extends AbstractViewController {
 
         // "to appear"
         for (const objectSymbol of this.computedValues.next.classifiedObjects.toAppear) {
-            const cellContainer = this.computedValues.cellPositioners.get(objectSymbol);
-            this.cellAppears(objectSymbol, cellContainer);
+            const cellPositioner = this.computedValues.cellPositioners.get(objectSymbol);
+            this.cellAppears(objectSymbol, cellPositioner);
         }
 
         // "to first-construct"
         for (const objectSymbol of this.computedValues.next.classifiedObjects.toFirstConstruct) {
-            const cellContainer = this.getCellForObject(objectSymbol);
-            this.computedValues.cellPositioners.set(objectSymbol, cellContainer);
-            cellContainer.objectSymbol = objectSymbol;
-            cellContainer.container.dataset["objectId"] = symbolizer.desymbolize(objectSymbol);
+            const cellPositioner = this.getCellForObject(objectSymbol);
+            this.computedValues.cellPositioners.set(objectSymbol, cellPositioner);
+            cellPositioner.objectSymbol = objectSymbol;
+            cellPositioner.container.dataset["objectId"] = symbolizer.desymbolize(objectSymbol);
 
             // this case is when item emerges from non-existance
             // TODO: animate emergence?
-            // cellContainer.setPositionY(this.computedValues.next.positions.get(objectSymbol).starts + 10, false);
-            cellContainer.setPositionY(this.computedValues.next.positions.get(objectSymbol).starts, false);
+            cellPositioner.setPositionY(this.computedValues.next.positions.get(objectSymbol).starts + 10, false);
+            cellPositioner.setPositionY(this.computedValues.next.positions.get(objectSymbol).starts, false);
 
-            // this.computedValues.lastRecordedObjectHeight.set(objectSymbol, cellContainer.container.clientHeight);
+            // this.computedValues.lastRecordedObjectHeight.set(objectSymbol, cellPositioner.container.clientHeight);
         }
 
         // "to repeating-construct"
         for (const objectSymbol of this.computedValues.next.classifiedObjects.toRepeatingConstruct) {
-            const cellContainer = this.getCellForObject(objectSymbol);
-            this.computedValues.cellPositioners.set(objectSymbol, cellContainer);
-            cellContainer.objectSymbol = objectSymbol;
-            cellContainer.container.dataset["objectId"] = symbolizer.desymbolize(objectSymbol);
+            const cellPositioner = this.getCellForObject(objectSymbol);
+            this.computedValues.cellPositioners.set(objectSymbol, cellPositioner);
+            cellPositioner.objectSymbol = objectSymbol;
+            cellPositioner.container.dataset["objectId"] = symbolizer.desymbolize(objectSymbol);
 
             // this case is when item emerges from non-existance
             const currentPosition = this.computedValues.current.positions.get(objectSymbol).starts;
             const nextPosition = this.computedValues.next.positions.get(objectSymbol).starts;
             if (currentPosition !== nextPosition) {
-                cellContainer.setPositionY(currentPosition, false);
-                cellContainer.setPositionY(nextPosition, true);
+                cellPositioner.setPositionY(currentPosition, false);
+                cellPositioner.setPositionY(nextPosition, withAnimation);
             } else {
-                cellContainer.setPositionY(nextPosition, false);
+                cellPositioner.setPositionY(nextPosition, false);
             }
 
-            // this.computedValues.lastRecordedObjectHeight.set(objectSymbol, cellContainer.container.clientHeight);
+            // this.computedValues.lastRecordedObjectHeight.set(objectSymbol, cellPositioner.container.clientHeight);
         }
 
         // "to update position Y"
         for (const objectSymbol of this.computedValues.next.classifiedObjects.toUpdatePositionY) {
-            const cellContainer = this.computedValues.cellPositioners.get(objectSymbol);
+            const cellPositioner = this.computedValues.cellPositioners.get(objectSymbol);
             const currentPosition = this.computedValues.current.positions.get(objectSymbol).starts;
             const nextPosition = this.computedValues.next.positions.get(objectSymbol).starts;
             if (currentPosition !== nextPosition) {
-                cellContainer.setPositionY(nextPosition, true);
+                cellPositioner.setPositionY(nextPosition, withAnimation);
             }
         }
-
-        // "to update position X"
     }
 
     _updateContainer() {
@@ -528,7 +537,9 @@ export class AbstractTableViewController extends AbstractViewController {
 
     _getTemplateForComputedValues() {
         return {
-            allocatedCells: new Map(),
+            /** @type {string} */
+            updateTrigger: undefined,
+            /** @type {number} */
             pageHeight: undefined,
             /** set and use when nodes above viewport changes their sizings */
             scrollShift: undefined,
@@ -574,7 +585,7 @@ export class AbstractTableViewController extends AbstractViewController {
     _debugUpdatedComponents() {
         if (!this.config.debug) return;
 
-        console.log("AbstractTableViewController._debugUpdatedComponents");
+        console.log("AbstractTableViewController.updateView(" + this.computedValues.next.updateTrigger + ")");
         const classes = [
             "toFirstConstruct",
             "toRepeatingConstruct",
@@ -593,8 +604,17 @@ export class AbstractTableViewController extends AbstractViewController {
         });
     }
 
-    updateView() {
+    _isUpdateNeededForScroll() {
+        // const last = this.computedValues.scrollUpdates.lastUpdatedScrollPosition
+
+        if (this.computedValues.next.updateTrigger === TRIGGER_SCROLL_LISTENER) console.log();
+    }
+
+    updateView(trigger) {
         this.computedValues.next = this._getTemplateForComputedValues();
+
+        this.computedValues.next.updateTrigger = trigger;
+        this._isUpdateNeededForScroll();
 
         this._updateZoneBoundaries();
         this._calculateComponentPositions();
@@ -604,7 +624,7 @@ export class AbstractTableViewController extends AbstractViewController {
         this._calculateFocusShift();
         this._updateContainer();
         this._classifyComponentsByUpdateTypes();
-        this._updateComponents();
+        this._updateComponents(trigger && trigger === TRIGGER_REPLACEMENT);
 
         this._debugUpdatedComponents();
 

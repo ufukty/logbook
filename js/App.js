@@ -1,5 +1,6 @@
 import { addEventListenerForNonTouchScreen, domCollector, executeWhenDocumentIsReady } from "./bjsl/utilities.js";
 
+import { TRIGGER_REPLACEMENT } from "./bjsl/AbstactTableViewController.js";
 import { ModeSelector } from "./viewControllers/ModeSelector.js";
 import { InfiniteSheet } from "./viewControllers/InfiniteSheet.js";
 import { ContextMenu } from "./viewControllers/ContextMenu.js";
@@ -43,13 +44,11 @@ class App {
         // prettier-ignore
         addEventListenerForNonTouchScreen(document, "click", this.userInputManager.clickEventReceiverNonTouchScreen.bind(this.userInputManager));
         // prettier-ignore
-        executeWhenDocumentIsReady(
-            function () {
-                document.addEventListener("touchstart", this.userInputManager.touchStartEventReceiver.bind(this.userInputManager), false);
-                document.addEventListener("touchmove", this.userInputManager.touchMoveEventReceiver.bind(this.userInputManager), false);
-                document.addEventListener("touchend", this.userInputManager.touchEndEventReceiver.bind(this.userInputManager), false);
-            }.bind(this)
-        );
+        executeWhenDocumentIsReady(() => {
+            document.addEventListener("touchstart", this.userInputManager.touchStartEventReceiver.bind(this.userInputManager), false);
+            document.addEventListener("touchmove", this.userInputManager.touchMoveEventReceiver.bind(this.userInputManager), false);
+            document.addEventListener("touchend", this.userInputManager.touchEndEventReceiver.bind(this.userInputManager), false);
+        });
 
         document.addEventListener("scroll", this.scrollEventReceiver.bind(this));
 
@@ -63,7 +62,7 @@ class App {
             } else {
                 this.infiniteSheet.config.placement.objectIds = this.dataSource.cache.placements.hierarchical.items;
             }
-            this.infiniteSheet.updateView();
+            this.infiniteSheet.updateView(TRIGGER_REPLACEMENT);
         });
         this.dataSource.delegates.add(EVENT_OBJECT_UPDATE, (a) => {
             this.infiniteSheet.requestContentUpdateForObjectsIfNecessary(a);
@@ -82,7 +81,7 @@ class App {
         } else {
             this.infiniteSheet.config.placement.objectIds = this.dataSource.cache.placements.hierarchical.items;
         }
-        this.infiniteSheet.updateView();
+        this.infiniteSheet.updateView(TRIGGER_REPLACEMENT);
     }
 
     /** @param {MouseEvent} e */
