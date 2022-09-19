@@ -21,8 +21,8 @@ export class InfiniteSheet extends AbstractTableViewController {
 
         Object.assign(this.config, {
             zoneOffsets: {
-                preload: 0.3,
-                parking: 0.4,
+                preload: 0,
+                parking: 0,
             },
             margins: {
                 pageContent: {
@@ -121,7 +121,7 @@ export class InfiniteSheet extends AbstractTableViewController {
      * @param {AbstractTableCellViewController} cellPositioner
      */
     cellAppears(objectSymbol, cellPositioner) {
-        // console.log(`${objectSymbol.toString()} has appeared.`);
+        // this._debug(`${objectSymbol.toString()} has appeared.`);
     }
 
     /**
@@ -131,7 +131,7 @@ export class InfiniteSheet extends AbstractTableViewController {
      * @param {AbstractTableCellViewController} cellPositioner
      */
     cellDisappears(objectSymbol, cellPositioner) {
-        // console.log(`${objectSymbol.toString()} has disappeared.`);
+        // this._debug(`${objectSymbol.toString()} has disappeared.`);
     }
 
     /**
@@ -150,5 +150,15 @@ export class InfiniteSheet extends AbstractTableViewController {
         this.calculateElementBounds();
         this.rePosition();
         // debugger;
+    }
+
+    /**
+     * @param {Symbol} superTaskSymbol
+     * @param {Array.<Symbol>} subTaskSymbols
+     */
+    foldTask(superTaskSymbol, subTaskSymbols) {
+        subTaskSymbols.forEach((symbol) => {
+            this.config.placement.ignore.add(symbol);
+        });
     }
 }

@@ -1,5 +1,12 @@
-export class AbstractTableCellPositioner {
+import { AbstractViewController } from "./AbstractViewController.js";
+
+export const POSITION_INSTANT = "POSITION_INSTANT";
+export const POSITION_ANIMATE = "POSITION_ANIMATE";
+export const POSITION_REDIRECT_IF_PLAYING = "POSITION_REDIRECT_IF_PLAYING";
+
+export class AbstractTableCellPositioner extends AbstractViewController {
     constructor() {
+        super();
         /** @type {HTMLElement} */
         this.container = undefined;
 

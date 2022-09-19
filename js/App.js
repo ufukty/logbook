@@ -58,9 +58,9 @@ class App {
         this.dataSource = new DataSource();
         this.dataSource.delegates.add(EVENT_PLACEMENT_UPDATE, () => {
             if (this.modeSelector.state.selectedMode === DVM_CHRONO) {
-                this.infiniteSheet.config.placement.objectIds = this.dataSource.cache.placements.chronological.items;
+                this.infiniteSheet.config.placement.symbols = this.dataSource.cache.placements.chronological.items;
             } else {
-                this.infiniteSheet.config.placement.objectIds = this.dataSource.cache.placements.hierarchical.items;
+                this.infiniteSheet.config.placement.symbols = this.dataSource.cache.placements.hierarchical.items;
             }
             this.infiniteSheet.updateView(TRIGGER_REPLACEMENT);
         });
@@ -77,9 +77,9 @@ class App {
     updateMode(newMode) {
         this.modeSelector.state.selectedMode = newMode;
         if (this.modeSelector.state.selectedMode === DVM_CHRONO) {
-            this.infiniteSheet.config.placement.objectIds = this.dataSource.cache.placements.chronological.items;
+            this.infiniteSheet.config.placement.symbols = this.dataSource.cache.placements.chronological.items;
         } else {
-            this.infiniteSheet.config.placement.objectIds = this.dataSource.cache.placements.hierarchical.items;
+            this.infiniteSheet.config.placement.symbols = this.dataSource.cache.placements.hierarchical.items;
         }
         this.infiniteSheet.updateView(TRIGGER_REPLACEMENT);
     }
