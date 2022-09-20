@@ -1,29 +1,13 @@
 import { AbstractTableCellPositioner } from "./AbstractTableCellPositioner.js";
 import { createElement, lerp, symbolizer, avg } from "./utilities.js";
 
-export const POSITION_ANIMATE = "POSITION_ANIMATE";
-export const POSITION_INSTANT = "POSITION_INSTANT";
-export const POSITION_REDIRECT_IF_PLAYING = "POSITION_REDIRECT_IF_PLAYING";
-
 export class BasicTableCellPositioner extends AbstractTableCellPositioner {
     constructor() {
         super();
 
         this.container = createElement("div", ["abstract-cell-scroller-view-cell-positioner"]);
 
-        this.state = {
-            /** @type {Animation} */
-            animation: undefined,
-            isAnimationOngoing: false,
-            /** @type {Symbol} */
-            objectSymbolAtAnimationStart: undefined,
-            ongoingAnimationParameters: {
-                positionAfterTransition: 0,
-                translationStart: 0,
-                translationEnd: 0,
-            },
-            lastObjectPosition: 0,
-        };
+        this.state = this._stateTemplate();
 
         this.config = {
             ...this.config,
@@ -36,6 +20,22 @@ export class BasicTableCellPositioner extends AbstractTableCellPositioner {
         };
     }
 
+    _stateTemplate() {
+        return {
+            /** @type {Animation} */
+            animation: undefined,
+            isAnimationOngoing: false,
+            /** @type {Symbol} */
+            itemSymbolAtAnimationStart: undefined,
+            ongoingAnimationParameters: {
+                positionAfterTransition: 0,
+                translationStart: 0,
+                translationEnd: 0,
+            },
+            lastCellPosition: 0,
+        };
+    }
+
     prepareForFree() {
         this.container.style.visibility = "hidden";
         if (this.state.isAnimationOngoing) {
@@ -44,25 +44,19 @@ export class BasicTableCellPositioner extends AbstractTableCellPositioner {
             this.state.isAnimationOngoing = false;
         }
         this.cell.prepareForFree();
+        this.state = this._stateTemplate();
         this.container.style.top = "0px";
     }
 
     prepareForUse() {
         this.container.style.visibility = "visible";
-        this.state = {
-            /** @type {Animation} */
-            animation: undefined,
-            isAnimationOngoing: false,
-            /** @type {Symbol} */
-            objectSymbolAtAnimationStart: undefined,
-        };
         this.cell.prepareForUse();
     }
 
     // MARK: SetPosition & its handlers
 
     _setPositionWithAnimation(newPosition) {
-        const neededVerticalTranslation = newPosition - this.state.lastObjectPosition;
+        const neededVerticalTranslation = newPosition - this.state.lastCellPosition;
 
         // prettier-ignore
         const keyframes = [
@@ -91,7 +85,7 @@ export class BasicTableCellPositioner extends AbstractTableCellPositioner {
             this.state.ongoingAnimationParameters.translationEnd,
             this.state.animation.effect.getComputedTiming().progress
         );
-        const neededVerticalTranslation = newPosition - this.state.lastObjectPosition;
+        const neededVerticalTranslation = newPosition - this.state.lastCellPosition;
         // prettier-ignore
         this.state.animation.effect.setKeyframes([
             { 
@@ -121,12 +115,12 @@ export class BasicTableCellPositioner extends AbstractTableCellPositioner {
     _setPositionByInterruptingOngoingAnimation(newPosition) {
         this.state.animation.cancel();
         this.container.style.top = `${newPosition}px`;
-        this.state.lastObjectPosition = newPosition;
+        this.state.lastCellPosition = newPosition;
     }
 
     _setPositionInstantly(newPosition) {
         this.container.style.top = `${newPosition}px`;
-        this.state.lastObjectPosition = newPosition;
+        this.state.lastCellPosition = newPosition;
     }
 
     /**
@@ -136,23 +130,23 @@ export class BasicTableCellPositioner extends AbstractTableCellPositioner {
      * Animations done with translateY when they are requested and either case in the
      * end element will only have "top:" prop.
      */
-    setPositionY(newPosition, animation) {
+    setPosition(newPosition, withAnimation = false) {
         // protection against object reuser change the content of cell
-        this.state.objectSymbolAtAnimationStart = this.objectSymbol;
-        const symbol = symbolizer.desymbolize(this.objectSymbol);
+        this.state.itemSymbolAtAnimationStart = this.itemSymbol;
+        const symbol = symbolizer.desymbolize(this.itemSymbol);
         if (this.state.isAnimationOngoing) {
-            if (animation === POSITION_ANIMATE || animation === POSITION_REDIRECT_IF_PLAYING) {
+            if (withAnimation) {
                 console.log(`_setPositionRedirectOngoingAnimation(${newPosition}px) for: ${symbol}`);
                 this._setPositionRedirectOngoingAnimation(newPosition);
-            } else if (animation === POSITION_INSTANT) {
+            } else {
                 console.log(`_setPositionByInterruptingOngoingAnimation(${newPosition}px) for: ${symbol}`);
                 this._setPositionByInterruptingOngoingAnimation(newPosition);
             }
         } else {
-            if (animation === POSITION_ANIMATE) {
+            if (withAnimation) {
                 console.log(`_setPositionWithAnimation(${newPosition}px) for: ${symbol}`);
                 this._setPositionWithAnimation(newPosition);
-            } else if (animation === POSITION_REDIRECT_IF_PLAYING || animation === POSITION_INSTANT) {
+            } else {
                 console.log(`_setPositionInstantly(${newPosition}px) for: ${symbol}`);
                 this._setPositionInstantly(newPosition);
             }
@@ -171,12 +165,12 @@ export class BasicTableCellPositioner extends AbstractTableCellPositioner {
 
     _animationCompletionHandler() {
         // if the cell collected and reassigned to another "item" meanwhile
-        if (this.state.objectSymbolAtAnimationStart !== this.objectSymbol) return;
+        if (this.state.itemSymbolAtAnimationStart !== this.itemSymbol) return;
 
         const targetPos = this.state.ongoingAnimationParameters.positionAfterTransition;
         this.state.animation.cancel();
         this.container.style.top = `${targetPos}px`;
-        this.state.lastObjectPosition = targetPos;
+        this.state.lastCellPosition = targetPos;
 
         delete this.state.animation;
         delete this.state.ongoingAnimationParameters;

@@ -61,36 +61,39 @@ export class InfiniteSheet extends AbstractTableViewController {
     }
 
     /**
-     * @param {Symbol} objectSymbol
+     * @param {Symbol} itemSymbol
      * @returns {number} expected height of the specified object in pixels
      */
-    getDefaultHeightOfObject(objectSymbol) {
-        return 32;
+    getDefaultHeightOfItem(itemSymbol) {
+        const kind = this.getCellKindForItem();
+        if (kind === HEADER_CELL_SYMBOL) return 34.8;
+        else if (kind === REGULAR_CELL_SYMBOL) return 34.8;
+        else return 34.8;
     }
 
     /** @returns {number} */
-    getAverageHeightForAnObject() {
+    getAverageHeightForAnItem() {
         return 32;
     }
 
     /** @returns {AbstractTableCellViewController} */
-    getCellForObject(objectSymbol) {
+    getCellForItem(itemSymbol) {
         // TODO: variable cell type
         // const objectType = this.config.structuredDataMedium;
 
         let cellContainer;
         if (
             this.dataSource.cache.placements.chronological.headerSymbols.findIndex((symbol) => {
-                return symbol === objectSymbol;
+                return symbol === itemSymbol;
             }) != -1
         ) {
             cellContainer = this.requestReusableCellContainer(HEADER_CELL_SYMBOL);
-            cellContainer.cell.setContent(this.dataSource.getTextContent(objectSymbol));
+            cellContainer.cell.setContent(this.dataSource.getTextContent(itemSymbol));
             // cellContainer.cell.container.dataset[]
         } else {
             cellContainer = this.requestReusableCellContainer(REGULAR_CELL_SYMBOL);
-            cellContainer.cell.setContent(this.dataSource.getTextContent(objectSymbol));
-            const details = this.dataSource.cache.tasks.get(objectSymbol);
+            cellContainer.cell.setContent(this.dataSource.getTextContent(itemSymbol));
+            const details = this.dataSource.cache.tasks.get(itemSymbol);
             cellContainer.cell.setData({
                 isCollaborated: details.isCollaborated,
                 isTarget: details.isTarget,
@@ -101,11 +104,11 @@ export class InfiniteSheet extends AbstractTableViewController {
         return cellContainer;
     }
 
-    /** @param {Symbol} objectSymbol */
-    getCellKindForObject(objectSymbol) {
+    /** @param {Symbol} itemSymbol */
+    getCellKindForItem(itemSymbol) {
         if (
             this.dataSource.cache.placements.chronological.headerSymbols.findIndex((symbol) => {
-                return symbol === objectSymbol;
+                return symbol === itemSymbol;
             }) != -1
         ) {
             return HEADER_CELL_SYMBOL;
@@ -117,29 +120,29 @@ export class InfiniteSheet extends AbstractTableViewController {
     /**
      * This function will be called for each cell that enters into the viewport.
      * Implementer can use this method to perform UI updates on rest of the cell.
-     * @param {Symbol} objectSymbol
+     * @param {Symbol} itemSymbol
      * @param {AbstractTableCellViewController} cellPositioner
      */
-    cellAppears(objectSymbol, cellPositioner) {
+    cellAppears(itemSymbol, cellPositioner) {
         // this._debug(`${objectSymbol.toString()} has appeared.`);
     }
 
     /**
      * This function will be called for each cell that exits from the viewport.
      * Implementer can use this method to perform UI updates on rest of the cell.
-     * @param {Symbol} objectSymbol
+     * @param {Symbol} itemSymbol
      * @param {AbstractTableCellViewController} cellPositioner
      */
-    cellDisappears(objectSymbol, cellPositioner) {
+    cellDisappears(itemSymbol, cellPositioner) {
         // this._debug(`${objectSymbol.toString()} has disappeared.`);
     }
 
     /**
-     * @param { Symbol } objectSymbol
+     * @param { Symbol } itemSymbol
      * @param { AbstractTableCellPositioner } cellContainer
      */
-    updateCellIfNecessary(objectSymbol, cellContainer) {
-        const newContent = this.dataSource.getTextContent(objectSymbol);
+    updateCellIfNecessary(itemSymbol, cellContainer) {
+        const newContent = this.dataSource.getTextContent(itemSymbol);
         cellContainer.cell.setContent(newContent);
     }
 

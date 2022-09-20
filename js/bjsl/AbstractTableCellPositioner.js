@@ -23,22 +23,14 @@ export class AbstractTableCellPositioner extends AbstractViewController {
         /** Filled by CellScrollerViewController. Don't modify that.
          * @type {Symbol}
          */
-        this.objectSymbol = undefined;
+        this.itemSymbol = undefined;
     }
 
     /**
      * @param {number} newPosition
      * @param {boolean} withAnimation
      */
-    setPositionX(newPosition, withAnimation) {
-        console.error("abstract function is called directly");
-    }
-
-    /**
-     * @param {number} newPosition
-     * @param {boolean} withAnimation
-     */
-    setPositionY(newPosition, withAnimation) {
+    setPosition(newPosition, withAnimation) {
         console.error("abstract function is called directly");
     }
 }
