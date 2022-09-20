@@ -29,13 +29,6 @@
     color: #fff;
 }
 
-/* infinite sheet */
-
-#infinite-sheet {
-    background: url("img/dot-background-2px.png");
-    background-position: 0% 0%;
-}
-
 /* DVM selector */
 
 #mode-selector div.left,

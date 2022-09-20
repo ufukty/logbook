@@ -67,8 +67,8 @@ export class InfiniteSheet extends AbstractTableViewController {
     getDefaultHeightOfItem(itemSymbol) {
         const kind = this.getCellKindForItem();
         if (kind === HEADER_CELL_SYMBOL) return 34.8;
-        else if (kind === REGULAR_CELL_SYMBOL) return 34.8;
-        else return 34.8;
+        else if (kind === REGULAR_CELL_SYMBOL) return 32.8;
+        else return 32.8;
     }
 
     /** @returns {number} */

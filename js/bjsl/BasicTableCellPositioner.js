@@ -33,6 +33,7 @@ export class BasicTableCellPositioner extends AbstractTableCellPositioner {
                 translationEnd: 0,
             },
             lastCellPosition: 0,
+            callback: undefined,
         };
     }
 
@@ -130,24 +131,26 @@ export class BasicTableCellPositioner extends AbstractTableCellPositioner {
      * Animations done with translateY when they are requested and either case in the
      * end element will only have "top:" prop.
      */
-    setPosition(newPosition, withAnimation = false) {
+    setPosition(newPosition, withAnimation = false, callback = undefined) {
         // protection against object reuser change the content of cell
+        if (callback) this.state.callback = callback;
+
         this.state.itemSymbolAtAnimationStart = this.itemSymbol;
         const symbol = symbolizer.desymbolize(this.itemSymbol);
         if (this.state.isAnimationOngoing) {
             if (withAnimation) {
-                console.log(`_setPositionRedirectOngoingAnimation(${newPosition}px) for: ${symbol}`);
+                // console.log(`_setPositionRedirectOngoingAnimation(${newPosition}px) for: ${symbol}`);
                 this._setPositionRedirectOngoingAnimation(newPosition);
             } else {
-                console.log(`_setPositionByInterruptingOngoingAnimation(${newPosition}px) for: ${symbol}`);
+                // console.log(`_setPositionByInterruptingOngoingAnimation(${newPosition}px) for: ${symbol}`);
                 this._setPositionByInterruptingOngoingAnimation(newPosition);
             }
         } else {
             if (withAnimation) {
-                console.log(`_setPositionWithAnimation(${newPosition}px) for: ${symbol}`);
+                // console.log(`_setPositionWithAnimation(${newPosition}px) for: ${symbol}`);
                 this._setPositionWithAnimation(newPosition);
             } else {
-                console.log(`_setPositionInstantly(${newPosition}px) for: ${symbol}`);
+                // console.log(`_setPositionInstantly(${newPosition}px) for: ${symbol}`);
                 this._setPositionInstantly(newPosition);
             }
         }
@@ -178,14 +181,30 @@ export class BasicTableCellPositioner extends AbstractTableCellPositioner {
         this.state.animation = undefined;
         this.state.isAnimationOngoing = false;
         this.state.ongoingAnimationParameters = undefined;
+
+        if (this.state.callback) {
+            const callback = this.state.callback;
+            this.state.callback = undefined;
+            callback();
+        }
     }
 
     _animationAbortHandler() {
+        // if the cell collected and reassigned to another "item" meanwhile
+        if (this.state.itemSymbolAtAnimationStart !== this.itemSymbol) return;
+
         delete this.state.animation;
         delete this.state.ongoingAnimationParameters;
 
         this.state.animation = undefined;
         this.state.isAnimationOngoing = false;
         this.state.ongoingAnimationParameters = undefined;
+
+        if (this.state.callback) {
+            const callback = this.state.callback;
+            // console.log(callback);
+            this.state.callback = undefined;
+            callback();
+        }
     }
 }
