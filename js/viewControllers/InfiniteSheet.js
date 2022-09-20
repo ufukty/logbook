@@ -117,23 +117,18 @@ export class InfiniteSheet extends AbstractTableViewController {
         }
     }
 
-    /**
-     * This function will be called for each cell that enters into the viewport.
-     * Implementer can use this method to perform UI updates on rest of the cell.
-     * @param {Symbol} itemSymbol
-     * @param {AbstractTableCellViewController} cellPositioner
-     */
-    cellAppears(itemSymbol, cellPositioner) {
+    /** @param {Symbol} itemSymbol */
+    cellAppears(itemSymbol) {
+        // this._debug(`${objectSymbol.toString()} has placed.`);
+    }
+
+    /**@param {Symbol} itemSymbol */
+    cellAppears(itemSymbol) {
         // this._debug(`${objectSymbol.toString()} has appeared.`);
     }
 
-    /**
-     * This function will be called for each cell that exits from the viewport.
-     * Implementer can use this method to perform UI updates on rest of the cell.
-     * @param {Symbol} itemSymbol
-     * @param {AbstractTableCellViewController} cellPositioner
-     */
-    cellDisappears(itemSymbol, cellPositioner) {
+    /** @param {Symbol} itemSymbol */
+    cellDisappears(itemSymbol) {
         // this._debug(`${objectSymbol.toString()} has disappeared.`);
     }
 
