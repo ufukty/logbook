@@ -98,6 +98,8 @@ export class AbstractTableViewController {
              *   on, and will be used to device which items to show in view.
              */
             scrollElement: this.container,
+            /** @type {number} */
+            updateMaxFrequency: 30,
         };
 
         this.computedValues = {
@@ -457,15 +459,20 @@ export class AbstractTableViewController {
             const isPersistingInPreload =
                 isPersistingInPlacement &&
                 this.computedValues.cellPositioners.has(itemSymbol) &&
-                this.computedValues.next.zoneCollisions.inPreload.has(itemSymbol);
+                this.computedValues.current.zoneCollisions.inPreload.has(itemSymbol) &&
+                this.computedValues.next.zoneCollisions.inParking.has(itemSymbol);
 
             const doesEnterPreload =
                 !this.computedValues.cellPositioners.has(itemSymbol) &&
                 this.computedValues.next.zoneCollisions.inPreload.has(itemSymbol);
 
+            const doesLeavePreload =
+                !this.computedValues.cellPositioners.has(itemSymbol) &&
+                this.computedValues.next.zoneCollisions.inPreload.has(itemSymbol);
+
             const doesLeaveParking =
                 this.computedValues.cellPositioners.has(itemSymbol) &&
-                !this.computedValues.next.zoneCollisions.inPreload.has(itemSymbol);
+                !this.computedValues.next.zoneCollisions.inParking.has(itemSymbol);
 
             const isLeavingParking =
                 !this.computedValues.unassignmentScheduling.transitioning.has(itemSymbol) &&
@@ -501,7 +508,7 @@ export class AbstractTableViewController {
             // specifying necessary updates for the item
 
             /**
-             * reason of "leave"/"enter" might be one of:
+             * reason of "leave"/"enter" zones might be one of:
              *   - user-scroll
              *   - item's movement
              */
@@ -533,6 +540,8 @@ export class AbstractTableViewController {
                     }
                 } else if (hasLeftParking) {
                     this.computedValues.next.classifiedItems.toUnassign.add(itemSymbol);
+                } else if (isPositionChanged) {
+                    // console.log(`isPositionChanged: ${symbolizer.desymbolize(itemSymbol)}`);
                 }
             } else if (doesEnterPlacement) {
                 if (doesEnterPreload) {
@@ -631,12 +640,9 @@ export class AbstractTableViewController {
         // unassign
         for (const itemSymbol of classes.toUnassign) {
             const cellPositioner = this.computedValues.cellPositioners.get(itemSymbol);
-            // if (!cellPositioner) console.log(symbolizer.desymbolize(itemSymbol));
-
             const reuseIdentifier = cellPositioner.reuseIdentifier;
             domCollector.free(reuseIdentifier, cellPositioner);
             this.computedValues.cellPositioners.delete(itemSymbol);
-
             this.computedValues.unassignmentScheduling.transitioning.delete(itemSymbol);
             this.computedValues.unassignmentScheduling.readyToUnassign.delete(itemSymbol);
         }
@@ -743,27 +749,33 @@ export class AbstractTableViewController {
         // console.groupEnd(`AbstractTableViewController.updateView(${trigger})`);
     }
 
-    _isUpdateNeededForScroll(nextTrigger) {
-        // const last = this.computedValues.scrollUpdates.lastUpdatedScrollPosition
-        if (nextTrigger !== TRIGGER_SCROLL_LISTENER) return true;
-        const lastTrigger = this.computedValues.current.updateTrigger;
-        if (lastTrigger !== TRIGGER_SCROLL_LISTENER) return true;
+    _isUpdateNeeded(trigger) {
+        const now = Date.now();
+        const timePassedSinceLastUpdate = now - this.computedValues.lastUpdateTime;
+        const periodRequiredMS = 1000 / this.config.updateMaxFrequency;
 
-        // TODO:
-        // if the scrolled distance is not greater than half of the distance
-        // between "preload" and "view" zones ignore scroll (return false)
+        if (this.computedValues.ongoingUpdate || timePassedSinceLastUpdate < periodRequiredMS) {
+            if (!this.computedValues.waitingForScheduledUpdate) {
+                this.computedValues.waitingForScheduledUpdate = true;
+                setTimeout(() => {
+                    this.updateView(trigger);
+                }, periodRequiredMS - timePassedSinceLastUpdate);
+            }
+            return false;
+        }
 
+        if (this.computedValues.waitingForScheduledUpdate) {
+            this.computedValues.waitingForScheduledUpdate = undefined;
+        }
+
+        this.computedValues.lastUpdateTime = now;
         return true;
     }
 
     updateView(trigger) {
-        if (this.computedValues.ongoingUpdate) {
-            // console.log("there is already an ongoing update");
-            return;
-        }
-        this.computedValues.ongoingUpdate = true;
+        if (!this._isUpdateNeeded(trigger)) return;
 
-        if (!this._isUpdateNeededForScroll(trigger)) return;
+        this.computedValues.ongoingUpdate = true;
 
         this.computedValues.next = this._getTemplateForComputedValues();
         this.computedValues.next.updateTrigger = trigger;
