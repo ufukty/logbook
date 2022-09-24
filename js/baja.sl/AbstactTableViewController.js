@@ -73,7 +73,7 @@ export class AbstractTableViewController {
                  * States what is the actual index of items[0]
                  * @type {number}
                  */
-                offset: undefined,
+                offset: 0,
                 /**
                  * Total number of items in the document. That value is used
                  *   for estimation of full height of cell scroller for both
