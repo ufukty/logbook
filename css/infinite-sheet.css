@@ -5,6 +5,7 @@ body,
 #infinite-sheet {
     width: 100%;
     height: 100%;
+    overflow: hidden;
 }
 
 #infinite-sheet {
@@ -22,8 +23,8 @@ body,
 }
 
 #infinite-sheet .abstract-cell-scroller-view-content-area {
-    background: url("img/dot-background-2px.png");
-    background-position: 50% 0%;
+    /* background: url("img/dot-background-2px.png");
+    background-position: 50% 0%; */
     padding: 0 var(--horizontal-padding);
 }
 
