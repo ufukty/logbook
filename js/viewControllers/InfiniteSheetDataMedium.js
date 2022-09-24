@@ -1,4 +1,4 @@
-import { symbolizer } from "../bjsl/utilities.js";
+import { symbolizer } from "../baja.sl/utilities.js";
 
 export class InfiniteSheetDataMedium {
     constructor() {

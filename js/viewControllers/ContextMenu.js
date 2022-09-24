@@ -1,6 +1,6 @@
-import { createElement, toggleAnimationWithClass } from "../bjsl/utilities.js";
+import { createElement, toggleAnimationWithClass } from "../baja.sl/utilities.js";
 
-import { AbstractViewController } from "../bjsl/AbstractViewController.js";
+import { AbstractViewController } from "../baja.sl/AbstractViewController.js";
 
 export class ContextMenu extends AbstractViewController {
     constructor() {

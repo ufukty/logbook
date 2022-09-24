@@ -1,6 +1,6 @@
-import { addEventListenerForNonTouchScreen, domCollector, executeWhenDocumentIsReady } from "./bjsl/utilities.js";
+import { addEventListenerForNonTouchScreen, domCollector, executeWhenDocumentIsReady } from "./baja.sl/utilities.js";
 
-import { TRIGGER_REPLACEMENT } from "./bjsl/AbstactTableViewController.js";
+import { TRIGGER_REPLACEMENT } from "./baja.sl/AbstactTableViewController.js";
 import { ModeSelector } from "./viewControllers/ModeSelector.js";
 import { InfiniteSheet } from "./viewControllers/InfiniteSheet.js";
 import { ContextMenu } from "./viewControllers/ContextMenu.js";

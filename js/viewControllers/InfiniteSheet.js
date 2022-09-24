@@ -1,9 +1,9 @@
-import { adoption, domCollector, pick, symbolizer } from "../bjsl/utilities.js";
-import { AbstractTableCellPositioner } from "../bjsl/AbstractTableCellPositioner.js";
-import { AbstractTableCellViewController } from "../bjsl/AbstractTableCellViewController.js";
+import { adoption, domCollector, pick, symbolizer } from "../baja.sl/utilities.js";
+import { AbstractTableCellPositioner } from "../baja.sl/AbstractTableCellPositioner.js";
+import { AbstractTableCellViewController } from "../baja.sl/AbstractTableCellViewController.js";
 import { DataSource } from "../dataSource.js";
 import InfiniteSheetHeader from "./InfiniteSheetHeader.js";
-import { AbstractTableViewController } from "../bjsl/AbstactTableViewController.js";
+import { AbstractTableViewController } from "../baja.sl/AbstactTableViewController.js";
 import InfiniteSheetTask from "./InfiniteSheetTask.js";
 
 const REGULAR_CELL_SYMBOL = symbolizer.symbolize("regularCellViewContainer");

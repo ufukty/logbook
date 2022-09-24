@@ -1,5 +1,5 @@
-import { symbolizer, pick } from "./bjsl/utilities.js";
-import { DelegateRegistry } from "./bjsl/DelegateRegistry.js";
+import { symbolizer, pick } from "./baja.sl/utilities.js";
+import { DelegateRegistry } from "./baja.sl/DelegateRegistry.js";
 import { InfiniteSheetDataMedium } from "./viewControllers/InfiniteSheetDataMedium.js";
 
 function fetchRetry(url, delay, tries, options) {
@@ -149,10 +149,10 @@ export class DataSource {
     }
 
     loadTestDataset() {
-        this.cache.placements.totalNumberOfItems = 100;
+        this.cache.placements.totalNumberOfItems = 500;
         var dayCounter = 1;
         const symbols = new Map();
-        const taskIndexes = Array.from(Array(100).keys());
+        const taskIndexes = Array.from(Array(500).keys());
         taskIndexes.forEach((taskIndex, index) => {
             if (index === 0 || Math.random() > 0.8) {
                 // add header
@@ -170,7 +170,7 @@ export class DataSource {
             this.cache.placements.chronological.items.push(taskSymbol);
             this.cache.tasks.set(taskSymbol, {
                 content: taskId,
-                isCompleted: pick([true, false]),
+                isCompleted: pick([false]),
                 isCollaborated: pick([true, false]),
                 isTarget: pick([true, false]),
             });

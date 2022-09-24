@@ -1,5 +1,5 @@
-import { createElement } from "../bjsl/utilities.js";
-import { AbstractTableCellViewController } from "../bjsl/AbstractTableCellViewController.js";
+import { createElement } from "../baja.sl/utilities.js";
+import { AbstractTableCellViewController } from "../baja.sl/AbstractTableCellViewController.js";
 
 class InfiniteSheetTask extends AbstractTableCellViewController {
     constructor() {

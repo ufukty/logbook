@@ -9,7 +9,7 @@ import {
     domElementReuseCollector,
     executeWhenDocumentIsReady,
     createElement,
-} from "../bjsl/utilities.js";
+} from "../baja.sl/utilities.js";
 
 import AbstractViewController from "./AbstractViewController.js";
 

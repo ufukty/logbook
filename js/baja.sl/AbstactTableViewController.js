@@ -292,6 +292,10 @@ export class AbstractTableViewController {
             lastCellKind = undefined,
             lastItemIndex = this.computedValues.next.filteredPlacement.length - 1;
 
+        const averageHeight = this.getAverageHeightForAnItem();
+        const beforePlacementHeight = averageHeight * this.config.placement.offset;
+        lastPosition += beforePlacementHeight;
+
         for (const [itemIndex, itemSymbol] of this.computedValues.next.filteredPlacement.entries()) {
             // apply "before/between/after" margins to the lastPosition
 
