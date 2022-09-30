@@ -15,7 +15,7 @@ export class BasicTableCellPositioner extends AbstractTableCellPositioner {
                 duration: 300,
                 iterations: 1,
                 fill: "forwards",
-                easing: "ease-out",
+                easing: "ease-in-out",
             },
         };
     }
@@ -28,6 +28,7 @@ export class BasicTableCellPositioner extends AbstractTableCellPositioner {
             /** @type {Symbol} */
             itemSymbolAtAnimationStart: undefined,
             ongoingAnimationParameters: {
+                optimizeForEnding: false,
                 positionAfterTransition: 0,
                 translationStart: 0,
                 translationEnd: 0,
@@ -59,11 +60,9 @@ export class BasicTableCellPositioner extends AbstractTableCellPositioner {
     _setPositionWithAnimation(newPosition) {
         const neededVerticalTranslation = newPosition - this.state.lastCellPosition;
 
-        // prettier-ignore
         const keyframes = [
-            { transform: `translateY(0px) scale(1)`, opacity: 1, }, 
-            { transform: `translateY(${neededVerticalTranslation / 2}px) scale(0.96)` , opacity: 0.6},
-            { transform: `translateY(${neededVerticalTranslation}px) scale(1)` , opacity: 1}
+            { transform: `translateY(0px)` },
+            { transform: `translateY(${neededVerticalTranslation}px)` },
         ];
         this.state.ongoingAnimationParameters = {
             translationStart: 0,
@@ -71,6 +70,35 @@ export class BasicTableCellPositioner extends AbstractTableCellPositioner {
             positionAfterTransition: newPosition,
         };
         this._startTransition(keyframes);
+    }
+
+    _setPositionRedirectOngoingAnimationWithExpandingDuration(newPosition) {
+        this.state.animation.pause();
+
+        if (!this.state.animation.effect instanceof KeyframeEffect) {
+            this._error("Unexpected type");
+            return;
+        }
+
+        const currentVerticalTranslation = lerp(
+            this.state.ongoingAnimationParameters.translationStart,
+            this.state.ongoingAnimationParameters.translationEnd,
+            this.state.animation.effect.getComputedTiming().progress
+        );
+        const neededVerticalTranslation = newPosition - this.state.lastCellPosition;
+        this.state.animation.effect.setKeyframes([
+            { transform: `translateY(${currentVerticalTranslation}px)` },
+            { transform: `translateY(${neededVerticalTranslation}px)` },
+        ]);
+
+        this.state.ongoingAnimationParameters = {
+            translationStart: currentVerticalTranslation,
+            translationEnd: neededVerticalTranslation,
+            positionAfterTransition: newPosition,
+        };
+
+        this.state.animation.currentTime = 0;
+        this.state.animation.play();
     }
 
     _setPositionRedirectOngoingAnimation(newPosition) {
@@ -87,20 +115,9 @@ export class BasicTableCellPositioner extends AbstractTableCellPositioner {
             this.state.animation.effect.getComputedTiming().progress
         );
         const neededVerticalTranslation = newPosition - this.state.lastCellPosition;
-        // prettier-ignore
         this.state.animation.effect.setKeyframes([
-            { 
-                transform: `translateY(${currentVerticalTranslation}px) scale(1)`, 
-                opacity: 1 
-            },
-            {
-                transform: `translateY(${avg(currentVerticalTranslation, neededVerticalTranslation)}px) scale(0.96)`,
-                opacity: 0.6,
-            },
-            { 
-                transform: `translateY(${neededVerticalTranslation}px) scale(1)`, 
-                opacity: 1 
-            },
+            { transform: `translateY(${currentVerticalTranslation}px)` },
+            { transform: `translateY(${neededVerticalTranslation}px)` },
         ]);
 
         this.state.ongoingAnimationParameters = {
@@ -108,8 +125,6 @@ export class BasicTableCellPositioner extends AbstractTableCellPositioner {
             translationEnd: neededVerticalTranslation,
             positionAfterTransition: newPosition,
         };
-
-        this.state.animation.currentTime = 0;
         this.state.animation.play();
     }
 
@@ -126,27 +141,33 @@ export class BasicTableCellPositioner extends AbstractTableCellPositioner {
 
     /**
      * @param {number} newPosition
-     * @param {boolean} withAnimation
+     * @param {boolean} startNewAnimation
+     * @param {boolean} stopOngoingAnimation
+     * @param {function():void} callback
      * This method uses combination of "transform:translateY()" and "top:" properties.
      * Animations done with translateY when they are requested and either case in the
      * end element will only have "top:" prop.
      */
-    setPosition(newPosition, withAnimation = false, callback = undefined) {
+    setPosition(newPosition, startNewAnimation = false, stopOngoingAnimation = false, callback = undefined) {
         // protection against object reuser change the content of cell
         if (callback) this.state.callback = callback;
 
         this.state.itemSymbolAtAnimationStart = this.itemSymbol;
         const symbol = symbolizer.desymbolize(this.itemSymbol);
         if (this.state.isAnimationOngoing) {
-            if (withAnimation) {
+            if (startNewAnimation) {
+                // console.log(
+                //     `_setPositionRedirectOngoingAnimationWithExpandingDuration(${newPosition}px) for: ${symbol}`
+                // );
+                this._setPositionRedirectOngoingAnimationWithExpandingDuration(newPosition);
+            } else if (stopOngoingAnimation) {
+                this._setPositionByInterruptingOngoingAnimation(newPosition);
+            } else {
                 // console.log(`_setPositionRedirectOngoingAnimation(${newPosition}px) for: ${symbol}`);
                 this._setPositionRedirectOngoingAnimation(newPosition);
-            } else {
-                // console.log(`_setPositionByInterruptingOngoingAnimation(${newPosition}px) for: ${symbol}`);
-                this._setPositionByInterruptingOngoingAnimation(newPosition);
             }
         } else {
-            if (withAnimation) {
+            if (startNewAnimation) {
                 // console.log(`_setPositionWithAnimation(${newPosition}px) for: ${symbol}`);
                 this._setPositionWithAnimation(newPosition);
             } else {
@@ -202,7 +223,7 @@ export class BasicTableCellPositioner extends AbstractTableCellPositioner {
 
         if (this.state.callback) {
             const callback = this.state.callback;
-            // console.log(callback);
+            console.log(callback);
             this.state.callback = undefined;
             callback();
         }

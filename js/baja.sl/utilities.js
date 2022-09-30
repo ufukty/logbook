@@ -111,17 +111,33 @@ export function configureElementWithProps(element, classList, style, nodePropert
 /**
  * Adds classes and appends children nodes to <element>
  * @param {HTMLElement} element
- * @param {HTMLElement|HTMLElement[]} childrenList
+ * @param {HTMLElement|HTMLElement[]} children
  */
-export function adoption(element, childrenList) {
-    if (childrenList !== undefined) {
-        if (Array.isArray(childrenList)) {
-            if (childrenList.length > 0) childrenList.forEach((childNode) => element.appendChild(childNode));
+export function adoption(element, children) {
+    if (children !== undefined) {
+        if (Array.isArray(children)) {
+            if (children.length > 0)
+                children.forEach((childNode) => {
+                    element.appendChild(childNode);
+                });
         } else {
-            element.appendChild(childrenList);
+            element.appendChild(children);
         }
     }
     return element;
+}
+
+/**
+ * @param {AbstractViewController} parent
+ * @param {Array.<AbstractViewController>} children
+ */
+export function adoptionController(parent, children) {
+    adoption(
+        parent.dom.container,
+        children.map((child) => {
+            return child.dom.container;
+        })
+    );
 }
 
 /**
@@ -472,4 +488,31 @@ export function avg(...data) {
 
 export function pick(arr) {
     return arr[Math.round(Math.random() * (arr.length - 1))];
+}
+
+var iotaCounter = 0;
+export function iota() {
+    return ++iotaCounter;
+}
+
+export class Counter {
+    constructor(counterName = "") {
+        const time = Date.now();
+        this.checkpoints = [time];
+        this.counterName = counterName;
+    }
+
+    checkpoint(print) {
+        const time = Date.now();
+        this.checkpoints.push(time);
+        const timeElapsedSinceLastCheckpoint = time - this.checkpoints[this.checkpoints.length - 2];
+        const timeElapsedSinceCreation = time - this.checkpoints[0];
+        if (print)
+            console.log(
+                `Counter (${this.counterName}/${
+                    this.checkpoints.length - 1
+                }): ${timeElapsedSinceLastCheckpoint} / ${timeElapsedSinceCreation}`
+            );
+        return timeElapsedSinceCreation;
+    }
 }

@@ -1,22 +1,21 @@
 import { createElement } from "../baja.sl/utilities.js";
-
 import { AbstractTableCellViewController } from "../baja.sl/AbstractTableCellViewController.js";
 
-class InfiniteSheetHeader extends AbstractTableCellViewController {
+export class InfiniteSheetHeader extends AbstractTableCellViewController {
     constructor() {
         super();
-        this.container = createElement("div", ["infinite-sheet-header"]);
+        this.dom = {
+            container: createElement("div", ["infinite-sheet-header"]),
+        };
     }
 
     prepareForUse() {}
 
     prepareForFree() {
-        this.container.innerText = "";
+        this.dom.container.innerText = "";
     }
 
     setContent(title) {
-        this.container.innerText = title;
+        this.dom.container.innerText = title;
     }
 }
-
-export default InfiniteSheetHeader;

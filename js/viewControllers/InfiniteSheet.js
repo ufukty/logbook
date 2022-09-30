@@ -1,10 +1,10 @@
-import { adoption, domCollector, pick, symbolizer } from "../baja.sl/utilities.js";
+import { symbolizer } from "../baja.sl/utilities.js";
+import { DataSource } from "../dataSource.js";
+import { AbstractTableViewController } from "../baja.sl/AbstactTableViewController.js";
 import { AbstractTableCellPositioner } from "../baja.sl/AbstractTableCellPositioner.js";
 import { AbstractTableCellViewController } from "../baja.sl/AbstractTableCellViewController.js";
-import { DataSource } from "../dataSource.js";
-import InfiniteSheetHeader from "./InfiniteSheetHeader.js";
-import { AbstractTableViewController } from "../baja.sl/AbstactTableViewController.js";
-import InfiniteSheetTask from "./InfiniteSheetTask.js";
+import { InfiniteSheetHeader } from "./InfiniteSheetHeader.js";
+import { InfiniteSheetTask } from "./InfiniteSheetTask.js";
 
 const REGULAR_CELL_SYMBOL = symbolizer.symbolize("regularCellViewContainer");
 const HEADER_CELL_SYMBOL = symbolizer.symbolize("headerCellViewContainer");
@@ -38,6 +38,7 @@ export class InfiniteSheet extends AbstractTableViewController {
                     between: 5,
                 },
             },
+            reflectDepth: false,
         });
 
         this.registerCellIdentifier(REGULAR_CELL_SYMBOL, () => {
@@ -81,27 +82,34 @@ export class InfiniteSheet extends AbstractTableViewController {
         // TODO: variable cell type
         // const objectType = this.config.structuredDataMedium;
 
-        let cellContainer;
+        var cellPositioner;
         if (
             this.dataSource.cache.placements.chronological.headerSymbols.findIndex((symbol) => {
                 return symbol === itemSymbol;
             }) != -1
         ) {
-            cellContainer = this.requestReusableCellContainer(HEADER_CELL_SYMBOL);
-            cellContainer.cell.setContent(this.dataSource.getTextContent(itemSymbol));
+            cellPositioner = this.requestReusableCellPositioner(HEADER_CELL_SYMBOL);
+            cellPositioner.cell.setContent(this.dataSource.getTextContent(itemSymbol));
             // cellContainer.cell.container.dataset[]
         } else {
-            cellContainer = this.requestReusableCellContainer(REGULAR_CELL_SYMBOL);
-            cellContainer.cell.setContent(this.dataSource.getTextContent(itemSymbol));
+            cellPositioner = this.requestReusableCellPositioner(REGULAR_CELL_SYMBOL);
+            /** @type {InfiniteSheetTask} */
+            const cell = cellPositioner.cell;
             const details = this.dataSource.cache.tasks.get(itemSymbol);
-            cellContainer.cell.setData({
+            cell.setContent(this.dataSource.getTextContent(itemSymbol));
+            cell.setData({
                 isCollaborated: details.isCollaborated,
                 isTarget: details.isTarget,
                 isCompleted: details.isCompleted,
             });
+            if (this.config.reflectDepth) {
+                cell.setDepth(details.depth);
+            } else {
+                cell.setDepth(0);
+            }
         }
 
-        return cellContainer;
+        return cellPositioner;
     }
 
     /** @param {Symbol} itemSymbol */
@@ -118,7 +126,7 @@ export class InfiniteSheet extends AbstractTableViewController {
     }
 
     /** @param {Symbol} itemSymbol */
-    cellAppears(itemSymbol) {
+    cellPlacedWithoutAppear(itemSymbol) {
         // this._debug(`${objectSymbol.toString()} has placed.`);
     }
 

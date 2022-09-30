@@ -21,7 +21,7 @@ export class AbstractTableCellViewController extends AbstractViewController {
         for (const key in kv) {
             if (Object.hasOwnProperty.call(kv, key)) {
                 const value = kv[key];
-                this.container.dataset[`${key}`] = value;
+                this.dom.container.dataset[`${key}`] = value;
             }
         }
     }

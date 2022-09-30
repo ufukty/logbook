@@ -1,3 +1,7 @@
+#mode-selector {
+    z-index: 20;
+}
+
 @keyframes cardSwitchingLeftCardPromotingLeft {
     0% {
         transform: translateX(0) scale(0.5);

@@ -1,4 +1,4 @@
-import { addEventListenerForNonTouchScreen, domCollector, executeWhenDocumentIsReady } from "./baja.sl/utilities.js";
+import { addEventListenerForNonTouchScreen, adoption, executeWhenDocumentIsReady } from "./baja.sl/utilities.js";
 
 import { TRIGGER_REPLACEMENT } from "./baja.sl/AbstactTableViewController.js";
 import { ModeSelector } from "./viewControllers/ModeSelector.js";
@@ -12,6 +12,7 @@ import { ChronologicalDocumentOverview } from "./models/DocumentOverviewChronolo
 
 import { classifyTasksByDays } from "./dateTime.js";
 import { DVM_CHRONO, DVM_HIERARCH } from "./constants.js";
+import { BlueprintModal } from "./viewControllers/BlueprintOverview.js";
 
 class App {
     constructor() {
@@ -32,7 +33,7 @@ class App {
         this.modeSelector = new ModeSelector(this.updateMode.bind(this));
         this.infiniteSheet = new InfiniteSheet();
         this.infiniteSheetWrapper = document.getElementById("infinite-sheet");
-        this.infiniteSheetWrapper.appendChild(this.infiniteSheet.container);
+        adoption(this.infiniteSheetWrapper, [this.infiniteSheet.container]);
 
         this.contextMenu = new ContextMenu();
         this.contextMenu.delegates = {
@@ -65,21 +66,25 @@ class App {
             this.infiniteSheet.updateView(TRIGGER_REPLACEMENT);
         });
         this.dataSource.delegates.add(EVENT_OBJECT_UPDATE, (a) => {
-            this.infiniteSheet.requestContentUpdateForObjectsIfNecessary(a);
+            this.infiniteSheet.requestContentUpdateForItemsIfNecessary(a);
         });
 
         // TODO: this.dataSource.delegates.notifyGUI = this.infiniteSheet.updateData // updateData should be a callable
         // TODO: this.infiniteSheet.delegates.notifyDataSource = this.dataSource.updateData // updateData should be a callable
         this.infiniteSheet.dataSource = this.dataSource;
         this.dataSource.loadTestDataset(); // FIXME:
+
+        // this.blueprintModal = new BlueprintModal();
     }
 
     updateMode(newMode) {
         this.modeSelector.state.selectedMode = newMode;
         if (this.modeSelector.state.selectedMode === DVM_CHRONO) {
             this.infiniteSheet.config.placement.symbols = this.dataSource.cache.placements.chronological.items;
+            this.infiniteSheet.config.reflectDepth = false;
         } else {
             this.infiniteSheet.config.placement.symbols = this.dataSource.cache.placements.hierarchical.items;
+            this.infiniteSheet.config.reflectDepth = true;
         }
         this.infiniteSheet.updateView(TRIGGER_REPLACEMENT);
     }

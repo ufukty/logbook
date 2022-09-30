@@ -1,8 +1,17 @@
-import { adoption, domCollector, createElement, symbolizer, mergeMapKeys, checkCollision } from "./utilities.js";
+import {
+    adoption,
+    domCollector,
+    createElement,
+    symbolizer,
+    mergeMapKeys,
+    checkCollision,
+    Counter,
+} from "./utilities.js";
 import { AbstractTableCellPositioner } from "./AbstractTableCellPositioner.js";
 import { AbstractTableCellViewController } from "./AbstractTableCellViewController.js";
 import { BasicTableCellPositioner } from "./BasicTableCellPositioner.js";
 
+export const TRIGGER_CONTENT_CHANGE = "TRIGGER_CONTENT_CHANGE";
 export const TRIGGER_REPLACEMENT = "TRIGGER_REPLACEMENT";
 export const TRIGGER_SCROLL_LISTENER = "TRIGGER_SCROLL_LISTENER";
 export const TRIGGER_RESIZE_OBSERVER = "TRIGGER_RESIZE_OBSERVER";
@@ -99,7 +108,7 @@ export class AbstractTableViewController {
              */
             scrollElement: this.container,
             /** @type {number} */
-            updateMaxFrequency: 30,
+            updateMaxFrequency: 60,
         };
 
         this.computedValues = {
@@ -124,6 +133,7 @@ export class AbstractTableViewController {
                 /** @type {Set.<Symbol>} */
                 readyToUnassign: new Set(),
             },
+            nextResizeMightCausedByContentChange: false,
             current: this._getTemplateForComputedValues(),
             next: this._getTemplateForComputedValues(),
         };
@@ -139,9 +149,7 @@ export class AbstractTableViewController {
      * @param {Array.<ResizeObserverEntry>} entries
      */
     _resizeObserverNotificationHandler(entries) {
-        // console.log(entries);
         var ignoreChanges = true;
-        var changedItems = [];
         entries.forEach((entry) => {
             const height = entry.contentRect.height;
             const cellPositioner = entry.target;
@@ -154,28 +162,13 @@ export class AbstractTableViewController {
             const isSameHeight =
                 this.computedValues.lastRecordedCellHeightOfItem.has(itemSymbol) &&
                 this.computedValues.lastRecordedCellHeightOfItem.get(itemSymbol) === height;
-            if (isSameHeight) return;
-
-            this.computedValues.lastRecordedCellHeightOfItem.set(itemSymbol, height);
-            // changedItems.push(itemId);
-            ignoreChanges = false;
-
-            // const isInSight = this.computedValues.current.zoneCollusions.inViewport.has(itemSymbol);
-            // if (isInSight) {
-            //     ignoreChanges = false;
-            // }
+            if (!isSameHeight) {
+                this.computedValues.lastRecordedCellHeightOfItem.set(itemSymbol, height);
+                ignoreChanges = false;
+            }
         });
-        // console.log("resizeObserver detected height change for:", changedItems);
         if (ignoreChanges) return;
-        // to avoid infinite resize loops
-        if (this.computedValues.timeoutToResizeCallback === undefined) {
-            this.computedValues.timeoutToResizeCallback = setTimeout(() => {
-                requestAnimationFrame(() => {
-                    this.computedValues.timeoutToResizeCallback = undefined;
-                    this.updateView(TRIGGER_RESIZE_OBSERVER);
-                });
-            }, 500);
-        }
+        this.updateView(TRIGGER_RESIZE_OBSERVER);
     }
 
     /**
@@ -192,7 +185,7 @@ export class AbstractTableViewController {
             // prettier-ignore
             adoption(this.anchorPosition,
                 adoption(cellContainer.container,
-                    userProvidedCell.container
+                    userProvidedCell.dom.container
             ));
             this.resizeObserver.observe(cellContainer.container);
             return cellContainer;
@@ -206,7 +199,7 @@ export class AbstractTableViewController {
      * registered by .registerCellConstructor().
      * @returns {AbstractTableCellPositioner}
      */
-    requestReusableCellContainer(cellIdentifier) {
+    requestReusableCellPositioner(cellIdentifier) {
         return domCollector.get(cellIdentifier);
     }
 
@@ -463,7 +456,7 @@ export class AbstractTableViewController {
             const isPersistingInPreload =
                 isPersistingInPlacement &&
                 this.computedValues.cellPositioners.has(itemSymbol) &&
-                this.computedValues.current.zoneCollisions.inPreload.has(itemSymbol) &&
+                this.computedValues.current.zoneCollisions.inParking.has(itemSymbol) &&
                 this.computedValues.next.zoneCollisions.inParking.has(itemSymbol);
 
             const doesEnterPreload =
@@ -483,9 +476,14 @@ export class AbstractTableViewController {
                 this.computedValues.cellPositioners.has(itemSymbol) &&
                 !this.computedValues.next.zoneCollisions.inParking.has(itemSymbol);
 
-            const hasLeftParking =
+            const isReadyToUnassign =
                 this.computedValues.unassignmentScheduling.transitioning.has(itemSymbol) &&
                 this.computedValues.unassignmentScheduling.readyToUnassign.has(itemSymbol);
+
+            const isReturningToParking =
+                this.computedValues.unassignmentScheduling.transitioning.has(itemSymbol) &&
+                !this.computedValues.current.zoneCollisions.inParking.has(itemSymbol) &&
+                this.computedValues.next.zoneCollisions.inParking.has(itemSymbol);
 
             // if translation animation should be considered for item
 
@@ -517,6 +515,23 @@ export class AbstractTableViewController {
              *   - item's movement
              */
 
+            // console.groupCollapsed(symbolizer.desymbolize(itemSymbol));
+            // console.log("doesEnterPlacement:", doesEnterPlacement);
+            // console.log("doesLeavePlacement:", doesLeavePlacement);
+            // console.log("isPersistingInPlacement:", isPersistingInPlacement);
+            // console.log("isPersistingInPreload:", isPersistingInPreload);
+            // console.log("doesEnterPreload:", doesEnterPreload);
+            // console.log("doesLeavePreload:", doesLeavePreload);
+            // console.log("doesLeaveParking:", doesLeaveParking);
+            // console.log("isLeavingParking:", isLeavingParking);
+            // console.log("isReadyToUnassign:", isReadyToUnassign);
+            // console.log("isReturningToParking:", isReturningToParking);
+            // console.log("isPositionChanged:", isPositionChanged);
+            // console.log("isPersistingInViewport:", isPersistingInViewport);
+            // console.log("doesEnterViewport:", doesEnterViewport);
+            // console.log("doesLeaveViewport:", doesLeaveViewport);
+            // console.groupEnd(symbolizer.desymbolize(itemSymbol));
+
             if (isPersistingInPlacement) {
                 if (isPersistingInPreload) {
                     if (isPositionChanged) {
@@ -542,10 +557,15 @@ export class AbstractTableViewController {
                     } else {
                         this.computedValues.next.classifiedItems.toUnassign.add(itemSymbol);
                     }
-                } else if (hasLeftParking) {
+                } else if (isReturningToParking) {
+                    this.computedValues.next.classifiedItems.toCancelUnassign.add(itemSymbol);
+                    if (isPositionChanged) {
+                        this.computedValues.next.classifiedItems.toPositionTranslate.add(itemSymbol);
+                    } else {
+                        this.computedValues.next.classifiedItems.toPositionSet.add(itemSymbol);
+                    }
+                } else if (isReadyToUnassign) {
                     this.computedValues.next.classifiedItems.toUnassign.add(itemSymbol);
-                } else if (isPositionChanged) {
-                    // console.log(`isPositionChanged: ${symbolizer.desymbolize(itemSymbol)}`);
                 }
             } else if (doesEnterPlacement) {
                 if (doesEnterPreload) {
@@ -584,29 +604,35 @@ export class AbstractTableViewController {
          *   - disappear
          */
 
+        const resizeCausedByContentChange =
+            this.computedValues.next.updateTrigger === TRIGGER_RESIZE_OBSERVER &&
+            this.computedValues.nextResizeMightCausedByContentChange;
+
         const classes = this.computedValues.next.classifiedItems;
 
-        // console.log(this.computedValues.cellPositioners);
         // assign
         for (const itemSymbol of classes.toAssign) {
             const cellPositioner = this.getCellForItem(itemSymbol);
             this.computedValues.cellPositioners.set(itemSymbol, cellPositioner);
             cellPositioner.itemSymbol = itemSymbol;
             cellPositioner.container.dataset["itemId"] = symbolizer.desymbolize(itemSymbol);
+            const computedStyle = getComputedStyle(cellPositioner.cell.dom.container);
+            const computedHeight = parseFloat(computedStyle.getPropertyValue("height"));
+            this.computedValues.lastRecordedCellHeightOfItem.set(itemSymbol, computedHeight);
         }
 
         // position set
         for (const itemSymbol of classes.toPositionSet) {
             const cellPositioner = this.computedValues.cellPositioners.get(itemSymbol);
             const newPosition = this.computedValues.next.positions.get(itemSymbol).starts;
-            cellPositioner.setPosition(newPosition, false);
+            cellPositioner.setPosition(newPosition, false, false);
         }
 
         // position transition
         for (const itemSymbol of classes.toPositionTranslate) {
             const cellPositioner = this.computedValues.cellPositioners.get(itemSymbol);
-            const newPosition = this.computedValues.next.positions.get(itemSymbol).starts;
-            cellPositioner.setPosition(newPosition, true);
+            var newPosition = this.computedValues.next.positions.get(itemSymbol).starts;
+            cellPositioner.setPosition(newPosition, true, false);
         }
 
         // position transition from current position
@@ -614,8 +640,8 @@ export class AbstractTableViewController {
             const cellPositioner = this.computedValues.cellPositioners.get(itemSymbol);
             const currentPosition = this.computedValues.current.positions.get(itemSymbol).starts;
             const newPosition = this.computedValues.next.positions.get(itemSymbol).starts;
-            cellPositioner.setPosition(currentPosition, false);
-            cellPositioner.setPosition(newPosition, true);
+            cellPositioner.setPosition(currentPosition, false, true);
+            cellPositioner.setPosition(newPosition, true, false);
         }
 
         // position transition with scheduling
@@ -623,7 +649,7 @@ export class AbstractTableViewController {
             const cellPositioner = this.computedValues.cellPositioners.get(itemSymbol);
             const newPosition = this.computedValues.next.positions.get(itemSymbol).starts;
             this.computedValues.unassignmentScheduling.transitioning.add(itemSymbol);
-            cellPositioner.setPosition(newPosition, true, () => {
+            cellPositioner.setPosition(newPosition, true, false, () => {
                 this.computedValues.unassignmentScheduling.readyToUnassign.add(itemSymbol);
                 this.updateView(TRIGGER_SCHEDULED_POSITION_TRANSLATE);
             });
@@ -639,7 +665,11 @@ export class AbstractTableViewController {
             this.cellAppears(itemSymbol);
         }
 
-        // console.log(this.computedValues.cellPositioners);
+        // cancel unassign
+        for (const itemSymbol of classes.toCancelUnassign) {
+            this.computedValues.unassignmentScheduling.transitioning.delete(itemSymbol);
+            this.computedValues.unassignmentScheduling.readyToUnassign.delete(itemSymbol);
+        }
 
         // unassign
         for (const itemSymbol of classes.toUnassign) {
@@ -655,6 +685,8 @@ export class AbstractTableViewController {
         for (const itemSymbol of classes.toDisappear) {
             this.cellDisappears(itemSymbol);
         }
+
+        if (resizeCausedByContentChange) this.computedValues.nextResizeMightCausedByContentChange = false;
     }
 
     _updateContainer() {
@@ -722,39 +754,26 @@ export class AbstractTableViewController {
                 toScheduledPositionTranslate: new Set(),
                 /** @type {Set.<Symbol>} */
                 toUnassign: new Set(),
+                /** @type {Set.<Symbol>} */
+                toCancelUnassign: new Set(),
             },
         };
     }
 
-    _debugUpdateStart(trigger) {
-        // console.group(`AbstractTableViewController.updateView(${trigger})`);
-    }
-
-    _debugClassifiedComponents() {
-        const classes = [
-            "toAppear",
-            "toPlaced",
-            "toAssign",
-            "toDisappear",
-            "toPositionSet",
-            "toPositionTranslate",
-            "toPositionTranslateFromCurrentPosition",
-            "toScheduledPositionTranslate",
-            "toUnassign",
-        ];
-        classes.forEach((cls) => {
-            if (this.computedValues.next.classifiedItems[cls].size > 0) {
-                // console.log(cls, this.computedValues.next.classifiedItems[cls]);
-            }
-        });
-    }
-
-    _debugUpdateEnd(trigger) {
-        // console.groupEnd(`AbstractTableViewController.updateView(${trigger})`);
-    }
-
+    /** Note: This function re-schedules an update to future if update
+     * condition is not satisfied currently. */
     _isUpdateNeeded(trigger) {
         const now = Date.now();
+
+        const doesParentElementHasHeight = this.config.scrollElement.clientHeight !== 0;
+        if (!doesParentElementHasHeight) {
+            console.log("re-scheduling updateView due to scrollElement height is not being set");
+            requestAnimationFrame(() => {
+                this.updateView(trigger);
+            });
+            return false;
+        }
+
         const timePassedSinceLastUpdate = now - this.computedValues.lastUpdateTime;
         const periodRequiredMS = 1000 / this.config.updateMaxFrequency;
 
@@ -776,14 +795,22 @@ export class AbstractTableViewController {
         return true;
     }
 
+    _debugPrintClassifiedItems() {
+        Object.keys(this.computedValues.next.classifiedItems).forEach((cls) => {
+            if (this.computedValues.next.classifiedItems[cls].size > 0) {
+                console.log(cls, this.computedValues.next.classifiedItems[cls]);
+            }
+        });
+    }
+
     updateView(trigger) {
         if (!this._isUpdateNeeded(trigger)) return;
-
         this.computedValues.ongoingUpdate = true;
 
         this.computedValues.next = this._getTemplateForComputedValues();
         this.computedValues.next.updateTrigger = trigger;
-        this._debugUpdateStart(trigger);
+
+        console.groupCollapsed(`AbstractTableViewController.updateView(${trigger})`);
 
         this._updateZoneBoundaries();
         this._filterPlacement();
@@ -793,14 +820,18 @@ export class AbstractTableViewController {
         this._mergeItemSymbolsWithPreviousIteration();
         this._calculateFocusShift();
         this._updateContainer();
+
+        console.groupCollapsed("classes");
         this._classifyItemsByUpdateTypes();
-        this._debugClassifiedComponents();
+        console.groupEnd("classes");
 
-        // console.groupCollapsed("updateComponents");
+        this._debugPrintClassifiedItems();
+
+        console.groupCollapsed("updateComponents");
         this._updateCells(trigger);
-        // console.groupEnd("updateComponents");
+        console.groupEnd("updateComponents");
 
-        this._debugUpdateEnd(trigger);
+        console.groupEnd(`AbstractTableViewController.updateView(${trigger})`);
 
         delete this.computedValues.current;
         this.computedValues.current = this.computedValues.next;
@@ -841,7 +872,7 @@ export class AbstractTableViewController {
      * subclass if those items are in preload area
      * @param {Set.<Symbol>} itemSymbols - Symbols of items
      */
-    requestContentUpdateForItemIfNecessary(itemSymbols) {
+    requestContentUpdateForItemsIfNecessary(itemSymbols) {
         const intersect = new Set();
         for (const itemSymbolAllocated of this.computedValues.cellPositioners.keys()) {
             if (itemSymbols.has(itemSymbolAllocated)) intersect.add(itemSymbolAllocated);
@@ -850,7 +881,8 @@ export class AbstractTableViewController {
             this.updateCellIfNecessary(itemSymbol, this.computedValues.cellPositioners.get(itemSymbol));
         }
         if (intersect.size > 0) {
-            this.updateView();
+            this.computedValues.nextResizeMightCausedByContentChange = true;
+            this.updateView(TRIGGER_CONTENT_CHANGE);
         }
     }
 }

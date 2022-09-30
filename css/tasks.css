@@ -47,10 +47,10 @@
     opacity: 0.2;
 }
 
-.infinite-sheet-header,
+/* .infinite-sheet-header,
 .infinite-sheet-task {
     transition: 60ms ease-out opacity, 200ms cubic-bezier(0.2, 1.4, 0.7, 1.2) transform;
-}
+} */
 
 #infinite-sheet.context-menu-open .abstract-cell-scroller-view-cell-positioner.context-menu-focused-on .infinite-sheet-task {
     transform: scale(1.05);
@@ -61,4 +61,10 @@
 #infinite-sheet.context-menu-open .infinite-sheet-header {
     opacity: 0.1;
     transform: scale(0.90);
+}
+
+.infinite-sheet-task-editable-area {
+    display: inline-block;
+    user-select: auto;
+    /* pointer-events: all; */
 }

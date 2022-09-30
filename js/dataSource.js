@@ -149,10 +149,10 @@ export class DataSource {
     }
 
     loadTestDataset() {
-        this.cache.placements.totalNumberOfItems = 500;
+        this.cache.placements.totalNumberOfItems = 50;
         var dayCounter = 1;
         const symbols = new Map();
-        const taskIndexes = Array.from(Array(500).keys());
+        const taskIndexes = Array.from(Array(50).keys());
         taskIndexes.forEach((taskIndex, index) => {
             if (index === 0 || Math.random() > 0.8) {
                 // add header
@@ -173,10 +173,19 @@ export class DataSource {
                 isCompleted: pick([false]),
                 isCollaborated: pick([true, false]),
                 isTarget: pick([true, false]),
+                depth: pick(Array.from(Array(10).keys())),
             });
         });
         shuffle(this.cache.placements.hierarchical.items);
         this.delegates.nofify(EVENT_PLACEMENT_UPDATE);
+
+        setTimeout(() => {
+            const itemSymbol = symbolizer.symbolize("task#4");
+            const task = this.cache.tasks.get(itemSymbol);
+            task.content =
+                "lorem ipsum dolor sit amet consectetur adipiscing elit. Fusce vel posuare enim. Nam vulputate lectus ligula.";
+            this.delegates.nofify(EVENT_OBJECT_UPDATE, new Set([itemSymbol]));
+        }, 1000);
     }
 
     getTextContent(objectSymbol) {

@@ -1,3 +1,4 @@
+import { AbstractTableCellViewController } from "./AbstractTableCellViewController.js";
 import { AbstractViewController } from "./AbstractViewController.js";
 
 export const POSITION_INSTANT = "POSITION_INSTANT";
@@ -28,9 +29,11 @@ export class AbstractTableCellPositioner extends AbstractViewController {
 
     /**
      * @param {number} newPosition
-     * @param {boolean} withAnimation
+     * @param {boolean} startNewAnimation
+     * @param {boolean} stopOngoingAnimation
+     * @param {function():void} callback
      */
-    setPosition(newPosition, withAnimation) {
+    setPosition(newPosition, startNewAnimation, stopOngoingAnimation, callback) {
         console.error("abstract function is called directly");
     }
 }
