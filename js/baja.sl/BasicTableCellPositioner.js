@@ -139,6 +139,14 @@ export class BasicTableCellPositioner extends AbstractTableCellPositioner {
         this.state.lastCellPosition = newPosition;
     }
 
+    _isUpdatingPositionRequired(newPosition) {
+        if (this.state.isAnimationOngoing) {
+            return newPosition !== this.state.ongoingAnimationParameters.positionAfterTransition;
+        } else {
+            return newPosition !== this.state.lastCellPosition;
+        }
+    }
+
     /**
      * @param {number} newPosition
      * @param {boolean} startNewAnimation
@@ -149,6 +157,8 @@ export class BasicTableCellPositioner extends AbstractTableCellPositioner {
      * end element will only have "top:" prop.
      */
     setPosition(newPosition, startNewAnimation = false, stopOngoingAnimation = false, callback = undefined) {
+        if (!this._isUpdatingPositionRequired(newPosition)) return;
+
         // protection against object reuser change the content of cell
         if (callback) this.state.callback = callback;
 
