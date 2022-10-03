@@ -49,8 +49,9 @@ export class UserInputResolver {
         // this.disableContextMenuOnce();
         const targetElement = e.target;
 
+        console.log(e);
         // console.log(e);
-        if (targetElement.classList.contains("infinite-sheet-task")) {
+        if (targetElement.classList.contains("infinite-sheet-task-content-area")) {
             e.stopPropagation();
 
             const taskElement = targetElement;
@@ -96,7 +97,7 @@ export class UserInputResolver {
     touchEndEventReceiver(e) {
         const targetElement = e.target;
 
-        if (targetElement.classList.contains("infinite-sheet-task")) {
+        if (targetElement.classList.contains("infinite-sheet-task-content-area")) {
             const taskElement = targetElement;
             const taskPositionerElement = taskElement.parentNode;
 

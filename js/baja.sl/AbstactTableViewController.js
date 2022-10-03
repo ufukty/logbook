@@ -6,6 +6,8 @@ import {
     mergeMapKeys,
     checkCollision,
     Counter,
+    setIntersect,
+    setDifference,
 } from "./utilities.js";
 import { AbstractTableCellPositioner } from "./AbstractTableCellPositioner.js";
 import { AbstractTableCellViewController } from "./AbstractTableCellViewController.js";
@@ -133,7 +135,11 @@ export class AbstractTableViewController {
                 /** @type {Set.<Symbol>} */
                 readyToUnassign: new Set(),
             },
-            nextResizeMightCausedByContentChange: false,
+            updateScheduling: {
+                lastUpdateTime: undefined,
+                ongoingUpdate: false,
+                waitingForScheduledUpdate: undefined,
+            },
             current: this._getTemplateForComputedValues(),
             next: this._getTemplateForComputedValues(),
         };
@@ -151,19 +157,26 @@ export class AbstractTableViewController {
     _resizeObserverNotificationHandler(entries) {
         var ignoreChanges = true;
         entries.forEach((entry) => {
-            const height = entry.contentRect.height;
-            const cellPositioner = entry.target;
-            const itemId = cellPositioner.dataset["itemId"];
+            const cellPositionerContainer = entry.target;
+            const itemId = cellPositionerContainer.dataset["itemId"];
             const itemSymbol = symbolizer.symbolize(itemId);
+
+            /**
+             * The reason computedStyle being used instead the height reported by
+             * resizeObserver is because they don't have same precision and rest
+             * of the codebase supposed to only be able to use computedStyle.
+             */
+            const computedStyle = getComputedStyle(cellPositionerContainer);
+            const computedHeight = parseFloat(computedStyle.getPropertyValue("height"));
 
             const isStillAllocated = this.computedValues.cellPositioners.has(itemSymbol);
             if (!isStillAllocated) return;
 
             const isSameHeight =
                 this.computedValues.lastRecordedCellHeightOfItem.has(itemSymbol) &&
-                this.computedValues.lastRecordedCellHeightOfItem.get(itemSymbol) === height;
+                this.computedValues.lastRecordedCellHeightOfItem.get(itemSymbol) === computedHeight;
             if (!isSameHeight) {
-                this.computedValues.lastRecordedCellHeightOfItem.set(itemSymbol, height);
+                this.computedValues.lastRecordedCellHeightOfItem.set(itemSymbol, computedHeight);
                 ignoreChanges = false;
             }
         });
@@ -209,25 +222,38 @@ export class AbstractTableViewController {
      * with previously registered cellIdentifier
      * Then populate content accordingly to
      * specified itemSymbol.
+     * @abstract
      * @returns {AbstractTableCellPositioner}
      */
     getCellForItem(itemSymbol) {
-        this._error("abstract function is called directly");
+        // console.error("abstract function is called directly");
     }
 
-    /** @param {Symbol} itemSymbol */
+    /**
+     * @abstract
+     * @param {Symbol} itemSymbol
+     */
     getCellKindForItem(itemSymbol) {
-        this._error("Abstract method has called directly.");
+        // console.error("Abstract method has called directly.");
     }
 
     /**
      * Implementation of this method should check if content of cell
      * needs to get updated, then update it.
+     * @abstract
      * @param { Symbol } itemSymbol
      * @param {AbstractTableCellPositioner} cellContainer
      */
-    updateCellIfNecessary(itemSymbol, cellContainer) {
-        this._error("abstract function is called directly");
+    updateCellForUpdatedItem(itemSymbol, cellContainer) {
+        // console.error("abstract function is called directly");
+    }
+
+    /**
+     * @abstract
+     * @param {Symbol} itemSymbol
+     */
+    cellUpdateIsSkippedForUpdatedItem(itemSymbol) {
+        // console.error("abstract function has called directly");
     }
 
     /** @returns {number} */
@@ -242,7 +268,7 @@ export class AbstractTableViewController {
      * @returns {number}
      */
     getDefaultHeightOfItem(itemSymbol) {
-        this._error("abstract function is called directly");
+        // console.error("abstract function is called directly");
     }
 
     _updateZoneBoundaries() {
@@ -591,7 +617,7 @@ export class AbstractTableViewController {
     /**
      * @param {string} trigger
      */
-    _updateCells(trigger) {
+    _updateCells() {
         /**
          * execution order of updates:
          *   - assign
@@ -603,10 +629,6 @@ export class AbstractTableViewController {
          *   - unassign
          *   - disappear
          */
-
-        const resizeCausedByContentChange =
-            this.computedValues.next.updateTrigger === TRIGGER_RESIZE_OBSERVER &&
-            this.computedValues.nextResizeMightCausedByContentChange;
 
         const classes = this.computedValues.next.classifiedItems;
 
@@ -685,8 +707,6 @@ export class AbstractTableViewController {
         for (const itemSymbol of classes.toDisappear) {
             this.cellDisappears(itemSymbol);
         }
-
-        if (resizeCausedByContentChange) this.computedValues.nextResizeMightCausedByContentChange = false;
     }
 
     _updateContainer() {
@@ -767,50 +787,55 @@ export class AbstractTableViewController {
 
         const doesParentElementHasHeight = this.config.scrollElement.clientHeight !== 0;
         if (!doesParentElementHasHeight) {
-            console.log("re-scheduling updateView due to scrollElement height is not being set");
+            // console.log("re-scheduling updateView due to scrollElement height is not being set");
             requestAnimationFrame(() => {
                 this.updateView(trigger);
             });
             return false;
         }
 
-        const timePassedSinceLastUpdate = now - this.computedValues.lastUpdateTime;
-        const periodRequiredMS = 1000 / this.config.updateMaxFrequency;
+        if (this.computedValues.updateScheduling.lastUpdateTime) {
+            const timePassedSinceLastUpdate = now - this.computedValues.updateScheduling.lastUpdateTime;
+            const periodRequiredMS = 1000 / this.config.updateMaxFrequency;
+            const remainingToNextUpdate = periodRequiredMS - timePassedSinceLastUpdate;
 
-        if (this.computedValues.ongoingUpdate || timePassedSinceLastUpdate < periodRequiredMS) {
-            if (!this.computedValues.waitingForScheduledUpdate) {
-                this.computedValues.waitingForScheduledUpdate = true;
-                setTimeout(() => {
-                    this.updateView(trigger);
-                }, periodRequiredMS - timePassedSinceLastUpdate);
+            if (this.computedValues.updateScheduling.ongoingUpdate || timePassedSinceLastUpdate <= periodRequiredMS) {
+                if (!this.computedValues.updateScheduling.waitingForScheduledUpdate) {
+                    this.computedValues.updateScheduling.waitingForScheduledUpdate = true;
+                    setTimeout(() => {
+                        this.updateView(trigger);
+                    }, remainingToNextUpdate + 1);
+                }
+                // console.log("update is rejected");
+                return false;
             }
-            return false;
-        }
 
-        if (this.computedValues.waitingForScheduledUpdate) {
-            this.computedValues.waitingForScheduledUpdate = undefined;
+            if (this.computedValues.updateScheduling.waitingForScheduledUpdate) {
+                this.computedValues.updateScheduling.waitingForScheduledUpdate = undefined;
+            }
         }
+        // console.log("updating");
 
-        this.computedValues.lastUpdateTime = now;
+        this.computedValues.updateScheduling.lastUpdateTime = now;
         return true;
     }
 
     _debugPrintClassifiedItems() {
         Object.keys(this.computedValues.next.classifiedItems).forEach((cls) => {
             if (this.computedValues.next.classifiedItems[cls].size > 0) {
-                console.log(cls, this.computedValues.next.classifiedItems[cls]);
+                // console.log(cls, this.computedValues.next.classifiedItems[cls]);
             }
         });
     }
 
     updateView(trigger) {
         if (!this._isUpdateNeeded(trigger)) return;
-        this.computedValues.ongoingUpdate = true;
+        this.computedValues.updateScheduling.ongoingUpdate = true;
 
         this.computedValues.next = this._getTemplateForComputedValues();
         this.computedValues.next.updateTrigger = trigger;
 
-        console.groupCollapsed(`AbstractTableViewController.updateView(${trigger})`);
+        // console.groupCollapsed(`AbstractTableViewController.updateView(${trigger})`);
 
         this._updateZoneBoundaries();
         this._filterPlacement();
@@ -821,22 +846,22 @@ export class AbstractTableViewController {
         this._calculateFocusShift();
         this._updateContainer();
 
-        console.groupCollapsed("classes");
+        // console.groupCollapsed("classes");
         this._classifyItemsByUpdateTypes();
-        console.groupEnd("classes");
+        // console.groupEnd("classes");
 
         this._debugPrintClassifiedItems();
 
-        console.groupCollapsed("updateComponents");
-        this._updateCells(trigger);
-        console.groupEnd("updateComponents");
+        // console.groupCollapsed("updateComponents");
+        this._updateCells();
+        // console.groupEnd("updateComponents");
 
-        console.groupEnd(`AbstractTableViewController.updateView(${trigger})`);
+        // console.groupEnd(`AbstractTableViewController.updateView(${trigger})`);
 
         delete this.computedValues.current;
         this.computedValues.current = this.computedValues.next;
 
-        this.computedValues.ongoingUpdate = undefined;
+        this.computedValues.updateScheduling.ongoingUpdate = undefined;
     }
 
     /**
@@ -870,19 +895,21 @@ export class AbstractTableViewController {
     /**
      * Calling this function will trigger getCellForItem() method implemented by
      * subclass if those items are in preload area
-     * @param {Set.<Symbol>} itemSymbols - Symbols of items
+     * @param {Set.<Symbol>} updatedItems - Symbols of items
      */
-    requestContentUpdateForItemsIfNecessary(itemSymbols) {
-        const intersect = new Set();
-        for (const itemSymbolAllocated of this.computedValues.cellPositioners.keys()) {
-            if (itemSymbols.has(itemSymbolAllocated)) intersect.add(itemSymbolAllocated);
+    requestContentUpdateForItemsIfNecessary(updatedItems) {
+        const assignedItems = new Set(this.computedValues.cellPositioners.keys());
+        const updatedAssignedItems = setIntersect(assignedItems, updatedItems);
+        const updatedUnassignedItems = setDifference(updatedItems, updatedAssignedItems);
+
+        for (const itemSymbol of updatedAssignedItems) {
+            this.updateCellForUpdatedItem(itemSymbol, this.computedValues.cellPositioners.get(itemSymbol));
         }
-        for (const itemSymbol of intersect) {
-            this.updateCellIfNecessary(itemSymbol, this.computedValues.cellPositioners.get(itemSymbol));
-        }
-        if (intersect.size > 0) {
-            this.computedValues.nextResizeMightCausedByContentChange = true;
+        if (updatedAssignedItems.size > 0) {
             this.updateView(TRIGGER_CONTENT_CHANGE);
+        }
+        for (const itemSymbol of updatedUnassignedItems) {
+            this.cellUpdateIsSkippedForUpdatedItem(itemSymbol);
         }
     }
 }

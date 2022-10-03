@@ -21,8 +21,8 @@ export class InfiniteSheet extends AbstractTableViewController {
 
         Object.assign(this.config, {
             zoneOffsets: {
-                preload: 0.4,
-                parking: 0.5,
+                preload: 0.0,
+                parking: 0.0,
             },
             margins: {
                 pageContent: {
@@ -35,7 +35,7 @@ export class InfiniteSheet extends AbstractTableViewController {
                 },
                 [REGULAR_CELL_SYMBOL]: {
                     before: 10,
-                    between: 5,
+                    between: 4,
                 },
             },
             reflectDepth: false,
@@ -102,12 +102,13 @@ export class InfiniteSheet extends AbstractTableViewController {
                 isTarget: details.isTarget,
                 isCompleted: details.isCompleted,
             });
-            if (this.config.reflectDepth) {
-                cell.setDepth(details.depth);
-            } else {
-                cell.setDepth(0);
-            }
+
+            cell.setUpdateCount(this.dataSource.cache.updateCounts.get(itemSymbol) ?? 0, false);
         }
+
+        const computedStyle = getComputedStyle(cellPositioner.cell.dom.container);
+        const computedHeight = parseFloat(computedStyle.getPropertyValue("height"));
+        this.computedValues.lastRecordedCellHeightOfItem.set(itemSymbol, computedHeight);
 
         return cellPositioner;
     }
@@ -144,9 +145,26 @@ export class InfiniteSheet extends AbstractTableViewController {
      * @param { Symbol } itemSymbol
      * @param { AbstractTableCellPositioner } cellContainer
      */
-    updateCellIfNecessary(itemSymbol, cellContainer) {
+    updateCellForUpdatedItem(itemSymbol, cellContainer) {
         const newContent = this.dataSource.getTextContent(itemSymbol);
-        cellContainer.cell.setContent(newContent);
+        /** @type {InfiniteSheetTask} */
+        const taskCell = cellContainer.cell;
+        taskCell.setContent(newContent);
+
+        const computedStyle = getComputedStyle(taskCell.dom.container);
+        const computedHeight = parseFloat(computedStyle.getPropertyValue("height"));
+        this.computedValues.lastRecordedCellHeightOfItem.set(itemSymbol, computedHeight);
+
+        taskCell.highlight();
+        taskCell.setUpdateCount(this.dataSource.cache.updateCounts.get(itemSymbol) ?? 0);
+    }
+
+    /**
+     * @param { Symbol } itemSymbol
+     * @param { AbstractTableCellPositioner } cellContainer
+     */
+    cellUpdateIsSkippedForUpdatedItem(itemSymbol) {
+        // console.log(symbolizer.desymbolize(itemSymbol));
     }
 
     deleteTask(taskId) {
@@ -155,7 +173,6 @@ export class InfiniteSheet extends AbstractTableViewController {
         this.state.effectiveOrdering[0].splice(1);
         this.calculateElementBounds();
         this.rePosition();
-        // debugger;
     }
 
     /**

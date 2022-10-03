@@ -93,6 +93,7 @@ export class DataSource {
              * @type {Map.<string, {parentId: string,depth: number,degree: number,isCollaborated: bool,isTarget: bool, isCompleted: bool}>}
              */
             tasks: new Map(),
+            updateCounts: new Map(),
         };
 
         this.computedData = {
@@ -175,17 +176,72 @@ export class DataSource {
                 isTarget: pick([true, false]),
                 depth: pick(Array.from(Array(10).keys())),
             });
+            this.cache.updateCounts.set(taskSymbol, 0);
         });
         shuffle(this.cache.placements.hierarchical.items);
         this.delegates.nofify(EVENT_PLACEMENT_UPDATE);
 
-        setTimeout(() => {
-            const itemSymbol = symbolizer.symbolize("task#4");
-            const task = this.cache.tasks.get(itemSymbol);
-            task.content =
-                "lorem ipsum dolor sit amet consectetur adipiscing elit. Fusce vel posuare enim. Nam vulputate lectus ligula.";
+        const samples = [
+            "Lorem ipsum dolor sit amet consectetur adipisicing elit",
+            "Unde minus quod eius quas blanditiis incidunt dolores cum quibusdam eos nostrum",
+            "Architecto possimus totam deleniti doloribus sint consequuntur inventore nobis perferendis",
+            "Facilis debitis consequuntur aliquid distinctio porro ",
+            "Iure nam nemo mollitia nesciunt blanditiis corrupti maiores cumque quia autem dolore molestiae doloremque sunt culpa laudantium alias",
+            "Quidem debitis ab eligendi adipisci earum",
+            "Consectetur",
+            "Suscipit eveniet ",
+            "Recusandae in eaque laborum blanditiis rem ducimus",
+            "Culpa consequuntur ",
+            "Excepturi optio qui commodi sequi laboriosam eos nostrum sapiente aliquam",
+            "Doloremque vero possimus",
+            "Sed deleniti",
+            "Distinctio nobis mollitia",
+            "Sed quidem fugit",
+            "Libero quibusdam laboriosam soluta ipsa quasi magni esse",
+            "Iste labore at inventore aut optio dignissimos ipsam quod pariatur",
+            "Iure atque distinctio nisi id nihil minima animi ",
+            "Dolor",
+            "Voluptatem",
+            "Porro dolorum qui quos error maxime reprehenderit excepturi vero laboriosam soluta voluptatibus praesentium nam quisquam eaque",
+            "Voluptas cupiditate odio",
+            "Debitis consectetur sit Mollitia voluptatem",
+            "Debitis esse voluptas iste itaque",
+            "Esse unde quam ex perspiciatis laboriosam totam numquam ea",
+            "Cupiditate repellat voluptas facere accusantium illum quas magnam cumque pariatur maiores dolor voluptatibus et vitae nesciunt nihil ",
+            "Laboriosam atque similique quaerat",
+            "Consequuntur cupiditate obcaecati ea quisquam facilis",
+            "Quae ad non quod quam tempora odit repellat illum eveniet possimus molestiae dolor",
+            "Dolorum vitae natus ",
+            "Praesentium ipsam a atque recusandae Dolore",
+            "Quam cum",
+            "Est saepe a at exercitationem vitae",
+            "Earum rerum perferendis voluptas accusamus assumenda et asperiores veniam dolore blanditiis ",
+            "Saepe",
+            "Voluptate est cum quibusdam harum aspernatur quod ",
+            "Harum",
+            "Expedita Veritatis",
+            "Aliquid id",
+            "Cupiditate quos impedit quibusdam excepturi Tenetur eius",
+            "Enim blanditiis saepe necessitatibus nostrum illum vel ipsum quaerat ab voluptatem",
+            "Totam deserunt voluptatibus facere",
+            "Sapiente fugiat ",
+            "Laudantium doloribus cupiditate fugiat vero iste",
+            "Rerum doloremque",
+            "Exercitationem totam suscipit placeat necessitatibus error cupiditate ",
+            "Sed quia labore nostrum quisquam culpa eligendi velit possimus error enim quis deserunt expedita architecto incidunt",
+            "Tenetur officia repellendus ",
+            "Qui",
+            "Velit",
+        ];
+
+        setInterval(() => {
+            const itemSymbol = pick(this.cache.placements.hierarchical.items);
+            var task = this.cache.tasks.get(itemSymbol);
+            const nextUpdateCount = pick([this.cache.updateCounts.get(itemSymbol) + 1, 0]);
+            this.cache.updateCounts.set(itemSymbol, nextUpdateCount);
+            task.content = `${symbolizer.desymbolize(itemSymbol)} ${pick(samples)}`;
             this.delegates.nofify(EVENT_OBJECT_UPDATE, new Set([itemSymbol]));
-        }, 1000);
+        }, 100);
     }
 
     getTextContent(objectSymbol) {

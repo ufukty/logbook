@@ -456,6 +456,14 @@ export function setIntersect(leftSet, rightSet) {
     return intersection;
 }
 
+export function setDifference(leftSet, rightSet) {
+    const difference = new Set();
+    for (const k of leftSet) {
+        if (!rightSet.has(k)) difference.add(k);
+    }
+    return difference;
+} 
+
 export function clamp(x, min, max) {
     return Math.min(max, Math.max(x, min));
 }

@@ -41,7 +41,7 @@ class App {
         };
 
         // prettier-ignore
-        addEventListenerForNonTouchScreen(document, "contextmenu", this.userInputManager.contextMenuEventReceiver.bind(this.userInputManager));
+        addEventListenerForNonTouchScreen(document, "contextmenu", this.userInputManager.contextMenuEventReceiver.bind(this.userInputManager), {});
         // prettier-ignore
         addEventListenerForNonTouchScreen(document, "click", this.userInputManager.clickEventReceiverNonTouchScreen.bind(this.userInputManager));
         // prettier-ignore
