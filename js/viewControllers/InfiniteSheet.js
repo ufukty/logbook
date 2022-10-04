@@ -35,7 +35,7 @@ export class InfiniteSheet extends AbstractTableViewController {
                 },
                 [REGULAR_CELL_SYMBOL]: {
                     before: 10,
-                    between: 4,
+                    between: 10,
                 },
             },
             reflectDepth: false,

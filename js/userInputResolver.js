@@ -40,6 +40,14 @@ export class UserInputResolver {
 
     /** @param {MouseEvent} e */
     clickEventReceiverNonTouchScreen(e) {
+        console.log(e);
+        if (e.target instanceof HTMLElement) {
+            if (e.target.classList.contains("task-container")) {
+                console.log("task-container");
+            } else if (e.target.classList.contains("task-text-scroller")) {
+                console.log("task-text-scroller");
+            }
+        }
         this.disableContextMenuOnce();
     }
 

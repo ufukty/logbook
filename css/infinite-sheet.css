@@ -33,24 +33,23 @@ body,
 }
 
 
-
-
-/* #infinite-sheet {
-    --infinite-sheet-pixels-for-each-shift: calc(20px + 1vw);
+.infinite-sheet-header {
+    width: var(--task-container-width);
+    font-size: 1.1rem;
+    color: var(--clr-off-black);
+    padding-top: calc(0.4rem + 1px);
+    padding-left: calc(1rem + 2 * var(--space-between-body-and-decorations) + 29px);
+    padding-right: 1rem;
+    padding-bottom: 0.4rem;
 }
 
-#infinite-sheet div.scale-on-focus {
-    transition: 60ms ease-out transform;
+#infinite-sheet.context-menu-open .abstract-cell-scroller-view-cell-positioner.context-menu-focused-on .task-container {
+    transform: scale(1.05);
+    opacity: 1;
 }
 
-#infinite-sheet div.scale-on-focus.focus-activated {
-    transform: scale(0.5);
-    transform-origin: 50% 0;
-    opacity: 0.6;
+#infinite-sheet.context-menu-open .abstract-cell-scroller-view-cell-positioner:not(.context-menu-focused-on) .task-container,
+#infinite-sheet.context-menu-open .infinite-sheet-header {
+    opacity: 0.1;
+    transform: scale(0.90);
 }
-
-.chronological-dvm-components.day-title {
-    font-size: 1.4rem;
-    transform: translateX(80px);
-    margin: 40px 0 40px;
-} */

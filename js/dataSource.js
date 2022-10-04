@@ -176,7 +176,6 @@ export class DataSource {
                 isTarget: pick([true, false]),
                 depth: pick(Array.from(Array(10).keys())),
             });
-            this.cache.updateCounts.set(taskSymbol, 0);
         });
         shuffle(this.cache.placements.hierarchical.items);
         this.delegates.nofify(EVENT_PLACEMENT_UPDATE);
@@ -237,8 +236,7 @@ export class DataSource {
         setInterval(() => {
             const itemSymbol = pick(this.cache.placements.hierarchical.items);
             var task = this.cache.tasks.get(itemSymbol);
-            const nextUpdateCount = pick([this.cache.updateCounts.get(itemSymbol) + 1, 0]);
-            this.cache.updateCounts.set(itemSymbol, nextUpdateCount);
+            this.cache.updateCounts.set(itemSymbol, (this.cache.updateCounts.get(itemSymbol) ?? 0) + 1);
             task.content = `${symbolizer.desymbolize(itemSymbol)} ${pick(samples)}`;
             this.delegates.nofify(EVENT_OBJECT_UPDATE, new Set([itemSymbol]));
         }, 100);
