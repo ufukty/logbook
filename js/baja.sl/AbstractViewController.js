@@ -1,3 +1,5 @@
+import { Size } from "./Coordinates.js";
+
 export class AbstractViewController {
     constructor() {
         this.dom = {
