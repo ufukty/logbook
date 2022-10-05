@@ -15,8 +15,9 @@ export class BasicTableCellPositioner extends AbstractTableCellPositioner {
                 duration: 300,
                 iterations: 1,
                 fill: "forwards",
-                easing: "ease-in-out",
+                easing: "cubic-bezier(0.2, 0.1, 0.4, 0.90)",
             },
+            speed: 0.02, // pixels per millisecond
         };
     }
 
@@ -64,12 +65,13 @@ export class BasicTableCellPositioner extends AbstractTableCellPositioner {
             { transform: `translateY(0px)` },
             { transform: `translateY(${neededVerticalTranslation}px)` },
         ];
+        const duration = Math.log(Math.abs(neededVerticalTranslation)) / this.config.speed;
         this.state.ongoingAnimationParameters = {
             translationStart: 0,
             translationEnd: neededVerticalTranslation,
             positionAfterTransition: newPosition,
         };
-        this._startTransition(keyframes);
+        this._startTransition(keyframes, duration);
     }
 
     _setPositionRedirectOngoingAnimationWithExpandingDuration(newPosition) {
@@ -189,9 +191,12 @@ export class BasicTableCellPositioner extends AbstractTableCellPositioner {
 
     // MARK: Animation Handlers
 
-    _startTransition(keyframes) {
+    _startTransition(keyframes, duration) {
         this.state.isAnimationOngoing = true;
-        this.state.animation = this.container.animate(keyframes, this.config.anim);
+        this.state.animation = this.container.animate(keyframes, {
+            ...this.config.anim,
+            duration: duration ?? this.config.anim.duration,
+        });
         this.state.animation.finished
             .then(this._animationCompletionHandler.bind(this))
             .catch(this._animationAbortHandler.bind(this));
