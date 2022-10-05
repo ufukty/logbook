@@ -1,93 +1,12 @@
-import { AbstractTableCellPositioner } from "./AbstractTableCellPositioner";
+import { AbstractTableCellPositioner } from "./AbstractTableCellPositioner.js";
 import { AbstractViewController } from "./AbstractViewController.js";
-import { domCollector, adoption } from "./utilities.js";
-import { createElement, symbolizer } from "./utilities";
+import { Size, Position } from "./Coordinates.js";
+import { domCollector, adoption, createElement, symbolizer } from "./utilities.js";
 /**
  * @typedef {Symbol} ItemSymbol
  * @typedef {Symbol} CellTypeSymbol
  * @typedef {Symbol} ViewControllerSymbol
  */
-
-class CellDimensions {
-    constructor(width, height) {
-        this.width = width;
-        this.height = height;
-    }
-
-    /**
-     * @param {number} width
-     * @param {number} height
-     */
-    isEqual(width, height) {
-        return width === this.width && height === this.height;
-    }
-
-    /**
-     * @param {CellDimensions} other
-     */
-    isEqualWith(other) {
-        return other.width === this.width && other.height === this.height;
-    }
-}
-
-class CellPosition {
-    constructor(x, y) {
-        set(x, y);
-    }
-
-    set(x, y) {
-        this.x = x;
-        this.y = y;
-    }
-
-    add(x, y) {
-        this.x += x;
-        this.y += y;
-    }
-
-    /** @param {CellPosition} cellPosition  */
-    addFrom(cellPosition) {
-        this.x += cellPosition.x;
-        this.y += cellPosition.y;
-    }
-
-    subtract(x, y) {
-        this.x -= x;
-        this.y -= y;
-    }
-
-    /** @param {CellPosition} cellPosition  */
-    subtractFrom(cellPosition) {
-        this.x -= cellPosition.x;
-        this.y -= cellPosition.y;
-    }
-
-    deltaComp(x, y) {
-        return [this.x - x, this.y - y];
-    }
-
-    /**
-     * @param {CellPosition} cellPosition
-     * @returns {CellDimensions}
-     */
-    deltaCompFrom(cellPosition) {
-        return CellDimensions(this.x - cellPosition.x, this.y - cellPosition.y);
-    }
-
-    delta(x, y) {
-        const [dx, dy] = deltaComp(x, y);
-        return Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
-    }
-
-    /**
-     * @param {CellPosition} cellPosition
-     * @returns {number}
-     */
-    deltaFrom(cellPosition) {
-        const dimensions = deltaCompFrom(cellPosition);
-        return Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
-    }
-}
 
 /**
  * @param {HTMLElement} left
@@ -100,11 +19,11 @@ function findNearestCommonParentNode(left, right) {
 /**
  * @param {HTMLElement} parent
  * @param {HTMLElement} node
- * @returns {CellPosition}
+ * @returns {Position}
  */
 function calculateRecursivePositioning(parent, node) {
     if (node === parent) {
-        return new CellPosition(0, 0);
+        return new Position(0, 0);
     } else {
         const totalPosition = calculateRecursivePositioning(parent, node.parentElement);
         return totalPosition.add(node.clientLeft, node.clientTop);
@@ -126,8 +45,8 @@ class CellMigrationContainer {
     setPosition(x, y) {}
 
     /**
-     * @param {CellPosition} from
-     * @param {CellPosition} to
+     * @param {Position} from
+     * @param {Position} to
      * @param {boolean} optimizeTransitionForEndPosition When the value false,
      *   element will start transition from starting position. When it is true,
      *   element will be instantly moved to end position and start to transition
@@ -152,7 +71,7 @@ class CellDispatcher {
         /** @type {ResizeObserver} */
         this._resizeObserver = new ResizeObserver(this._resizeObserverNotificationHandler.bind(this));
 
-        /** @type {Map.<ItemSymbol, CellDimensions>} */
+        /** @type {Map.<ItemSymbol, Size>} */
         this._observedSizes = new Map();
 
         /** @type {Map.<ItemSymbol, AbstractViewController>} */
@@ -174,7 +93,7 @@ class CellDispatcher {
         var ignoreChanges = true;
         var changedItems = [];
         entries.forEach((entry) => {
-            const newDimensions = new CellDimensions(entry.contentRect.width, entry.contentRect.height);
+            const newDimensions = new Size(entry.contentRect.width, entry.contentRect.height);
 
             const cellMigrationContainer = entry.target;
 
@@ -250,7 +169,7 @@ class CellDispatcher {
     /**
      * @param {ItemSymbol} itemSymbol
      * @param {AbstractViewController} nextContainer
-     * @param {CellPosition} positionInNextContainer
+     * @param {Position} positionInNextContainer
      * @param {bool} preserveSpaceOnExporter
      * @returns {AbstractViewController}
      */
