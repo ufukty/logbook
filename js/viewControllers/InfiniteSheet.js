@@ -21,8 +21,8 @@ export class InfiniteSheet extends AbstractTableViewController {
 
         Object.assign(this.config, {
             zoneOffsets: {
-                preload: 0.0,
-                parking: 0.0,
+                preload: 0.4,
+                parking: 0.5,
             },
             margins: {
                 pageContent: {
@@ -35,7 +35,7 @@ export class InfiniteSheet extends AbstractTableViewController {
                 },
                 [REGULAR_CELL_SYMBOL]: {
                     before: 10,
-                    between: 10,
+                    between: 5,
                 },
             },
             reflectDepth: false,
@@ -149,13 +149,13 @@ export class InfiniteSheet extends AbstractTableViewController {
         const newContent = this.dataSource.getTextContent(itemSymbol);
         /** @type {InfiniteSheetTask} */
         const taskCell = cellContainer.cell;
+        taskCell.highlight();
         taskCell.setContent(newContent);
 
         const computedStyle = getComputedStyle(taskCell.dom.container);
         const computedHeight = parseFloat(computedStyle.getPropertyValue("height"));
         this.computedValues.lastRecordedCellHeightOfItem.set(itemSymbol, computedHeight);
 
-        taskCell.highlight();
         taskCell.setUpdateCount(this.dataSource.cache.updateCounts.get(itemSymbol) ?? 0);
     }
 

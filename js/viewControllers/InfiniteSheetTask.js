@@ -1,6 +1,134 @@
-import { addEventListenerForNonTouchScreen, adoption, createElement } from "../baja.sl/utilities.js";
+import {
+    addEventListenerForNonTouchScreen,
+    adoption,
+    createElement,
+    domCollector,
+    setDifference,
+    setIntersect,
+    symbolizer,
+} from "../baja.sl/utilities.js";
 import { AbstractTableCellViewController } from "../baja.sl/AbstractTableCellViewController.js";
 import { DataSource } from "../dataSource.js";
+import { AbstractViewController } from "../baja.sl/AbstractViewController.js";
+import { AbstractTableViewController } from "../baja.sl/AbstactTableViewController.js";
+
+export class UserAvatar extends AbstractViewController {
+    constructor() {
+        super();
+
+        this.dom = {
+            ...this.dom,
+            container: createElement("div", ["task-collaborator-list-avatar"]),
+        };
+    }
+
+    /** @param {URL} url */
+    loadPicture(url) {
+        fetch(url)
+            .then(() => {
+                console.log("fetch success");
+            })
+            .catch(() => {
+                console.log("fetch catch");
+            });
+    }
+}
+
+export class TaskCollaboratorList extends AbstractViewController {
+    constructor() {
+        super();
+
+        this.dom = {
+            ...this.dom,
+            container: createElement("div", ["task-collaborator-list-container"]),
+            title: createElement("div", ["task-collaborator-list-title"]),
+            avatarListContainer: createElement("div", ["task-collaborator-list-avatar-list-container"]),
+        };
+
+        this.config = {
+            ...this.config,
+            title: undefined,
+            placement: {
+                /** @type {Array.<Symbol>} */
+                symbols: [],
+                totalNumberOfAvatars: 0,
+            },
+            /** @type {DataSource} */
+            dataSourceRef: undefined,
+        };
+
+        this.computedValues = {
+            /** @type {Map.<Symbol, HTMLElement>} */
+            allocatedCells: new Map(),
+            current: this._returnTemplateForComputedValues(),
+            next: this._returnTemplateForComputedValues(),
+        };
+    }
+
+    _returnTemplateForComputedValues() {
+        return {
+            avatarSymbols: [],
+            acceptedPlacementSymbols: this.config.placement.symbols,
+            classes: {
+                toRemove: new Set(),
+                toAdd: new Set(),
+            },
+        };
+    }
+
+    _decideUpdates() {
+        const persistentAvatars = setIntersect(
+            this.computedValues.current.acceptedPlacementSymbols,
+            this.computedValues.next.acceptedPlacementSymbols.slice(0, 10)
+        );
+        this.computedValues.current.classes.toAdd = setDifference(
+            persistentAvatars,
+            this.computedValues.current.acceptedPlacementSymbols
+        );
+        this.computedValues.current.classes.toRemove = setDifference(
+            persistentAvatars,
+            this.computedValues.next.acceptedPlacementSymbols
+        );
+    }
+
+    _updateSubviews() {
+        this.dom.title.innerText = this.config.title;
+
+        for (const itemSymbol of this.computedValues.next.classes.toAdd) {
+            const cellKindSymbol = symbolizer.symbolize(`avatar#${itemSymbol}`);
+            domCollector.registerItemIdentifier(cellKindSymbol, () => {
+                return new UserAvatar();
+            });
+            const cell = domCollector.get(cellKindSymbol);
+            this.computedValues.allocatedCells.set(itemSymbol, cell);
+            document.insertBefore(this.dom.avatarListContainer.children[0], cell.dom.container);
+        }
+
+        for (const itemSymbol of this.computedValues.next.classes.toRemove) {
+            this.dom.avatarListContainer.removeChild();
+        }
+    }
+
+    updateView() {
+        this.computedValues.next = this._returnTemplateForComputedValues();
+
+        _decideUpdates();
+        _updateSubviews();
+
+        this.computedValues.current = this.computedValues.next;
+        delete this.computedValues.next;
+    }
+}
+
+export class CollaboratorList extends AbstractTableViewController {
+    constructor() {
+        super();
+
+        this.config = {
+            ...this.config,
+        };
+    }
+}
 
 export class InfiniteSheetTask extends AbstractTableCellViewController {
     constructor() {
@@ -63,6 +191,8 @@ export class InfiniteSheetTask extends AbstractTableCellViewController {
 
         addEventListenerForNonTouchScreen(this.dom.taskBody, "click", this._clickEventReceiver.bind(this));
         this.dom.taskBody.addEventListener("touchend", this._clickEventReceiver.bind(this));
+
+        this.setupCollaborationListAdditive();
     }
 
     _clickEventReceiver() {
@@ -134,8 +264,8 @@ export class InfiniteSheetTask extends AbstractTableCellViewController {
                 this.dom.updateBadge
                     .animate(
                         [
-                            { transformOrigin: "-50% 50%", transform: "scale(1)", opacity: "1" },
-                            { transformOrigin: "-50% 50%", transform: "scale(0.5)", opacity: "0" },
+                            { transformOrigin: "150% 50%", transform: "scale(1)", opacity: "1" },
+                            { transformOrigin: "150% 50%", transform: "scale(0.5)", opacity: "0" },
                         ],
                         {
                             iterations: 1,
@@ -165,8 +295,8 @@ export class InfiniteSheetTask extends AbstractTableCellViewController {
             if (withAnimation) {
                 this.dom.updateBadge.animate(
                     [
-                        { transformOrigin: "-50% 50%", transform: "scale(0.5)", opacity: "0" },
-                        { transformOrigin: "-50% 50%", transform: "scale(1)", opacity: "1" },
+                        { transformOrigin: "150% 50%", transform: "scale(0.5)", opacity: "0" },
+                        { transformOrigin: "150% 50%", transform: "scale(1)", opacity: "1" },
                     ],
                     {
                         iterations: 1,
@@ -204,8 +334,23 @@ export class InfiniteSheetTask extends AbstractTableCellViewController {
             iterations: 1,
             easing: "cubic-bezier(0.1, 0.6, 1.0, 1.0)",
         });
-        this.animations.highlight.onfinish = () => {
-            this.animations.highlight.cancel();
+    }
+
+    setupCollaborationListAdditive() {
+        this.collaboration = {
+            additive: {
+                avatarsContainer: createElement("div", ["task-collaboration-avatar-container"]),
+                dom: {
+                    avatars: [],
+                },
+            },
         };
+        adoption(this.dom.collaboratorAdditiveListContainer, [this.collaboration.additive.avatarsContainer]);
+
+        Array(3).forEach((value, index) => {
+            const avatar = createElement("div", ["task-collaboration-list-avatar"]);
+            this.collaboration.additive.dom.avatars.push(avatar);
+            adoption(this.collaboration.additive.avatarsContainer, [avatar]);
+        });
     }
 }

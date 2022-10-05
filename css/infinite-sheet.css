@@ -15,10 +15,12 @@ body,
 }
 
 #infinite-sheet>div.abstract-cell-scroller-view {
-    --task-container-width: min(760px, 98vw);
+    --task-container-width: min(760px, 100vw);
     --horizontal-padding: calc((100vw - var(--task-container-width)) / 2);
-    --space-between-body-and-decorations: 9px;
-    --task-body-width: calc(var(--task-container-width) - 4 * var(--space-between-body-and-decorations) - 2 * 29px);
+    --badge-width: 32.8px;
+    --task-badge-space: 5px;
+    --badge-viewport-space: 10px;
+    --task-body-width: calc(var(--task-container-width) - 2 * var(--task-badge-space) - 2 * var(--badge-viewport-space) - 2 * var(--badge-width));
 
 
     width: 100%;
@@ -38,7 +40,7 @@ body,
     font-size: 1.1rem;
     color: var(--clr-off-black);
     padding-top: calc(0.4rem + 1px);
-    padding-left: calc(1rem + 2 * var(--space-between-body-and-decorations) + 29px);
+    padding-left: calc(1rem + 2 * var(--badge-viewport-space) + 29px);
     padding-right: 1rem;
     padding-bottom: 0.4rem;
 }
