@@ -20,6 +20,7 @@ export class Flow extends AbstractLayoutCalculator {
             ...this.config,
             /** @type {Map.<CellTypeSymbol, Spacing>} */
             spacing: new Map(),
+            /** Either `VERTICAL` or `HORIZONTAL` */
             direction: VERTICAL,
         };
     }
@@ -65,10 +66,12 @@ export class Flow extends AbstractLayoutCalculator {
             }
 
             // save item position
-            this.passedThroughPipeline.layout.positions.set(itemSymbol, new Position(0, lastPosition));
+            if (this.config.direction === VERTICAL)
+                this.passedThroughPipeline.layout.positions.set(itemSymbol, new Position(0, lastPosition));
+            else if (this.config.direction === HORIZONTAL)
+                this.passedThroughPipeline.layout.positions.set(itemSymbol, new Position(lastPosition, 0));
 
             const itemSize = itemAccountant.getSize(itemSymbol, this.controlledByEnvironment.environmentSymbol);
-
             if (this.config.direction === VERTICAL) lastPosition += itemSize.height;
             else if (this.config.direction === HORIZONTAL) lastPosition += itemSize.width;
 
