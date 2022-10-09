@@ -26,12 +26,6 @@ export class AbstractLayoutPipe {
         };
     }
 
-    _getTemplateForComputedValues() {
-        return {
-            itemChangedPosition: new Set(),
-        };
-    }
-
     /** @abstract */
     perform() {
         console.error("abstract function is called directly");
@@ -48,8 +42,25 @@ export class AbstractLayoutCalculator extends AbstractLayoutPipe {
 
         this.config = {
             ...this.config,
-            /** @type {Array.<Symbol>} */
+            /**
+             * @type {Array.<Symbol>}
+             * Incomplete-ordered list of placement data, height-ignored items
+             *   should also be in this array.
+             */
             placement: [],
+            /**
+             * States what is the actual index of items[0]
+             * @type {number}
+             */
+            offset: 0,
+            /**
+             * Total number of items in the document. That value is used
+             *   for estimation of full height of cell scroller for both
+             *   chronological and hierarchical view.
+             * @type {number}
+             */
+            totalNumberOfItems: undefined,
+            averageSizeForUnplacedItem: new Size(0, 0),
         };
 
         this.computedValues = {

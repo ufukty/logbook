@@ -1,15 +1,19 @@
 import { Size } from "./Coordinates.js";
 
+/**
+ * @typedef {Symbol} ItemSymbol
+ * @typedef {Symbol} CellTypeSymbol
+ * @typedef {Symbol} ViewControllerSymbol
+ */
+
 class ItemAccountant {
     constructor() {
         /** @type {Map.<Symbol, Size>} */
         this._defaultSizes = new Map();
         /** @type {Map.<Symbol, {lastEnvironment: Size}>} */
         this._measuredSizes = new Map();
-    }
-
-    setAverageSize(environmentSymbol, size) {
-        this._averageSizes;
+        /** @type {Map.<ItemSymbol, CellTypeSymbol>} */
+        this.cellKindForItem = new Map();
     }
 
     /**
@@ -26,6 +30,12 @@ class ItemAccountant {
         });
     }
 
+    dsd() {
+        const cellHeight = this.computedValues.lastRecordedCellHeightOfItem.has(itemSymbol)
+            ? this.computedValues.lastRecordedCellHeightOfItem.get(itemSymbol)
+            : this.getDefaultHeightOfItem(itemSymbol);
+    }
+    
     /**
      * @param {Symbol} itemSymbol
      * @param {Symbol} environmentSymbol
@@ -61,6 +71,10 @@ class ItemAccountant {
      */
     subscribeForSizeChanges(environmentSymbol) {
         //
+    }
+
+    getCellKindForItem(itemSymbol) {
+        return this._cellKindForItem.get(itemSymbol);
     }
 }
 

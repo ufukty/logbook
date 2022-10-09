@@ -1,5 +1,11 @@
 import { Position } from "./Coordinates.js";
 
+/**
+ * @typedef {Symbol} ItemSymbol
+ * @typedef {Symbol} CellTypeSymbol
+ * @typedef {Symbol} ViewControllerSymbol
+ */
+
 export class Layout {
     constructor() {
         /** @type {Map.<Symbol, Position>} */
