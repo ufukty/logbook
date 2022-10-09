@@ -1,4 +1,4 @@
-import { Size } from "./Coordinates.js";
+import { Size } from "./Layout/Coordinates.js";
 
 export class AbstractViewController {
     constructor() {

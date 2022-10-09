@@ -1,6 +1,6 @@
 import { AbstractTableCellPositioner } from "./AbstractTableCellPositioner.js";
 import { AbstractViewController } from "./AbstractViewController.js";
-import { Size, Position } from "./Coordinates.js";
+import { Size, Position } from "./Layout/Coordinates.js";
 import { domCollector, adoption, createElement, symbolizer } from "./utilities.js";
 /**
  * @typedef {Symbol} ItemSymbol

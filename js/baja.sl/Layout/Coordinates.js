@@ -1,3 +1,5 @@
+import { lerp } from "../utilities.js";
+
 export class Size {
     constructor(width, height) {
         this.width = width;
@@ -76,5 +78,34 @@ export class Position {
     deltaFrom(position) {
         const dimensions = deltaCompFrom(position);
         return Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+    }
+}
+
+export class Anchor {
+    constructor(horizontal, vertical) {
+        this.horizontal = horizontal;
+        this.vertical = vertical;
+    }
+
+    /**
+     * @param {Size} areaSize
+     */
+    interpolate(areaSize) {
+        return Position(lerp(0, areaSize.width, this.horizontal), lerp(0, areaSize.height, this.vertical));
+    }
+}
+
+export class Distance {
+    constructor(horizontal, vertical) {
+        this.horizontal = horizontal;
+        this.vertical = vertical;
+    }
+}
+
+export class Spacing {
+    constructor(before, between, after) {
+        this.before = before;
+        this.after = after;
+        this.between = between;
     }
 }
