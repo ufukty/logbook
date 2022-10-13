@@ -1,5 +1,4 @@
 import { AbstractViewController } from "./AbstractViewController.js";
-
 import { adoption, createElement, iota } from "./utilities.js";
 
 /** first level of presentation */

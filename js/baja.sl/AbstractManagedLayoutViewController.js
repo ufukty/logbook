@@ -1,4 +1,4 @@
-import { LayoutEnvironment } from "./Layout/LayoutEnvironment.js";
+import { Layout } from "./Layout/LayoutEnvironment.js";
 import { AbstractViewController } from "./AbstractViewController.js";
 import { domCollector, createElement, symbolizer, mergeMapKeys, setIntersect, setDifference } from "./utilities.js";
 import { itemAccountant } from "./Layout/ItemAccountant.js";
@@ -28,7 +28,7 @@ export class AbstractManagedLayoutViewController extends AbstractViewController 
              */
             scrollElement: undefined,
             /**
-             * @type {LayoutEnvironment}
+             * @type {Layout}
              * Implementing class will use this for accessing up-to-date
              *   positions.
              */

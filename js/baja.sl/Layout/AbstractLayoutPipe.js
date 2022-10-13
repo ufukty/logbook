@@ -1,16 +1,24 @@
 import { DelegateRegistry } from "../DelegateRegistry.js";
 import { symbolizer } from "../utilities.js";
 import { Size } from "./Coordinates.js";
-import { Layout } from "./Layout.js";
-import { LayoutEnvironment } from "./LayoutEnvironment.js";
+// import { Layout } from "./Layout.js";
+import { Layout } from "./LayoutEnvironment.js";
 
 export class AbstractLayoutPipe {
     constructor() {
         this.config = {};
 
         this.passedThroughPipeline = {
-            /** @type {Layout} - Only needed if the solid class mutates the existing layout or takes it as reference. */
-            layout: undefined,
+            /**
+             * Only needed if the solid class mutates the existing layout or
+             *   takes it as reference.
+             */
+            layout: {
+                /** @type {Map.<Symbol, Area>} */
+                positions: new Map(),
+                /** @type {Map.<Symbol, number>} */
+                scaling: new Map(),
+            },
             /**  @type {Size} */
             containerSize: undefined,
         };
@@ -20,7 +28,7 @@ export class AbstractLayoutPipe {
          * Environment class.
          */
         this.controlledByEnvironment = {
-            /** @type {LayoutEnvironment} */
+            /** @type {Layout} */
             environmentRef: undefined,
             /**  @type {Symbol} */
             environmentSymbol: undefined,
@@ -83,7 +91,8 @@ export class AbstractLayoutCalculator extends AbstractLayoutPipe {
 
     /** @param {Array.<Symbol>} placement */
     newPlacement(placement) {
-        this.placement = placement;
+        console.log("newplacement", placement);
+        this.config.placement = placement;
         this.controlledByEnvironment.environmentRef.scheduleRecalculation();
     }
 }
@@ -119,6 +128,6 @@ export class AbstractLayoutDecorator extends AbstractLayoutPipe {
     /** @param {Array.<Symbol>} placement */
     newPlacement(placement) {
         this.placement = placement;
-        this.controlledByEnvironment.environmentRef.refreshPipeline();
+        this.controlledByEnvironment.environmentRef.scheduleRecalculation();
     }
 }

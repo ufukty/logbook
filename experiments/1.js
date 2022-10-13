@@ -3,7 +3,7 @@ import { Flow, VERTICAL } from "../js/baja.sl/Layout/Calculators/Flow.js";
 import { AbstractManagedLayoutCellViewController } from "../js/baja.sl/AbstractManagedLayoutCellViewController.js";
 import { cellKeeper } from "../js/baja.sl/CellKeeper.js";
 
-import { LayoutEnvironment } from "../js/baja.sl/Layout/LayoutEnvironment.js";
+import { Layout } from "../js/baja.sl/Layout/LayoutEnvironment.js";
 import { adoption, iota, symbolizer } from "../js/baja.sl/utilities.js";
 
 class BasicViewController extends AbstractManagedLayoutCellViewController {
@@ -78,7 +78,7 @@ class ConcreteLayoutPresenterViewController extends AbstractManagedLayoutViewCon
         this.layoutPipes.flow.config.direction = VERTICAL;
         // align.config.alignOn = HORIZONTAL_CENTER;
 
-        this.config.layoutEnvironment = new LayoutEnvironment();
+        this.config.layoutEnvironment = new Layout();
 
         // prettier-ignore
         this.config.layoutEnvironment

@@ -3,9 +3,8 @@ import { AbstractLayoutPipe } from "./AbstractLayoutPipe.js";
 import { AbstractLayoutCalculator, AbstractLayoutDecorator, AbstractLayoutMutator } from "./AbstractLayoutPipe.js";
 import { UpdateScheduler } from "../UpdateScheduler.js";
 import { Size } from "./Coordinates.js";
-import { Layout } from "./Layout.js";
 
-export class LayoutEnvironment {
+export class Layout {
     constructor() {
         /** @private */
         this.private = {
@@ -19,7 +18,12 @@ export class LayoutEnvironment {
 
         this.passedThroughPipeline = {
             /** @type {Layout} */
-            layout: new Layout(),
+            layout: {
+                /** @type {Map.<Symbol, Area>} */
+                positions: new Map(),
+                /** @type {Map.<Symbol, number>} */
+                scaling: new Map(),
+            },
             /**  @type {Size} */
             containerSize: new Size(),
         };
@@ -29,6 +33,7 @@ export class LayoutEnvironment {
 
     /** @private */
     _recalculate(trigger) {
+        console.log("calculate");
         for (const pipe of this.private.pipeline) {
             pipe.passedThroughPipeline = this.passedThroughPipeline;
             pipe.perform();

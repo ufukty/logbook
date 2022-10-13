@@ -27,6 +27,7 @@ export class Flow extends AbstractLayoutCalculator {
     }
 
     perform() {
+        console.log("flow-perform", this.config.placement);
         var lastPosition = 0;
         var lastCellKind = undefined;
         // var crossAxisMaxPosition = 0;

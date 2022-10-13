@@ -14,6 +14,7 @@ export class UpdateScheduler {
     }
 
     schedule(...params) {
+        console.log("schedule");
         const now = Date.now();
 
         if (this.lastUpdateTime) {
@@ -27,6 +28,7 @@ export class UpdateScheduler {
                         this.updateFunction(...params);
                     }, remainingToNextUpdate + 1);
                 }
+                return;
             }
 
             if (this.scheduled) {
