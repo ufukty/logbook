@@ -1,4 +1,4 @@
-import { Layout } from "./Layout/LayoutEnvironment.js";
+import { Layout } from "./Layout/Layout.js";
 import { AbstractViewController } from "./AbstractViewController.js";
 import { domCollector, createElement, symbolizer, mergeMapKeys, setIntersect, setDifference } from "./utilities.js";
 import { itemAccountant } from "./Layout/ItemAccountant.js";

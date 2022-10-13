@@ -3,7 +3,7 @@ import { Flow, VERTICAL } from "../js/baja.sl/Layout/Calculators/Flow.js";
 import { AbstractManagedLayoutCellViewController } from "../js/baja.sl/AbstractManagedLayoutCellViewController.js";
 import { cellKeeper } from "../js/baja.sl/CellKeeper.js";
 
-import { Layout } from "../js/baja.sl/Layout/LayoutEnvironment.js";
+import { Layout } from "../js/baja.sl/Layout/Layout.js";
 import { adoption, iota, symbolizer } from "../js/baja.sl/utilities.js";
 
 class BasicViewController extends AbstractManagedLayoutCellViewController {

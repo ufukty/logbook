@@ -1,8 +1,7 @@
 import { DelegateRegistry } from "../DelegateRegistry.js";
 import { symbolizer } from "../utilities.js";
 import { Size } from "./Coordinates.js";
-// import { Layout } from "./Layout.js";
-import { Layout } from "./LayoutEnvironment.js";
+import { Layout } from "./Layout.js";
 
 export class AbstractLayoutPipe {
     constructor() {
