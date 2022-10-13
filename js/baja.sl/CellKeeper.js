@@ -30,7 +30,7 @@ function calculateRecursivePositioning(parent, node) {
     }
 }
 
-class CellMigrationContainer {
+export class CellPositioner {
     constructor() {
         /** @type {AbstractViewController} */
         this.cell = undefined;
@@ -57,10 +57,10 @@ class CellMigrationContainer {
     translateFromTo(from, to, optimizeTransitionForEndPosition = false) {}
 }
 
-class CellDispatcher {
+class CellKeeper {
     constructor() {
         /**
-         * @type {Map.<ItemSymbol, CellMigrationContainer>}
+         * @type {Map.<ItemSymbol, CellPositioner>}
          * Those items which assigned to a cell
          */
         this._assignedItems = new Map();
@@ -138,7 +138,7 @@ class CellDispatcher {
     register(cellTypeSymbol, cellReturningFunction) {
         domCollector.registerItemIdentifier(cellTypeSymbol, () => {
             const userProvidedCell = cellReturningFunction();
-            const cellContainer = new CellMigrationContainer();
+            const cellContainer = new CellPositioner();
             cellContainer.cell = userProvidedCell;
             cellContainer.cellTypeSymbol = cellTypeSymbol;
             adoption(cellContainer.dom.container, [userProvidedCell.dom.container]);
@@ -196,7 +196,7 @@ class CellDispatcher {
     }
 }
 
-export const cellRegistry = new CellDispatcher();
+export const cellKeeper = new CellKeeper();
 
 // //
 

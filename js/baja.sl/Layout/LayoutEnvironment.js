@@ -1,33 +1,44 @@
+import { iota, symbolizer } from "../utilities.js";
 import { AbstractLayoutPipe } from "./AbstractLayoutPipe.js";
 import { AbstractLayoutCalculator, AbstractLayoutDecorator, AbstractLayoutMutator } from "./AbstractLayoutPipe.js";
+import { UpdateScheduler } from "../UpdateScheduler.js";
 import { Size } from "./Coordinates.js";
 import { Layout } from "./Layout.js";
 
 export class LayoutEnvironment {
     constructor() {
-        this.internalUsage = {
+        /** @private */
+        this.private = {
             /** @type {Array.<AbstractLayoutPipe>} */
             pipeline: [],
             /** @type {Array.<Function>} */
             subscriber: [],
+            /** @type {UpdateScheduler} */
+            updateScheduler: new UpdateScheduler(this._recalculate.bind(this), 60),
         };
 
         this.passedThroughPipeline = {
             /** @type {Layout} */
             layout: new Layout(),
             /**  @type {Size} */
-            containerSize: undefined,
+            containerSize: new Size(),
         };
 
         this.environmentSymbol = symbolizer.symbolize(`environment#${iota()}`);
     }
 
-    refreshPipeline() {
-        for (const pipe of this.internalUsage.pipeline) {
+    /** @private */
+    _recalculate(trigger) {
+        for (const pipe of this.private.pipeline) {
             pipe.passedThroughPipeline = this.passedThroughPipeline;
             pipe.perform();
             this.passedThroughPipeline = pipe.passedThroughPipeline;
         }
+        this.private.updateScheduler.finished();
+    }
+
+    scheduleRecalculation(trigger) {
+        this.private.updateScheduler.schedule(trigger);
     }
 
     /**
@@ -35,7 +46,7 @@ export class LayoutEnvironment {
      * @param {AbstractLayoutPipe} pipe
      */
     _connectPipeToPipeline(pipe) {
-        this.pipeline.push(pipe);
+        this.private.pipeline.push(pipe);
         pipe.controlledByEnvironment.environmentSymbol = this.environmentSymbol;
         pipe.controlledByEnvironment.environmentRef = this;
     }
@@ -70,7 +81,7 @@ export class LayoutEnvironment {
     start() {}
 
     /**
-     * It is important to call this method when refreshing position calculation
+     * It is important to call this method when recalculating position calculation
      * for each resizeObserver notification is not needed anymore.
      */
     stop() {}

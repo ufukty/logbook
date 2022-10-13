@@ -1,5 +1,6 @@
+import { iota } from "../../utilities.js";
 import { AbstractLayoutCalculator, AbstractLayoutMutator } from "../AbstractLayoutPipe.js";
-import { Size, Spacing } from "../Coordinates.js";
+import { Area, Size, Spacing } from "../Coordinates.js";
 import { itemAccountant } from "../ItemAccountant.js";
 
 /**
@@ -28,6 +29,7 @@ export class Flow extends AbstractLayoutCalculator {
     perform() {
         var lastPosition = 0;
         var lastCellKind = undefined;
+        // var crossAxisMaxPosition = 0;
 
         if (this.config.direction === VERTICAL) {
             const averageHeight = this.config.averageSizeForUnplacedItem.height;
@@ -65,15 +67,26 @@ export class Flow extends AbstractLayoutCalculator {
                 lastPosition += margin ?? 0;
             }
 
+            const itemSize = itemAccountant.getSize(itemSymbol, this.controlledByEnvironment.environmentSymbol);
+            var area;
+
             // save item position
             if (this.config.direction === VERTICAL)
-                this.passedThroughPipeline.layout.positions.set(itemSymbol, new Position(0, lastPosition));
+                area = new Area(0, lastPosition, itemSize.width, lastPosition + itemSize.height);
             else if (this.config.direction === HORIZONTAL)
-                this.passedThroughPipeline.layout.positions.set(itemSymbol, new Position(lastPosition, 0));
+                area = new Area(lastPosition, 0, lastPosition + itemSize + width, itemSize.height);
 
-            const itemSize = itemAccountant.getSize(itemSymbol, this.controlledByEnvironment.environmentSymbol);
-            if (this.config.direction === VERTICAL) lastPosition += itemSize.height;
-            else if (this.config.direction === HORIZONTAL) lastPosition += itemSize.width;
+            this.passedThroughPipeline.layout.positions.set(itemSymbol, area);
+
+            if (this.config.direction === VERTICAL) {
+                // // crossAxisMinPosition = Math.min(crossAxisMinPosition, itemSize.width);
+                // // crossAxisMaxPosition = Math.max(crossAxisMaxPosition, itemSize.width);
+                lastPosition += itemSize.height;
+            } else if (this.config.direction === HORIZONTAL) {
+                // // crossAxisMinPosition = Math.min(crossAxisMinPosition, itemSize.height);
+                // // crossAxisMaxPosition = Math.max(crossAxisMaxPosition, itemSize.height);
+                lastPosition += itemSize.width;
+            }
 
             // if (marginsToApply.afterPageContent) {
             //     const margin = this.config.spacing.container.after;
@@ -95,6 +108,8 @@ export class Flow extends AbstractLayoutCalculator {
             lastPosition += afterPlacementWidth;
         }
 
+        // crossAxisMinPosition = Infinity;
+        // crossAxisMaxPosition = -Infinity;
         this.passedThroughPipeline.layout.pageHeight = lastPosition;
     }
 }

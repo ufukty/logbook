@@ -1,79 +1,8 @@
-import { Flow } from "./Layout/Flow";
-import { LayoutEnvironment } from "./Layout/LayoutEnvironment";
-import { createElement } from "./utilities.js";
-
-export class LayoutPresenter {
-    /**
-     * @param {}
-     */
-    constructor(containerViewController, layoutEnvironment) {
-        this.config = {
-            containerViewController: undefined,
-            layoutEnvironment: undefined,
-        };
-    }
-
-    demo() {
-        const flow = new Flow();
-        // const indentation = new Indentation();
-        // const align = new Align();
-        // const focusStabilizer = new FocusStabilizer();
-        // const counterShift = new CounterShift();
-        // const avatars = new AvatarLayout();
-        // const panes = new Panes();
-        // const padding = new Padding(20, 20, 20, 20);
-
-        flow.config.direction = VERTICAL;
-
-        // align.config.alignOn = HORIZONTAL_CENTER;
-        // align.config.containerSize = new Size(200, 300);
-
-        const infiniteSheetPositions = new LayoutEnvironment().connectCalculator(flow);
-        // .connectMutator(align)
-        // .connectMutator(indentation)
-        // .connectMutator(counterShift)
-        // .connectMutator(focusStabilizer)
-        // .connectDecorator(foldedItems)
-        // .connectDecorator(avatars)
-        // .connectDecorator(panes)
-        // .connectMutator(padding);
-
-        // autoFocus(); // TODO:
-        infiniteSheetPositions.newPlacement([Symbol("1"), Symbol("2"), Symbol("3"), Symbol("4")]);
-
-        // setTimeout(() => {
-        //     const selectedItemSymbol = "task#1";
-        //     focusStabilizer.stabilize(selectedItemSymbol);
-        //     infiniteSheetPositions.refreshPipeline();
-        // }, 1000);
-
-        // setTimeout(() => {
-        //     avatars.config.anchors.set();
-        // }, 2000);
-
-        // setTimeout(() => {
-        //     const flow = new OneDimensionalFlowPositionCalculator();
-
-        //     const blueprintLayout = new LayoutEnvironment()
-        //         .connectCalculator(flow)
-        //         .connectMutator(indentation)
-        //         .connectDecorator();
-        // }, 10000);
-    }
-}
-
-import {
-    adoption,
-    domCollector,
-    createElement,
-    symbolizer,
-    mergeMapKeys,
-    checkCollision,
-    setIntersect,
-    setDifference,
-} from "./utilities.js";
-import { AbstractTableCellPositioner } from "./AbstractTableCellPositioner.js";
-import { BasicTableCellPositioner } from "./BasicTableCellPositioner.js";
+import { LayoutEnvironment } from "./Layout/LayoutEnvironment.js";
+import { AbstractViewController } from "./AbstractViewController.js";
+import { domCollector, createElement, symbolizer, mergeMapKeys, setIntersect, setDifference } from "./utilities.js";
+import { itemAccountant } from "./Layout/ItemAccountant.js";
+import { Area } from "./Layout/Coordinates.js";
 
 export const TRIGGER_CONTENT_CHANGE = "TRIGGER_CONTENT_CHANGE";
 export const TRIGGER_REPLACEMENT = "TRIGGER_REPLACEMENT";
@@ -81,24 +10,29 @@ export const TRIGGER_SCROLL_LISTENER = "TRIGGER_SCROLL_LISTENER";
 export const TRIGGER_RESIZE_OBSERVER = "TRIGGER_RESIZE_OBSERVER";
 export const TRIGGER_SCHEDULED_POSITION_TRANSLATE = "TRIGGER_SCHEDULED_POSITION_TRANSLATE";
 
-export class AbstractTableViewController {
+export class AbstractManagedLayoutViewController extends AbstractViewController {
     constructor() {
-        this.container = createElement("div", ["abstract-cell-scroller-view"]);
-        this.contentArea = createElement("div", ["abstract-cell-scroller-view-content-area"]);
-        this.anchorPosition = createElement("div", ["abstract-cell-scroller-view-anchor-position"]);
-        // prettier-ignore
-        adoption(this.container, 
-            adoption(this.contentArea, 
-                this.anchorPosition
-        ));
+        super();
+
+        this.dom = {
+            ...this.dom,
+            container: createElement("div", ["container"]),
+        };
 
         this.config = {
-            margins: {
-                pageContent: {
-                    before: 10,
-                    after: 10,
-                },
-            },
+            /**
+             * @type {HTMLElement}
+             * That will be used to decide which potion of container is visible
+             *   to user and cell reuse will be handled automatically at each
+             *   scroll.
+             */
+            scrollElement: undefined,
+            /**
+             * @type {LayoutEnvironment}
+             * Implementing class will use this for accessing up-to-date
+             *   positions.
+             */
+            layoutEnvironment: undefined,
             /**
              * Number values for zones represents how many times window height
              *   will be extended from up and down to find top and bottom edges of
@@ -113,73 +47,18 @@ export class AbstractTableViewController {
              *   fast.
              */
             zoneOffsets: {
-                preload: 0.4,
-                parking: 0.5,
+                preload: 1.8,
+                parking: 2.0,
             },
             /**
-             * focusPoint * window.clientHeight
+             * focusedPosition = focusLevel * window.clientHeight
              */
-            focusPoint: 0.5,
-            /**
-             * The ordering of sections and rows in them.
-             * Each `Symbol` represents an `itemSymbol`
-             * (either a `sectionID` or `rowID`).
-             */
-            placement: {
-                /**
-                 * @type {Array.<Symbol>}
-                 * Complete list of placement data, height-ignored items should
-                 *   also be in this array.
-                 */
-                symbols: [],
-                /**
-                 * @type {Set.<Symbol>}
-                 * Those items which their symbols pushed to this array, shall
-                 *   be excluded from the calculation of item positions.
-                 * Example use case is folding/collapsing a portion of table
-                 *   while performing some transition on items before excluding
-                 *   from placement (in order to perform animation before
-                 *   unassign those items from their cells. )
-                 */
-                ignore: new Set(),
-                /**
-                 * States what is the actual index of items[0]
-                 * @type {number}
-                 */
-                offset: 0,
-                /**
-                 * Total number of items in the document. That value is used
-                 *   for estimation of full height of cell scroller for both
-                 *   chronological and hierarchical view.
-                 * @type {number}
-                 */
-                totalNumberOfItems: undefined,
-            },
-            /**
-             * @type { Map.<Symbol, Symbol> }
-             * Maps `itemIdSymbol` to correct reuse identifiers.
-             * Information will be used for requesting and
-             *   sending cells to `domElementReuseCollector`.
-             * Note that: Related constructors for each id
-             *   given as key to this map, should've
-             *   registered to `domElementReuseCollector` already.
-             */
-            itemReuseIdentifiers: new Map(),
-            /**
-             * @type {HTMLElement}
-             * This element is the one that will be listened for scroll elements
-             *   on, and will be used to device which items to show in view.
-             */
-            scrollElement: this.container,
-            /** @type {number} */
-            updateMaxFrequency: 60,
+            focusLevel: 0.5,
         };
 
         this.computedValues = {
-            /** @type { Map.<Symbol, AbstractTableCellPositioner> } */
+            /** @type { Map.<Symbol, AbstractViewController> } */
             cellPositioners: new Map(),
-            /** @type {Map.<Symbol, number>} */
-            lastRecordedCellHeightOfItem: new Map(),
             /** @type {} */
             timeoutToResizeCallback: undefined,
             /**
@@ -206,262 +85,136 @@ export class AbstractTableViewController {
             next: this._getTemplateForComputedValues(),
         };
 
-        this.container.addEventListener("scroll", () => {
+        this.dom.container.addEventListener("scroll", () => {
             this.updateView(TRIGGER_SCROLL_LISTENER);
         });
-
-        this.resizeObserver = new ResizeObserver(this._resizeObserverNotificationHandler.bind(this));
     }
 
-    /**
-     * @param {Array.<ResizeObserverEntry>} entries
-     */
-    _resizeObserverNotificationHandler(entries) {
-        var ignoreChanges = true;
-        entries.forEach((entry) => {
-            const cellPositionerContainer = entry.target;
-            const itemId = cellPositionerContainer.dataset["itemId"];
-            const itemSymbol = symbolizer.symbolize(itemId);
-
+    /** @private */
+    _getTemplateForComputedValues() {
+        return {
+            /** @type {string} */
+            updateTrigger: undefined,
+            /** @type {number} */
+            pageHeight: undefined,
+            /** set and use when nodes above viewport changes their sizings */
+            scrollShift: undefined,
+            /** @type {Map.<Symbol, Area>} */
+            positions: new Map(),
             /**
-             * The reason computedStyle being used instead the height reported by
-             * resizeObserver is because they don't have same precision and rest
-             * of the codebase supposed to only be able to use computedStyle.
+             * Holds the set of item symbols from current and next iterations of update.
+             * Intended to be used by update functions.
+             * @type {Set.<Symbol>}
              */
-            const computedStyle = getComputedStyle(cellPositionerContainer);
-            const computedHeight = parseFloat(computedStyle.getPropertyValue("height"));
-
-            const isStillAllocated = this.computedValues.cellPositioners.has(itemSymbol);
-            if (!isStillAllocated) return;
-
-            const isSameHeight =
-                this.computedValues.lastRecordedCellHeightOfItem.has(itemSymbol) &&
-                this.computedValues.lastRecordedCellHeightOfItem.get(itemSymbol) === computedHeight;
-            if (!isSameHeight) {
-                this.computedValues.lastRecordedCellHeightOfItem.set(itemSymbol, computedHeight);
-                ignoreChanges = false;
-            }
-        });
-        if (ignoreChanges) return;
-        this.updateView(TRIGGER_RESIZE_OBSERVER);
-    }
-
-    /**
-     * Embeds the user-supplied cell constructor with a function
-     * that creates a custom positioner view controller and wraps
-     * the cell returned by user-supplied cell constructor with it.
-     */
-    registerCellIdentifier(cellIdentifier, cellConstructor) {
-        domCollector.registerItemIdentifier(cellIdentifier, () => {
-            const userProvidedCell = cellConstructor();
-            const cellContainer = new BasicTableCellPositioner();
-            cellContainer.cell = userProvidedCell;
-            cellContainer.reuseIdentifier = cellIdentifier;
-            // prettier-ignore
-            adoption(this.anchorPosition,
-                adoption(cellContainer.container,
-                    userProvidedCell.dom.container
-            ));
-            this.resizeObserver.observe(cellContainer.container);
-            return cellContainer;
-        });
-    }
-
-    /**
-     * When user request a cell to populate with data, this method
-     * only sends the nested user-supplied custom cell, instead
-     * the positioner cell that wraps it from the constructor
-     * registered by .registerCellConstructor().
-     * @returns {AbstractTableCellPositioner}
-     */
-    requestReusableCellPositioner(cellIdentifier) {
-        return domCollector.get(cellIdentifier);
-    }
-
-    /**
-     * User should implement this method.
-     * Request an empty cell from .getFreeCell()
-     * with previously registered cellIdentifier
-     * Then populate content accordingly to
-     * specified itemSymbol.
-     * @abstract
-     * @returns {AbstractTableCellPositioner}
-     */
-    getCellForItem(itemSymbol) {
-        // console.error("abstract function is called directly");
-    }
-
-    /**
-     * @abstract
-     * @param {Symbol} itemSymbol
-     */
-    getCellKindForItem(itemSymbol) {
-        // console.error("Abstract method has called directly.");
-    }
-
-    /**
-     * Implementation of this method should check if content of cell
-     * needs to get updated, then update it.
-     * @abstract
-     * @param { Symbol } itemSymbol
-     * @param {AbstractTableCellPositioner} cellContainer
-     */
-    updateCellForUpdatedItem(itemSymbol, cellContainer) {
-        // console.error("abstract function is called directly");
-    }
-
-    /**
-     * @abstract
-     * @param {Symbol} itemSymbol
-     */
-    cellUpdateIsSkippedForUpdatedItem(itemSymbol) {
-        // console.error("abstract function has called directly");
-    }
-
-    /** @returns {number} */
-    getAverageHeightForAnItem() {
-        return 20;
-    }
-
-    /**
-     * Default height is important to estimate overall height of
-     * the page and make the scrollbar much more useful.
-     * @param {number} itemSymbol
-     * @returns {number}
-     */
-    getDefaultHeightOfItem(itemSymbol) {
-        // console.error("abstract function is called directly");
-    }
-
-    _updateZoneBoundaries() {
-        const scrollAreaHeight = this.config.scrollElement.clientHeight;
-        const scrollTop = this.config.scrollElement.scrollTop;
-
-        const preloadZoneOffset = Math.floor(this.config.zoneOffsets.preload * scrollAreaHeight);
-        const parkingZoneOffset = Math.floor(this.config.zoneOffsets.parking * scrollAreaHeight);
-
-        this.computedValues.next.boundaries = {
-            focus: {
-                starts: scrollTop + this.config.focusPoint * scrollAreaHeight,
-                ends: scrollTop + this.config.focusPoint * scrollAreaHeight,
+            mergedItemSymbols: undefined,
+            /** @type { { inFocus: Set.<Symbol>, inViewport: Set.<Symbol>, inPreload: Set.<Symbol>, inParking: Set.<Symbol> } } */
+            zoneCollisions: {
+                inFocus: new Set(),
+                inViewport: new Set(),
+                inPreload: new Set(),
+                inParking: new Set(),
             },
-            viewport: {
-                starts: scrollTop,
-                ends: scrollTop + scrollAreaHeight,
+            boundaries: {
+                /** @type {Area} */
+                focus: undefined,
+                /** @type {Area} */
+                view: undefined,
+                /**
+                 * @type {Area}
+                 * an area which its height is 3 times of
+                 * viewport (1 above, 1 below) */
+                preload: undefined,
+                /**
+                 * @type {Area}
+                 * an area which its height is 5 times of
+                 * viewport (2 above, 2 below) */
+                parking: undefined,
             },
-            /** an area which its height is 3 times of viewport (1 above, 1 below) */
-            preload: {
-                starts: scrollTop - preloadZoneOffset,
-                ends: scrollTop + scrollAreaHeight + preloadZoneOffset,
-            },
-            /** an area which its height is 5 times of viewport (2 above, 2 below) */
-            parking: {
-                starts: scrollTop - parkingZoneOffset,
-                ends: scrollTop + scrollAreaHeight + parkingZoneOffset,
+            classifiedItems: {
+                /** @type {Set.<Symbol>} */
+                toAppear: new Set(),
+                /** @type {Set.<Symbol>}
+                 * When an item is in the placement but not in viewport */
+                toPlaced: new Set(),
+                /** @type {Set.<Symbol>} */
+                toAssign: new Set(),
+                /** @type {Set.<Symbol>} */
+                toDisappear: new Set(),
+                /** @type {Set.<Symbol>} */
+                toPositionSet: new Set(),
+                /** @type {Set.<Symbol>} */
+                toPositionTranslate: new Set(),
+                /** @type {Set.<Symbol>}
+                 * When an item persisting in placement and changes its position
+                 * with entering preload, but current position is not set yet. */
+                toPositionTranslateFromCurrentPosition: new Set(),
+                /** @type {Set.<Symbol>}
+                 * When transition to another position required before unassigning
+                 * item from its cell.
+                 */
+                toScheduledPositionTranslate: new Set(),
+                /** @type {Set.<Symbol>} */
+                toUnassign: new Set(),
+                /** @type {Set.<Symbol>} */
+                toCancelUnassign: new Set(),
             },
         };
     }
 
-    _filterPlacement() {
-        this.config.placement.symbols.forEach((symbol) => {
-            if (!this.config.placement.ignore.has(symbol)) this.computedValues.next.filteredPlacement.push(symbol);
+    /** @private */
+    _debugPrintClassifiedItems() {
+        Object.keys(this.computedValues.next.classifiedItems).forEach((cls) => {
+            if (this.computedValues.next.classifiedItems[cls].size > 0) {
+                // console.log(cls, this.computedValues.next.classifiedItems[cls]);
+            }
         });
     }
 
-    _calculateItemPositions() {
-        let lastPosition = this.config.margins.pageContent.before,
-            lastCellKind = undefined,
-            lastItemIndex = this.computedValues.next.filteredPlacement.length - 1;
+    /** @private */
+    _updateZoneBoundaries() {
+        const scrollElement = this.config.scrollElement;
+        const x0 = scrollElement.scrollLeft;
+        const y0 = scrollElement.scrollTop;
+        const x1 = scrollElement.scrollLeft + scrollElement.clientWidth;
+        const y1 = scrollElement.scrollTop + scrollElement.clientHeight;
 
-        const averageHeight = this.getAverageHeightForAnItem();
-        const beforePlacementHeight = averageHeight * this.config.placement.offset;
-        lastPosition += beforePlacementHeight;
-
-        for (const [itemIndex, itemSymbol] of this.computedValues.next.filteredPlacement.entries()) {
-            // apply "before/between/after" margins to the lastPosition
-
-            const currentCellKind = this.getCellKindForItem(itemSymbol);
-            const marginsToApply = {
-                beforePageContent: itemIndex === 0,
-                afterPageContent: itemIndex === lastItemIndex,
-                betweenSameKind: lastCellKind && currentCellKind === lastCellKind,
-                afterMarginForPreviousKind: lastCellKind && currentCellKind !== lastCellKind,
-                beforeMarginForCurrentKind: lastCellKind && currentCellKind !== lastCellKind,
-            };
-            if (marginsToApply.beforePageContent) {
-                const margin = this.config.margins.pageContent.before;
-                lastPosition += margin ? margin : 0;
-            }
-            if (marginsToApply.beforeMarginForCurrentKind) {
-                const margin = this.config.margins[currentCellKind].before;
-                lastPosition += margin ? margin : 0;
-            }
-            if (marginsToApply.afterMarginForPreviousKind) {
-                const margin = this.config.margins[lastCellKind].after;
-                lastPosition += margin ? margin : 0;
-            }
-            if (marginsToApply.betweenSameKind) {
-                const margin = this.config.margins[currentCellKind].between;
-                lastPosition += margin ? margin : 0;
-            }
-
-            const cellHeight = this.computedValues.lastRecordedCellHeightOfItem.has(itemSymbol)
-                ? this.computedValues.lastRecordedCellHeightOfItem.get(itemSymbol)
-                : this.getDefaultHeightOfItem(itemSymbol);
-
-            // save item positions
-            this.computedValues.next.positions.set(itemSymbol, {
-                starts: lastPosition,
-                ends: lastPosition + cellHeight,
-                height: cellHeight,
-            });
-
-            lastPosition += cellHeight;
-
-            if (marginsToApply.afterPageContent) {
-                const margin = this.config.margins.pageContent.after;
-                lastPosition += margin ? margin : 0;
-            }
-            lastCellKind = currentCellKind;
-        }
-
-        this.computedValues.next.pageHeight = lastPosition;
+        this.computedValues.next.boundaries = {
+            focus: new Area(x0, y0, x0, y0),
+            view: new Area(x0, y0, x1, y1),
+            preload: new Area(x0, y0, x1, y1).scale(this.config.zoneOffsets.preload),
+            parking: new Area(x0, y0, x1, y1).scale(this.config.zoneOffsets.parking),
+        };
     }
 
-    /** @access private */
+    /** @private */
+    _copyLayout() {
+        this.computedValues.next.positions = this.config.layoutEnvironment.passedThroughPipeline.layout.positions;
+    }
+
+    /** @private */
     _classifyItemsByCollidedZones() {
         for (const [itemSymbol, itemPos] of this.computedValues.next.positions) {
-            var inFocus = false,
-                inViewport = false,
-                inPreload = false,
-                inParking = false;
-            inParking = checkCollision(
-                itemPos.starts,
-                itemPos.ends,
-                this.computedValues.next.boundaries.parking.starts,
-                this.computedValues.next.boundaries.parking.ends
-            );
-            if (inParking)
-                inPreload = checkCollision(
-                    itemPos.starts,
-                    itemPos.ends,
-                    this.computedValues.next.boundaries.preload.starts,
-                    this.computedValues.next.boundaries.preload.ends
-                );
-            if (inPreload)
-                inViewport = checkCollision(
-                    itemPos.starts,
-                    itemPos.ends,
-                    this.computedValues.next.boundaries.viewport.starts,
-                    this.computedValues.next.boundaries.viewport.ends
-                );
-            if (inViewport)
-                inFocus = checkCollision(
-                    itemPos.starts,
-                    itemPos.ends,
-                    this.computedValues.next.boundaries.focus.starts,
-                    this.computedValues.next.boundaries.focus.ends
-                );
+            const size = itemAccountant.getSize(itemSymbol, this.config.layoutEnvironment.environmentSymbol);
+            const item = new Area(itemPos.x, itemPos.y, itemPos.x + size.width, itemPos.y + size.height);
+
+            var inFocus = false;
+            var inViewport = false;
+            var inPreload = false;
+            var inParking = false;
+
+            if (true) {
+                inParking = item.isCollidingWith(this.computedValues.next.boundaries.view);
+                if (inParking) {
+                    inPreload = item.isCollidingWith(this.computedValues.next.boundaries.preload);
+                    if (inPreload) {
+                        inViewport = item.isCollidingWith(this.computedValues.next.boundaries.view);
+                        if (inViewport) {
+                            inFocus = item.isCollidingWith(this.computedValues.next.boundaries.focus);
+                        }
+                    }
+                }
+            }
+
             if (inFocus) this.computedValues.next.zoneCollisions.inFocus.add(itemSymbol);
             if (inViewport) this.computedValues.next.zoneCollisions.inViewport.add(itemSymbol);
             if (inPreload) this.computedValues.next.zoneCollisions.inPreload.add(itemSymbol);
@@ -469,6 +222,7 @@ export class AbstractTableViewController {
         }
     }
 
+    /** @private */
     _mergeItemSymbolsWithPreviousIteration() {
         this.computedValues.next.mergedItemSymbols = mergeMapKeys(
             this.computedValues.current.positions,
@@ -476,6 +230,7 @@ export class AbstractTableViewController {
         );
     }
 
+    /** @private */
     _calculateFocusShift() {
         let totalScrollShift = 0;
         for (const itemSymbol of this.computedValues.next.mergedItemSymbols) {
@@ -490,7 +245,7 @@ export class AbstractTableViewController {
                 ) {
                     if (
                         this.computedValues.next.positions.get(itemSymbol).ends <
-                        this.computedValues.next.boundaries.viewport.starts
+                        this.computedValues.next.boundaries.view.starts
                     ) {
                         totalScrollShift +=
                             this.computedValues.next.positions.get(itemSymbol).height -
@@ -502,10 +257,13 @@ export class AbstractTableViewController {
         this.computedValues.scrollShift = totalScrollShift;
     }
 
-    _counterScrollToJustifyHeightChange() {
-        this.container;
+    /** @private */
+    _updateContainer() {
+        this.contentArea.style.width = `${this.config.layoutEnvironment.passedThroughPipeline.containerSize.width}px`;
+        this.contentArea.style.height = `${this.config.layoutEnvironment.passedThroughPipeline.containerSize.height}px`;
     }
 
+    /** @private */
     _classifyItemsByUpdateTypes() {
         for (const itemSymbol of this.computedValues.next.mergedItemSymbols) {
             /**
@@ -677,6 +435,7 @@ export class AbstractTableViewController {
     }
 
     /**
+     * @private
      * @param {string} trigger
      */
     _updateCells() {
@@ -771,78 +530,8 @@ export class AbstractTableViewController {
         }
     }
 
-    _updateContainer() {
-        this.contentArea.style.height = `${this.computedValues.next.pageHeight}px`;
-    }
-
-    _getTemplateForComputedValues() {
-        return {
-            /** @type {Array.<Symbol>} */
-            filteredPlacement: [],
-            /** @type {string} */
-            updateTrigger: undefined,
-            /** @type {number} */
-            pageHeight: undefined,
-            /** set and use when nodes above viewport changes their sizings */
-            scrollShift: undefined,
-            /** @type {Map.<Symbol, { starts: number, ends: number, height: number }>} */
-            positions: new Map(),
-            /**
-             * Holds the set of item symbols from current and next iterations of update.
-             * Intended to be used by update functions.
-             * @type {Set.<Symbol>}
-             */
-            mergedItemSymbols: undefined,
-            /** @type { { inViewport: Set.<Symbol>, inPreload: Set.<Symbol>, inParking: Set.<Symbol> } } */
-            zoneCollisions: {
-                inFocus: new Set(),
-                inViewport: new Set(),
-                inPreload: new Set(),
-                inParking: new Set(),
-            },
-            /** @type { { viewport: { starts: number, ends: number }, preload: { starts: number, ends: number }, parking: { starts: number, ends: number } } } */
-            boundaries: {
-                viewport: {},
-                /** an area which its height is 3 times of
-                 * viewport (1 above, 1 below) */
-                preload: {},
-                /** an area which its height is 5 times of
-                 * viewport (2 above, 2 below) */
-                parking: {},
-            },
-
-            classifiedItems: {
-                /** @type {Set.<Symbol>} */
-                toAppear: new Set(),
-                /** @type {Set.<Symbol>}
-                 * When an item is in the placement but not in viewport */
-                toPlaced: new Set(),
-                /** @type {Set.<Symbol>} */
-                toAssign: new Set(),
-                /** @type {Set.<Symbol>} */
-                toDisappear: new Set(),
-                /** @type {Set.<Symbol>} */
-                toPositionSet: new Set(),
-                /** @type {Set.<Symbol>} */
-                toPositionTranslate: new Set(),
-                /** @type {Set.<Symbol>}
-                 * When an item persisting in placement and changes its position
-                 * with entering preload, but current position is not set yet. */
-                toPositionTranslateFromCurrentPosition: new Set(),
-                /** @type {Set.<Symbol>}
-                 * When transition to another position required before unassigning
-                 * item from its cell.
-                 */
-                toScheduledPositionTranslate: new Set(),
-                /** @type {Set.<Symbol>} */
-                toUnassign: new Set(),
-                /** @type {Set.<Symbol>} */
-                toCancelUnassign: new Set(),
-            },
-        };
-    }
-
-    /** Note: This function re-schedules an update to future if update
+    /** @private
+     * Note: This function re-schedules an update to future if update
      * condition is not satisfied currently. */
     _isUpdateNeeded(trigger) {
         const now = Date.now();
@@ -882,15 +571,7 @@ export class AbstractTableViewController {
         return true;
     }
 
-    _debugPrintClassifiedItems() {
-        Object.keys(this.computedValues.next.classifiedItems).forEach((cls) => {
-            if (this.computedValues.next.classifiedItems[cls].size > 0) {
-                // console.log(cls, this.computedValues.next.classifiedItems[cls]);
-            }
-        });
-    }
-
-    updateView(trigger) {
+    updateView() {
         if (!this._isUpdateNeeded(trigger)) return;
         this.computedValues.updateScheduling.ongoingUpdate = true;
 
@@ -900,12 +581,11 @@ export class AbstractTableViewController {
         // console.groupCollapsed(`AbstractTableViewController.updateView(${trigger})`);
 
         this._updateZoneBoundaries();
-        this._filterPlacement();
-        this._calculateItemPositions();
+        this._copyLayout();
         this._classifyItemsByCollidedZones();
 
         this._mergeItemSymbolsWithPreviousIteration();
-        this._calculateFocusShift();
+        // this._calculateFocusShift();
         this._updateContainer();
 
         // console.groupCollapsed("classes");
@@ -927,6 +607,7 @@ export class AbstractTableViewController {
     }
 
     /**
+     * @abstract
      * This function will be called for each cell that placed in placement but
      *   could not appear in viewport.
      * Implementer can use this method to perform UI updates on rest of the cell.
@@ -937,6 +618,7 @@ export class AbstractTableViewController {
     }
 
     /**
+     * @abstract
      * This function will be called for each cell that enters into the viewport.
      * Implementer can use this method to perform UI updates on rest of the cell.
      * @param {Symbol} itemSymbol
@@ -946,6 +628,7 @@ export class AbstractTableViewController {
     }
 
     /**
+     * @abstract
      * This function will be called for each cell that exits from the viewport.
      * Implementer can use this method to perform UI updates on rest of the cell.
      * @param {Symbol} itemSymbol

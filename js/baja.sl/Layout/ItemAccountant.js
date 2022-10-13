@@ -29,12 +29,6 @@ class ItemAccountant {
             [environmentSymbol]: size,
         });
     }
-
-    dsd() {
-        const cellHeight = this.computedValues.lastRecordedCellHeightOfItem.has(itemSymbol)
-            ? this.computedValues.lastRecordedCellHeightOfItem.get(itemSymbol)
-            : this.getDefaultHeightOfItem(itemSymbol);
-    }
     
     /**
      * @param {Symbol} itemSymbol

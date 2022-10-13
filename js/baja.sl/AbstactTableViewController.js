@@ -118,8 +118,6 @@ export class AbstractTableViewController {
             cellPositioners: new Map(),
             /** @type {Map.<Symbol, number>} */
             lastRecordedCellHeightOfItem: new Map(),
-            /** @type {} */
-            timeoutToResizeCallback: undefined,
             /**
              * Scheduling unassignment gives cells to perform transition to
              *   their new place before unassign. When an item decided as

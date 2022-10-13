@@ -89,6 +89,7 @@ export class Anchor {
 
     /**
      * @param {Size} areaSize
+     * @returns {Position}
      */
     interpolate(areaSize) {
         return Position(lerp(0, areaSize.width, this.horizontal), lerp(0, areaSize.height, this.vertical));
@@ -107,5 +108,41 @@ export class Spacing {
         this.before = before;
         this.after = after;
         this.between = between;
+    }
+}
+
+export class Area {
+    /**
+     * @param {number} x0
+     * @param {number} y0
+     * @param {number} x1
+     * @param {number} y1
+     */
+    constructor(x0, y0, x1, y1) {
+        this.x0 = x0;
+        this.y0 = y0;
+        this.x1 = x1;
+        this.y1 = y1;
+        this.size = new Size(x1 - x0, y1 - y0);
+    }
+
+    /** @param {Area} area  */
+    isCollidingWith(area) {
+        return this.x0 <= area.x1 && area.x0 <= this.x1 && this.y0 <= area.y1 && area.y0 <= this.y1;
+    }
+
+    /**
+     * @param {number} factor
+     * @param {Anchor} transformOrigin
+     * This method updates the start and end positions of represented area,
+     *   keeping original transformOrigin at same position.
+     */
+    scale(factor, transformOrigin = new Anchor(0.5, 0.5)) {
+        const origin = transformOrigin.interpolate(this.size);
+        this.x0 = factor * (x0 - origin.x) + origin.x;
+        this.y0 = factor * (y0 - origin.y) + origin.y;
+        this.x1 = factor * (x1 - origin.x) + origin.x;
+        this.y1 = factor * (y1 - origin.y) + origin.y;
+        return this;
     }
 }

@@ -21,8 +21,8 @@ export class InfiniteSheet extends AbstractTableViewController {
 
         Object.assign(this.config, {
             zoneOffsets: {
-                preload: 0.4,
-                parking: 0.5,
+                preload: 1.0,
+                parking: 1.1,
             },
             margins: {
                 pageContent: {

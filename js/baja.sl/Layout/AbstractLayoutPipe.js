@@ -1,4 +1,5 @@
 import { DelegateRegistry } from "../DelegateRegistry.js";
+import { symbolizer } from "../utilities.js";
 import { Size } from "./Coordinates.js";
 import { Layout } from "./Layout.js";
 import { LayoutEnvironment } from "./LayoutEnvironment.js";
@@ -83,7 +84,7 @@ export class AbstractLayoutCalculator extends AbstractLayoutPipe {
     /** @param {Array.<Symbol>} placement */
     newPlacement(placement) {
         this.placement = placement;
-        this.controlledByEnvironment.environmentRef.refreshPipeline();
+        this.controlledByEnvironment.environmentRef.scheduleRecalculation();
     }
 }
 

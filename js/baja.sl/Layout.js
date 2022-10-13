@@ -65,44 +65,6 @@ export class AvatarLayout extends AbstractLayoutDecorator {
     }
 }
 
-export class ContainerMinimizer extends AbstractLayoutMutator {
-    /**
-     * @param {Position} notStartAfter
-     * @param {Position} notEndBefore
-     */
-    constructor(notStartAfter = undefined, notEndBefore = undefined) {
-        this.notStartAfter = notStartAfter;
-        this.notEndBefore = notEndBefore;
-    }
-
-    perform() {
-        var xMin = Infinity,
-            yMin = Infinity,
-            xMax = -Infinity,
-            yMax = -Infinity;
-
-        if (this.notStartAfter) {
-            xMin = this.notStartAfter.x;
-            yMin = this.notStartAfter.y;
-        }
-        if (this.notEndBefore) {
-            xMax = this.notEndBefore.x;
-            yMax = this.notEndBefore.y;
-        }
-
-        for (const [itemSymbol, position] of this.passedThroughPipeline.layout.positions.entries()) {
-            const size = itemAccountant.getSize(itemSymbol, this.controlledByEnvironment.environmentSymbol);
-            const x0 = position.x;
-            const y0 = position.y;
-            const x1 = x0 + size.width;
-            const y1 = y0 + size.height;
-            if (x0 < xMin) xMin = x0;
-            if (y0 < yMin) yMin = y0;
-            if (xMax < x1) xMax = x1;
-            if (yMax < y1) yMax = y1;
-        }
-    }
-}
 
 export class Padding extends AbstractLayoutMutator {
     /**

@@ -195,7 +195,7 @@ export class BasicTableCellPositioner extends AbstractTableCellPositioner {
         this.state.isAnimationOngoing = true;
         this.state.animation = this.container.animate(keyframes, {
             ...this.config.anim,
-            duration: duration ?? this.config.anim.duration,
+            // duration: duration ?? this.config.anim.duration,
         });
         this.state.animation.finished
             .then(this._animationCompletionHandler.bind(this))

@@ -1,0 +1,126 @@
+import { AbstractManagedLayoutViewController } from "../js/baja.sl/AbstractManagedLayoutViewController.js";
+import { Flow, VERTICAL } from "../js/baja.sl/Layout/Calculators/Flow.js";
+import { AbstractManagedLayoutCellViewController } from "../js/baja.sl/AbstractManagedLayoutCellViewController.js";
+import { cellKeeper } from "../js/baja.sl/CellKeeper.js";
+
+import { LayoutEnvironment } from "../js/baja.sl/Layout/LayoutEnvironment.js";
+import { adoption, iota, symbolizer } from "../js/baja.sl/utilities.js";
+
+class BasicViewController extends AbstractManagedLayoutCellViewController {
+    constructor() {
+        super();
+
+        this.dom.container.style.width = "100px";
+        this.dom.container.style.height = "100px";
+    }
+
+    prepareForFree() {
+        super.prepareForFree();
+        this.dom.container.innerText = "";
+    }
+
+    prepareForUse() {
+        super.prepareForUse();
+        this.dom.container.innerText = "0";
+    }
+
+    firstLevelOfPresentation() {
+        this.dom.container.innerText = "1";
+    }
+
+    secondLevelOfPresentation() {
+        this.dom.container.innerText = "2";
+    }
+
+    thirdLevelOfPresentation() {
+        this.dom.container.innerText = "3";
+    }
+}
+
+const VIEW_CONTROLLER_SYMBOL_TASK = symbolizer.symbolize(iota());
+
+class ConcreteLayoutPresenterViewController extends AbstractManagedLayoutViewController {
+    constructor() {
+        super();
+
+        cellKeeper.register(VIEW_CONTROLLER_SYMBOL_TASK, () => {
+            return new BasicViewController();
+        });
+
+        this._setupContainer();
+        this._setupMainLayout();
+
+        this.layoutPipes.flow.newPlacement([Symbol("1"), Symbol("2"), Symbol("3"), Symbol("4")]);
+    }
+
+    /** @private */
+    _setupContainer() {
+        this.dom.container.style.width = "100%";
+        this.dom.container.style.height = "100%";
+        this.dom.container.style.overflowX = "hidden";
+        this.dom.container.style.overflowY = "scroll";
+    }
+
+    /** @private */
+    _setupMainLayout() {
+        this.layoutPipes = {
+            flow: new Flow(),
+            // indentation: new Indentation(),
+            // align: new Align(),
+            // focusStabilizer: new FocusStabilizer(),
+            // counterShift: new CounterShift(),
+            // avatars: new AvatarLayout(),
+            // panes: new Panes(),
+            // padding: new Padding(20, 20, 20, 20),
+            // measure: new MeasureContainer(),
+        };
+
+        this.layoutPipes.flow.config.direction = VERTICAL;
+        // align.config.alignOn = HORIZONTAL_CENTER;
+
+        this.config.layoutEnvironment = new LayoutEnvironment();
+
+        // prettier-ignore
+        this.config.layoutEnvironment
+            .connectCalculator(this.layoutPipes.flow)
+        // .connectMutator(measure);
+        // .connectMutator(align)
+        // .connectMutator(indentation)
+        // .connectMutator(counterShift)
+        // .connectMutator(focusStabilizer)
+        // .connectDecorator(foldedItems)
+        // .connectDecorator(avatars)
+        // .connectDecorator(panes)
+        // .connectMutator(padding);
+
+        // autoFocus(); // TODO:
+
+        var setContainerSize = () => {
+            const computedStyle = getComputedStyle(this.dom.container);
+            const containerSize = this.config.layoutEnvironment.passedThroughPipeline.containerSize;
+            containerSize.width = parseFloat(computedStyle.getPropertyValue("width"));
+            containerSize.height = parseFloat(computedStyle.getPropertyValue("height"));
+        };
+        setContainerSize();
+
+        this.config.layoutEnvironment.start();
+    }
+
+    _playTest() {
+        // setTimeout(() => {
+        //     const selectedItemSymbol = "task#1";
+        //     focusStabilizer.stabilize(selectedItemSymbol);
+        //     infiniteSheetPositions.refreshPipeline();
+        // }, 1000);
+        // setTimeout(() => {
+        //     avatars.config.anchors.set();
+        // }, 2000);
+    }
+}
+
+function main() {
+    const managedLayoutView = new ConcreteLayoutPresenterViewController();
+    adoption(document.body, [managedLayoutView.dom.container]);
+}
+
+main();

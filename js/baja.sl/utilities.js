@@ -412,27 +412,43 @@ export function isInBetween(a, b, c) {
     else return false;
 }
 
-export function checkCollision(item_y1, item_y2, viewport_y1, viewport_y2) {
-    /*
-            * * * * * * *  (y1)                     * * * * * * *  (y1)                
-            *           *                           *           *              
-        + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +  (y1)
-        +   *           *                           *           *           +
-        +   * * * * * * *  (y2)                     *           *           +
-        +                                           *           *           +
-        +                                           *           *           +       <=  viewport
-        +                                           *           *           +
-        +                 * * * * * * *  (y1)       *           *           +
-        +                 *           *             *           *           +
-        + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +  (y2)
-                          *           *             *           *                              
-                          * * * * * * *  (y2)       * * * * * * *  (y2)                               
-    */
-    if (item_y2 < viewport_y1 || item_y1 > viewport_y2)
-        // if item starts after viewport ends, or item ends before viewport starts,
-        // then the item is not in viewport.
-        return false;
-    else return true;
+/*
+        * * * * * * *  (y1)                     * * * * * * *  (y1)                
+        *           *                           *           *              
+    + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +  (y1)
+    +   *           *                           *           *           +
+    +   * * * * * * *  (y2)                     *           *           +
+    +                                           *           *           +
+    +                                           *           *           +       <=  viewport
+    +                                           *           *           +
+    +                 * * * * * * *  (y1)       *           *           +
+    +                 *           *             *           *           +
+    + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +  (y2)
+                      *           *             *           *                              
+                      * * * * * * *  (y2)       * * * * * * *  (y2)                               
+*/
+export function checkCollision(aStart, aEnd, bStart, bEnd) {
+    // if item starts after viewport ends, or item ends before viewport starts,
+    // then the item is not in viewport.
+    return !(aEnd < bStart || aStart > bEnd);
+}
+
+/*
+            a_x0            a_x1
+       a_y0 + + + + + + + +    
+            +             +                            
+            +       b_x0  +          b_x1                                 
+            +  b_y0 + + + + + + + +                                   
+            +       +     +       +                                    
+       a_y1 + + + + + + + +       +
+                    +             +    
+                    +             +    
+               b_y1 + + + + + + + +    
+
+https://developer.mozilla.org/en-US/docs/Games/Techniques/2D_collision_detection#axis-aligned_bounding_box
+*/
+export function checkCollision2d(aStartX, aStartY, aEndX, aEndY, bStartX, bStartY, bEndX, bEndY) {
+    return aStartX <= bEndX && bStartX <= aEndX && aStartY <= bEndY && bStartY <= aEndY;
 }
 
 /** @returns {Set.<string>} */
@@ -462,7 +478,7 @@ export function setDifference(leftSet, rightSet) {
         if (!rightSet.has(k)) difference.add(k);
     }
     return difference;
-} 
+}
 
 export function clamp(x, min, max) {
     return Math.min(max, Math.max(x, min));

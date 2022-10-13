@@ -1,4 +1,4 @@
-import { Position } from "./Coordinates.js";
+import { Area } from "./Coordinates.js";
 
 /**
  * @typedef {Symbol} ItemSymbol
@@ -8,7 +8,7 @@ import { Position } from "./Coordinates.js";
 
 export class Layout {
     constructor() {
-        /** @type {Map.<Symbol, Position>} */
+        /** @type {Map.<Symbol, Area>} */
         this.positions = new Map();
         /** @type {Map.<Symbol, number>} */
         this.scaling = new Map();
