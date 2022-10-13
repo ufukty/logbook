@@ -1,7 +1,6 @@
-import { Position, Size } from "./Layout/Coordinates.js";
+import { Size } from "./Layout/Coordinates.js";
 import { AbstractViewController } from "./AbstractViewController.js";
 import { AbstractLayoutDecorator, AbstractLayoutMutator } from "./Layout/AbstractLayoutCalculator.js";
-import { itemAccountant } from "./Layout/ItemAccountant.js";
 
 export class PlaceholderViewController extends AbstractViewController {
     constructor() {
@@ -64,7 +63,6 @@ export class AvatarLayout extends AbstractLayoutDecorator {
         super();
     }
 }
-
 
 export class Padding extends AbstractLayoutMutator {
     /**
