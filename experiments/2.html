@@ -16,34 +16,29 @@
             }
 
             .route-container {
-                --clr-route-green-bg: #1D8A7D;
+                /* --clr-route-green-bg: #1D8A7D; */
+                --clr-route-green-bg: #016A68;
                 --clr-route-orange-bg: #FF9606;
                 --plate-corner-radius: 8px;
+
+                position: relative;
 
                 width: 100%;
                 height: 100%;
 
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                align-items: stretch;
+
                 background-color: var(--clr-route-green-bg);
+                color: white;
 
                 border-radius: var(--plate-corner-radius);
                 overflow: hidden;
 
-                color: white;
-
-                background: var(--clr-route-green-bg);
-                background: url("assets/honeycomb-pattern.png") repeat 0 0;
-                background-size: 35px 36px;
 
                 box-shadow: 0 23px 28px -15px #00000088;
-                position: relative;
-            }
-
-            .route-flex-container {
-                position: relative;
-                z-index: 2;
-
-                display: flex;
-                flex-direction: column;
             }
 
             .route-plate-border {
@@ -58,6 +53,9 @@
             }
 
             .route-header-container {
+                position: relative;
+                z-index: 5;
+
                 margin: 15px 25px 0;
 
                 display: flex;
@@ -67,6 +65,9 @@
             }
 
             .route-preview-container {
+                position: relative;
+                z-index: 5;
+
                 margin: 50px 25px;
             }
 
@@ -81,15 +82,13 @@
                 overflow: hidden;
 
                 background: var(--clr-route-orange-bg);
-                background: url("assets/honeycomb-pattern-orange.png") repeat 0 0;
-                background-size: 35px 36px;
 
                 color: black;
             }
 
             .route-approve-flex-container {
                 position: relative;
-                z-index: 2;
+                z-index: 5;
 
                 display: flex;
                 flex-direction: row;
@@ -115,65 +114,77 @@
                 transition: transform 100ms ease-in-out;
             }
 
-            .reflective-sheet-random-shapes {
+            .reflective-layers {
                 position: absolute;
                 z-index: 2;
                 top: 0;
                 left: 0;
                 right: 0;
                 bottom: 0;
-                background-size: 35px 36px;
+
+                -webkit-mask-mode: alpha;
                 mask-mode: alpha;
+                -webkit-mask-repeat: no-repeat;
                 mask-repeat: no-repeat;
                 mix-blend-mode: soft-light;
+
                 pointer-events: none;
 
                 opacity: 0;
+                background: url("assets/stripes-pattern.png") repeat 0 0 / 36px 36px, url("assets/random-polygons-pattern.png") repeat 0 0 / 36px 36px;
 
                 transition: opacity 200ms ease-in-out
             }
 
-            .route-container:hover .reflective-sheet-random-shapes {
+            .reflective-honeycomb-pattern {
+                position: absolute;
+                z-index: 3;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+
+                background: url("assets/honeycomb-pattern-extended.png") repeat 0 0 / 12px 8px;
+
+                pointer-events: none;
+            }
+
+            .route-container:hover .reflective-layers {
                 opacity: 0.6;
             }
 
             @media only screen and (-webkit-min-device-pixel-ratio: 2),
             only screen and (min--moz-device-pixel-ratio: 2) {
-                .route-container {
-                    background-image: url("assets/honeycomb-pattern@2x.png");
+
+                .reflective-layers {
+                    background: url("assets/stripes-pattern@2x.png") repeat 0 0 / 36px 36px, url("assets/random-polygons-pattern@2x.png") repeat 0 0 / 36px 36px;
                 }
 
-                .reflective-sheet-random-shapes {
-                    background-image: url("assets/random-polygons-pattern@2x.png");
-                }
-
-                .route-approve-container {
-                    background-image: url("assets/honeycomb-pattern-orange@2x.png");
+                .reflective-honeycomb-pattern {
+                    background: url("assets/honeycomb-pattern-extended@2x.png") repeat 0 0 / 12px 8px;
                 }
             }
 
             @media only screen and (-webkit-min-device-pixel-ratio: 3),
             only screen and (min--moz-device-pixel-ratio: 3) {
-                .route-container {
-                    background-image: url("assets/honeycomb-pattern@3x.png");
+                .reflective-layers {
+                    background: url("assets/stripes-pattern@3x.png") repeat 0 0 / 36px 36px, url("assets/random-polygons-pattern@3x.png") repeat 0 0 / 36px 36px;
                 }
 
-                .reflective-sheet-random-shapes {
-                    background-image: url("assets/random-polygons-pattern@3x.png");
-                }
-
-                .route-approve-container {
-                    background-image: url("assets/honeycomb-pattern-orange@3x.png");
+                .reflective-honeycomb-pattern {
+                    background: url("assets/honeycomb-pattern-extended@3x.png") repeat 0 0 / 12px 8px;
                 }
             }
 
-            .reflective-sheet-random-shapes:nth-last-child(1) {
-                background-position: 0 0;
-                mask-image: radial-gradient(closest-side, #ffffffff, #ffffff88 5%, #ffffff00);
+            .reflective-layers.layer-one {
+                background-position: 0 0, 0 0;
+                -webkit-mask-image: radial-gradient(closest-side, #ffffffff, #ffffff00);
+                mask-image: radial-gradient(closest-side, #ffffffff, #ffffff00);
             }
 
-            .reflective-sheet-random-shapes:nth-last-child(2) {
-                background-position: 7px 18px;
+            .reflective-layers.layer-two {
+                background-position: 0px 18px, 7px 0px;
+                -webkit-mask-image: radial-gradient(closest-side, #ffffff00, #ffffffff, #ffffff00);
                 mask-image: radial-gradient(closest-side, #ffffff00, #ffffffff, #ffffff00);
             }
 
@@ -233,7 +244,7 @@
 
             .route-car-light {
                 position: absolute;
-                z-index: 3;
+                z-index: 4;
                 top: 0;
                 left: 0;
 
@@ -275,215 +286,212 @@
 
             <div class="route-container">
                 <div class="route-plate-border"></div>
-                <div class="route-flex-container">
-                    <div class="route-header-container">
-                        <div class="route-number-container">
-                            <svg class="route-badge-svg-container">
-                                <use href="#route-badge-svg-def"></use>
+                <div class="route-header-container">
+                    <div class="route-number-container">
+                        <svg class="route-badge-svg-container">
+                            <use href="#route-badge-svg-def"></use>
+                        </svg>
+                        <div class="route-number">1</div>
+                    </div>
+                    <div class="route-prop">
+                        <div class="route-prop-title">Est. Time</div>
+                        <div class="route-prop-value">8-12 days</div>
+                    </div>
+                    <div class="route-prop">
+                        <div class="route-prop-title">Popularity</div>
+                        <div class="route-prop-value">Most</div>
+                    </div>
+                    <div class="route-prop">
+                        <div class="route-prop-title">Familiarity</div>
+                        <div class="route-prop-value">10%</div>
+                    </div>
+                </div>
+                <div class="route-preview-container">
+                    <div class="task">Connect redis to app</div>
+                    <div class="task">Connect redis to app</div>
+                    <div class="task">Connect redis to app</div>
+                    <div class="task">Connect redis to app</div>
+                </div>
+                <div class="route-approve-container">
+                    <div class="route-approve-border"></div>
+                    <div class="route-approve-flex-container">
+                        <div class="route-approve-arrow left">
+                            <svg class="route-arrow-svg-container">
+                                <use href="#route-arrow-svg-def"></use>
                             </svg>
-                            <div class="route-number">1</div>
                         </div>
-                        <div class="route-prop">
-                            <div class="route-prop-title">Est. Time</div>
-                            <div class="route-prop-value">8-12 days</div>
-                        </div>
-                        <div class="route-prop">
-                            <div class="route-prop-title">Popularity</div>
-                            <div class="route-prop-value">Most</div>
-                        </div>
-                        <div class="route-prop">
-                            <div class="route-prop-title">Familiarity</div>
-                            <div class="route-prop-value">10%</div>
-                        </div>
-                    </div>
-                    <div class="route-preview-container">
-                        <div class="task">Connect redis to app</div>
-                        <div class="task">Connect redis to app</div>
-                        <div class="task">Connect redis to app</div>
-                        <div class="task">Connect redis to app</div>
-                    </div>
-                    <div class="route-approve-container">
-                        <div class="route-approve-border"></div>
-                        <div class="route-approve-flex-container">
-                            <div class="route-approve-arrow left">
-                                <svg class="route-arrow-svg-container">
-                                    <use href="#route-arrow-svg-def"></use>
-                                </svg>
-                            </div>
-                            <div class="route-approve-text">TAKE THIS ROUTE</div>
-                            <div class="route-approve-arrow right">
-                                <svg class="route-arrow-svg-container">
-                                    <use href="#route-arrow-svg-def"></use>
-                                </svg>
-                            </div>
+                        <div class="route-approve-text">TAKE THIS ROUTE</div>
+                        <div class="route-approve-arrow right">
+                            <svg class="route-arrow-svg-container">
+                                <use href="#route-arrow-svg-def"></use>
+                            </svg>
                         </div>
                     </div>
                 </div>
+                <div class="reflective-honeycomb-pattern"></div>
+                <div class="reflective-layers layer-one"></div>
+                <div class="reflective-layers layer-two"></div>
                 <div class="route-car-light"></div>
-                <div class="reflective-sheet-random-shapes"></div>
-                <div class="reflective-sheet-random-shapes"></div>
             </div>
 
             &nbsp;
 
             <div class="route-container">
                 <div class="route-plate-border"></div>
-                <div class="route-flex-container">
-                    <div class="route-header-container">
-                        <div class="route-number-container">
-                            <svg class="route-badge-svg-container">
-                                <use href="#route-badge-svg-def"></use>
+                <div class="route-header-container">
+                    <div class="route-number-container">
+                        <svg class="route-badge-svg-container">
+                            <use href="#route-badge-svg-def"></use>
+                        </svg>
+                        <div class="route-number">1</div>
+                    </div>
+                    <div class="route-prop">
+                        <div class="route-prop-title">Est. Time</div>
+                        <div class="route-prop-value">8-12 days</div>
+                    </div>
+                    <div class="route-prop">
+                        <div class="route-prop-title">Popularity</div>
+                        <div class="route-prop-value">Most</div>
+                    </div>
+                    <div class="route-prop">
+                        <div class="route-prop-title">Familiarity</div>
+                        <div class="route-prop-value">10%</div>
+                    </div>
+                </div>
+                <div class="route-preview-container">
+                    <div class="task">Connect redis to app</div>
+                    <div class="task">Connect redis to app</div>
+                    <div class="task">Connect redis to app</div>
+                    <div class="task">Connect redis to app</div>
+                </div>
+                <div class="route-approve-container">
+                    <div class="route-approve-border"></div>
+                    <div class="route-approve-flex-container">
+                        <div class="route-approve-arrow left">
+                            <svg class="route-arrow-svg-container">
+                                <use href="#route-arrow-svg-def"></use>
                             </svg>
-                            <div class="route-number">1</div>
                         </div>
-                        <div class="route-prop">
-                            <div class="route-prop-title">Est. Time</div>
-                            <div class="route-prop-value">8-12 days</div>
-                        </div>
-                        <div class="route-prop">
-                            <div class="route-prop-title">Popularity</div>
-                            <div class="route-prop-value">Most</div>
-                        </div>
-                        <div class="route-prop">
-                            <div class="route-prop-title">Familiarity</div>
-                            <div class="route-prop-value">10%</div>
-                        </div>
-                    </div>
-                    <div class="route-preview-container">
-                        <div class="task">Connect redis to app</div>
-                        <div class="task">Connect redis to app</div>
-                        <div class="task">Connect redis to app</div>
-                        <div class="task">Connect redis to app</div>
-                    </div>
-                    <div class="route-approve-container">
-                        <div class="route-approve-border"></div>
-                        <div class="route-approve-flex-container">
-                            <div class="route-approve-arrow left">
-                                <svg class="route-arrow-svg-container">
-                                    <use href="#route-arrow-svg-def"></use>
-                                </svg>
-                            </div>
-                            <div class="route-approve-text">TAKE THIS ROUTE</div>
-                            <div class="route-approve-arrow right">
-                                <svg class="route-arrow-svg-container">
-                                    <use href="#route-arrow-svg-def"></use>
-                                </svg>
-                            </div>
+                        <div class="route-approve-text">TAKE THIS ROUTE</div>
+                        <div class="route-approve-arrow right">
+                            <svg class="route-arrow-svg-container">
+                                <use href="#route-arrow-svg-def"></use>
+                            </svg>
                         </div>
                     </div>
                 </div>
+                <div class="reflective-honeycomb-pattern"></div>
+                <div class="reflective-layers layer-one"></div>
+                <div class="reflective-layers layer-two"></div>
                 <div class="route-car-light"></div>
-                <div class="reflective-sheet-random-shapes"></div>
-                <div class="reflective-sheet-random-shapes"></div>
             </div>
 
             &nbsp;
 
             <div class="route-container">
                 <div class="route-plate-border"></div>
-                <div class="route-flex-container">
-                    <div class="route-header-container">
-                        <div class="route-number-container">
-                            <svg class="route-badge-svg-container">
-                                <use href="#route-badge-svg-def"></use>
+                <div class="route-header-container">
+                    <div class="route-number-container">
+                        <svg class="route-badge-svg-container">
+                            <use href="#route-badge-svg-def"></use>
+                        </svg>
+                        <div class="route-number">1</div>
+                    </div>
+                    <div class="route-prop">
+                        <div class="route-prop-title">Est. Time</div>
+                        <div class="route-prop-value">8-12 days</div>
+                    </div>
+                    <div class="route-prop">
+                        <div class="route-prop-title">Popularity</div>
+                        <div class="route-prop-value">Most</div>
+                    </div>
+                    <div class="route-prop">
+                        <div class="route-prop-title">Familiarity</div>
+                        <div class="route-prop-value">10%</div>
+                    </div>
+                </div>
+                <div class="route-preview-container">
+                    <div class="task">Connect redis to app</div>
+                    <div class="task">Connect redis to app</div>
+                    <div class="task">Connect redis to app</div>
+                    <div class="task">Connect redis to app</div>
+                </div>
+                <div class="route-approve-container">
+                    <div class="route-approve-border"></div>
+                    <div class="route-approve-flex-container">
+                        <div class="route-approve-arrow left">
+                            <svg class="route-arrow-svg-container">
+                                <use href="#route-arrow-svg-def"></use>
                             </svg>
-                            <div class="route-number">1</div>
                         </div>
-                        <div class="route-prop">
-                            <div class="route-prop-title">Est. Time</div>
-                            <div class="route-prop-value">8-12 days</div>
-                        </div>
-                        <div class="route-prop">
-                            <div class="route-prop-title">Popularity</div>
-                            <div class="route-prop-value">Most</div>
-                        </div>
-                        <div class="route-prop">
-                            <div class="route-prop-title">Familiarity</div>
-                            <div class="route-prop-value">10%</div>
-                        </div>
-                    </div>
-                    <div class="route-preview-container">
-                        <div class="task">Connect redis to app</div>
-                        <div class="task">Connect redis to app</div>
-                        <div class="task">Connect redis to app</div>
-                        <div class="task">Connect redis to app</div>
-                    </div>
-                    <div class="route-approve-container">
-                        <div class="route-approve-border"></div>
-                        <div class="route-approve-flex-container">
-                            <div class="route-approve-arrow left">
-                                <svg class="route-arrow-svg-container">
-                                    <use href="#route-arrow-svg-def"></use>
-                                </svg>
-                            </div>
-                            <div class="route-approve-text">POPULAR ROUTE</div>
-                            <div class="route-approve-arrow right">
-                                <svg class="route-arrow-svg-container">
-                                    <use href="#route-arrow-svg-def"></use>
-                                </svg>
-                            </div>
+                        <div class="route-approve-text">TAKE THIS ROUTE</div>
+                        <div class="route-approve-arrow right">
+                            <svg class="route-arrow-svg-container">
+                                <use href="#route-arrow-svg-def"></use>
+                            </svg>
                         </div>
                     </div>
                 </div>
+                <div class="reflective-honeycomb-pattern"></div>
+                <div class="reflective-layers layer-one"></div>
+                <div class="reflective-layers layer-two"></div>
                 <div class="route-car-light"></div>
-                <div class="reflective-sheet-random-shapes"></div>
-                <div class="reflective-sheet-random-shapes"></div>
             </div>
 
             &nbsp;
 
             <div class="route-container">
                 <div class="route-plate-border"></div>
-                <div class="route-flex-container">
-                    <div class="route-header-container">
-                        <div class="route-number-container">
-                            <svg class="route-badge-svg-container">
-                                <use href="#route-badge-svg-def"></use>
+                <div class="route-header-container">
+                    <div class="route-number-container">
+                        <svg class="route-badge-svg-container">
+                            <use href="#route-badge-svg-def"></use>
+                        </svg>
+                        <div class="route-number">1</div>
+                    </div>
+                    <div class="route-prop">
+                        <div class="route-prop-title">Est. Time</div>
+                        <div class="route-prop-value">8-12 days</div>
+                    </div>
+                    <div class="route-prop">
+                        <div class="route-prop-title">Popularity</div>
+                        <div class="route-prop-value">Most</div>
+                    </div>
+                    <div class="route-prop">
+                        <div class="route-prop-title">Familiarity</div>
+                        <div class="route-prop-value">10%</div>
+                    </div>
+                </div>
+                <div class="route-preview-container">
+                    <div class="task">Connect redis to app</div>
+                    <div class="task">Connect redis to app</div>
+                    <div class="task">Connect redis to app</div>
+                    <div class="task">Connect redis to app</div>
+                </div>
+                <div class="route-approve-container">
+                    <div class="route-approve-border"></div>
+                    <div class="route-approve-flex-container">
+                        <div class="route-approve-arrow left">
+                            <svg class="route-arrow-svg-container">
+                                <use href="#route-arrow-svg-def"></use>
                             </svg>
-                            <div class="route-number">1</div>
                         </div>
-                        <div class="route-prop">
-                            <div class="route-prop-title">Est. Time</div>
-                            <div class="route-prop-value">8-12 days</div>
-                        </div>
-                        <div class="route-prop">
-                            <div class="route-prop-title">Popularity</div>
-                            <div class="route-prop-value">Most</div>
-                        </div>
-                        <div class="route-prop">
-                            <div class="route-prop-title">Familiarity</div>
-                            <div class="route-prop-value">10%</div>
-                        </div>
-                    </div>
-                    <div class="route-preview-container">
-                        <div class="task">Connect redis to app</div>
-                        <div class="task">Connect redis to app</div>
-                        <div class="task">Connect redis to app</div>
-                        <div class="task">Connect redis to app</div>
-                    </div>
-                    <div class="route-approve-container">
-                        <div class="route-approve-border"></div>
-                        <div class="route-approve-flex-container">
-                            <div class="route-approve-arrow left">
-                                <svg class="route-arrow-svg-container">
-                                    <use href="#route-arrow-svg-def"></use>
-                                </svg>
-                            </div>
-                            <div class="route-approve-text">TAKE THIS ROUTE</div>
-                            <div class="route-approve-arrow right">
-                                <svg class="route-arrow-svg-container">
-                                    <use href="#route-arrow-svg-def"></use>
-                                </svg>
-                            </div>
+                        <div class="route-approve-text">TAKE THIS ROUTE</div>
+                        <div class="route-approve-arrow right">
+                            <svg class="route-arrow-svg-container">
+                                <use href="#route-arrow-svg-def"></use>
+                            </svg>
                         </div>
                     </div>
                 </div>
+                <div class="reflective-honeycomb-pattern"></div>
+                <div class="reflective-layers layer-one"></div>
+                <div class="reflective-layers layer-two"></div>
                 <div class="route-car-light"></div>
-                <div class="reflective-sheet-random-shapes"></div>
-                <div class="reflective-sheet-random-shapes"></div>
             </div>
 
             &nbsp;
+
 
 
         </div>
@@ -497,26 +505,22 @@
                 const routeContainer = e.currentTarget
                 const relativePosX = e.clientX - routeContainer.offsetLeft - window.scrollX
                 const relativePosY = e.clientY - routeContainer.offsetTop + window.scrollY
-                // console.log(relativePosX, relativePosY)
 
-
-                // console.log(e.clientX, routeContainer.offsetLeft, document.body.scrollLeft, e.clientY, routeContainer.offsetTop, document.body.scrollTop, window.scrollY)
-
+                /** @type {HTMLElement} */
                 const carLight = routeContainer.querySelector(".route-car-light")
                 carLight.style.top = `${relativePosY}px`
                 carLight.style.left = `${relativePosX}px`
 
+                /** @type {HTMLElement} */
+                const reflectiveLayers = routeContainer.querySelectorAll(".reflective-layers")
+
                 const maskPositionX = `${-routeContainer.offsetWidth / 2 + relativePosX}`
                 const maskPositionY = `${-routeContainer.offsetHeight / 2 + relativePosY}`
-                /** @type {HTMLElement} */
-                const randomParticles = routeContainer.querySelectorAll(".reflective-sheet-random-shapes")
-                randomParticles[0].style.maskPosition = `${maskPositionX}px ${maskPositionY}px`
-                randomParticles[1].style.maskPosition = `${maskPositionX}px ${maskPositionY}px`
 
-                // = `${relativePosY}px`
-                // carLight.style.trleft = `${relativePosX}px`
-
-
+                reflectiveLayers[0].style.webkitMaskPosition = `${maskPositionX}px ${maskPositionY}px`
+                reflectiveLayers[1].style.webkitMaskPosition = `${maskPositionX}px ${maskPositionY}px`
+                reflectiveLayers[0].style.maskPosition = `${maskPositionX}px ${maskPositionY}px`
+                reflectiveLayers[1].style.maskPosition = `${maskPositionX}px ${maskPositionY}px`
             }
             routeContainers.forEach((routeContainer) => {
                 routeContainer.addEventListener("mousemove", mouseTracker)
