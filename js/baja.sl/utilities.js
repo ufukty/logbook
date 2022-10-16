@@ -494,6 +494,10 @@ export function lerp(start, end, pct) {
     return start + (end - start) * pct;
 }
 
+export function inverseLerp(start, end, mid) {
+    return (mid - start) / (end - start);
+}
+
 export function linearInterpolation(x0, y0, x1, y1, x) {
     return y0 + ((y0 - y1) / (x0 - x1)) * (x1 - x);
 }
