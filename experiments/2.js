@@ -90,10 +90,53 @@ const mouseLeaves = (e) => {
     reflectiveLayers[0].style.maskPosition = `${maskPositionX}px ${maskPositionY}px`;
     reflectiveLayers[1].style.maskPosition = `${maskPositionX}px ${maskPositionY}px`;
 };
-routeContainers.forEach((routeContainer) => {
-    initializes(routeContainer);
-    routeContainer.addEventListener("mouseenter", mouseEnters);
-    routeContainer.addEventListener("mousemove", mouseMoves);
-    // routeContainer.addEventListener("touchmove", mouseMoves);
-    routeContainer.addEventListener("mouseleave", mouseLeaves);
-});
+// routeContainers.forEach((routeContainer) => {
+//     initializes(routeContainer);
+//     routeContainer.addEventListener("mouseenter", mouseEnters);
+//     routeContainer.addEventListener("mousemove", mouseMoves);
+//     // routeContainer.addEventListener("touchmove", mouseMoves);
+//     routeContainer.addEventListener("mouseleave", mouseLeaves);
+// });
+
+var scrollPositionForLastUpdate = undefined;
+const adjustReflectionsWithScrollPosition = () => {
+    if (scrollPositionForLastUpdate && scrollPositionForLastUpdate === window.scrollY) return;
+
+    const midPointViewport = window.scrollY + window.innerHeight / 2;
+
+    // console.log();
+
+    routeContainers.forEach((routeContainer) => {
+        /** @type {HTMLElement} */
+        const carLight = routeContainer.querySelector(".route-car-light");
+        /** @type {HTMLElement} */
+        const reflectiveLayers = routeContainer.querySelectorAll(".reflective-layers");
+
+        const midPointRouteContainer = inverseLerp(
+            routeContainer.offsetTop,
+            routeContainer.offsetTop + routeContainer.offsetHeight,
+            midPointViewport
+        );
+
+        const relativePosX = routeContainer.offsetWidth / 2;
+        const relativePosY = lerp(0, routeContainer.offsetHeight, midPointRouteContainer);
+
+        const maskPositionX = `${-routeContainer.offsetWidth / 2 + relativePosX}`;
+        const maskPositionY = `${-routeContainer.offsetHeight / 2 + relativePosY}`;
+
+        carLight.style.top = `${relativePosY}px`;
+        // carLight.style.left = `${relativePosX}px`;
+
+        reflectiveLayers[0].style.webkitMaskPosition = `${maskPositionX}px ${maskPositionY}px`;
+        reflectiveLayers[1].style.webkitMaskPosition = `${maskPositionX}px ${maskPositionY}px`;
+        reflectiveLayers[0].style.maskPosition = `${maskPositionX}px ${maskPositionY}px`;
+        reflectiveLayers[1].style.maskPosition = `${maskPositionX}px ${maskPositionY}px`;
+
+        // console.log(midPointRouteContainer);
+    });
+
+    scrollPositionForLastUpdate = window.scrollY;
+};
+
+window.addEventListener("scroll", adjustReflectionsWithScrollPosition);
+adjustReflectionsWithScrollPosition();

@@ -8,12 +8,29 @@
         <title>Document</title>
 
         <script async defer type="module" src="./2.js"></script>
+        <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
         <style>
+            * {
+                margin: 0;
+                padding: 0;
+                font-family: "Work Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+                font-weight: 600;
+                box-sizing: border-box;
+                color: inherit;
+                text-decoration: inherit;
+                cursor: default;
+                user-select: none;
+                font-size: 12pt;
+            }
+
             #page {
-                width: 420px;
+                width: 480px;
                 font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
                 font-weight: 600;
                 resize: both;
+
+                padding: 1000px 20px;
             }
 
             .route-container {
@@ -38,7 +55,7 @@
                 border-radius: var(--plate-corner-radius);
                 overflow: hidden;
 
-
+                isolation: isolate;
                 box-shadow: 0 23px 28px -15px #00000088;
             }
 
@@ -115,6 +132,21 @@
                 transition: transform 100ms ease-in-out;
             }
 
+            .route-car-light {
+                position: absolute;
+                z-index: 4;
+                top: 100%;
+                left: 50%;
+
+                width: 450px;
+                height: 450px;
+                background-image: radial-gradient(closest-side, #ffffffff, #ffffff00);
+                mix-blend-mode: soft-light;
+
+                pointer-events: none;
+                transform: translate(-50%, -50%);
+            }
+
             .reflective-layers {
                 position: absolute;
                 z-index: 2;
@@ -133,49 +165,27 @@
                 pointer-events: none;
 
                 opacity: 0.6;
-                background: url("assets/stripes-pattern.png") repeat 0 0 / 36px 36px, url("assets/random-polygons-pattern.png") repeat 0 0 / 64px 64px;
+                background: url("assets/honeycomb-pattern-extended.png") repeat 0 0 / 12px 8px, url("assets/stripes-pattern.png") repeat 0 0 / 36px 36px, url("assets/random-polygons-pattern.png") repeat 0 0 / 64px 64px;
 
                 transition: opacity 200ms ease-in-out
             }
 
-            .reflective-honeycomb-pattern {
-                position: absolute;
-                z-index: 3;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-
-                background: url("assets/honeycomb-pattern-extended.png") repeat 0 0 / 12px 8px;
-
-                pointer-events: none;
-            }
-
             @media only screen and (-webkit-min-device-pixel-ratio: 2),
             only screen and (min--moz-device-pixel-ratio: 2) {
-
                 .reflective-layers {
-                    background: url("assets/stripes-pattern@2x.png") repeat 0 0 / 36px 36px, url("assets/random-polygons-pattern@2x.png") repeat 0 0 / 64px 64px;
-                }
-
-                .reflective-honeycomb-pattern {
-                    background: url("assets/honeycomb-pattern-extended@2x.png") repeat 0 0 / 12px 8px;
+                    background: url("assets/honeycomb-pattern-extended@2x.png") repeat 0 0 / 12px 8px, url("assets/stripes-pattern@2x.png") repeat 0 0 / 36px 36px, url("assets/random-polygons-pattern@2x.png") repeat 0 0 / 64px 64px;
                 }
             }
 
             @media only screen and (-webkit-min-device-pixel-ratio: 3),
             only screen and (min--moz-device-pixel-ratio: 3) {
                 .reflective-layers {
-                    background: url("assets/stripes-pattern@3x.png") repeat 0 0 / 36px 36px, url("assets/random-polygons-pattern@3x.png") repeat 0 0 / 64px 64px;
-                }
-
-                .reflective-honeycomb-pattern {
-                    background: url("assets/honeycomb-pattern-extended@3x.png") repeat 0 0 / 12px 8px;
+                    background: url("assets/honeycomb-pattern-extended@3x.png") repeat 0 0 / 12px 8px, url("assets/stripes-pattern@3x.png") repeat 0 0 / 36px 36px, url("assets/random-polygons-pattern@3x.png") repeat 0 0 / 64px 64px;
                 }
             }
 
             .reflective-layers.layer-one {
-                background-position: 0 0, 0 0;
+                background-position: 0 0, 0 0, 0 0;
                 -webkit-mask-image: radial-gradient(closest-side, #ffffffff, #ffffff00 50%);
                 mask-image: radial-gradient(closest-side, #ffffffff, #ffffff00 50%);
                 /* -webkit-mask-image: linear-gradient(0deg, #ffffff00 25%, #ffffffff 50%, #ffffff00 75%); */
@@ -183,7 +193,7 @@
             }
 
             .reflective-layers.layer-two {
-                background-position: 18px 0, 32px 32px;
+                background-position: 0 0, 18px 0, 32px 32px;
                 -webkit-mask-image: radial-gradient(closest-side, #ffffff00, #ffffffff, #ffffff00);
                 mask-image: radial-gradient(closest-side, #ffffff00, #ffffffff, #ffffff00);
                 /* -webkit-mask-image: linear-gradient(0deg, #ffffff00 0%, #ffffff88 25%, #ffffff00 50%, #ffffff88 75%, #ffffff00 100%); */
@@ -225,7 +235,6 @@
                 height: 40px;
 
                 align-self: center;
-
             }
 
             .route-number {
@@ -242,21 +251,6 @@
                 z-index: 0;
                 width: 51px;
                 height: 40px;
-            }
-
-            .route-car-light {
-                position: absolute;
-                z-index: 4;
-                top: 100%;
-                left: 50%;
-
-                width: 450px;
-                height: 450px;
-                background-image: radial-gradient(closest-side, #ffffffff, #ffffff00);
-                mix-blend-mode: soft-light;
-
-                pointer-events: none;
-                transform: translate(-50%, -50%);
             }
 
             .route-container {
