@@ -7,6 +7,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Document</title>
 
+        <script async defer type="module" src="./2.js"></script>
         <style>
             #page {
                 width: 420px;
@@ -123,15 +124,16 @@
                 bottom: 0;
 
                 -webkit-mask-mode: alpha;
-                mask-mode: alpha;
                 -webkit-mask-repeat: no-repeat;
+                mask-mode: alpha;
                 mask-repeat: no-repeat;
+
                 mix-blend-mode: soft-light;
 
                 pointer-events: none;
 
-                opacity: 0;
-                background: url("assets/stripes-pattern.png") repeat 0 0 / 36px 36px, url("assets/random-polygons-pattern.png") repeat 0 0 / 36px 36px;
+                opacity: 0.6;
+                background: url("assets/stripes-pattern.png") repeat 0 0 / 36px 36px, url("assets/random-polygons-pattern.png") repeat 0 0 / 64px 64px;
 
                 transition: opacity 200ms ease-in-out
             }
@@ -149,15 +151,11 @@
                 pointer-events: none;
             }
 
-            .route-container:hover .reflective-layers {
-                opacity: 0.6;
-            }
-
             @media only screen and (-webkit-min-device-pixel-ratio: 2),
             only screen and (min--moz-device-pixel-ratio: 2) {
 
                 .reflective-layers {
-                    background: url("assets/stripes-pattern@2x.png") repeat 0 0 / 36px 36px, url("assets/random-polygons-pattern@2x.png") repeat 0 0 / 36px 36px;
+                    background: url("assets/stripes-pattern@2x.png") repeat 0 0 / 36px 36px, url("assets/random-polygons-pattern@2x.png") repeat 0 0 / 64px 64px;
                 }
 
                 .reflective-honeycomb-pattern {
@@ -168,7 +166,7 @@
             @media only screen and (-webkit-min-device-pixel-ratio: 3),
             only screen and (min--moz-device-pixel-ratio: 3) {
                 .reflective-layers {
-                    background: url("assets/stripes-pattern@3x.png") repeat 0 0 / 36px 36px, url("assets/random-polygons-pattern@3x.png") repeat 0 0 / 36px 36px;
+                    background: url("assets/stripes-pattern@3x.png") repeat 0 0 / 36px 36px, url("assets/random-polygons-pattern@3x.png") repeat 0 0 / 64px 64px;
                 }
 
                 .reflective-honeycomb-pattern {
@@ -178,14 +176,18 @@
 
             .reflective-layers.layer-one {
                 background-position: 0 0, 0 0;
-                -webkit-mask-image: radial-gradient(closest-side, #ffffffff, #ffffff00);
-                mask-image: radial-gradient(closest-side, #ffffffff, #ffffff00);
+                -webkit-mask-image: radial-gradient(closest-side, #ffffffff, #ffffff00 50%);
+                mask-image: radial-gradient(closest-side, #ffffffff, #ffffff00 50%);
+                /* -webkit-mask-image: linear-gradient(0deg, #ffffff00 25%, #ffffffff 50%, #ffffff00 75%); */
+                /* mask-image: linear-gradient(0deg, #ffffff00 25%, #ffffffff 50%, #ffffff00 75%) */
             }
 
             .reflective-layers.layer-two {
-                background-position: 0px 18px, 7px 0px;
+                background-position: 18px 0, 32px 32px;
                 -webkit-mask-image: radial-gradient(closest-side, #ffffff00, #ffffffff, #ffffff00);
                 mask-image: radial-gradient(closest-side, #ffffff00, #ffffffff, #ffffff00);
+                /* -webkit-mask-image: linear-gradient(0deg, #ffffff00 0%, #ffffff88 25%, #ffffff00 50%, #ffffff88 75%, #ffffff00 100%); */
+                /* mask-image: linear-gradient(0deg, #ffffff00 0%, #ffffff88 25%, #ffffff00 50%, #ffffff88 75%, #ffffff00 100%) */
             }
 
             .task {
@@ -199,7 +201,7 @@
             .route-prop {
                 display: flex;
                 flex-direction: column;
-                background-color: #4EA69C;
+                background-color: var(--clr-route-green-bg);
                 border: 2px solid white;
                 border-radius: 8px;
                 text-align: center;
@@ -208,7 +210,7 @@
 
             .route-prop-title {
                 background-color: white;
-                color: #1D8A7D;
+                color: var(--clr-route-green-bg);
                 padding: 0 5px;
             }
 
@@ -245,8 +247,8 @@
             .route-car-light {
                 position: absolute;
                 z-index: 4;
-                top: 0;
-                left: 0;
+                top: 100%;
+                left: 50%;
 
                 width: 450px;
                 height: 450px;
@@ -254,15 +256,7 @@
                 mix-blend-mode: soft-light;
 
                 pointer-events: none;
-                transform: translate(-50%, -50%) scale(0.4);
-                opacity: 0;
-
-                transition: transform 200ms ease-in-out, opacity 200ms ease-in-out
-            }
-
-            .route-container:hover .route-car-light {
                 transform: translate(-50%, -50%);
-                opacity: 1;
             }
 
             .route-container {
@@ -495,38 +489,6 @@
 
 
         </div>
-
-        <script>
-            const routeContainers = [...document.getElementsByClassName("route-container")]
-            console.log(routeContainers)
-            /** @param {MouseEvent} e */
-            const mouseTracker = (e) => {
-                /** @type {HTMLElement} */
-                const routeContainer = e.currentTarget
-                const relativePosX = e.clientX - routeContainer.offsetLeft - window.scrollX
-                const relativePosY = e.clientY - routeContainer.offsetTop + window.scrollY
-
-                /** @type {HTMLElement} */
-                const carLight = routeContainer.querySelector(".route-car-light")
-                carLight.style.top = `${relativePosY}px`
-                carLight.style.left = `${relativePosX}px`
-
-                /** @type {HTMLElement} */
-                const reflectiveLayers = routeContainer.querySelectorAll(".reflective-layers")
-
-                const maskPositionX = `${-routeContainer.offsetWidth / 2 + relativePosX}`
-                const maskPositionY = `${-routeContainer.offsetHeight / 2 + relativePosY}`
-
-                reflectiveLayers[0].style.webkitMaskPosition = `${maskPositionX}px ${maskPositionY}px`
-                reflectiveLayers[1].style.webkitMaskPosition = `${maskPositionX}px ${maskPositionY}px`
-                reflectiveLayers[0].style.maskPosition = `${maskPositionX}px ${maskPositionY}px`
-                reflectiveLayers[1].style.maskPosition = `${maskPositionX}px ${maskPositionY}px`
-            }
-            routeContainers.forEach((routeContainer) => {
-                routeContainer.addEventListener("mousemove", mouseTracker)
-                routeContainer.addEventListener("touchmove", mouseTracker)
-            })
-        </script>
     </body>
 
 </html>
