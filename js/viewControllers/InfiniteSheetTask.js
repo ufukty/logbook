@@ -175,7 +175,7 @@ export class InfiniteSheetTask extends AbstractTableCellViewController {
 
         this.dom.updateBadge.innerText = "0";
 
-        // this.dom.editableArea.contentEditable = true;
+        this.dom.textArea.contentEditable = true;
 
         this.config = {
             ...this.config,
@@ -289,8 +289,11 @@ export class InfiniteSheetTask extends AbstractTableCellViewController {
             const computedWidth = parseFloat(computedProps.getPropertyValue("width"));
             const computedHeight = parseFloat(computedProps.getPropertyValue("height"));
 
-            this.dom.updateBadge.style.minWidth = `${Math.max(computedWidth, computedHeight)}px`;
-            this.dom.updateBadge.style.borderRadius = `${computedHeight / 2}px`;
+            this.dom.updateBadge.style.minWidth = `${Math.max(
+                this.dom.updateBadge.offsetWidth,
+                this.dom.updateBadge.offsetHeight
+            )}px`;
+            this.dom.updateBadge.style.borderRadius = `${this.dom.updateBadge.offsetHeight / 2}px`;
 
             if (withAnimation) {
                 this.dom.updateBadge.animate(

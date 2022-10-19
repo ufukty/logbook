@@ -1,7 +1,7 @@
 import { Layout } from "./Layout/Layout.js";
 import { AbstractViewController } from "./AbstractViewController.js";
 import { domCollector, createElement, symbolizer, mergeMapKeys, setIntersect, setDifference } from "./utilities.js";
-import { itemAccountant } from "./Layout/ItemAccountant.js";
+import { itemMeasurer } from "./ItemMeasurer.js";
 import { Area } from "./Layout/Coordinates.js";
 
 export const TRIGGER_CONTENT_CHANGE = "TRIGGER_CONTENT_CHANGE";
@@ -194,7 +194,7 @@ export class AbstractManagedLayoutViewController extends AbstractViewController 
     /** @private */
     _classifyItemsByCollidedZones() {
         for (const [itemSymbol, itemPos] of this.computedValues.next.positions) {
-            const size = itemAccountant.getSize(itemSymbol, this.config.layoutEnvironment.environmentSymbol);
+            const size = itemMeasurer.getSize(itemSymbol, this.config.layoutEnvironment.environmentSymbol);
             const item = new Area(itemPos.x, itemPos.y, itemPos.x + size.width, itemPos.y + size.height);
 
             var inFocus = false;

@@ -1,7 +1,8 @@
 import { iota } from "../../utilities.js";
 import { AbstractLayoutCalculator, AbstractLayoutMutator } from "../AbstractLayoutPipe.js";
 import { Area, Size, Spacing } from "../Coordinates.js";
-import { itemAccountant } from "../ItemAccountant.js";
+import { itemMeasurer as itemMeasurer } from "../../ItemMeasurer.js";
+import { itemCellPairing } from "../../ItemCellPairing.js";
 
 /**
  * @typedef {Symbol} ItemSymbol
@@ -43,7 +44,10 @@ export class Flow extends AbstractLayoutCalculator {
         }
 
         for (const [itemIndex, itemSymbol] of this.config.placement.entries()) {
-            const currentCellKind = itemAccountant.getCellKindForItem(itemSymbol);
+            const currentCellKind = itemCellPairing.getCellTypeForItem(
+                itemSymbol,
+                this.controlledByEnvironment.environmentSymbol
+            );
             const marginsToApply = {
                 // beforePageContent: itemIndex === 0,
                 // afterPageContent: itemIndex === lastItemIndex,
@@ -68,7 +72,7 @@ export class Flow extends AbstractLayoutCalculator {
                 lastPosition += margin ?? 0;
             }
 
-            const itemSize = itemAccountant.getSize(itemSymbol, this.controlledByEnvironment.environmentSymbol);
+            const itemSize = itemMeasurer.getSize(itemSymbol, this.controlledByEnvironment.environmentSymbol);
             var area;
 
             // save item position

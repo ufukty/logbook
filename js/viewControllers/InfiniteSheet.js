@@ -106,9 +106,12 @@ export class InfiniteSheet extends AbstractTableViewController {
             cell.setUpdateCount(this.dataSource.cache.updateCounts.get(itemSymbol) ?? 0, false);
         }
 
-        const computedStyle = getComputedStyle(cellPositioner.cell.dom.container);
-        const computedHeight = parseFloat(computedStyle.getPropertyValue("height"));
-        this.computedValues.lastRecordedCellHeightOfItem.set(itemSymbol, computedHeight);
+        // const computedStyle = getComputedStyle(cellPositioner.cell.dom.container);
+        // const computedHeight = parseFloat(computedStyle.getPropertyValue("height"));
+        this.computedValues.lastRecordedCellHeightOfItem.set(
+            itemSymbol,
+            cellPositioner.cell.dom.container.offsetHeight
+        );
 
         return cellPositioner;
     }
@@ -152,9 +155,10 @@ export class InfiniteSheet extends AbstractTableViewController {
         taskCell.highlight();
         taskCell.setContent(newContent);
 
-        const computedStyle = getComputedStyle(taskCell.dom.container);
-        const computedHeight = parseFloat(computedStyle.getPropertyValue("height"));
-        this.computedValues.lastRecordedCellHeightOfItem.set(itemSymbol, computedHeight);
+        // const computedStyle = getComputedStyle(taskCell.dom.container);
+        // const computedHeight = parseFloat(computedStyle.getPropertyValue("height"));
+        // this.computedValues.lastRecordedCellHeightOfItem.set(itemSymbol, computedHeight);
+        this.computedValues.lastRecordedCellHeightOfItem.set(itemSymbol, taskCell.dom.container.offsetHeight);
 
         taskCell.setUpdateCount(this.dataSource.cache.updateCounts.get(itemSymbol) ?? 0);
     }

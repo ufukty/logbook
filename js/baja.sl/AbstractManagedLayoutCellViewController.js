@@ -20,7 +20,7 @@ export class AbstractManagedLayoutCellViewController extends AbstractViewControl
              * This will be used to position user-provided HTMLElement without
              *   utilizing its transform/position props.
              */
-            layoutPositioner: createElement("div", ["mlcvc-layout-positioner"]),
+            managedLayoutPositioner: createElement("div", ["mlcvc-layout-positioner"]),
             /**
              * @type {HTMLElement}
              * Concrete classes of this AbstractManagedLayoutCellViewController
@@ -32,7 +32,7 @@ export class AbstractManagedLayoutCellViewController extends AbstractViewControl
         };
 
         // prettier-ignore
-        adoption(this.dom.layoutPositioner, [
+        adoption(this.dom.managedLayoutPositioner, [
             adoption(this.dom.container)
         ])
 

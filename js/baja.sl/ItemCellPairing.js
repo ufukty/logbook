@@ -5,7 +5,7 @@ import { domCollector, adoption, createElement, symbolizer } from "./utilities.j
 /**
  * @typedef {Symbol} ItemSymbol
  * @typedef {Symbol} CellTypeSymbol
- * @typedef {Symbol} ViewControllerSymbol
+ * @typedef {Symbol} EnvironmentSymbol
  */
 
 /**
@@ -30,55 +30,75 @@ function calculateRecursivePositioning(parent, node) {
     }
 }
 
-export class CellPositioner {
-    constructor() {
-        /** @type {AbstractViewController} */
-        this.cell = undefined;
-        /** @type {CellTypeSymbol} */
-        this.cellTypeSymbol = undefined;
-        /** @type {{container: HTMLElement}} */
-        this.dom = {
-            container: createElement("div", ["baja-sl-cell-migration-container"]),
-        };
-    }
+const DEFAULT_ENVIRONMENT = symbolizer.symbolize("DEFAULT_ENVIRONMENT");
 
-    setPosition(x, y) {}
-
-    /**
-     * @param {Position} from
-     * @param {Position} to
-     * @param {boolean} optimizeTransitionForEndPosition When the value false,
-     *   element will start transition from starting position. When it is true,
-     *   element will be instantly moved to end position and start to transition
-     *   from old position to end position. This is required because mobile
-     *   browsers optimize page performance by reducing framerate of animations
-     *   of out-of-sight elements.
-     */
-    translateFromTo(from, to, optimizeTransitionForEndPosition = false) {}
-}
-
-class CellKeeper {
+class ItemCellPairing {
     constructor() {
         /**
+         * @private
          * @type {Map.<ItemSymbol, CellPositioner>}
          * Those items which assigned to a cell
          */
         this._assignedItems = new Map();
 
-        /** @type {Map.<ItemSymbol, CellTypeSymbol>} */
+        /**
+         * @private
+         * @type {Map.<ItemSymbol, Map.<EnvironmentSymbol, CellTypeSymbol>>}
+         */
         this._cellTypes = new Map();
 
-        /** @type {ResizeObserver} */
+        /**
+         * @private
+         * @type {ResizeObserver}
+         */
         this._resizeObserver = new ResizeObserver(this._resizeObserverNotificationHandler.bind(this));
 
-        /** @type {Map.<ItemSymbol, Size>} */
+        /**
+         * @private
+         * @type {Map.<ItemSymbol, Size>}
+         */
         this._observedSizes = new Map();
 
-        /** @type {Map.<ItemSymbol, AbstractViewController>} */
+        /**
+         * @private
+         * @type {Map.<ItemSymbol, AbstractViewController>}
+         */
         this._currentController = new Map();
 
-        /** @type {Map.<ViewControllerSymbol, AbstractViewController>} */
+        /**
+         * @private
+         * @type {Map.<EnvironmentSymbol, AbstractViewController>}
+         */
         this._registeredViewControllers;
+    }
+
+    /**
+     * @param {ItemSymbol} itemSymbol
+     * @param {EnvironmentSymbol} environmentSymbol
+     * @param {CellTypeSymbol} cellTypeSymbol
+     */
+    setCellKindForItem(itemSymbol, environmentSymbol, cellTypeSymbol) {
+        var cellKinds = this._defaultSizes.get(itemSymbol);
+        if (cellKinds === undefined) {
+            cellKinds = new Map();
+            this._cellTypes.set(itemSymbol, cellKinds);
+        }
+        cellKinds.set(DEFAULT_ENVIRONMENT, cellTypeSymbol);
+        cellKinds.set(environmentSymbol, cellTypeSymbol);
+    }
+
+    /**
+     * @param {ItemSymbol} itemSymbol
+     * @param {EnvironmentSymbol} environmentSymbol
+     * @return {CellTypeSymbol}
+     */
+    getCellTypeForItem(itemSymbol, environmentSymbol) {
+        const cellTypes = this._cellTypes.get(itemSymbol);
+        if (cellTypes) {
+            return cellTypes.get(environmentSymbol) ?? cellTypes.get(DEFAULT_ENVIRONMENT) ?? undefined;
+        }
+
+        return undefined;
     }
 
     registerViewController(vcSymbol, exportCallback, resizeNotification) {
@@ -86,6 +106,7 @@ class CellKeeper {
     }
 
     /**
+     * @private
      * @param {Array.<ResizeObserverEntry>} entries
      */
     _resizeObserverNotificationHandler(entries) {
@@ -196,19 +217,4 @@ class CellKeeper {
     }
 }
 
-export const cellKeeper = new CellKeeper();
-
-// //
-
-// const taskType = symbolizer.symbolize("task");
-// cellRegistry.register(symbolizer.symbolize(taskType), () => {
-//     return new InfiniteSheetTask();
-// });
-// const container1 = createElement("div", ["container-1"]);
-// const itemSymbol = symbolizer.symbolize("task-1");
-
-// //
-
-// const migrationContainer = cellRegistry.getCell(itemSymbol, taskType, container1);
-
-// cellRegistry.transfer(itemSymbol, container2, true);
+export const itemCellPairing = new ItemCellPairing();

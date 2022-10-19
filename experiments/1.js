@@ -1,7 +1,7 @@
 import { AbstractManagedLayoutViewController } from "../js/baja.sl/AbstractManagedLayoutViewController.js";
 import { Flow, VERTICAL } from "../js/baja.sl/Layout/Calculators/Flow.js";
 import { AbstractManagedLayoutCellViewController } from "../js/baja.sl/AbstractManagedLayoutCellViewController.js";
-import { cellKeeper } from "../js/baja.sl/CellKeeper.js";
+import { itemCellPairing } from "../js/baja.sl/ItemCellPairing.js";
 
 import { Layout } from "../js/baja.sl/Layout/Layout.js";
 import { adoption, iota, symbolizer } from "../js/baja.sl/utilities.js";
@@ -43,7 +43,7 @@ class ConcreteLayoutPresenterViewController extends AbstractManagedLayoutViewCon
     constructor() {
         super();
 
-        cellKeeper.register(VIEW_CONTROLLER_SYMBOL_TASK, () => {
+        itemCellPairing.register(VIEW_CONTROLLER_SYMBOL_TASK, () => {
             return new BasicViewController();
         });
 

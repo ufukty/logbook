@@ -155,6 +155,7 @@ export class AbstractTableViewController {
     _resizeObserverNotificationHandler(entries) {
         var ignoreChanges = true;
         entries.forEach((entry) => {
+            /**  @type {HTMLElement} */
             const cellPositionerContainer = entry.target;
             const itemId = cellPositionerContainer.dataset["itemId"];
             const itemSymbol = symbolizer.symbolize(itemId);
@@ -164,8 +165,9 @@ export class AbstractTableViewController {
              * resizeObserver is because they don't have same precision and rest
              * of the codebase supposed to only be able to use computedStyle.
              */
-            const computedStyle = getComputedStyle(cellPositionerContainer);
-            const computedHeight = parseFloat(computedStyle.getPropertyValue("height"));
+            // const computedStyle = getComputedStyle(cellPositionerContainer);
+            // const computedHeight = parseFloat(computedStyle.getPropertyValue("height"));
+            const computedHeight = cellPositionerContainer.offsetHeight;
 
             const isStillAllocated = this.computedValues.cellPositioners.has(itemSymbol);
             if (!isStillAllocated) return;
@@ -636,9 +638,12 @@ export class AbstractTableViewController {
             this.computedValues.cellPositioners.set(itemSymbol, cellPositioner);
             cellPositioner.itemSymbol = itemSymbol;
             cellPositioner.container.dataset["itemId"] = symbolizer.desymbolize(itemSymbol);
-            const computedStyle = getComputedStyle(cellPositioner.cell.dom.container);
-            const computedHeight = parseFloat(computedStyle.getPropertyValue("height"));
-            this.computedValues.lastRecordedCellHeightOfItem.set(itemSymbol, computedHeight);
+            // const computedStyle = getComputedStyle(cellPositioner.cell.dom.container);
+            // const computedHeight = parseFloat(computedStyle.getPropertyValue("height"));
+            this.computedValues.lastRecordedCellHeightOfItem.set(
+                itemSymbol,
+                cellPositioner.cell.dom.container.offsetHeight
+            );
         }
 
         // position set
