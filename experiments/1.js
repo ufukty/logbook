@@ -14,8 +14,8 @@ class BasicViewController extends AbstractManagedLayoutCellViewController {
         this.dom.container.style.height = "100px";
     }
 
-    prepareForFree() {
-        super.prepareForFree();
+    async prepareForFree() {
+        await super.prepareForFree();
         this.dom.container.innerText = "";
     }
 

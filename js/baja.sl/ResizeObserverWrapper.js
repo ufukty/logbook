@@ -1,3 +1,5 @@
+import { iota } from "./utilities";
+
 class ResizeObserverWrapper {
     constructor() {
         /**
@@ -7,7 +9,7 @@ class ResizeObserverWrapper {
 
         /**
          * @private
-         * @type {Map.<HTMLElement,Set.<function>>}
+         * @type {Map.<string, Set.<function>>}
          */
         this._subscribers = new Map();
     }
@@ -17,9 +19,17 @@ class ResizeObserverWrapper {
      * @param {function} callback
      */
     subscribe(element, callback) {
+        const resizeObserverWrapperId = iota().toString();
+        element.dataset.resizeObserverWrapperId = resizeObserverWrapperId;
+
+        var subscribers = this._subscribers.get(resizeObserverWrapperId);
+        if (!subscribers) {
+            const subscribers = new Set();
+            this._subscribers.set(resizeObserverWrapperId, subscribers);
+        }
+        subscribers.add(callback);
+
         this.observer.observe(element);
-        if (!this._subscribers.get(element)) this._subscribers.set(element, new Set());
-        this._subscribers.get(element).add(callback);
     }
 
     /**
@@ -28,8 +38,11 @@ class ResizeObserverWrapper {
      */
     _dispatch(entries) {
         for (const entry of entries) {
-            const subscribers = this._subscribers.get(entry.target);
-            if (subscribers) for (const subscriber of subscribers) subscriber();
+            const resizeObserverWrapperId = entry.target.dataset.resizeObserverWrapperId;
+            const subscribers = this._subscribers.get(resizeObserverWrapperId);
+            for (const subscriber of subscribers) {
+                subscriber();
+            }
         }
     }
 }

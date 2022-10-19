@@ -2,6 +2,7 @@ import { AbstractTableCellPositioner } from "./AbstractTableCellPositioner.js";
 import { AbstractViewController } from "./AbstractViewController.js";
 import { Size, Position } from "./Layout/Coordinates.js";
 import { domCollector, adoption, createElement, symbolizer } from "./utilities.js";
+
 /**
  * @typedef {Symbol} ItemSymbol
  * @typedef {Symbol} CellTypeSymbol
@@ -55,12 +56,6 @@ class ItemCellPairing {
 
         /**
          * @private
-         * @type {Map.<ItemSymbol, Size>}
-         */
-        this._observedSizes = new Map();
-
-        /**
-         * @private
          * @type {Map.<ItemSymbol, AbstractViewController>}
          */
         this._currentController = new Map();
@@ -105,6 +100,8 @@ class ItemCellPairing {
         this._registeredViewControllers;
     }
 
+    resizeEventHandler() {}
+
     /**
      * @private
      * @param {Array.<ResizeObserverEntry>} entries
@@ -114,6 +111,7 @@ class ItemCellPairing {
         var ignoreChanges = true;
         var changedItems = [];
         entries.forEach((entry) => {
+            entry.borderBoxSize;
             const newDimensions = new Size(entry.contentRect.width, entry.contentRect.height);
 
             const cellMigrationContainer = entry.target;
@@ -156,7 +154,7 @@ class ItemCellPairing {
      * @param {CellTypeSymbol} cellTypeSymbol
      * @param {function():AbstractViewController} cellReturningFunction
      */
-    register(cellTypeSymbol, cellReturningFunction) {
+    registerConstructor(cellTypeSymbol, cellReturningFunction) {
         domCollector.registerItemIdentifier(cellTypeSymbol, () => {
             const userProvidedCell = cellReturningFunction();
             const cellContainer = new CellPositioner();
@@ -174,7 +172,7 @@ class ItemCellPairing {
      * @param {AbstractViewController} toController
      * @returns {AbstractViewController}
      */
-    create(itemSymbol, cellTypeSymbol, toController) {
+    createCell(itemSymbol, cellTypeSymbol, toController) {
         this._cellTypes.set(itemSymbol, cellTypeSymbol);
 
         const cellMigrationContainer = domCollector.get(cellTypeSymbol);
@@ -186,6 +184,20 @@ class ItemCellPairing {
 
         return cellMigrationContainer;
     }
+
+    /**
+     * @param {ItemSymbol} itemSymbol
+     * @returns {HTMLElement}
+     */
+    assign(itemSymbol) {
+        const itemTypeIdentifier = this._cellTypes.get(itemSymbol);
+        const element = domCollector.get(itemTypeIdentifier);
+        element.data
+        this._assignedItems.set(itemSymbol, element);
+        return element;
+    }
+
+    unassign(itemSymbol) {}
 
     /**
      * @param {ItemSymbol} itemSymbol
