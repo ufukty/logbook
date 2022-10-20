@@ -1,7 +1,8 @@
 import { AbstractTableCellPositioner } from "./AbstractTableCellPositioner.js";
 import { AbstractViewController } from "./AbstractViewController.js";
 import { Size, Position } from "./Layout/Coordinates.js";
-import { domCollector, adoption, createElement, symbolizer } from "./utilities.js";
+import { adoption, symbolizer } from "./utilities.js";
+import { reuseCollector } from "./ReuseCollector.js";
 
 /**
  * @typedef {Symbol} ItemSymbol
@@ -96,7 +97,7 @@ class ItemCellPairing {
         return undefined;
     }
 
-    registerViewController(vcSymbol, exportCallback, resizeNotification) {
+    registerEnvironment(vcSymbol, exportCallback, resizeNotification) {
         this._registeredViewControllers;
     }
 
@@ -152,10 +153,10 @@ class ItemCellPairing {
 
     /**
      * @param {CellTypeSymbol} cellTypeSymbol
-     * @param {function():AbstractViewController} cellReturningFunction
+     * @param {function():AbstractManagedLayoutCellViewController} cellReturningFunction
      */
-    registerConstructor(cellTypeSymbol, cellReturningFunction) {
-        domCollector.registerItemIdentifier(cellTypeSymbol, () => {
+    registerViewControllerConstructor(cellTypeSymbol, cellReturningFunction) {
+        reuseCollector.registerViewControllerConstructor(cellTypeSymbol, () => {
             const userProvidedCell = cellReturningFunction();
             const cellContainer = new CellPositioner();
             cellContainer.cell = userProvidedCell;
@@ -175,7 +176,7 @@ class ItemCellPairing {
     createCell(itemSymbol, cellTypeSymbol, toController) {
         this._cellTypes.set(itemSymbol, cellTypeSymbol);
 
-        const cellMigrationContainer = domCollector.get(cellTypeSymbol);
+        const cellMigrationContainer = reuseCollector.get(cellTypeSymbol);
 
         const toContainer = toController.dom.container;
         this._currentController.set(itemSymbol, toController);
@@ -190,14 +191,22 @@ class ItemCellPairing {
      * @returns {HTMLElement}
      */
     assign(itemSymbol) {
-        const itemTypeIdentifier = this._cellTypes.get(itemSymbol);
-        const element = domCollector.get(itemTypeIdentifier);
-        element.data
+        const cellTypeSymbol = this._cellTypes.get(itemSymbol);
+        const element = reuseCollector.get(cellTypeSymbol);
+        element.dataset.assignedItemSymbol = itemSymbol;
         this._assignedItems.set(itemSymbol, element);
         return element;
     }
 
-    unassign(itemSymbol) {}
+    /**
+     * @param {ItemSymbol} itemSymbol
+     */
+    unassign(itemSymbol) {
+        const element = this._assignedItems.get(itemSymbol);
+        const cellTypeSymbol = this._cellTypes.get(itemSymbol);
+        reuseCollector.free(cellTypeSymbol, element);
+        this._assignedItems.delete(itemSymbol);
+    }
 
     /**
      * @param {ItemSymbol} itemSymbol

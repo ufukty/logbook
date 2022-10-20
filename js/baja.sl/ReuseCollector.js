@@ -1,5 +1,4 @@
 import { AbstractManagedLayoutCellViewController } from "./AbstractManagedLayoutCellViewController.js";
-import { AbstractViewController } from "./AbstractViewController.js";
 
 /**
  * @typedef {Symbol} ItemSymbol
@@ -8,14 +7,14 @@ import { AbstractViewController } from "./AbstractViewController.js";
  */
 
 /**
- * Keeps constructor functions for superclasses of AbstractViewController,
+ * Keeps constructor functions for superclasses of AbstractManagedLayoutCellViewController,
  *   calls prepareForFree methods, waits
  */
 class ReuseCollector {
     constructor() {
         /**
          * @private
-         * @type {Map.<CellTypeSymbol, Array.<AbstractViewController>>}
+         * @type {Map.<CellTypeSymbol, Array.<AbstractManagedLayoutCellViewController>>}
          * ViewControllers that are currently unassigned to any item, grouped with CellTypeSymbol
          */
         this._reusableViewControllers = new Map();
@@ -28,9 +27,9 @@ class ReuseCollector {
 
     /**
      * @param {CellTypeSymbol} cellTypeSymbol
-     * @param {function():AbstractViewController} constructor
+     * @param {function():AbstractManagedLayoutCellViewController} constructor
      */
-    registerConstructor(cellTypeSymbol, constructor) {
+    registerViewControllerConstructor(cellTypeSymbol, constructor) {
         if (this._constructors.has(cellTypeSymbol)) return;
         this._reusableViewControllers.set(cellTypeSymbol, []);
         this._constructors.set(cellTypeSymbol, constructor);
@@ -48,7 +47,7 @@ class ReuseCollector {
 
     /**
      * @param {CellTypeSymbol} cellTypeSymbol
-     * @returns {AbstractViewController}
+     * @returns {AbstractManagedLayoutCellViewController}
      */
     get(cellTypeSymbol) {
         let viewController;
@@ -65,21 +64,14 @@ class ReuseCollector {
 
     /**
      * @param {CellTypeSymbol} cellTypeSymbol
-     * @param {AbstractViewController} viewController
+     * @param {AbstractManagedLayoutCellViewController} viewController
      */
     free(cellTypeSymbol, viewController) {
-        if (viewController instanceof AbstractManagedLayoutCellViewController) {
-            viewController.prepareForFree().then(() => {
-                this._reusableViewControllers.get(cellTypeSymbol).push(viewController);
-            });
-        } else {
-            if (
-                typeof viewController.prepareForFree !== "undefined" &&
-                typeof viewController.prepareForFree === "function"
-            )
-                viewController.prepareForFree();
+        viewController.prepareForFree();
+        (async () => {
+            await viewController.prepareForFreeAsync();
             this._reusableViewControllers.get(cellTypeSymbol).push(viewController);
-        }
+        })();
     }
 }
 

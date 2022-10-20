@@ -5,6 +5,8 @@ import { itemCellPairing } from "../js/baja.sl/ItemCellPairing.js";
 
 import { Layout } from "../js/baja.sl/Layout/Layout.js";
 import { adoption, iota, symbolizer } from "../js/baja.sl/utilities.js";
+import { itemMeasurer } from "../js/baja.sl/ItemMeasurer.js";
+import { Size, Spacing } from "../js/baja.sl/Layout/Coordinates.js";
 
 class BasicViewController extends AbstractManagedLayoutCellViewController {
     constructor() {
@@ -14,8 +16,8 @@ class BasicViewController extends AbstractManagedLayoutCellViewController {
         this.dom.container.style.height = "100px";
     }
 
-    async prepareForFree() {
-        await super.prepareForFree();
+    async prepareForFreeAsync() {
+        await super.prepareForFreeAsync();
         this.dom.container.innerText = "";
     }
 
@@ -43,14 +45,27 @@ class ConcreteLayoutPresenterViewController extends AbstractManagedLayoutViewCon
     constructor() {
         super();
 
-        itemCellPairing.register(VIEW_CONTROLLER_SYMBOL_TASK, () => {
+        itemCellPairing.registerViewControllerConstructor(VIEW_CONTROLLER_SYMBOL_TASK, () => {
             return new BasicViewController();
         });
 
         this._setupContainer();
         this._setupMainLayout();
 
-        this.layoutPipes.flow.newPlacement([Symbol("1"), Symbol("2"), Symbol("3"), Symbol("4")]);
+        const mainLayout = this.config.layoutEnvironment;
+        const mainEnvironmentSymbol = mainLayout.environmentSymbol;
+
+        const itemSymbols = [Symbol("1"), Symbol("2"), Symbol("3"), Symbol("4")];
+
+        this.layoutPipes.flow.config.spacing.set(VIEW_CONTROLLER_SYMBOL_TASK, new Spacing(200, 100, 200));
+
+        itemMeasurer.setAverageSize(mainEnvironmentSymbol, new Size(100, 100));
+        
+        itemSymbols.forEach((itemSymbol) => {
+            itemMeasurer.setDefaultSize(itemSymbol, mainEnvironmentSymbol, new Size(100, 100));
+        });
+
+        this.layoutPipes.flow.newPlacement(itemSymbols);
     }
 
     /** @private */

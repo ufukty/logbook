@@ -17,13 +17,14 @@ export class Layout {
         };
 
         this.passedThroughPipeline = {
-            /** @type {Layout} */
             layout: {
                 /** @type {Map.<Symbol, Area>} */
                 positions: new Map(),
                 /** @type {Map.<Symbol, number>} */
                 scaling: new Map(),
             },
+            /**  @type {Size} */
+            contentBoundingBoxSize: new Size(),
             /**  @type {Size} */
             containerSize: new Size(),
         };
@@ -33,7 +34,6 @@ export class Layout {
 
     /** @private */
     _recalculate(trigger) {
-        console.log("calculate");
         for (const pipe of this.private.pipeline) {
             pipe.passedThroughPipeline = this.passedThroughPipeline;
             pipe.perform();

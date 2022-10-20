@@ -31,6 +31,22 @@ class ItemMeasurer {
     }
 
     /**
+     * @param {EnvironmentSymbol} environmentSymbol
+     * @param {Size} size
+     */
+    setAverageSize(environmentSymbol, size) {
+        this._averageSizes.set(environmentSymbol, size);
+    }
+
+    /**
+     * @param {EnvironmentSymbol} environmentSymbol
+     * @returns {Size}
+     */
+    getAverageSize(environmentSymbol) {
+        return this._averageSizes.get(environmentSymbol);
+    }
+
+    /**
      * @param {ItemSymbol} itemSymbol
      * @param {EnvironmentSymbol} environmentSymbol
      * @param {Size} size
@@ -68,10 +84,11 @@ class ItemMeasurer {
     getSize(itemSymbol, environmentSymbol) {
         const measuredSizes = this._measuredSizes.get(itemSymbol);
         const defaultSizes = this._defaultSizes.get(itemSymbol);
-        if (measuredSizes && measuredSizes.has(environmentSymbol)) return measuredSizes.has(environmentSymbol);
-        if (defaultSizes && measuredSizes.has(environmentSymbol)) return defaultSizes.has(environmentSymbol);
-        if (measuredSizes && measuredSizes.has(LAST_ENVIRONMENT)) return measuredSizes.has(LAST_ENVIRONMENT);
-        if (defaultSizes && defaultSizes.has(LAST_ENVIRONMENT)) return defaultSizes.has(LAST_ENVIRONMENT);
+        console.log(this);
+        if (measuredSizes && measuredSizes.has(environmentSymbol)) return measuredSizes.get(environmentSymbol);
+        if (defaultSizes && defaultSizes.has(environmentSymbol)) return defaultSizes.get(environmentSymbol);
+        if (measuredSizes && measuredSizes.has(LAST_ENVIRONMENT)) return measuredSizes.get(LAST_ENVIRONMENT);
+        if (defaultSizes && defaultSizes.has(LAST_ENVIRONMENT)) return defaultSizes.get(LAST_ENVIRONMENT);
         console.error("asked for an item size unavailable currently");
         return new Size(0, 0);
     }

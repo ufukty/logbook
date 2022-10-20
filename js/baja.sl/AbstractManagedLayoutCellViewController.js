@@ -90,9 +90,11 @@ export class AbstractManagedLayoutCellViewController extends AbstractViewControl
         };
     }
 
-    async prepareForFree() {
+    prepareForFree() {
         this.positioner.style.display = "none";
+    }
 
+    async prepareForFreeAsync() {
         if (this.state.isAnimationOngoing) {
             this.state.animation.cancel();
             delete this.animation;

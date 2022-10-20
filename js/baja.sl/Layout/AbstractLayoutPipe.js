@@ -1,26 +1,14 @@
 import { DelegateRegistry } from "../DelegateRegistry.js";
 import { symbolizer } from "../utilities.js";
-import { Size } from "./Coordinates.js";
+import { Size, Area } from "./Coordinates.js";
 import { Layout } from "./Layout.js";
 
 export class AbstractLayoutPipe {
     constructor() {
         this.config = {};
 
-        this.passedThroughPipeline = {
-            /**
-             * Only needed if the solid class mutates the existing layout or
-             *   takes it as reference.
-             */
-            layout: {
-                /** @type {Map.<Symbol, Area>} */
-                positions: new Map(),
-                /** @type {Map.<Symbol, number>} */
-                scaling: new Map(),
-            },
-            /**  @type {Size} */
-            containerSize: undefined,
-        };
+        /** @type {{ layout: {positions: Map.<Symbol, Area>, scaling: Map.<Symbol, number>}, containerSize: Size, contentBoundingBoxSize: Size }} */
+        this.passedThroughPipeline = undefined;
 
         /**
          * This will be automatically assigned and internally used by the
