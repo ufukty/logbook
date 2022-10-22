@@ -1,34 +1,29 @@
 export class DelegateRegistry {
-    /** @param {Array.<string>} eventList */
-    constructor(eventList) {
-        /** @type {Map.<String, Array<function>>} */
-        this._delegates = new Map();
-        if (eventList && eventList.length > 0) {
-            eventList.forEach((event) => {
-                this._delegates.set(event, []);
-            });
-        }
+    constructor() {
+        /**
+         * @private
+         * @type {Map.<Symbol, Array<function>>}
+         */
+        this.delegates = new Map();
     }
 
     /**
-     * @param {string} event
+     * @param {Symbol} event
      * @param {function} callback
      */
     add(event, callback) {
-        if (!this._delegates.has(event)) {
-            console.error("Invalid event for DelegateRegistry.add()");
-            return;
+        if (!this.delegates.has(event)) {
+            this.delegates.set(event, []);
         }
-        this._delegates.get(event).push(callback);
+        this.delegates.get(event).push(callback);
     }
 
-    /** @param {string} event */
-    nofify(event, ...args) {
-        if (!this._delegates.has(event)) {
-            console.error("Invalid event for DelegateRegistry.notify()");
+    /** @param {Symbol} event */
+    notify(event, ...args) {
+        if (!this.delegates.has(event)) {
             return;
         }
-        this._delegates.get(event).forEach((callback) => {
+        this.delegates.get(event).forEach((callback) => {
             callback(...args);
         });
     }

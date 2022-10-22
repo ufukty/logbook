@@ -1,6 +1,15 @@
 .task-container {
     position: relative;
     width: var(--task-container-width);
+
+}
+
+.task-container[data-present-controls="true"] {
+    padding: 10px 0;
+}
+
+.task-container[data-present-controls="false"] {
+    padding: 0 0;
 }
 
 /* MARK: BODY */
@@ -11,8 +20,9 @@
     width: var(--task-body-width);
     left: calc(var(--badge-viewport-space) + var(--badge-width) + var(--task-badge-space));
 
-    border-radius: 11px;
+    border-radius: 12px;
     border: 1px dashed transparent;
+    /* border: 1px solid transparent; */
 
     background-color: white;
 }
@@ -21,12 +31,14 @@
     border-color: #c5c5c5ff;
     padding: 5px;
     z-index: 10;
+    /* box-shadow: 0 2px 5px #00000015; */
 }
 
 .task-container[data-present-controls="false"] .task-bordered-area {
-    border-color: #c5c5c500;
+    border-color: #C5C5C500;
     padding: 0 5px;
     z-index: 9;
+    /* box-shadow: 0 0 0 #00000015; */
 }
 
 .task-body {

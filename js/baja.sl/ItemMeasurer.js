@@ -84,7 +84,6 @@ class ItemMeasurer {
     getSize(itemSymbol, environmentSymbol) {
         const measuredSizes = this._measuredSizes.get(itemSymbol);
         const defaultSizes = this._defaultSizes.get(itemSymbol);
-        console.log(this);
         if (measuredSizes && measuredSizes.has(environmentSymbol)) return measuredSizes.get(environmentSymbol);
         if (defaultSizes && defaultSizes.has(environmentSymbol)) return defaultSizes.get(environmentSymbol);
         if (measuredSizes && measuredSizes.has(LAST_ENVIRONMENT)) return measuredSizes.get(LAST_ENVIRONMENT);

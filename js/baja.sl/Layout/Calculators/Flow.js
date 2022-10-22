@@ -16,14 +16,15 @@ export const HORIZONTAL = symbolizer.symbolize("HORIZONTAL");
 export const VERTICAL = symbolizer.symbolize("VERTICAL");
 
 export class Flow extends AbstractLayoutCalculator {
-    constructor() {
+    /** @param {direction} */
+    constructor(direction = VERTICAL) {
         super();
         this.config = {
             ...this.config,
             /** @type {Map.<CellTypeSymbol, Spacing>} */
             spacing: new Map(),
             /** Either `VERTICAL` or `HORIZONTAL` */
-            direction: VERTICAL,
+            direction: direction,
         };
     }
 
@@ -37,11 +38,11 @@ export class Flow extends AbstractLayoutCalculator {
         const remainingUnplacedItems = totalNumberOfItems - offsetOfFirstItem - this.config.placement.length;
 
         if (direction === VERTICAL) {
-            const averageHeight = this.config.averageSizeForUnplacedItem.height;
+            const averageHeight = itemMeasurer.getAverageSize(this.controlledByEnvironment.environmentSymbol).height;
             const beforePlacementHeight = averageHeight * offsetOfFirstItem;
             lastPosition += beforePlacementHeight;
         } else if (direction === HORIZONTAL) {
-            const averageWidth = this.config.averageSizeForUnplacedItem.width;
+            const averageWidth = itemMeasurer.getAverageSize(this.controlledByEnvironment.environmentSymbol).width;
             const beforePlacementWidth = averageWidth * offsetOfFirstItem;
             lastPosition += beforePlacementWidth;
         }
@@ -121,4 +122,6 @@ export class Flow extends AbstractLayoutCalculator {
             this.passedThroughPipeline.contentBoundingBoxSize.height = crossAxisMaxPosition;
         }
     }
+
+    setSpacing(CellTypeSymbol) {}
 }

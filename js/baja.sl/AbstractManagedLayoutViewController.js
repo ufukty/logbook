@@ -1,8 +1,9 @@
 import { Layout } from "./Layout/Layout.js";
 import { AbstractViewController } from "./AbstractViewController.js";
-import { domCollector, createElement, symbolizer, mergeMapKeys, setIntersect, setDifference } from "./utilities.js";
-import { itemMeasurer } from "./ItemMeasurer.js";
-import { Area } from "./Layout/Coordinates.js";
+import { createElement, mergeMapKeys, setIntersect, setDifference } from "./utilities.js";
+import { Area, Position } from "./Layout/Coordinates.js";
+import { itemCellPairing } from "./ItemCellPairing.js";
+import { AbstractManagedLayoutCellViewController } from "./AbstractManagedLayoutCellViewController.js";
 
 export const TRIGGER_CONTENT_CHANGE = "TRIGGER_CONTENT_CHANGE";
 export const TRIGGER_REPLACEMENT = "TRIGGER_REPLACEMENT";
@@ -10,13 +11,19 @@ export const TRIGGER_SCROLL_LISTENER = "TRIGGER_SCROLL_LISTENER";
 export const TRIGGER_RESIZE_OBSERVER = "TRIGGER_RESIZE_OBSERVER";
 export const TRIGGER_SCHEDULED_POSITION_TRANSLATE = "TRIGGER_SCHEDULED_POSITION_TRANSLATE";
 
+/**
+ * @typedef {Symbol} ItemSymbol
+ * @typedef {Symbol} CellTypeSymbol
+ * @typedef {Symbol} EnvironmentSymbol
+ */
+
 export class AbstractManagedLayoutViewController extends AbstractViewController {
     constructor() {
         super();
 
         this.dom = {
             ...this.dom,
-            container: createElement("div", ["container"]),
+            container: createElement("div", ["baja-sl-managed-layout-view-controller"]),
         };
 
         this.config = {
@@ -32,7 +39,7 @@ export class AbstractManagedLayoutViewController extends AbstractViewController 
              * Implementing class will use this for accessing up-to-date
              *   positions.
              */
-            layoutEnvironment: undefined,
+            layout: undefined,
             /**
              * Number values for zones represents how many times window height
              *   will be extended from up and down to find top and bottom edges of
@@ -47,15 +54,17 @@ export class AbstractManagedLayoutViewController extends AbstractViewController 
              *   fast.
              */
             zoneOffsets: {
-                preload: 1.8,
-                parking: 2.0,
+                preload: 1.1,
+                parking: 1.2,
             },
             /**
              * focusedPosition = focusLevel * window.clientHeight
              */
             focusLevel: 0.5,
+            updateMaxFrequency: 60,
         };
 
+        /** @private */
         this.computedValues = {
             /** @type { Map.<Symbol, AbstractViewController> } */
             cellPositioners: new Map(),
@@ -85,9 +94,13 @@ export class AbstractManagedLayoutViewController extends AbstractViewController 
             next: this._getTemplateForComputedValues(),
         };
 
-        this.dom.container.addEventListener("scroll", () => {
-            this.updateView(TRIGGER_SCROLL_LISTENER);
-        });
+        /** @private */
+        this.processAtNextUpdate = {
+            /** @type {Area} */
+            viewport: undefined,
+        };
+
+        this.dom.container.style.position = "relative";
     }
 
     /** @private */
@@ -165,52 +178,52 @@ export class AbstractManagedLayoutViewController extends AbstractViewController 
     _debugPrintClassifiedItems() {
         Object.keys(this.computedValues.next.classifiedItems).forEach((cls) => {
             if (this.computedValues.next.classifiedItems[cls].size > 0) {
-                // console.log(cls, this.computedValues.next.classifiedItems[cls]);
+                console.log(cls, this.computedValues.next.classifiedItems[cls]);
             }
         });
     }
 
     /** @private */
     _updateZoneBoundaries() {
-        const scrollElement = this.config.scrollElement;
-        const x0 = scrollElement.scrollLeft;
-        const y0 = scrollElement.scrollTop;
-        const x1 = scrollElement.scrollLeft + scrollElement.clientWidth;
-        const y1 = scrollElement.scrollTop + scrollElement.clientHeight;
+        if (this.processAtNextUpdate.viewport) {
+            const viewport = this.processAtNextUpdate.viewport;
+            this.processAtNextUpdate.viewport = undefined;
 
-        this.computedValues.next.boundaries = {
-            focus: new Area(x0, y0, x0, y0),
-            view: new Area(x0, y0, x1, y1),
-            preload: new Area(x0, y0, x1, y1).scale(this.config.zoneOffsets.preload),
-            parking: new Area(x0, y0, x1, y1).scale(this.config.zoneOffsets.parking),
-        };
+            this.computedValues.next.boundaries = {
+                focus: new Area(viewport.x0, viewport.y0, viewport.x0, viewport.y0),
+                view: viewport,
+                preload: Object.assign(viewport, {}).scale(this.config.zoneOffsets.preload),
+                parking: Object.assign(viewport, {}).scale(this.config.zoneOffsets.parking),
+            };
+        } else if (this.computedValues.current.boundaries.view) {
+            this.computedValues.next.boundaries = this.computedValues.current.boundaries;
+        } else {
+            console.error(
+                "AbstractManagedLayoutViewController is requested to get updated without viewport specified."
+            );
+        }
     }
 
     /** @private */
     _copyLayout() {
-        this.computedValues.next.positions = this.config.layoutEnvironment.passedThroughPipeline.layout.positions;
+        this.computedValues.next.positions = this.config.layout.passedThroughPipeline.layout.positions;
     }
 
     /** @private */
     _classifyItemsByCollidedZones() {
-        for (const [itemSymbol, itemPos] of this.computedValues.next.positions) {
-            const size = itemMeasurer.getSize(itemSymbol, this.config.layoutEnvironment.environmentSymbol);
-            const item = new Area(itemPos.x, itemPos.y, itemPos.x + size.width, itemPos.y + size.height);
-
+        for (const [itemSymbol, item] of this.computedValues.next.positions) {
             var inFocus = false;
             var inViewport = false;
             var inPreload = false;
             var inParking = false;
 
-            if (true) {
-                inParking = item.isCollidingWith(this.computedValues.next.boundaries.view);
-                if (inParking) {
-                    inPreload = item.isCollidingWith(this.computedValues.next.boundaries.preload);
-                    if (inPreload) {
-                        inViewport = item.isCollidingWith(this.computedValues.next.boundaries.view);
-                        if (inViewport) {
-                            inFocus = item.isCollidingWith(this.computedValues.next.boundaries.focus);
-                        }
+            inParking = item.isCollidingWith(this.computedValues.next.boundaries.view);
+            if (inParking) {
+                inPreload = item.isCollidingWith(this.computedValues.next.boundaries.preload);
+                if (inPreload) {
+                    inViewport = item.isCollidingWith(this.computedValues.next.boundaries.view);
+                    if (inViewport) {
+                        inFocus = item.isCollidingWith(this.computedValues.next.boundaries.focus);
                     }
                 }
             }
@@ -231,36 +244,9 @@ export class AbstractManagedLayoutViewController extends AbstractViewController 
     }
 
     /** @private */
-    _calculateFocusShift() {
-        let totalScrollShift = 0;
-        for (const itemSymbol of this.computedValues.next.mergedItemSymbols) {
-            // calculate scroll shift; if there is any change in height of item
-            if (
-                this.computedValues.current.positions.has(itemSymbol) &&
-                this.computedValues.next.positions.has(itemSymbol)
-            ) {
-                if (
-                    this.computedValues.current.positions.get(itemSymbol).height !==
-                    this.computedValues.next.positions.get(itemSymbol).height
-                ) {
-                    if (
-                        this.computedValues.next.positions.get(itemSymbol).ends <
-                        this.computedValues.next.boundaries.view.starts
-                    ) {
-                        totalScrollShift +=
-                            this.computedValues.next.positions.get(itemSymbol).height -
-                            this.computedValues.current.positions.get(itemSymbol).height;
-                    }
-                }
-            }
-        }
-        this.computedValues.scrollShift = totalScrollShift;
-    }
-
-    /** @private */
-    _updateContainer() {
-        this.contentArea.style.width = `${this.config.layoutEnvironment.passedThroughPipeline.containerSize.width}px`;
-        this.contentArea.style.height = `${this.config.layoutEnvironment.passedThroughPipeline.containerSize.height}px`;
+    _updateContainerToTheContentBoundingBoxSize() {
+        this.dom.container.style.width = `${this.config.layout.passedThroughPipeline.contentBoundingBoxSize.width}px`;
+        this.dom.container.style.height = `${this.config.layout.passedThroughPipeline.contentBoundingBoxSize.height}px`;
     }
 
     /** @private */
@@ -301,25 +287,25 @@ export class AbstractManagedLayoutViewController extends AbstractViewController 
 
             const isPersistingInPreload =
                 isPersistingInPlacement &&
-                this.computedValues.cellPositioners.has(itemSymbol) &&
+                itemCellPairing.isItemAssignedToACell(itemSymbol) && // FIXME: cellPositioners doesn't track assigned cells, use itemCellPairing
                 this.computedValues.current.zoneCollisions.inParking.has(itemSymbol) &&
                 this.computedValues.next.zoneCollisions.inParking.has(itemSymbol);
 
             const doesEnterPreload =
-                !this.computedValues.cellPositioners.has(itemSymbol) &&
+                !itemCellPairing.isItemAssignedToACell(itemSymbol) &&
                 this.computedValues.next.zoneCollisions.inPreload.has(itemSymbol);
 
             const doesLeavePreload =
-                !this.computedValues.cellPositioners.has(itemSymbol) &&
+                !itemCellPairing.isItemAssignedToACell(itemSymbol) &&
                 this.computedValues.next.zoneCollisions.inPreload.has(itemSymbol);
 
             const doesLeaveParking =
-                this.computedValues.cellPositioners.has(itemSymbol) &&
+                itemCellPairing.isItemAssignedToACell(itemSymbol) &&
                 !this.computedValues.next.zoneCollisions.inParking.has(itemSymbol);
 
             const isLeavingParking =
                 !this.computedValues.unassignmentScheduling.transitioning.has(itemSymbol) &&
-                this.computedValues.cellPositioners.has(itemSymbol) &&
+                itemCellPairing.isItemAssignedToACell(itemSymbol) &&
                 !this.computedValues.next.zoneCollisions.inParking.has(itemSymbol);
 
             const isReadyToUnassign =
@@ -455,32 +441,32 @@ export class AbstractManagedLayoutViewController extends AbstractViewController 
 
         // assign
         for (const itemSymbol of classes.toAssign) {
-            const cellPositioner = this.getCellForItem(itemSymbol);
-            this.computedValues.cellPositioners.set(itemSymbol, cellPositioner);
-            cellPositioner.itemSymbol = itemSymbol;
-            cellPositioner.container.dataset["itemId"] = symbolizer.desymbolize(itemSymbol);
-            const computedStyle = getComputedStyle(cellPositioner.cell.dom.container);
-            const computedHeight = parseFloat(computedStyle.getPropertyValue("height"));
-            this.computedValues.lastRecordedCellHeightOfItem.set(itemSymbol, computedHeight);
+            const envSymbol = this.config.layout.environmentSymbol;
+            const managedLayoutCellViewController = itemCellPairing.assign(itemSymbol, envSymbol);
+            this.populateCellForItem(managedLayoutCellViewController, itemSymbol);
+
+            // const computedStyle = getComputedStyle(cellPositioner.cell.dom.container);
+            // const computedHeight = parseFloat(computedStyle.getPropertyValue("height"));
+            // this.computedValues.lastRecordedCellHeightOfItem.set(itemSymbol, computedHeight);
         }
 
         // position set
         for (const itemSymbol of classes.toPositionSet) {
-            const cellPositioner = this.computedValues.cellPositioners.get(itemSymbol);
-            const newPosition = this.computedValues.next.positions.get(itemSymbol).starts;
-            cellPositioner.setPosition(newPosition, false, false);
+            const managedLayoutCellViewController = itemCellPairing.getAssignedCellForItem(itemSymbol);
+            const newPosition = this.computedValues.next.positions.get(itemSymbol);
+            managedLayoutCellViewController.setPosition(new Position(newPosition.x0, newPosition.y0), false, false);
         }
 
         // position transition
         for (const itemSymbol of classes.toPositionTranslate) {
-            const cellPositioner = this.computedValues.cellPositioners.get(itemSymbol);
+            const cellPositioner = itemCellPairing.getAssignedCellForItem(itemSymbol);
             var newPosition = this.computedValues.next.positions.get(itemSymbol).starts;
             cellPositioner.setPosition(newPosition, true, false);
         }
 
         // position transition from current position
         for (const itemSymbol of classes.toPositionTranslateFromCurrentPosition) {
-            const cellPositioner = this.computedValues.cellPositioners.get(itemSymbol);
+            const cellPositioner = itemCellPairing.getAssignedCellForItem(itemSymbol);
             const currentPosition = this.computedValues.current.positions.get(itemSymbol).starts;
             const newPosition = this.computedValues.next.positions.get(itemSymbol).starts;
             cellPositioner.setPosition(currentPosition, false, true);
@@ -489,7 +475,7 @@ export class AbstractManagedLayoutViewController extends AbstractViewController 
 
         // position transition with scheduling
         for (const itemSymbol of classes.toScheduledPositionTranslate) {
-            const cellPositioner = this.computedValues.cellPositioners.get(itemSymbol);
+            const cellPositioner = itemCellPairing.getAssignedCellForItem(itemSymbol);
             const newPosition = this.computedValues.next.positions.get(itemSymbol).starts;
             this.computedValues.unassignmentScheduling.transitioning.add(itemSymbol);
             cellPositioner.setPosition(newPosition, true, false, () => {
@@ -516,9 +502,7 @@ export class AbstractManagedLayoutViewController extends AbstractViewController 
 
         // unassign
         for (const itemSymbol of classes.toUnassign) {
-            const cellPositioner = this.computedValues.cellPositioners.get(itemSymbol);
-            const reuseIdentifier = cellPositioner.reuseIdentifier;
-            domCollector.free(reuseIdentifier, cellPositioner);
+            itemCellPairing.unassign(itemSymbol);
             this.computedValues.cellPositioners.delete(itemSymbol);
             this.computedValues.unassignmentScheduling.transitioning.delete(itemSymbol);
             this.computedValues.unassignmentScheduling.readyToUnassign.delete(itemSymbol);
@@ -536,14 +520,17 @@ export class AbstractManagedLayoutViewController extends AbstractViewController 
     _isUpdateNeeded(trigger) {
         const now = Date.now();
 
-        const doesParentElementHasHeight = this.config.scrollElement.clientHeight !== 0;
-        if (!doesParentElementHasHeight) {
-            // console.log("re-scheduling updateView due to scrollElement height is not being set");
-            requestAnimationFrame(() => {
-                this.updateView(trigger);
-            });
-            return false;
-        }
+        // const doesParentElementHasHeight =
+        //     (this.computedValues.current.boundaries.view &&
+        //         this.computedValues.current.boundaries.view.height() !== 0) ||
+        //     (this.processAtNextUpdate.viewport && this.processAtNextUpdate.viewport.height() !== 0);
+        // if (!doesParentElementHasHeight) {
+        //     // console.log("re-scheduling updateView due to scrollElement height is not being set");
+        //     requestAnimationFrame(() => {
+        //         this.updateView(trigger);
+        //     });
+        //     return false;
+        // }
 
         if (this.computedValues.updateScheduling.lastUpdateTime) {
             const timePassedSinceLastUpdate = now - this.computedValues.updateScheduling.lastUpdateTime;
@@ -571,39 +558,47 @@ export class AbstractManagedLayoutViewController extends AbstractViewController 
         return true;
     }
 
-    updateView() {
+    updateView(trigger) {
         if (!this._isUpdateNeeded(trigger)) return;
         this.computedValues.updateScheduling.ongoingUpdate = true;
 
         this.computedValues.next = this._getTemplateForComputedValues();
         this.computedValues.next.updateTrigger = trigger;
 
-        // console.groupCollapsed(`AbstractTableViewController.updateView(${trigger})`);
+        console.log(trigger);
 
         this._updateZoneBoundaries();
         this._copyLayout();
         this._classifyItemsByCollidedZones();
-
         this._mergeItemSymbolsWithPreviousIteration();
-        // this._calculateFocusShift();
-        this._updateContainer();
-
-        // console.groupCollapsed("classes");
+        this._updateContainerToTheContentBoundingBoxSize();
         this._classifyItemsByUpdateTypes();
-        // console.groupEnd("classes");
 
-        this._debugPrintClassifiedItems();
+        requestAnimationFrame(() => {
+            this._updateCells();
+            delete this.computedValues.current;
+            this.computedValues.current = this.computedValues.next;
+            this.computedValues.updateScheduling.ongoingUpdate = undefined;
+        });
+    }
 
-        // console.groupCollapsed("updateComponents");
-        this._updateCells();
-        // console.groupEnd("updateComponents");
+    /** @param {Area} newArea */
+    setViewport(newArea) {
+        this.processAtNextUpdate.viewport = newArea;
+    }
 
-        // console.groupEnd(`AbstractTableViewController.updateView(${trigger})`);
-
-        delete this.computedValues.current;
-        this.computedValues.current = this.computedValues.next;
-
-        this.computedValues.updateScheduling.ongoingUpdate = undefined;
+    /**
+     * @param {CellTypeSymbol} cellTypeSymbol
+     * @param {EnvironmentSymbol} environmentSymbol
+     * @param {function():AbstractManagedLayoutCellViewController} constructorFunction
+     */
+    registerCellViewControllerConstructor(cellTypeSymbol, constructorFunction) {
+        const environmentSymbol = this.config.layout.environmentSymbol;
+        itemCellPairing.registerCellViewControllerConstructor(cellTypeSymbol, environmentSymbol, () => {
+            const cell = constructorFunction();
+            this.dom.container.appendChild(cell.dom.managedLayoutPositioner);
+            return cell;
+        });
     }
 
     /**
@@ -656,5 +651,15 @@ export class AbstractManagedLayoutViewController extends AbstractViewController 
         for (const itemSymbol of updatedUnassignedItems) {
             this.cellUpdateIsSkippedForUpdatedItem(itemSymbol);
         }
+    }
+
+    /**
+     * @abstract
+     * @param {managedLayoutCellViewController} managedLayoutCellViewController
+     * @param {ItemSymbol} itemSymbol
+     * Populate content of managedLayoutCellViewController according to itemSymbol
+     */
+    populateCellForItem(managedLayoutCellViewController, itemSymbol) {
+        console.error("abstract method is called directly.");
     }
 }

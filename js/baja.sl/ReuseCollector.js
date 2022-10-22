@@ -20,39 +20,60 @@ class ReuseCollector {
         this._reusableViewControllers = new Map();
         /**
          * @private
-         * @type {Map.<CellTypeSymbol, function>}
+         * @type {Map.<CellTypeSymbol, Map.<EnvironmentSymbol, function():AbstractManagedLayoutCellViewController>>}
          */
         this._constructors = new Map();
     }
 
     /**
      * @param {CellTypeSymbol} cellTypeSymbol
-     * @param {function():AbstractManagedLayoutCellViewController} constructor
+     * @param {EnvironmentSymbol} environmentSymbol
+     * @param {function():AbstractManagedLayoutCellViewController} constructorFunction
      */
-    registerViewControllerConstructor(cellTypeSymbol, constructor) {
-        if (this._constructors.has(cellTypeSymbol)) return;
-        this._reusableViewControllers.set(cellTypeSymbol, []);
-        this._constructors.set(cellTypeSymbol, constructor);
+    registerCellViewControllerConstructor(cellTypeSymbol, environmentSymbol, constructorFunction) {
+        if (typeof cellTypeSymbol !== "symbol") {
+            console.error("Wrong type of argument has received.");
+        }
+        if (typeof environmentSymbol !== "symbol") {
+            console.error("Wrong type of argument has received.");
+        }
+        if (typeof constructorFunction !== "function") {
+            console.error("Wrong type of argument has received.");
+        }
+
+        if (!this._constructors.has(cellTypeSymbol)) {
+            this._constructors.set(cellTypeSymbol, new Map());
+        }
+        const constructorsForCellType = this._constructors.get(cellTypeSymbol);
+        if (!constructorsForCellType.has(environmentSymbol)) {
+            constructorsForCellType.set(environmentSymbol, constructorFunction);
+        }
+
+        if (!this._reusableViewControllers.has(cellTypeSymbol)) {
+            this._reusableViewControllers.set(cellTypeSymbol, []);
+        }
     }
 
     /**
      * @private
      * @param {CellTypeSymbol} cellTypeSymbol
+     * @param {EnvironmentSymbol} environmentSymbol
      */
-    _createViewController(cellTypeSymbol) {
-        const _constructor = this._constructors[cellTypeSymbol];
+    _createViewController(cellTypeSymbol, environmentSymbol) {
+        const _constructor = this._constructors.get(cellTypeSymbol).get(environmentSymbol);
         const item = _constructor();
         return item;
     }
 
     /**
      * @param {CellTypeSymbol} cellTypeSymbol
+     * @param {EnvironmentSymbol} environmentSymbol
      * @returns {AbstractManagedLayoutCellViewController}
      */
-    get(cellTypeSymbol) {
+    get(cellTypeSymbol, environmentSymbol) {
         let viewController;
         if (this._reusableViewControllers.get(cellTypeSymbol).length === 0) {
-            viewController = this._createViewController(cellTypeSymbol);
+            viewController = this._createViewController(cellTypeSymbol, environmentSymbol);
         } else {
             viewController = this._reusableViewControllers.get(cellTypeSymbol).pop();
         }

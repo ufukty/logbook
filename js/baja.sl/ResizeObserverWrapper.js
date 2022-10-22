@@ -1,4 +1,4 @@
-import { iota } from "./utilities";
+import { iota, symbolizer } from "./utilities.js";
 
 class ResizeObserverWrapper {
     constructor() {
@@ -16,19 +16,26 @@ class ResizeObserverWrapper {
 
     /**
      * @param {HTMLElement} element
+     * @param {string} elementId - That information will be returned as argument to the declared callback function
      * @param {function} callback
      */
-    subscribe(element, callback) {
-        const resizeObserverWrapperId = iota().toString();
-        element.dataset.resizeObserverWrapperId = resizeObserverWrapperId;
-
-        var subscribers = this._subscribers.get(resizeObserverWrapperId);
+    subscribe(element, elementId, callback) {
+        if ((typeof element !== "object" || !(element instanceof HTMLElement)) && typeof element !== Window) {
+            console.error("Wrong type of argument has received.");
+        }
+        if (typeof elementId !== "string") {
+            console.error(`Wrong type of argument has received, value="${elementId}"`);
+        }
+        if (typeof callback !== "function") {
+            console.error("Wrong type of argument has received.");
+        }
+        element.dataset.resizeObserverWrapperId = elementId;
+        var subscribers = this._subscribers.get(elementId);
         if (!subscribers) {
-            const subscribers = new Set();
-            this._subscribers.set(resizeObserverWrapperId, subscribers);
+            subscribers = new Set();
+            this._subscribers.set(elementId, subscribers);
         }
         subscribers.add(callback);
-
         this.observer.observe(element);
     }
 
@@ -38,10 +45,10 @@ class ResizeObserverWrapper {
      */
     _dispatch(entries) {
         for (const entry of entries) {
-            const resizeObserverWrapperId = entry.target.dataset.resizeObserverWrapperId;
-            const subscribers = this._subscribers.get(resizeObserverWrapperId);
+            const elementId = entry.target.dataset.resizeObserverWrapperId;
+            const subscribers = this._subscribers.get(elementId);
             for (const subscriber of subscribers) {
-                subscriber();
+                subscriber(elementId);
             }
         }
     }

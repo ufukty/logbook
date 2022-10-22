@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+    </head>
+
+    <body>
+        <script>
+
+            async function asyncc(resolve, reject) {
+                console.log("runs asynchronously")
+            }
+
+            const prom1 = new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    console.log("promise1+timeout runs")
+                    resolve("prom1")
+                }, 1000);
+                console.log("promise1 runs")
+            })
+
+
+            asyncc().finally("asyncc then")
+
+            console.log("global scop end")
+
+            prom1.then(() => {
+                console.log("prom1 then() runs")
+            }).then(() => {
+                console.log("prom1 then() 2 runs")
+            }).catch(() => {
+                console.log("prom1 catch() runs")
+
+            })
+
+
+        </script>
+    </body>
+
+</html>

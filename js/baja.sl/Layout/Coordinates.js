@@ -28,7 +28,7 @@ export class Size {
 
 export class Position {
     constructor(x, y) {
-        set(x, y);
+        this.set(x, y);
     }
 
     set(x, y) {
@@ -96,7 +96,7 @@ export class Anchor {
      * @returns {Position}
      */
     interpolate(areaSize) {
-        return Position(lerp(0, areaSize.width, this.horizontal), lerp(0, areaSize.height, this.vertical));
+        return new Position(lerp(0, areaSize.width, this.horizontal), lerp(0, areaSize.height, this.vertical));
     }
 }
 
@@ -127,7 +127,7 @@ export class Area {
         this.y0 = y0;
         this.x1 = x1;
         this.y1 = y1;
-        this.size = new Size(x1 - x0, y1 - y0);
+        // this.size = new Size(x1 - x0, y1 - y0);
     }
 
     /** @param {Area} area  */
@@ -142,11 +142,44 @@ export class Area {
      *   keeping original transformOrigin at same position.
      */
     scale(factor, transformOrigin = new Anchor(0.5, 0.5)) {
-        const origin = transformOrigin.interpolate(this.size);
-        this.x0 = factor * (x0 - origin.x) + origin.x;
-        this.y0 = factor * (y0 - origin.y) + origin.y;
-        this.x1 = factor * (x1 - origin.x) + origin.x;
-        this.y1 = factor * (y1 - origin.y) + origin.y;
+        const origin = transformOrigin.interpolate(new Size(this.width(), this.height()));
+        origin.add(this.x0, this.y0);
+        this.x0 = factor * (this.x0 - origin.x) + origin.x;
+        this.y0 = factor * (this.y0 - origin.y) + origin.y;
+        this.x1 = factor * (this.x1 - origin.x) + origin.x;
+        this.y1 = factor * (this.y1 - origin.y) + origin.y;
+        // this.size.width = this.x1 - this.x0;
+        // this.size.height = this.y1 - this.y0;
         return this;
+    }
+
+    translate(horizontal = 0, vertical = 0) {
+        this.x0 += horizontal;
+        this.x1 += horizontal;
+        this.y0 += vertical;
+        this.y1 += vertical;
+        return this;
+    }
+
+    moveTo(x = undefined, y = undefined) {
+        if (x) {
+            const width = this.width();
+            this.x0 = x;
+            this.x1 = x + width;
+        }
+        if (y) {
+            const height = this.height();
+            this.y0 = y;
+            this.y1 = y + height;
+        }
+        return this;
+    }
+
+    height() {
+        return this.y1 - this.y0;
+    }
+
+    width() {
+        return this.x1 - this.x0;
     }
 }

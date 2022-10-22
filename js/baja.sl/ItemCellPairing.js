@@ -3,6 +3,8 @@ import { AbstractViewController } from "./AbstractViewController.js";
 import { Size, Position } from "./Layout/Coordinates.js";
 import { adoption, symbolizer } from "./utilities.js";
 import { reuseCollector } from "./ReuseCollector.js";
+import { AbstractManagedLayoutCellViewController } from "./AbstractManagedLayoutCellViewController.js";
+import { resizeObserverWrapper } from "./ResizeObserverWrapper.js";
 
 /**
  * @typedef {Symbol} ItemSymbol
@@ -38,34 +40,28 @@ class ItemCellPairing {
     constructor() {
         /**
          * @private
-         * @type {Map.<ItemSymbol, CellPositioner>}
-         * Those items which assigned to a cell
-         */
-        this._assignedItems = new Map();
-
-        /**
-         * @private
          * @type {Map.<ItemSymbol, Map.<EnvironmentSymbol, CellTypeSymbol>>}
          */
         this._cellTypes = new Map();
 
         /**
          * @private
-         * @type {ResizeObserver}
+         * @type {Map.<ItemSymbol, AbstractManagedLayoutCellViewController>}
+         * Those items which assigned to a cell
          */
-        this._resizeObserver = new ResizeObserver(this._resizeObserverNotificationHandler.bind(this));
+        this._assignedItems = new Map();
 
         /**
          * @private
-         * @type {Map.<ItemSymbol, AbstractViewController>}
+         * @type {Map.<ItemSymbol, AbstractManagedLayoutCellViewController>}
          */
-        this._currentController = new Map();
+        // this._lastAssignedController = new Map();
 
         /**
          * @private
          * @type {Map.<EnvironmentSymbol, AbstractViewController>}
          */
-        this._registeredViewControllers;
+        // this._registeredViewControllers;
     }
 
     /**
@@ -74,7 +70,7 @@ class ItemCellPairing {
      * @param {CellTypeSymbol} cellTypeSymbol
      */
     setCellKindForItem(itemSymbol, environmentSymbol, cellTypeSymbol) {
-        var cellKinds = this._defaultSizes.get(itemSymbol);
+        var cellKinds = this._cellTypes.get(itemSymbol);
         if (cellKinds === undefined) {
             cellKinds = new Map();
             this._cellTypes.set(itemSymbol, cellKinds);
@@ -93,7 +89,6 @@ class ItemCellPairing {
         if (cellTypes) {
             return cellTypes.get(environmentSymbol) ?? cellTypes.get(DEFAULT_ENVIRONMENT) ?? undefined;
         }
-
         return undefined;
     }
 
@@ -151,21 +146,13 @@ class ItemCellPairing {
         }
     }
 
-    /**
-     * @param {CellTypeSymbol} cellTypeSymbol
-     * @param {function():AbstractManagedLayoutCellViewController} cellReturningFunction
-     */
-    registerViewControllerConstructor(cellTypeSymbol, cellReturningFunction) {
-        reuseCollector.registerViewControllerConstructor(cellTypeSymbol, () => {
-            const userProvidedCell = cellReturningFunction();
-            const cellContainer = new CellPositioner();
-            cellContainer.cell = userProvidedCell;
-            cellContainer.cellTypeSymbol = cellTypeSymbol;
-            adoption(cellContainer.dom.container, [userProvidedCell.dom.container]);
-            this._resizeObserver.observe(cellContainer.container);
-            return cellContainer;
-        });
-    }
+    // /**
+    //  * @param {CellTypeSymbol} cellTypeSymbol
+    //  * @param {function():AbstractManagedLayoutCellViewController} cellReturningFunction
+    //  */
+    // registerViewControllerConstructor(cellTypeSymbol, cellReturningFunction) {
+    //     reuseCollector.registerViewControllerConstructor(cellTypeSymbol, cellReturningFunction);
+    // }
 
     /**
      * @param {ItemSymbol} itemSymbol
@@ -173,38 +160,40 @@ class ItemCellPairing {
      * @param {AbstractViewController} toController
      * @returns {AbstractViewController}
      */
-    createCell(itemSymbol, cellTypeSymbol, toController) {
-        this._cellTypes.set(itemSymbol, cellTypeSymbol);
+    // createCell(itemSymbol, cellTypeSymbol, toController) {
+    //     this._cellTypes.set(itemSymbol, cellTypeSymbol);
 
-        const cellMigrationContainer = reuseCollector.get(cellTypeSymbol);
+    //     const cellMigrationContainer = reuseCollector.get(cellTypeSymbol);
 
-        const toContainer = toController.dom.container;
-        this._currentController.set(itemSymbol, toController);
+    //     const toContainer = toController.dom.container;
+    //     this._currentController.set(itemSymbol, toController);
 
-        cellMigrationContainer;
+    //     cellMigrationContainer;
 
-        return cellMigrationContainer;
-    }
+    //     return cellMigrationContainer;
+    // }
 
     /**
      * @param {ItemSymbol} itemSymbol
-     * @returns {HTMLElement}
+     * @param {EnvironmentSymbol} environmentSymbol
+     * @returns {AbstractManagedLayoutCellViewController}
      */
-    assign(itemSymbol) {
-        const cellTypeSymbol = this._cellTypes.get(itemSymbol);
-        const element = reuseCollector.get(cellTypeSymbol);
-        element.dataset.assignedItemSymbol = itemSymbol;
-        this._assignedItems.set(itemSymbol, element);
-        return element;
+    assign(itemSymbol, environmentSymbol) {
+        const cellTypeSymbol = this.getCellTypeForItem(itemSymbol, environmentSymbol);
+        const managedLayoutCellViewController = reuseCollector.get(cellTypeSymbol, environmentSymbol);
+        managedLayoutCellViewController.dom.managedLayoutPositioner.dataset.assignedItemSymbol =
+            symbolizer.desymbolize(itemSymbol);
+        this._assignedItems.set(itemSymbol, managedLayoutCellViewController);
+        return managedLayoutCellViewController;
     }
 
     /**
      * @param {ItemSymbol} itemSymbol
      */
     unassign(itemSymbol) {
-        const element = this._assignedItems.get(itemSymbol);
-        const cellTypeSymbol = this._cellTypes.get(itemSymbol);
-        reuseCollector.free(cellTypeSymbol, element);
+        const managedLayoutCellViewController = this._assignedItems.get(itemSymbol);
+        const cellTypeSymbol = this.getCellTypeForItem(itemSymbol);
+        reuseCollector.free(cellTypeSymbol, managedLayoutCellViewController);
         this._assignedItems.delete(itemSymbol);
     }
 
@@ -215,26 +204,64 @@ class ItemCellPairing {
      * @param {bool} preserveSpaceOnExporter
      * @returns {AbstractViewController}
      */
-    transfer(itemSymbol, nextContainer, positionInNextContainer, preserveSpaceOnExporter) {
-        // TODO: call create() if the requested item is not currently assigned to a cell
-        const currentContainer = this._currentController.get(itemSymbol).dom.container;
-        const cellMigrationContainerForRequestedItem = this._assignedItems.get(itemSymbol);
+    // transfer(itemSymbol, nextContainer, positionInNextContainer, preserveSpaceOnExporter) {
+    //     // TODO: call create() if the requested item is not currently assigned to a cell
+    //     const currentContainer = this._currentController.get(itemSymbol).dom.container;
+    //     const cellMigrationContainerForRequestedItem = this._assignedItems.get(itemSymbol);
 
-        const commonParent = findNearestCommonParentNode(currentContainer, nextContainer);
-        const currentCellTranslationFromCommonParent = calculateRecursivePositioning(
-            commonParent,
-            cellMigrationContainerForRequestedItem
-        );
-        // prettier-ignore
-        const nextCellTranslationFromCommonParent = calculateRecursivePositioning(
-            commonParent, 
-            nextContainer
-        ).addFrom(positionInNextContainer)
+    //     const commonParent = findNearestCommonParentNode(currentContainer, nextContainer);
+    //     const currentCellTranslationFromCommonParent = calculateRecursivePositioning(
+    //         commonParent,
+    //         cellMigrationContainerForRequestedItem
+    //     );
+    //     // prettier-ignore
+    //     const nextCellTranslationFromCommonParent = calculateRecursivePositioning(
+    //         commonParent,
+    //         nextContainer
+    //     ).addFrom(positionInNextContainer)
 
-        // TODO: compare with nextCellTranslation.deltaCompFrom(currentCellTranslationFromCommonParent)
-        const neededTranslation = currentCellTranslationFromCommonParent.deltaCompFrom(nextCellTranslation);
-        adoption(nextContainer.dom.container, [cellMigrationContainerForRequestedItem]);
-        cellMigrationContainerForRequestedItem.translateFromTo();
+    //     // TODO: compare with nextCellTranslation.deltaCompFrom(currentCellTranslationFromCommonParent)
+    //     const neededTranslation = currentCellTranslationFromCommonParent.deltaCompFrom(nextCellTranslation);
+    //     adoption(nextContainer.dom.container, [cellMigrationContainerForRequestedItem]);
+    //     cellMigrationContainerForRequestedItem.translateFromTo();
+    // }
+
+    /**
+     * @param {ItemSymbol} itemSymbol
+     * @returns {AbstractManagedLayoutCellViewController}
+     */
+    getAssignedCellForItem(itemSymbol) {
+        return this._assignedItems.get(itemSymbol);
+    }
+
+    isItemAssignedToACell(itemSymbol) {
+        return this._assignedItems.has(itemSymbol);
+    }
+
+    /**
+     * @param {CellTypeSymbol} cellTypeSymbol
+     * @param {EnvironmentSymbol} environmentSymbol
+     * @param {function():AbstractManagedLayoutCellViewController} constructorFunction
+     */
+    registerCellViewControllerConstructor(cellTypeSymbol, environmentSymbol, constructorFunction) {
+        reuseCollector.registerCellViewControllerConstructor(cellTypeSymbol, environmentSymbol, () => {
+            const cell = constructorFunction();
+            resizeObserverWrapper.subscribe(
+                cell.dom.container,
+                symbolizer.desymbolize(environmentSymbol),
+                this._resizeObserverEventHandler.bind(this)
+            );
+            return cell;
+        });
+    }
+
+    /**
+     * @private
+     * @param {string} itemId - desymbolized version of itemSymbol
+     */
+    _resizeObserverEventHandler(itemId) {
+        const itemSymbol = symbolizer.symbolize(itemId);
+        
     }
 }
 

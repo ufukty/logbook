@@ -1,4 +1,5 @@
 import { AbstractViewController } from "./AbstractViewController.js";
+import { Position } from "./Layout/Coordinates.js";
 import { adoption, createElement, iota } from "./utilities.js";
 
 /** first level of presentation */
@@ -20,7 +21,7 @@ export class AbstractManagedLayoutCellViewController extends AbstractViewControl
              * This will be used to position user-provided HTMLElement without
              *   utilizing its transform/position props.
              */
-            managedLayoutPositioner: createElement("div", ["mlcvc-layout-positioner"]),
+            managedLayoutPositioner: createElement("div", ["baja-sl-managed-layout-cell-view-positioner"]),
             /**
              * @type {HTMLElement}
              * Concrete classes of this AbstractManagedLayoutCellViewController
@@ -28,8 +29,10 @@ export class AbstractManagedLayoutCellViewController extends AbstractViewControl
              *   indirectly) element. They also can edit content and style of
              *   this element as they wish.
              */
-            container: createElement("div", ["mlcvc-container"]),
+            container: createElement("div", ["baja-sl-managed-layout-cell-view-container"]),
         };
+
+        this.dom.managedLayoutPositioner.style.position = "absolute";
 
         // prettier-ignore
         adoption(this.dom.managedLayoutPositioner, [
@@ -53,8 +56,8 @@ export class AbstractManagedLayoutCellViewController extends AbstractViewControl
             },
             leveledPresentation: {
                 timeoutDuration: {
-                    secondLevelOfPresentation: 2 * (1000 / 60),
-                    thirdLevelOfPresentation: 10 * (1000 / 60),
+                    secondLevelOfPresentation: 15 * (1000 / 60),
+                    thirdLevelOfPresentation: 15 * (1000 / 60),
                 },
             },
         };
@@ -91,7 +94,7 @@ export class AbstractManagedLayoutCellViewController extends AbstractViewControl
     }
 
     prepareForFree() {
-        this.positioner.style.display = "none";
+        this.dom.managedLayoutPositioner.style.display = "none";
     }
 
     async prepareForFreeAsync() {
@@ -101,9 +104,13 @@ export class AbstractManagedLayoutCellViewController extends AbstractViewControl
             this.state.isAnimationOngoing = false;
         }
         // this.cell.prepareForFree();
-        this.state = this._stateTemplate();
-        this.positioner.style.top = "0px";
+        this.state = this._getStateTemplate();
+        this.dom.managedLayoutPositioner.style.top = "0px";
 
+        this._cancelLeveledPresentation();
+    }
+
+    _cancelLeveledPresentation() {
         for (const [timeoutName, timeoutNumber] of Object.keys(this.abstract.timeouts).entries()) {
             if (timeoutNumber) {
                 this.abstract.timeouts[timeoutName] = undefined;
@@ -113,7 +120,8 @@ export class AbstractManagedLayoutCellViewController extends AbstractViewControl
     }
 
     prepareForUse() {
-        this.container.style.display = "block";
+        this.dom.managedLayoutPositioner.style.display = "block";
+        this.leveledPresentation(PRESENTATION_STATE_PLACEHOLDER);
     }
 
     /** @private */
@@ -121,21 +129,21 @@ export class AbstractManagedLayoutCellViewController extends AbstractViewControl
         const setupTimeItemSymbol = this.config.assignedItemSymbol;
 
         if (level === PRESENTATION_STATE_PLACEHOLDER) {
-            this.firstLevelPresentation();
+            this.firstLevelOfPresentation();
             this.abstract.timeouts.secondLevelOfPresentation = setTimeout(() => {
                 if (setupTimeItemSymbol === this.config.assignedItemSymbol) {
-                    this.leveledPresentation(2);
+                    this.leveledPresentation(PRESENTATION_STATE_SUMMARY);
                 }
             }, this.config.leveledPresentation.timeoutDuration.secondLevelOfPresentation);
         } else if (level === PRESENTATION_STATE_SUMMARY) {
             this.secondLevelOfPresentation();
             this.abstract.timeouts.thirdLevelOfPresentation = setTimeout(() => {
                 if (setupTimeItemSymbol === this.config.assignedItemSymbol) {
-                    this.leveledPresentation(3);
+                    this.leveledPresentation(PRESENTATION_STATE_DETAILED);
                 }
             }, this.config.leveledPresentation.timeoutDuration.thirdLevelOfPresentation);
         } else if (level === PRESENTATION_STATE_DETAILED) {
-            thirdLevelOfPresentation();
+            this.thirdLevelOfPresentation();
         }
     }
 
@@ -147,4 +155,10 @@ export class AbstractManagedLayoutCellViewController extends AbstractViewControl
 
     /** @abstract */
     thirdLevelOfPresentation() {}
+
+    /** @param {Position} newPosition */
+    setPosition(newPosition) {
+        this.dom.managedLayoutPositioner.style.top = `${newPosition.y}px`;
+        this.dom.managedLayoutPositioner.style.left = `${newPosition.x}px`;
+    }
 }

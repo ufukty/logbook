@@ -1,5 +1,3 @@
-import { DelegateRegistry } from "../DelegateRegistry.js";
-import { symbolizer } from "../utilities.js";
 import { Size, Area } from "./Coordinates.js";
 import { Layout } from "./Layout.js";
 
@@ -19,7 +17,13 @@ export class AbstractLayoutPipe {
             environmentRef: undefined,
             /**  @type {Symbol} */
             environmentSymbol: undefined,
+            /** @type {Boolean} */
+            pipeNeedsRefresh: true,
         };
+    }
+
+    markPipeForRefresh() {
+        this.controlledByEnvironment.pipeNeedsRefresh = true;
     }
 
     /** @abstract */
@@ -58,34 +62,29 @@ export class AbstractLayoutCalculator extends AbstractLayoutPipe {
             totalNumberOfItems: undefined,
             averageSizeForUnplacedItem: new Size(0, 0),
         };
-
-        this.computedValues = {
-            ...this.computedValues,
-            originItemSymbol: symbolizer.symbolize("origin"),
-        };
-
-        this._delegates = new DelegateRegistry();
     }
 
+    /** @abstract */
     perform() {
         console.error("abstract function is called directly");
     }
 
-    update() {
-        this.perform();
-        if (this.computedValues.update.changed) this._delegates.nofify(POSITION_CHANGE);
-    }
+    // update() {
+    //     this.perform();
+    //     if (this.computedValues.update.changed) this._delegates.nofify(POSITION_CHANGE);
+    // }
 
     /** @param {Array.<Symbol>} placement */
-    newPlacement(placement) {
-        console.log("newplacement", placement);
+    setPlacement(placement) {
         this.config.placement = placement;
-        this.controlledByEnvironment.environmentRef.scheduleRecalculation();
+        this.markPipeForRefresh();
     }
 }
 
 export class AbstractLayoutMutator extends AbstractLayoutPipe {
     constructor() {
+        super();
+
         this.config = {
             ...this.config,
             /** @type {Layout} */
@@ -93,6 +92,7 @@ export class AbstractLayoutMutator extends AbstractLayoutPipe {
         };
     }
 
+    /** @abstract */
     perform() {
         console.error("abstract function is called directly.");
     }
@@ -100,6 +100,8 @@ export class AbstractLayoutMutator extends AbstractLayoutPipe {
 
 export class AbstractLayoutDecorator extends AbstractLayoutPipe {
     constructor() {
+        super();
+
         this.config = {
             items: [],
             totalNumberOfItems: 0,
@@ -108,13 +110,14 @@ export class AbstractLayoutDecorator extends AbstractLayoutPipe {
         };
     }
 
+    /** @abstract */
     perform() {
         console.error("abstract function is called directly.");
     }
 
     /** @param {Array.<Symbol>} placement */
-    newPlacement(placement) {
+    setPlacement(placement) {
         this.placement = placement;
-        this.controlledByEnvironment.environmentRef.scheduleRecalculation();
+        this.markPipeForRefresh();
     }
 }
