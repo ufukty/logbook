@@ -1,15 +1,37 @@
-import { AbstractTableCellPositioner } from "./AbstractTableCellPositioner.js";
 import { AbstractViewController } from "./AbstractViewController.js";
 import { Size, Position } from "./Layout/Coordinates.js";
-import { adoption, symbolizer } from "./utilities.js";
+import { iota, symbolizer } from "./utilities.js";
 import { reuseCollector } from "./ReuseCollector.js";
 import { AbstractManagedLayoutCellViewController } from "./AbstractManagedLayoutCellViewController.js";
 import { resizeObserverWrapper } from "./ResizeObserverWrapper.js";
+import { itemMeasurer } from "./ItemMeasurer.js";
+
+/** Bi-directional Map, use it when you need a map you have to search on values. */
+class BiMap {
+    constructor() {
+        this.forwards = new Map();
+        this.backwards = new Map();
+    }
+
+    set(term1, term2) {
+        this.forwards.set(term1, term2);
+        this.backwards.set(term2, term1);
+    }
+
+    get(key) {
+        return this.forwards.get(key) ?? this.backwards.get(key);
+    }
+
+    has(key) {
+        return this.forwards.has(key) ? true : this.backwards.has(key);
+    }
+}
 
 /**
  * @typedef {Symbol} ItemSymbol
  * @typedef {Symbol} CellTypeSymbol
  * @typedef {Symbol} EnvironmentSymbol
+ * @typedef {Symbol} CellSymbol - a unique identifier created on cell creation and assigned its container node as dataset entry
  */
 
 /**
@@ -46,10 +68,21 @@ class ItemCellPairing {
 
         /**
          * @private
-         * @type {Map.<ItemSymbol, AbstractManagedLayoutCellViewController>}
+         * @type {Map.<CellSymbol, AbstractManagedLayoutCellViewController>}
+         */
+        this._createdCells = new Map();
+
+        /**
+         * @private
+         * @type {Map.<ItemSymbol, CellSymbol>}
          * Those items which assigned to a cell
          */
         this._assignedItems = new Map();
+
+        this._itemSymbolToCellSymbol = new Map();
+        this._cellSymbolToItemSymbol = new Map();
+
+        this._itemSymbolToEnvironmentSymbol = new Map();
 
         /**
          * @private
@@ -181,9 +214,20 @@ class ItemCellPairing {
     assign(itemSymbol, environmentSymbol) {
         const cellTypeSymbol = this.getCellTypeForItem(itemSymbol, environmentSymbol);
         const managedLayoutCellViewController = reuseCollector.get(cellTypeSymbol, environmentSymbol);
+
+        // save item symbol to cell
+        managedLayoutCellViewController.config.itemSymbol = itemSymbol;
         managedLayoutCellViewController.dom.managedLayoutPositioner.dataset.assignedItemSymbol =
             symbolizer.desymbolize(itemSymbol);
-        this._assignedItems.set(itemSymbol, managedLayoutCellViewController);
+
+        // save assignment information
+        const cellSymbol = managedLayoutCellViewController.config.cellSymbol;
+        this._itemSymbolToCellSymbol.set(itemSymbol, cellSymbol);
+        this._cellSymbolToItemSymbol.set(cellSymbol, itemSymbol);
+        // this._assignedItems.set(itemSymbol, managedLayoutCellViewController);
+
+        this._itemSymbolToEnvironmentSymbol.set(itemSymbol, environmentSymbol);
+
         return managedLayoutCellViewController;
     }
 
@@ -191,10 +235,19 @@ class ItemCellPairing {
      * @param {ItemSymbol} itemSymbol
      */
     unassign(itemSymbol) {
-        const managedLayoutCellViewController = this._assignedItems.get(itemSymbol);
+        const managedLayoutCellViewController = this.getAssignedCellForItem(itemSymbol);
+        const cellSymbol = this._itemSymbolToCellSymbol.get(itemSymbol)
         const cellTypeSymbol = this.getCellTypeForItem(itemSymbol);
         reuseCollector.free(cellTypeSymbol, managedLayoutCellViewController);
-        this._assignedItems.delete(itemSymbol);
+
+        managedLayoutCellViewController.config.itemSymbol = undefined;
+        managedLayoutCellViewController.dom.managedLayoutPositioner.dataset.assignedItemSymbol = "";
+
+        this._itemSymbolToCellSymbol.delete(itemSymbol);
+        this._cellSymbolToItemSymbol.delete(cellSymbol);
+
+        this._itemSymbolToEnvironmentSymbol.delete(itemSymbol);
+        // this._assignedItems.delete(itemSymbol);
     }
 
     /**
@@ -231,11 +284,12 @@ class ItemCellPairing {
      * @returns {AbstractManagedLayoutCellViewController}
      */
     getAssignedCellForItem(itemSymbol) {
-        return this._assignedItems.get(itemSymbol);
+        const cellSymbol = this._itemSymbolToCellSymbol.get(itemSymbol);
+        return this._createdCells.get(cellSymbol);
     }
 
     isItemAssignedToACell(itemSymbol) {
-        return this._assignedItems.has(itemSymbol);
+        return this._itemSymbolToCellSymbol.has(itemSymbol);
     }
 
     /**
@@ -246,10 +300,16 @@ class ItemCellPairing {
     registerCellViewControllerConstructor(cellTypeSymbol, environmentSymbol, constructorFunction) {
         reuseCollector.registerCellViewControllerConstructor(cellTypeSymbol, environmentSymbol, () => {
             const cell = constructorFunction();
+
+            const cellSymbolString = `cellSymbol-${iota()}`;
+            const cellSymbol = symbolizer.symbolize(cellSymbolString);
+            cell.config.cellSymbol = cellSymbol;
+            cell.dom.container.dataset.cellSymbolStringified = cellSymbolString;
+            this._createdCells.set(cellSymbol, cell);
+
             resizeObserverWrapper.subscribe(
                 cell.dom.container,
-                symbolizer.desymbolize(environmentSymbol),
-                this._resizeObserverEventHandler.bind(this)
+                this._resizeObserverEventHandler.bind(this, cellSymbol)
             );
             return cell;
         });
@@ -257,11 +317,17 @@ class ItemCellPairing {
 
     /**
      * @private
-     * @param {string} itemId - desymbolized version of itemSymbol
+     * @param {CellSymbol} cellSymbol
      */
-    _resizeObserverEventHandler(itemId) {
-        const itemSymbol = symbolizer.symbolize(itemId);
-        
+    _resizeObserverEventHandler(cellSymbol) {
+        // const cellSymbol = symbolizer.symbolize(cellSymbolStringified);
+        const cell = this._createdCells.get(cellSymbol);
+        const itemSymbol = this._cellSymbolToItemSymbol.get(cellSymbol);
+        const environmentSymbol = this._itemSymbolToEnvironmentSymbol.get(itemSymbol);
+
+        if (itemSymbol) {
+            itemMeasurer.setSize(itemSymbol, environmentSymbol, cell.measureSize());
+        }
     }
 }
 

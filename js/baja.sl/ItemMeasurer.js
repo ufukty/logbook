@@ -1,5 +1,6 @@
 import { symbolizer } from "./utilities.js";
 import { Size } from "./Layout/Coordinates.js";
+import { DelegateRegistry } from "./DelegateRegistry.js";
 
 /**
  * @typedef {Symbol} ItemSymbol
@@ -28,6 +29,9 @@ class ItemMeasurer {
          * Default size of specifc item in a specific environment after item assigned to a cell
          */
         this._measuredSizes = new Map();
+
+        /** @private */
+        this._subscribers = new DelegateRegistry();
     }
 
     /**
@@ -59,6 +63,7 @@ class ItemMeasurer {
             this._defaultSizes.set(itemSymbol, sizes);
         }
         sizes.set(environmentSymbol, size);
+        this._subscribers.notify(environmentSymbol);
     }
 
     /**
@@ -74,6 +79,7 @@ class ItemMeasurer {
         }
         sizes.set(LAST_ENVIRONMENT, size);
         sizes.set(environmentSymbol, size);
+        this._subscribers.notify(environmentSymbol);
     }
 
     /**
@@ -94,9 +100,10 @@ class ItemMeasurer {
 
     /**
      * @param {Symbol} environmentSymbol
+     * @param {function} callback - This function will be called after an item size updated while it is in specified environment
      */
-    subscribeForSizeChanges(environmentSymbol) {
-        //
+    subscribe(environmentSymbol, callback) {
+        this._subscribers.add(environmentSymbol, callback);
     }
 }
 

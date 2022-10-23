@@ -1,13 +1,19 @@
 import { AbstractViewController } from "./AbstractViewController.js";
 import { Position } from "./Layout/Coordinates.js";
-import { adoption, createElement, iota } from "./utilities.js";
+import { adoption, createElement, iota, symbolizer } from "./utilities.js";
 
 /** first level of presentation */
-const PRESENTATION_STATE_PLACEHOLDER = iota();
+export const PRESENTATION_STATE_PLACEHOLDER = symbolizer.symbolize("PRESENTATION_STATE_PLACEHOLDER");
 /** second level of presentation */
-const PRESENTATION_STATE_SUMMARY = iota();
+export const PRESENTATION_STATE_SUMMARY = symbolizer.symbolize("PRESENTATION_STATE_SUMMARY");
 /** third level of presentation */
-const PRESENTATION_STATE_DETAILED = iota();
+export const PRESENTATION_STATE_DETAILED = symbolizer.symbolize("PRESENTATION_STATE_DETAILED");
+
+/**
+ * @typedef {Symbol} ItemSymbol
+ * @typedef {Symbol} CellTypeSymbol
+ * @typedef {Symbol} EnvironmentSymbol
+ */
 
 export class AbstractManagedLayoutCellViewController extends AbstractViewController {
     constructor() {
@@ -43,8 +49,10 @@ export class AbstractManagedLayoutCellViewController extends AbstractViewControl
 
         this.config = {
             ...this.config,
-            /** @type {Symbol} */
-            assignedItemSymbol: undefined,
+            /** @type {CellSymbol} */
+            cellSymbol: undefined,
+            /** @type {ItemSymbol} */
+            itemSymbol: undefined,
             animation: {
                 translocation: {
                     duration: 300,
@@ -121,24 +129,24 @@ export class AbstractManagedLayoutCellViewController extends AbstractViewControl
 
     prepareForUse() {
         this.dom.managedLayoutPositioner.style.display = "block";
-        this.leveledPresentation(PRESENTATION_STATE_PLACEHOLDER);
+        // this.leveledPresentation(PRESENTATION_STATE_PLACEHOLDER);
     }
 
     /** @private */
     leveledPresentation(level) {
-        const setupTimeItemSymbol = this.config.assignedItemSymbol;
+        const setupTimeItemSymbol = this.config.itemSymbol;
 
         if (level === PRESENTATION_STATE_PLACEHOLDER) {
             this.firstLevelOfPresentation();
             this.abstract.timeouts.secondLevelOfPresentation = setTimeout(() => {
-                if (setupTimeItemSymbol === this.config.assignedItemSymbol) {
+                if (setupTimeItemSymbol === this.config.itemSymbol) {
                     this.leveledPresentation(PRESENTATION_STATE_SUMMARY);
                 }
             }, this.config.leveledPresentation.timeoutDuration.secondLevelOfPresentation);
         } else if (level === PRESENTATION_STATE_SUMMARY) {
             this.secondLevelOfPresentation();
             this.abstract.timeouts.thirdLevelOfPresentation = setTimeout(() => {
-                if (setupTimeItemSymbol === this.config.assignedItemSymbol) {
+                if (setupTimeItemSymbol === this.config.itemSymbol) {
                     this.leveledPresentation(PRESENTATION_STATE_DETAILED);
                 }
             }, this.config.leveledPresentation.timeoutDuration.thirdLevelOfPresentation);

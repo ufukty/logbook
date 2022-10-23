@@ -3,7 +3,10 @@ import { AbstractViewController } from "./AbstractViewController.js";
 import { createElement, mergeMapKeys, setIntersect, setDifference } from "./utilities.js";
 import { Area, Position } from "./Layout/Coordinates.js";
 import { itemCellPairing } from "./ItemCellPairing.js";
-import { AbstractManagedLayoutCellViewController } from "./AbstractManagedLayoutCellViewController.js";
+import {
+    AbstractManagedLayoutCellViewController,
+    PRESENTATION_STATE_PLACEHOLDER,
+} from "./AbstractManagedLayoutCellViewController.js";
 
 export const TRIGGER_CONTENT_CHANGE = "TRIGGER_CONTENT_CHANGE";
 export const TRIGGER_REPLACEMENT = "TRIGGER_REPLACEMENT";
@@ -175,15 +178,6 @@ export class AbstractManagedLayoutViewController extends AbstractViewController 
     }
 
     /** @private */
-    _debugPrintClassifiedItems() {
-        Object.keys(this.computedValues.next.classifiedItems).forEach((cls) => {
-            if (this.computedValues.next.classifiedItems[cls].size > 0) {
-                console.log(cls, this.computedValues.next.classifiedItems[cls]);
-            }
-        });
-    }
-
-    /** @private */
     _updateZoneBoundaries() {
         if (this.processAtNextUpdate.viewport) {
             const viewport = this.processAtNextUpdate.viewport;
@@ -287,7 +281,7 @@ export class AbstractManagedLayoutViewController extends AbstractViewController 
 
             const isPersistingInPreload =
                 isPersistingInPlacement &&
-                itemCellPairing.isItemAssignedToACell(itemSymbol) && // FIXME: cellPositioners doesn't track assigned cells, use itemCellPairing
+                itemCellPairing.isItemAssignedToACell(itemSymbol) &&
                 this.computedValues.current.zoneCollisions.inParking.has(itemSymbol) &&
                 this.computedValues.next.zoneCollisions.inParking.has(itemSymbol);
 
@@ -420,6 +414,15 @@ export class AbstractManagedLayoutViewController extends AbstractViewController 
         }
     }
 
+    /** @private */
+    _debugPrintClassifiedItems() {
+        Object.keys(this.computedValues.next.classifiedItems).forEach((cls) => {
+            if (this.computedValues.next.classifiedItems[cls].size > 0) {
+                console.log(cls, this.computedValues.next.classifiedItems[cls]);
+            }
+        });
+    }
+
     /**
      * @private
      * @param {string} trigger
@@ -443,7 +446,8 @@ export class AbstractManagedLayoutViewController extends AbstractViewController 
         for (const itemSymbol of classes.toAssign) {
             const envSymbol = this.config.layout.environmentSymbol;
             const managedLayoutCellViewController = itemCellPairing.assign(itemSymbol, envSymbol);
-            this.populateCellForItem(managedLayoutCellViewController, itemSymbol);
+            managedLayoutCellViewController.leveledPresentation(PRESENTATION_STATE_PLACEHOLDER);
+            // this.populateCellForItem(managedLayoutCellViewController, itemSymbol);
 
             // const computedStyle = getComputedStyle(cellPositioner.cell.dom.container);
             // const computedHeight = parseFloat(computedStyle.getPropertyValue("height"));
@@ -573,6 +577,7 @@ export class AbstractManagedLayoutViewController extends AbstractViewController 
         this._mergeItemSymbolsWithPreviousIteration();
         this._updateContainerToTheContentBoundingBoxSize();
         this._classifyItemsByUpdateTypes();
+        // this._debugPrintClassifiedItems();
 
         requestAnimationFrame(() => {
             this._updateCells();

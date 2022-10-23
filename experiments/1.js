@@ -8,7 +8,7 @@ import { AbstractManagedLayoutCellViewController } from "../js/baja.sl/AbstractM
 import { itemCellPairing } from "../js/baja.sl/ItemCellPairing.js";
 
 import { Layout } from "../js/baja.sl/Layout/Layout.js";
-import { adoption, createElement, iota, symbolizer } from "../js/baja.sl/utilities.js";
+import { adoption, createElement, iota, pick, symbolizer } from "../js/baja.sl/utilities.js";
 import { itemMeasurer } from "../js/baja.sl/ItemMeasurer.js";
 import { Area, Size, Spacing } from "../js/baja.sl/Layout/Coordinates.js";
 import { resizeObserverWrapper } from "../js/baja.sl/ResizeObserverWrapper.js";
@@ -19,28 +19,39 @@ class BasicViewController extends AbstractManagedLayoutCellViewController {
     constructor() {
         super();
 
-        this.dom.container.style.width = "100px";
-        this.dom.container.style.height = "100px";
+        // this.dom.container.style.width = "100px";
+        // this.dom.container.style.height = "100px";
     }
 
     async prepareForFreeAsync() {
         await super.prepareForFreeAsync();
-        this.dom.container.innerText = "";
+        this.dom.container.innerHTML = "";
     }
 
     firstLevelOfPresentation() {
-        this.dom.container.innerText += "1";
+        console.log(this.config.itemSymbol);
+        this.dom.container.innerHTML = ` 1-${symbolizer.desymbolize(this.config.itemSymbol)}<br>`;
         this.dom.container.style.backgroundColor = "lightgray";
     }
 
     secondLevelOfPresentation() {
-        this.dom.container.innerText += "2";
+        this.dom.container.innerHTML += ` 2-${symbolizer.desymbolize(this.config.itemSymbol)}<br>`;
         this.dom.container.style.backgroundColor = "gray";
     }
 
     thirdLevelOfPresentation() {
-        this.dom.container.innerText += "3";
+        this.dom.container.innerHTML += ` 3-${symbolizer.desymbolize(this.config.itemSymbol)}<br>`;
         this.dom.container.style.backgroundColor = "lightblue";
+        this.dom.container.innerHTML += pick([
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+            "Donec gravida consequat orci, sed luctus arcu lacinia eget.",
+            "Cras interdum nibh nunc, in ornare risus feugiat sed.",
+            "Maecenas porta, lectus quis consectetur hendrerit, orci massa eleifend arcu, mollis molestie mauris felis nec ligula.",
+            "Nulla semper tempus sagittis.",
+            "Donec semper vel dolor vel porta.",
+            "Nam vel placerat tellus.",
+            "Quisque venenatis non felis sed hendrerit.",
+        ]);
     }
 }
 
@@ -53,9 +64,10 @@ class CustomManagedLayoutViewController extends AbstractManagedLayoutViewControl
         this.config = {
             ...this.config,
             zoneOffsets: {
-                preload: 0.6,
-                parking: 0.6,
+                preload: 1.2,
+                parking: 1.3,
             },
+            updateMaxFrequency: 20,
         };
 
         // this._setupContainer();
@@ -115,6 +127,86 @@ class CustomManagedLayoutViewController extends AbstractManagedLayoutViewControl
             symbolizer.symbolize("17"),
             symbolizer.symbolize("18"),
             symbolizer.symbolize("19"),
+            symbolizer.symbolize("20"),
+            symbolizer.symbolize("21"),
+            symbolizer.symbolize("22"),
+            symbolizer.symbolize("23"),
+            symbolizer.symbolize("24"),
+            symbolizer.symbolize("25"),
+            symbolizer.symbolize("26"),
+            symbolizer.symbolize("27"),
+            symbolizer.symbolize("28"),
+            symbolizer.symbolize("29"),
+            symbolizer.symbolize("30"),
+            symbolizer.symbolize("31"),
+            symbolizer.symbolize("32"),
+            symbolizer.symbolize("33"),
+            symbolizer.symbolize("34"),
+            symbolizer.symbolize("35"),
+            symbolizer.symbolize("36"),
+            symbolizer.symbolize("37"),
+            symbolizer.symbolize("38"),
+            symbolizer.symbolize("39"),
+            symbolizer.symbolize("40"),
+            symbolizer.symbolize("41"),
+            symbolizer.symbolize("42"),
+            symbolizer.symbolize("43"),
+            symbolizer.symbolize("44"),
+            symbolizer.symbolize("45"),
+            symbolizer.symbolize("46"),
+            symbolizer.symbolize("47"),
+            symbolizer.symbolize("48"),
+            symbolizer.symbolize("49"),
+            symbolizer.symbolize("50"),
+            symbolizer.symbolize("51"),
+            symbolizer.symbolize("52"),
+            symbolizer.symbolize("53"),
+            symbolizer.symbolize("54"),
+            symbolizer.symbolize("55"),
+            symbolizer.symbolize("56"),
+            symbolizer.symbolize("57"),
+            symbolizer.symbolize("58"),
+            symbolizer.symbolize("59"),
+            symbolizer.symbolize("60"),
+            symbolizer.symbolize("61"),
+            symbolizer.symbolize("62"),
+            symbolizer.symbolize("63"),
+            symbolizer.symbolize("64"),
+            symbolizer.symbolize("65"),
+            symbolizer.symbolize("66"),
+            symbolizer.symbolize("67"),
+            symbolizer.symbolize("68"),
+            symbolizer.symbolize("69"),
+            symbolizer.symbolize("70"),
+            symbolizer.symbolize("71"),
+            symbolizer.symbolize("72"),
+            symbolizer.symbolize("73"),
+            symbolizer.symbolize("74"),
+            symbolizer.symbolize("75"),
+            symbolizer.symbolize("76"),
+            symbolizer.symbolize("77"),
+            symbolizer.symbolize("78"),
+            symbolizer.symbolize("79"),
+            symbolizer.symbolize("80"),
+            symbolizer.symbolize("81"),
+            symbolizer.symbolize("82"),
+            symbolizer.symbolize("83"),
+            symbolizer.symbolize("84"),
+            symbolizer.symbolize("85"),
+            symbolizer.symbolize("86"),
+            symbolizer.symbolize("87"),
+            symbolizer.symbolize("88"),
+            symbolizer.symbolize("89"),
+            symbolizer.symbolize("90"),
+            symbolizer.symbolize("91"),
+            symbolizer.symbolize("92"),
+            symbolizer.symbolize("93"),
+            symbolizer.symbolize("94"),
+            symbolizer.symbolize("95"),
+            symbolizer.symbolize("96"),
+            symbolizer.symbolize("97"),
+            symbolizer.symbolize("98"),
+            symbolizer.symbolize("99"),
         ];
 
         itemMeasurer.setAverageSize(mainEnvironmentSymbol, new Size(100, 100));
@@ -166,11 +258,11 @@ class CustomManagedLayoutViewController extends AbstractManagedLayoutViewControl
      * @param {ItemSymbol} itemSymbol
      * Populate content of managedLayoutCellViewController according to itemSymbol
      */
-    populateCellForItem(managedLayoutCellViewController, itemSymbol) {
-        if (managedLayoutCellViewController instanceof AbstractManagedLayoutCellViewController) {
-            managedLayoutCellViewController.dom.container.innerText = `${symbolizer.desymbolize(itemSymbol)} 1`;
-        }
-    }
+    // populateCellForItem(managedLayoutCellViewController, itemSymbol) {
+    //     if (managedLayoutCellViewController instanceof AbstractManagedLayoutCellViewController) {
+    //         managedLayoutCellViewController.dom.container.innerText = `${symbolizer.desymbolize(itemSymbol)} 1`;
+    //     }
+    // }
 }
 
 function main() {

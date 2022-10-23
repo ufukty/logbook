@@ -5,10 +5,12 @@ import { UpdateScheduler } from "../UpdateScheduler.js";
 import { Size } from "./Coordinates.js";
 import { Align } from "./Mutators/Align.js";
 import { DelegateRegistry } from "../DelegateRegistry.js";
+import { itemMeasurer } from "../ItemMeasurer.js";
 
 export const TRIGGER_NEW_CONTAINER_SIZE = symbolizer.symbolize("TRIGGER_NEW_CONTAINER_SIZE");
 export const TRIGGER_PIPE_NEW_PLACEMENT = symbolizer.symbolize("TRIGGER_PIPE_NEW_PLACEMENT");
-export const TRIGGER_PIPE_CONFIG_CHANGE = symbolizer.symbolize("PIPE_CONFIG_CHANGE");
+export const TRIGGER_PIPE_CONFIG_CHANGE = symbolizer.symbolize("TRIGGER_PIPE_CONFIG_CHANGE");
+export const TRIGGER_ITEM_MEASURER_CALLBACK = symbolizer.symbolize("TRIGGER_ITEM_MEASURER_CALLBACK");
 
 const NEW_LAYOUT_CALCULATED = symbolizer.symbolize("NEW_LAYOUT_CALCULATED");
 
@@ -62,17 +64,21 @@ export class Layout {
         };
 
         this.environmentSymbol = symbolizer.symbolize(`environment#${iota()}`);
+
+        itemMeasurer.subscribe(this.environmentSymbol, () => {
+            this.scheduleRecalculation(TRIGGER_ITEM_MEASURER_CALLBACK);
+        });
     }
 
     /** @private */
     _recalculate(trigger) {
         const checker = new LayoutPipeRecalculationNeedChecker();
         for (const pipe of this.private.pipeline) {
-            if (checker.doesPipeNeedRecalculation(pipe)) {
-                pipe.passedThroughPipeline = this.passedThroughPipeline;
-                pipe.perform();
-                this.passedThroughPipeline = pipe.passedThroughPipeline;
-            }
+            // if (checker.doesPipeNeedRecalculation(pipe)) {
+            pipe.passedThroughPipeline = this.passedThroughPipeline;
+            pipe.perform();
+            this.passedThroughPipeline = pipe.passedThroughPipeline;
+            // }
         }
         this.private.updateScheduler.finished();
         this.private.delegates.notify(NEW_LAYOUT_CALCULATED);

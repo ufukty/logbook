@@ -21,9 +21,6 @@ export class AbstractViewController {
     }
 
     measureSize() {
-        const computedStyle = getComputedStyle(this.dom.container);
-        const computedHeight = parseFloat(computedStyle.getPropertyValue("height"));
-        const computedWidth = parseFloat(computedStyle.getPropertyValue("width"));
-        return new Size(computedWidth, computedHeight);
+        return new Size(this.dom.container.offsetWidth, this.dom.container.offsetHeight);
     }
 }
