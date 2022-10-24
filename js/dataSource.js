@@ -178,7 +178,7 @@ export class DataSource {
             });
         });
         shuffle(this.cache.placements.hierarchical.items);
-        this.delegates.nofify(EVENT_PLACEMENT_UPDATE);
+        this.delegates.notify(EVENT_PLACEMENT_UPDATE);
 
         const samples = [
             "Lorem ipsum dolor sit amet consectetur adipisicing elit",
@@ -238,7 +238,7 @@ export class DataSource {
             var task = this.cache.tasks.get(itemSymbol);
             this.cache.updateCounts.set(itemSymbol, (this.cache.updateCounts.get(itemSymbol) ?? 0) + 1);
             task.content = `${symbolizer.desymbolize(itemSymbol)} ${pick(samples)}`;
-            this.delegates.nofify(EVENT_OBJECT_UPDATE, new Set([itemSymbol]));
+            this.delegates.notify(EVENT_OBJECT_UPDATE, new Set([itemSymbol]));
         }, 100);
     }
 

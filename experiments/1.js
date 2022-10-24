@@ -3,23 +3,16 @@ import {
     TRIGGER_REPLACEMENT,
     TRIGGER_SCROLL_LISTENER,
 } from "../js/baja.sl/AbstractManagedLayoutViewController.js";
-import { Flow, HORIZONTAL, VERTICAL } from "../js/baja.sl/Layout/Calculators/Flow.js";
+import { Flow, VERTICAL } from "../js/baja.sl/Layout/Calculators/Flow.js";
 import { AbstractManagedLayoutCellViewController } from "../js/baja.sl/AbstractManagedLayoutCellViewController.js";
 import { itemCellPairing } from "../js/baja.sl/ItemCellPairing.js";
 
-import { Layout } from "../js/baja.sl/Layout/Layout.js";
+import { Layout, TRIGGER_NEW_CONTAINER_SIZE } from "../js/baja.sl/Layout/Layout.js";
 import { adoption, createElement, iota, lerp, pick, symbolizer } from "../js/baja.sl/utilities.js";
 import { itemMeasurer } from "../js/baja.sl/ItemMeasurer.js";
 import { Area, Size, Spacing } from "../js/baja.sl/Layout/Coordinates.js";
-import { resizeObserverWrapper } from "../js/baja.sl/ResizeObserverWrapper.js";
 
-import {
-    Align,
-    HORIZONTAL_CENTER,
-    HORIZONTAL_LEFT,
-    HORIZONTAL_RIGHT,
-    VERTICAL_TOP,
-} from "../js/baja.sl/Layout/Mutators/Align.js";
+import { Align, ALIGN_INTO_CONTAINER, HORIZONTAL_CENTER } from "../js/baja.sl/Layout/Mutators/Align.js";
 
 class BasicViewController extends AbstractManagedLayoutCellViewController {
     constructor() {
@@ -129,29 +122,65 @@ class CustomManagedLayoutViewController extends AbstractManagedLayoutViewControl
                 preload: 2.2,
                 parking: 2.3,
             },
-            updateMaxFrequency: 10,
+            updateMaxFrequency: 60,
         };
 
-        this.dom.container.style.margin = "0 auto";
+        // this.dom.container.style.margin = "0 auto";
+
+        const mainLayout = new Layout();
+        const flow = new Flow(VERTICAL);
+        const align = new Align(HORIZONTAL_CENTER, ALIGN_INTO_CONTAINER);
+        this.flow = flow;
+        this.config.layout = mainLayout;
+
+        mainLayout.connectCalculator(flow).connectMutator(align);
+        mainLayout.subscribe(() => {
+            this.updateView(TRIGGER_REPLACEMENT);
+        });
+
+        const passNewViewport = () => {
+            this.setViewport(
+                new Area(
+                    window.scrollX,
+                    window.scrollY,
+                    window.scrollX + window.innerWidth,
+                    window.scrollY + window.innerHeight
+                )
+            );
+            mainLayout.setContainerSize(new Size(window.innerWidth, window.innerHeight)); // height is not important
+        };
+        const managedLayoutUpdater = () => {
+            passNewViewport();
+            // this.updateView(TRIGGER_SCROLL_LISTENER);
+            mainLayout.scheduleRecalculation(TRIGGER_NEW_CONTAINER_SIZE);
+        };
+        window.addEventListener("scroll", managedLayoutUpdater);
+        window.addEventListener("resize", managedLayoutUpdater);
+        passNewViewport();
+
+        this.registerCellViewControllerConstructor(VIEW_CONTROLLER_SYMBOL_TASK, () => {
+            return new BasicViewController();
+        });
+
+        flow.config.spacing.set(VIEW_CONTROLLER_SYMBOL_TASK, new Spacing(200, 1, 200));
+
+        this.playTestCase();
     }
 
     playTestCase() {
-        const layoutPipes = {
-            flow: new Flow(VERTICAL),
-            // indentation: new Indentation(),
-            align: new Align(HORIZONTAL_CENTER),
-            // focusStabilizer: new FocusStabilizer(),
-            // counterShift: new CounterShift(),
-            // avatars: new AvatarLayout(),
-            // panes: new Panes(),
-            // padding: new Padding(20, 20, 20, 20),
-            // measure: new MeasureContainer(),
-        };
+        // const layoutPipes = {
+        //     flow: new Flow(VERTICAL),
+        //     // indentation: new Indentation(),
+        //     align: new Align(HORIZONTAL_CENTER, ALIGN_INTO_CONTAINER),
+        //     // focusStabilizer: new FocusStabilizer(),
+        //     // counterShift: new CounterShift(),
+        //     // avatars: new AvatarLayout(),
+        //     // panes: new Panes(),
+        //     // padding: new Padding(20, 20, 20, 20),
+        //     // measure: new MeasureContainer(),
+        // };
 
-        this.config.layout = new Layout()
-            .connectCalculator(layoutPipes.flow)
-            // .connectMutator(measure)
-            .connectMutator(layoutPipes.align);
+        // this.config.layout = new Layout().connectCalculator(layoutPipes.flow).connectMutator(layoutPipes.align);
         // .connectMutator(indentation)
         // .connectMutator(counterShift)
         // .connectMutator(focusStabilizer)
@@ -159,6 +188,12 @@ class CustomManagedLayoutViewController extends AbstractManagedLayoutViewControl
         // .connectDecorator(avatars)
         // .connectDecorator(panes)
         // .connectMutator(padding);
+
+        // const d = () => {
+        //     this.config.layout.setContainerSize(new Size(window.innerWidth, 1));
+        // };
+        // d();
+        // window.addEventListener("resize", d.bind(this));
 
         // autoFocus(); // TODO:
         const mainEnvironmentSymbol = this.config.layout.environmentSymbol;
@@ -271,16 +306,7 @@ class CustomManagedLayoutViewController extends AbstractManagedLayoutViewControl
             itemCellPairing.setCellKindForItem(itemSymbol, mainEnvironmentSymbol, VIEW_CONTROLLER_SYMBOL_TASK);
         });
 
-        this.registerCellViewControllerConstructor(VIEW_CONTROLLER_SYMBOL_TASK, () => {
-            return new BasicViewController();
-        });
-
-        this.config.layout.subscribe(() => {
-            this.updateView(TRIGGER_REPLACEMENT);
-        });
-
-        layoutPipes.flow.config.spacing.set(VIEW_CONTROLLER_SYMBOL_TASK, new Spacing(200, 1, 200));
-        layoutPipes.flow.setPlacement(itemSymbols);
+        this.flow.setPlacement(itemSymbols);
         this.config.layout.scheduleRecalculation();
 
         // setTimeout(() => {
@@ -323,26 +349,6 @@ class CustomManagedLayoutViewController extends AbstractManagedLayoutViewControl
 function main() {
     const managedLayoutViewController = new CustomManagedLayoutViewController();
     adoption(document.body, adoption(managedLayoutViewController.dom.container));
-
-    const passNewViewport = () => {
-        managedLayoutViewController.setViewport(
-            new Area(
-                window.scrollX,
-                window.scrollY,
-                window.scrollX + window.innerWidth,
-                window.scrollY + window.innerHeight
-            )
-        );
-    };
-    const managedLayoutUpdater = () => {
-        passNewViewport();
-        managedLayoutViewController.updateView(TRIGGER_SCROLL_LISTENER);
-    };
-    window.addEventListener("scroll", managedLayoutUpdater);
-    window.addEventListener("resize", managedLayoutUpdater);
-    passNewViewport();
-
-    managedLayoutViewController.playTestCase();
 }
 
 window.addEventListener("load", main);

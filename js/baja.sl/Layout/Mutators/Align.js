@@ -17,9 +17,14 @@ export const VERTICAL_CENTER = symbolizer.symbolize("VERTICAL_CENTER");
 /** Meant to be used for `Align.alignTo`. To align left edge of items to the left edge of container. */
 export const VERTICAL_BOTTOM = symbolizer.symbolize("VERTICAL_BOTTOM");
 
+/** Items will be aligned accordingly to the content bounding box that is previously calculated in the pipeline. */
+export const ALIGN_INTO_CONTENT_BOUNDING_BOX = symbolizer.symbolize("BASED_ON_CONTENT_BOUNDING_BOX");
+/** Items will be aligned accordingly to the container. Make sure updating container size before layout calculation starts. */
+export const ALIGN_INTO_CONTAINER = symbolizer.symbolize("BASED_ON_CONTAINER");
+
 export class Align extends AbstractLayoutMutator {
-    /** @param {Symbol} alignTo */
-    constructor(alignTo = HORIZONTAL_LEFT) {
+    /** @param {Symbol} alignOn */
+    constructor(alignOn = HORIZONTAL_LEFT, alignInto = ALIGN_INTO_CONTENT_BOUNDING_BOX) {
         super();
         this.config = {
             ...this.config,
@@ -27,74 +32,82 @@ export class Align extends AbstractLayoutMutator {
              * This describes which point of items and container will be aligned.
              * Look for exported constants by file.
              */
-            alignTo: alignTo,
+            alignOn: alignOn,
+            /**
+             * Valid values are: `BASED_ON_CONTENT_BOUNDING_BOX` and `BASED_ON_CONTAINER`
+             * @
+             */
+            alignInto: alignInto,
         };
     }
 
+    /** @private */
+    _returnBoxSize() {
+        if (this.config.alignInto === ALIGN_INTO_CONTAINER) {
+            const boxSize = this.passedThroughPipeline.containerSize;
+            if (boxSize.width === undefined || boxSize.height === undefined)
+                console.error("Alignment will be completed without containerSize is known");
+            return boxSize;
+        } else if (this.config.alignInto === ALIGN_INTO_CONTENT_BOUNDING_BOX) {
+            const boxSize = this.passedThroughPipeline.contentBoundingBoxSize;
+            if (boxSize.width === undefined || boxSize.height === undefined)
+                console.error("Alignment will be completed without contentBoundingBoxSize is known");
+            return boxSize;
+        } else console.error("Invalid value for Align._returnBoxSize");
+    }
+
+    /** @private */
     _alignToHorizontalLeft() {
-        const contentBoundingBoxSize = this.passedThroughPipeline.contentBoundingBoxSize.width;
         for (const [itemSymbol, position] of this.passedThroughPipeline.layout.positions.entries()) {
             position.moveTo(0, undefined);
         }
     }
 
+    /** @private */
     _alignToHorizontalCenter() {
-        const contentBoundingBoxSize = this.passedThroughPipeline.contentBoundingBoxSize.width;
-        if (contentBoundingBoxSize === undefined) {
-            console.error("can not align without contentBoundingBoxSize set");
-            return;
-        }
+        const boxSize = this._returnBoxSize().width;
         for (const [itemSymbol, position] of this.passedThroughPipeline.layout.positions.entries()) {
             const itemWidth = itemMeasurer.getSize(itemSymbol, this.controlledByEnvironment.environmentSymbol).width;
-            position.translate((contentBoundingBoxSize - itemWidth) / 2, 0);
+            position.translate((boxSize - itemWidth) / 2, 0);
         }
     }
 
+    /** @private */
     _alignToHorizontalRight() {
-        const contentBoundingBoxSize = this.passedThroughPipeline.contentBoundingBoxSize.width;
-        if (contentBoundingBoxSize === undefined) {
-            console.error("can not align without contentBoundingBoxSize set");
-            return;
-        }
+        const boxSize = this._returnBoxSize().width;
         for (const [itemSymbol, position] of this.passedThroughPipeline.layout.positions.entries()) {
             const itemWidth = itemMeasurer.getSize(itemSymbol, this.controlledByEnvironment.environmentSymbol).width;
-            position.translate(contentBoundingBoxSize - itemWidth, 0);
+            position.translate(boxSize - itemWidth, 0);
         }
     }
 
+    /** @private */
     _alignToVerticalTop() {
-        const containerHeight = this.passedThroughPipeline.contentBoundingBoxSize.height;
         for (const [itemSymbol, position] of this.passedThroughPipeline.layout.positions.entries()) {
             position.moveTo(undefined, 0);
         }
     }
 
+    /** @private */
     _alignToVerticalCenter() {
-        const containerHeight = this.passedThroughPipeline.contentBoundingBoxSize.height;
-        if (containerHeight === undefined) {
-            console.error("can not align without contentBoundingBoxSize set");
-            return;
-        }
+        const boxSize = this._returnBoxSize().height;
         for (const [itemSymbol, position] of this.passedThroughPipeline.layout.positions.entries()) {
             const itemHeight = itemMeasurer.getSize(itemSymbol, this.controlledByEnvironment.environmentSymbol).height;
-            position.translate(0, (containerHeight - itemHeight) / 2);
+            position.translate(0, (boxSize - itemHeight) / 2);
         }
     }
 
+    /** @private */
     _alignToVerticalBottom() {
-        const containerHeight = this.passedThroughPipeline.contentBoundingBoxSize.height;
-        if (containerHeight === undefined) {
-            console.error("can not align without contentBoundingBoxSize set");
-            return;
-        }
+        const boxSize = this._returnBoxSize().height;
         for (const [itemSymbol, position] of this.passedThroughPipeline.layout.positions.entries()) {
             const itemHeight = itemMeasurer.getSize(itemSymbol, this.controlledByEnvironment.environmentSymbol).height;
-            position.translate(0, containerHeight - itemHeight);
+            position.translate(0, boxSize - itemHeight);
         }
     }
 
     perform() {
-        switch (this.config.alignTo) {
+        switch (this.config.alignOn) {
             case HORIZONTAL_LEFT:
                 this._alignToHorizontalLeft();
                 break;
@@ -119,7 +132,7 @@ export class Align extends AbstractLayoutMutator {
     /** @param {Symbol} newAlignTo */
     updateWithNewAlignment(newAlignTo) {
         this.controlledByEnvironment.pipeNeedsRefresh = true;
-        this.config.alignTo = newAlignTo;
+        this.config.alignOn = newAlignTo;
         this.controlledByEnvironment.environmentRef.scheduleRecalculation(TRIGGER_PIPE_CONFIG_CHANGE);
     }
 }

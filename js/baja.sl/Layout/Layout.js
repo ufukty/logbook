@@ -48,6 +48,9 @@ export class Layout {
             delegates: new DelegateRegistry(),
             /** @type {UpdateScheduler} */
             updateScheduler: new UpdateScheduler(this._recalculate.bind(this), 60),
+            processAtNextUpdate: {
+                containerSize: undefined,
+            },
         };
 
         this.passedThroughPipeline = {
@@ -74,7 +77,7 @@ export class Layout {
             /**  @type {Size} */
             contentBoundingBoxSize: new Size(),
             /**  @type {Size} */
-            containerSize: new Size(),
+            containerSize: this.private.processAtNextUpdate.containerSize,
         };
     }
 
@@ -82,6 +85,12 @@ export class Layout {
     _recalculate(trigger) {
         // const checker = new LayoutPipeRecalculationNeedChecker();
         this.passedThroughPipeline.next = this._getTemplateForDataPassedThroughPipeline();
+
+        if (this.private.processAtNextUpdate.containerSize !== undefined) {
+            this.passedThroughPipeline.next.containerSize = this.private.processAtNextUpdate.containerSize;
+            // this.private.processAtNextUpdate.containerSize = undefined;
+        }
+
         for (const pipe of this.private.pipeline) {
             // if (checker.doesPipeNeedRecalculation(pipe)) {
             pipe.passedThroughPipeline = this.passedThroughPipeline.next;
@@ -133,8 +142,7 @@ export class Layout {
 
     /** @param {Size} newSize */
     setContainerSize(newSize) {
-        this.passedThroughPipeline.next.containerSize = newSize;
-        this._recalculate(TRIGGER_NEW_CONTAINER_SIZE);
+        this.private.processAtNextUpdate.containerSize = newSize;
     }
 
     /** @param {function} callback - This will be called after each layout update. */
