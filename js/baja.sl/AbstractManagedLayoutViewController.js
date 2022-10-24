@@ -1,6 +1,6 @@
 import { Layout } from "./Layout/Layout.js";
 import { AbstractViewController } from "./AbstractViewController.js";
-import { createElement, mergeMapKeys, setIntersect, setDifference } from "./utilities.js";
+import { createElement, mergeMapKeys, setIntersect, setDifference, symbolizer } from "./utilities.js";
 import { Area, Position } from "./Layout/Coordinates.js";
 import { itemCellPairing } from "./ItemCellPairing.js";
 import {
@@ -200,7 +200,22 @@ export class AbstractManagedLayoutViewController extends AbstractViewController 
 
     /** @private */
     _copyLayout() {
-        this.computedValues.next.positions = this.config.layout.passedThroughPipeline.layout.positions;
+        this.computedValues.next.positions = this.config.layout.passedThroughPipeline.next.layout.positions;
+    }
+
+    _calculateFocusedItemPositionShift() {
+        const focusedItemSymbol = this.computedValues.current.zoneCollisions.inFocus.values().next().value;
+        const focusedItemCurrentPosition = this.computedValues.current.positions.get(focusedItemSymbol);
+        const focusedItemNextPosition = this.computedValues.next.positions.get(focusedItemSymbol);
+
+        if (!focusedItemCurrentPosition || !focusedItemNextPosition) {
+            return;
+        }
+
+        const shift = focusedItemNextPosition.y0 - focusedItemCurrentPosition.y0;
+        if (shift > 0) {
+            console.log(`Focused item(${symbolizer.desymbolize(focusedItemSymbol)}) shifted by ${shift}`);
+        }
     }
 
     /** @private */
@@ -573,9 +588,10 @@ export class AbstractManagedLayoutViewController extends AbstractViewController 
 
         this._updateZoneBoundaries();
         this._copyLayout();
+        this._calculateFocusedItemPositionShift();
         this._classifyItemsByCollidedZones();
         this._mergeItemSymbolsWithPreviousIteration();
-        this._updateContainerToTheContentBoundingBoxSize();
+        // this._updateContainerToTheContentBoundingBoxSize();
         this._classifyItemsByUpdateTypes();
         // this._debugPrintClassifiedItems();
 

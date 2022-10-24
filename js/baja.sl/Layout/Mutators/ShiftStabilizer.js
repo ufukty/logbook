@@ -16,7 +16,7 @@ export class FocusStabilizer extends AbstractLayoutMutator {
     calculate() {
         var isFocusedItemPassed = false;
         var totalDistanceToFocusedElement = 0;
-        for (const [itemSymbol, position] of this.config.layout.positions.entries()) {
+        for (const [itemSymbol, position] of this.passedThroughPipeline.layout.positions.entries()) {
             if (!isFocusedItemPassed) {
                 totalDistanceToFocusedElement += position;
             }

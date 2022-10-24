@@ -51,6 +51,20 @@ export class Layout {
         };
 
         this.passedThroughPipeline = {
+            current: this._getTemplateForDataPassedThroughPipeline(),
+            next: this._getTemplateForDataPassedThroughPipeline(),
+        };
+
+        this.environmentSymbol = symbolizer.symbolize(`environment#${iota()}`);
+
+        itemMeasurer.subscribe(this.environmentSymbol, () => {
+            this.scheduleRecalculation(TRIGGER_ITEM_MEASURER_CALLBACK);
+        });
+    }
+
+    /** @private */
+    _getTemplateForDataPassedThroughPipeline() {
+        return {
             layout: {
                 /** @type {Map.<Symbol, Area>} */
                 positions: new Map(),
@@ -62,22 +76,17 @@ export class Layout {
             /**  @type {Size} */
             containerSize: new Size(),
         };
-
-        this.environmentSymbol = symbolizer.symbolize(`environment#${iota()}`);
-
-        itemMeasurer.subscribe(this.environmentSymbol, () => {
-            this.scheduleRecalculation(TRIGGER_ITEM_MEASURER_CALLBACK);
-        });
     }
 
     /** @private */
     _recalculate(trigger) {
-        const checker = new LayoutPipeRecalculationNeedChecker();
+        // const checker = new LayoutPipeRecalculationNeedChecker();
+        this.passedThroughPipeline.next = this._getTemplateForDataPassedThroughPipeline();
         for (const pipe of this.private.pipeline) {
             // if (checker.doesPipeNeedRecalculation(pipe)) {
-            pipe.passedThroughPipeline = this.passedThroughPipeline;
+            pipe.passedThroughPipeline = this.passedThroughPipeline.next;
             pipe.perform();
-            this.passedThroughPipeline = pipe.passedThroughPipeline;
+            this.passedThroughPipeline.next = pipe.passedThroughPipeline;
             // }
         }
         this.private.updateScheduler.finished();
@@ -124,7 +133,7 @@ export class Layout {
 
     /** @param {Size} newSize */
     setContainerSize(newSize) {
-        this.passedThroughPipeline.containerSize = newSize;
+        this.passedThroughPipeline.next.containerSize = newSize;
         this._recalculate(TRIGGER_NEW_CONTAINER_SIZE);
     }
 

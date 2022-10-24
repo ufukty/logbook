@@ -8,7 +8,7 @@ import { AbstractManagedLayoutCellViewController } from "../js/baja.sl/AbstractM
 import { itemCellPairing } from "../js/baja.sl/ItemCellPairing.js";
 
 import { Layout } from "../js/baja.sl/Layout/Layout.js";
-import { adoption, createElement, iota, pick, symbolizer } from "../js/baja.sl/utilities.js";
+import { adoption, createElement, iota, lerp, pick, symbolizer } from "../js/baja.sl/utilities.js";
 import { itemMeasurer } from "../js/baja.sl/ItemMeasurer.js";
 import { Area, Size, Spacing } from "../js/baja.sl/Layout/Coordinates.js";
 import { resizeObserverWrapper } from "../js/baja.sl/ResizeObserverWrapper.js";
@@ -20,7 +20,7 @@ class BasicViewController extends AbstractManagedLayoutCellViewController {
         super();
 
         // this.dom.container.style.width = "100px";
-        // this.dom.container.style.height = "100px";
+        this.dom.container.style.minHeight = "50px";
     }
 
     async prepareForFreeAsync() {
@@ -29,8 +29,7 @@ class BasicViewController extends AbstractManagedLayoutCellViewController {
     }
 
     firstLevelOfPresentation() {
-        console.log(this.config.itemSymbol);
-        this.dom.container.innerHTML = ` 1-${symbolizer.desymbolize(this.config.itemSymbol)}<br>`;
+        this.dom.container.innerHTML += ` 1-${symbolizer.desymbolize(this.config.itemSymbol)}<br>`;
         this.dom.container.style.backgroundColor = "lightgray";
     }
 
@@ -42,16 +41,19 @@ class BasicViewController extends AbstractManagedLayoutCellViewController {
     thirdLevelOfPresentation() {
         this.dom.container.innerHTML += ` 3-${symbolizer.desymbolize(this.config.itemSymbol)}<br>`;
         this.dom.container.style.backgroundColor = "lightblue";
-        this.dom.container.innerHTML += pick([
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-            "Donec gravida consequat orci, sed luctus arcu lacinia eget.",
-            "Cras interdum nibh nunc, in ornare risus feugiat sed.",
-            "Maecenas porta, lectus quis consectetur hendrerit, orci massa eleifend arcu, mollis molestie mauris felis nec ligula.",
-            "Nulla semper tempus sagittis.",
-            "Donec semper vel dolor vel porta.",
-            "Nam vel placerat tellus.",
-            "Quisque venenatis non felis sed hendrerit.",
-        ]);
+
+        setInterval(() => {
+            this.dom.container.innerHTML += pick([
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                "Donec gravida consequat orci, sed luctus arcu lacinia eget.",
+                "Cras interdum nibh nunc, in ornare risus feugiat sed.",
+                "Maecenas porta, lectus quis consectetur hendrerit, orci massa eleifend arcu, mollis molestie mauris felis nec ligula.",
+                "Nulla semper tempus sagittis.",
+                "Donec semper vel dolor vel porta.",
+                "Nam vel placerat tellus.",
+                "Quisque venenatis non felis sed hendrerit.",
+            ]);
+        }, lerp(1000, 10000, Math.random()));
     }
 }
 
@@ -64,10 +66,10 @@ class CustomManagedLayoutViewController extends AbstractManagedLayoutViewControl
         this.config = {
             ...this.config,
             zoneOffsets: {
-                preload: 1.2,
-                parking: 1.3,
+                preload: 2.2,
+                parking: 2.3,
             },
-            updateMaxFrequency: 20,
+            updateMaxFrequency: 10,
         };
 
         // this._setupContainer();
@@ -92,10 +94,9 @@ class CustomManagedLayoutViewController extends AbstractManagedLayoutViewControl
             // measure: new MeasureContainer(),
         };
 
-        this.config.layout = new Layout()
-            .connectCalculator(layoutPipes.flow)
-            // .connectMutator(measure)
-            .connectMutator(layoutPipes.align);
+        this.config.layout = new Layout().connectCalculator(layoutPipes.flow);
+        // .connectMutator(measure)
+        // .connectMutator(layoutPipes.align);
         // .connectMutator(indentation)
         // .connectMutator(counterShift)
         // .connectMutator(focusStabilizer)
@@ -212,7 +213,6 @@ class CustomManagedLayoutViewController extends AbstractManagedLayoutViewControl
         itemMeasurer.setAverageSize(mainEnvironmentSymbol, new Size(100, 100));
         itemSymbols.forEach((itemSymbol) => {
             itemMeasurer.setDefaultSize(itemSymbol, mainEnvironmentSymbol, new Size(100, 100));
-            // itemMeasurer.setSize(itemSymbol, mainEnvironmentSymbol, new Size(Math.floor(Math.random() * 100), 100));
             itemCellPairing.setCellKindForItem(itemSymbol, mainEnvironmentSymbol, VIEW_CONTROLLER_SYMBOL_TASK);
         });
 
