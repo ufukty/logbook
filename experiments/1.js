@@ -3,7 +3,7 @@ import {
     TRIGGER_REPLACEMENT,
     TRIGGER_SCROLL_LISTENER,
 } from "../js/baja.sl/AbstractManagedLayoutViewController.js";
-import { Flow, VERTICAL } from "../js/baja.sl/Layout/Calculators/Flow.js";
+import { Flow, HORIZONTAL, VERTICAL } from "../js/baja.sl/Layout/Calculators/Flow.js";
 import { AbstractManagedLayoutCellViewController } from "../js/baja.sl/AbstractManagedLayoutCellViewController.js";
 import { itemCellPairing } from "../js/baja.sl/ItemCellPairing.js";
 
@@ -13,7 +13,13 @@ import { itemMeasurer } from "../js/baja.sl/ItemMeasurer.js";
 import { Area, Size, Spacing } from "../js/baja.sl/Layout/Coordinates.js";
 import { resizeObserverWrapper } from "../js/baja.sl/ResizeObserverWrapper.js";
 
-import { Align, HORIZONTAL_CENTER, HORIZONTAL_LEFT, HORIZONTAL_RIGHT } from "../js/baja.sl/Layout/Mutators/Align.js";
+import {
+    Align,
+    HORIZONTAL_CENTER,
+    HORIZONTAL_LEFT,
+    HORIZONTAL_RIGHT,
+    VERTICAL_TOP,
+} from "../js/baja.sl/Layout/Mutators/Align.js";
 
 class BasicViewController extends AbstractManagedLayoutCellViewController {
     constructor() {
@@ -44,14 +50,68 @@ class BasicViewController extends AbstractManagedLayoutCellViewController {
 
         setInterval(() => {
             this.dom.container.innerHTML += pick([
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-                "Donec gravida consequat orci, sed luctus arcu lacinia eget.",
-                "Cras interdum nibh nunc, in ornare risus feugiat sed.",
-                "Maecenas porta, lectus quis consectetur hendrerit, orci massa eleifend arcu, mollis molestie mauris felis nec ligula.",
-                "Nulla semper tempus sagittis.",
-                "Donec semper vel dolor vel porta.",
-                "Nam vel placerat tellus.",
-                "Quisque venenatis non felis sed hendrerit.",
+                " Lorem",
+                " ipsum",
+                " dolor",
+                " sit",
+                " amet",
+                " consectetur",
+                " adipiscing",
+                " elit.",
+                " Donec",
+                " gravida",
+                " consequat",
+                " orci",
+                " sed",
+                " luctus",
+                " arcu",
+                " lacinia",
+                " eget.",
+                " Cras",
+                " interdum",
+                " nibh",
+                " nunc",
+                " in",
+                " ornare",
+                " risus",
+                " feugiat",
+                " sed.",
+                " Maecenas",
+                " porta",
+                " lectus",
+                " quis",
+                " consectetur",
+                " hendrerit",
+                " orci",
+                " massa",
+                " eleifend",
+                " arcu",
+                " mollis",
+                " molestie",
+                " mauris",
+                " felis",
+                " nec",
+                " ligula.",
+                " Nulla",
+                " semper",
+                " tempus",
+                " sagittis.",
+                " Donec",
+                " semper",
+                " vel",
+                " dolor",
+                " vel",
+                " porta.",
+                " Nam",
+                " vel",
+                " placerat",
+                " tellus.",
+                " Quisque",
+                " venenatis",
+                " non",
+                " felis",
+                " sed",
+                " hendrerit.",
             ]);
         }, lerp(1000, 10000, Math.random()));
     }
@@ -85,7 +145,7 @@ class CustomManagedLayoutViewController extends AbstractManagedLayoutViewControl
         const layoutPipes = {
             flow: new Flow(VERTICAL),
             // indentation: new Indentation(),
-            align: new Align(HORIZONTAL_LEFT),
+            align: new Align(HORIZONTAL_CENTER),
             // focusStabilizer: new FocusStabilizer(),
             // counterShift: new CounterShift(),
             // avatars: new AvatarLayout(),
@@ -94,9 +154,10 @@ class CustomManagedLayoutViewController extends AbstractManagedLayoutViewControl
             // measure: new MeasureContainer(),
         };
 
-        this.config.layout = new Layout().connectCalculator(layoutPipes.flow);
-        // .connectMutator(measure)
-        // .connectMutator(layoutPipes.align);
+        this.config.layout = new Layout()
+            .connectCalculator(layoutPipes.flow)
+            // .connectMutator(measure)
+            .connectMutator(layoutPipes.align);
         // .connectMutator(indentation)
         // .connectMutator(counterShift)
         // .connectMutator(focusStabilizer)

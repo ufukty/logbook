@@ -82,7 +82,7 @@ export class Flow extends AbstractLayoutCalculator {
             if (direction === VERTICAL) {
                 area = new Area(0, lastPosition, itemSize.width, lastPosition + itemSize.height);
             } else if (direction === HORIZONTAL) {
-                area = new Area(lastPosition, 0, lastPosition + itemSize + width, itemSize.height);
+                area = new Area(lastPosition, 0, lastPosition + itemSize.width, itemSize.height);
             }
 
             this.passedThroughPipeline.layout.positions.set(itemSymbol, area);
