@@ -32,33 +32,33 @@ export class Align extends AbstractLayoutMutator {
     }
 
     _alignToHorizontalLeft() {
-        const containerWidth = this.passedThroughPipeline.contentBoundingBoxSize.width;
+        const contentBoundingBoxSize = this.passedThroughPipeline.contentBoundingBoxSize.width;
         for (const [itemSymbol, position] of this.passedThroughPipeline.layout.positions.entries()) {
             position.moveTo(0, undefined);
         }
     }
 
     _alignToHorizontalCenter() {
-        const containerWidth = this.passedThroughPipeline.contentBoundingBoxSize.width;
-        if (!containerWidth) {
+        const contentBoundingBoxSize = this.passedThroughPipeline.contentBoundingBoxSize.width;
+        if (contentBoundingBoxSize === undefined) {
             console.error("can not align without contentBoundingBoxSize set");
             return;
         }
         for (const [itemSymbol, position] of this.passedThroughPipeline.layout.positions.entries()) {
             const itemWidth = itemMeasurer.getSize(itemSymbol, this.controlledByEnvironment.environmentSymbol).width;
-            position.translate((containerWidth - itemWidth) / 2, 0);
+            position.translate((contentBoundingBoxSize - itemWidth) / 2, 0);
         }
     }
 
     _alignToHorizontalRight() {
-        const containerWidth = this.passedThroughPipeline.contentBoundingBoxSize.width;
-        if (!containerWidth) {
+        const contentBoundingBoxSize = this.passedThroughPipeline.contentBoundingBoxSize.width;
+        if (contentBoundingBoxSize === undefined) {
             console.error("can not align without contentBoundingBoxSize set");
             return;
         }
         for (const [itemSymbol, position] of this.passedThroughPipeline.layout.positions.entries()) {
             const itemWidth = itemMeasurer.getSize(itemSymbol, this.controlledByEnvironment.environmentSymbol).width;
-            position.translate(containerWidth - itemWidth, 0);
+            position.translate(contentBoundingBoxSize - itemWidth, 0);
         }
     }
 
@@ -71,7 +71,7 @@ export class Align extends AbstractLayoutMutator {
 
     _alignToVerticalCenter() {
         const containerHeight = this.passedThroughPipeline.contentBoundingBoxSize.height;
-        if (!containerHeight) {
+        if (containerHeight === undefined) {
             console.error("can not align without contentBoundingBoxSize set");
             return;
         }
@@ -83,7 +83,7 @@ export class Align extends AbstractLayoutMutator {
 
     _alignToVerticalBottom() {
         const containerHeight = this.passedThroughPipeline.contentBoundingBoxSize.height;
-        if (!containerHeight) {
+        if (containerHeight === undefined) {
             console.error("can not align without contentBoundingBoxSize set");
             return;
         }

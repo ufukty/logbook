@@ -25,7 +25,7 @@ class BasicViewController extends AbstractManagedLayoutCellViewController {
     constructor() {
         super();
 
-        // this.dom.container.style.width = "100px";
+        this.dom.container.style.width = "max-content";
         this.dom.container.style.minHeight = "50px";
     }
 
@@ -113,7 +113,7 @@ class BasicViewController extends AbstractManagedLayoutCellViewController {
                 " sed",
                 " hendrerit.",
             ]);
-        }, lerp(1000, 10000, Math.random()));
+        }, lerp(5000, 20000, Math.random()));
     }
 }
 
@@ -132,13 +132,7 @@ class CustomManagedLayoutViewController extends AbstractManagedLayoutViewControl
             updateMaxFrequency: 10,
         };
 
-        // this._setupContainer();
-    }
-
-    /** @private */
-    _setupContainer() {
-        this.dom.container.style.width = "100%";
-        this.dom.container.style.height = "100%";
+        this.dom.container.style.margin = "0 auto";
     }
 
     playTestCase() {

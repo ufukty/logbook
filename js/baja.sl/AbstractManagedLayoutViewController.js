@@ -203,6 +203,7 @@ export class AbstractManagedLayoutViewController extends AbstractViewController 
         this.computedValues.next.positions = this.config.layout.passedThroughPipeline.next.layout.positions;
     }
 
+    /** @private */
     _calculateFocusedItemPositionShift() {
         const focusedItemSymbol = this.computedValues.current.zoneCollisions.inFocus.values().next().value;
         const focusedItemCurrentPosition = this.computedValues.current.positions.get(focusedItemSymbol);
@@ -254,8 +255,8 @@ export class AbstractManagedLayoutViewController extends AbstractViewController 
 
     /** @private */
     _updateContainerToTheContentBoundingBoxSize() {
-        this.dom.container.style.width = `${this.config.layout.passedThroughPipeline.contentBoundingBoxSize.width}px`;
-        this.dom.container.style.height = `${this.config.layout.passedThroughPipeline.contentBoundingBoxSize.height}px`;
+        this.dom.container.style.width = `${this.config.layout.passedThroughPipeline.next.contentBoundingBoxSize.width}px`;
+        this.dom.container.style.height = `${this.config.layout.passedThroughPipeline.next.contentBoundingBoxSize.height}px`;
     }
 
     /** @private */
@@ -591,7 +592,7 @@ export class AbstractManagedLayoutViewController extends AbstractViewController 
         this._calculateFocusedItemPositionShift();
         this._classifyItemsByCollidedZones();
         this._mergeItemSymbolsWithPreviousIteration();
-        // this._updateContainerToTheContentBoundingBoxSize();
+        this._updateContainerToTheContentBoundingBoxSize();
         this._classifyItemsByUpdateTypes();
         // this._debugPrintClassifiedItems();
 
@@ -629,9 +630,7 @@ export class AbstractManagedLayoutViewController extends AbstractViewController 
      * Implementer can use this method to perform UI updates on rest of the cell.
      * @param {Symbol} itemSymbol
      */
-    cellPlacedWithoutAppear(itemSymbol) {
-        // console.error("abstract function is called directly");
-    }
+    cellPlacedWithoutAppear(itemSymbol) {}
 
     /**
      * @abstract
@@ -639,9 +638,7 @@ export class AbstractManagedLayoutViewController extends AbstractViewController 
      * Implementer can use this method to perform UI updates on rest of the cell.
      * @param {Symbol} itemSymbol
      */
-    cellAppears(itemSymbol) {
-        // console.error("abstract function is called directly");
-    }
+    cellAppears(itemSymbol) {}
 
     /**
      * @abstract
@@ -649,9 +646,7 @@ export class AbstractManagedLayoutViewController extends AbstractViewController 
      * Implementer can use this method to perform UI updates on rest of the cell.
      * @param {Symbol} itemSymbol
      */
-    cellDisappears(itemSymbol) {
-        // console.error("abstract function is called directly");
-    }
+    cellDisappears(itemSymbol) {}
 
     /**
      * Calling this function will trigger getCellForItem() method implemented by
@@ -680,7 +675,5 @@ export class AbstractManagedLayoutViewController extends AbstractViewController 
      * @param {ItemSymbol} itemSymbol
      * Populate content of managedLayoutCellViewController according to itemSymbol
      */
-    populateCellForItem(managedLayoutCellViewController, itemSymbol) {
-        console.error("abstract method is called directly.");
-    }
+    populateCellForItem(managedLayoutCellViewController, itemSymbol) {}
 }
