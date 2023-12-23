@@ -1,9 +1,9 @@
 package document
 
 // import (
-// 	c "logbook/main/controller"
-// 	e "logbook/main/controller/utilities/errors"
-// 	db "logbook/main/database"
+// 	c "logbook/controller"
+// 	e "logbook/controller/utilities/errors"
+// 	db "logbook/database"
 // 	"net/http"
 
 // 	"github.com/gorilla/mux"

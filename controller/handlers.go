@@ -10,7 +10,7 @@ import (
 	"github.com/google/uuid"
 	"gopkg.in/yaml.v2"
 
-	e "logbook/main/controller/utilities/errors"
+	e "logbook/controller/utilities/errors"
 )
 
 // Errors from [GET]/document/details

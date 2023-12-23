@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	"logbook/main/controller/document"
-	"logbook/main/controller/task"
+	"logbook/cmd/tasks/controllers/document"
+	"logbook/cmd/tasks/controllers/task"
 
-	// "logbook/main/controller/document/overview/chronological"
+	// "logbook/controller/document/overview/chronological"
 
 	"net/http"
 

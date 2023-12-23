@@ -219,7 +219,7 @@ dist
 
 ### VisualStudioCode
 
-.vscode/_
+.vscode
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
@@ -238,3 +238,5 @@ _.code-workspace
 .ionide
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,macos,go,node
+
+**/certificates

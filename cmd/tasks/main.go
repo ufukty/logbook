@@ -9,7 +9,7 @@ import (
 	"os/signal"
 	"time"
 
-	db "logbook/main/database"
+	db "logbook/database"
 
 	"github.com/gorilla/mux"
 )
@@ -26,7 +26,7 @@ func main() {
 	// Initialize database connection pool
 	db.Init("postgres://ufuktan:password@localhost:5432/logbook_dev") // os.Getenv("DATABASE_URL")
 	defer db.Close()
-	
+
 	//
 	r := mux.NewRouter()
 	registerEndpoints(r)

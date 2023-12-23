@@ -1,8 +1,8 @@
 package document
 
 import (
-	e "logbook/main/controller/utilities/errors"
-	db "logbook/main/database"
+	e "logbook/controller/utilities/errors"
+	db "logbook/database"
 	"net/http"
 )
 

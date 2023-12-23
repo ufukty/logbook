@@ -1,10 +1,10 @@
 package document
 
 import (
-	c "logbook/main/controller"
-	e "logbook/main/controller/utilities/errors"
-	v "logbook/main/controller/utilities/validate"
-	db "logbook/main/database"
+	c "logbook/controller"
+	e "logbook/controller/utilities/errors"
+	v "logbook/controller/utilities/validate"
+	db "logbook/database"
 	"net/http"
 	"strconv"
 
