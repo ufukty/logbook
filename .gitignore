@@ -26,7 +26,6 @@ _.so
 
 ### Go Patch
 
-/vendor/
 /Godeps/
 
 ### macOS
