@@ -1,11 +1,10 @@
 package paths_test
 
 import (
+	"fmt"
 	"logbook/config"
 	"logbook/internal/web/paths"
 	"math/rand"
-
-	"fmt"
 	"strings"
 	"testing"
 )
@@ -13,13 +12,8 @@ import (
 func Test_Order(t *testing.T) {
 
 	eps := []paths.Endpoint{
-		config.CustomsModuleList,
-		config.CustomsModuleContext,
-		config.CustomsModuleUpload,
-		config.CustomsModuleDownload,
-		config.CustomsModuleAstFile,
-		config.CustomsModuleAstPackage,
-		config.CustomsModuleAstFuncDecl,
+		config.DocumentList,
+		config.TaskList,
 	}
 
 	for take := 0; take < 10; take++ {

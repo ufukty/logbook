@@ -42,6 +42,9 @@ github.com/jackc/puddle
 # github.com/pkg/errors v0.8.1
 ## explicit
 github.com/pkg/errors
+# github.com/tvdburgt/go-argon2 v0.0.0-20181109175329-49d0f0e5973c
+## explicit
+github.com/tvdburgt/go-argon2
 # golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97
 ## explicit; go 1.17
 golang.org/x/crypto/pbkdf2
@@ -63,9 +66,6 @@ golang.org/x/text/transform
 golang.org/x/text/unicode/bidi
 golang.org/x/text/unicode/norm
 golang.org/x/text/width
-# gopkg.in/yaml.v2 v2.2.2
-## explicit
-gopkg.in/yaml.v2
 # gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
 ## explicit
 gopkg.in/yaml.v3

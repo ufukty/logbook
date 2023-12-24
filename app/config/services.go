@@ -11,32 +11,11 @@ var Site Domain // assigned after config read
 var ApiGateway = Gateway{Site, "/api/v1.0.0"}
 
 var (
-	Customs                  = Service{ApiGateway, "/customs"}
-	CustomsModuleUpload      = Endpoint{Customs, "/module", POST}
-	CustomsModuleDownload    = Endpoint{Customs, "/module/{id}", GET}
-	CustomsModuleList        = Endpoint{Customs, "/module/{id}/list", GET}
-	CustomsModuleAstFuncDecl = Endpoint{Customs, "/module/{id}/ast/{package}/{file}/{function}", GET}
-	CustomsModuleAstFile     = Endpoint{Customs, "/module/{id}/ast/{package}/{file}", GET}
-	CustomsModuleAstPackage  = Endpoint{Customs, "/module/{id}/ast/{package}", GET}
-	CustomsModuleContext     = Endpoint{Customs, "/module/{id}/context/{package}/{file}/{function}", GET}
+	Document     = Service{ApiGateway, "/document"}
+	DocumentList = Endpoint{Document, "/list/{root}", GET}
 )
 
 var (
-	Evolver                   = Service{ApiGateway, "/evolver"}
-	EvolverSessionCreate      = Endpoint{Evolver, "/session", GET}
-	EvolverSessionBatchUpdate = Endpoint{Evolver, "/session/{sid}/batch/{bid}", POST}
+	Task     = Service{ApiGateway, "/task"}
+	TaskList = Endpoint{Task, "/list/{root}", GET}
 )
-
-var (
-	Runner            = Service{ApiGateway, "/runner"}
-	RunnerBatchCreate = Endpoint{Runner, "/batch", GET}
-)
-
-// var Handlers = map[Service]map[Endpoint]http.HandlerFunc{
-// 	Evolver: {
-// 		EvolverSessionCreate: http.NotFound,
-// 	},
-// 	Runner: {
-// 		RunnerBatchCreate: http.NotFound,
-// 	},
-// }

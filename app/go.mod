@@ -9,9 +9,10 @@ require (
 	github.com/jackc/pgtype v1.8.1
 	github.com/jackc/pgx/v4 v4.13.0
 	github.com/pkg/errors v0.8.1
-	gopkg.in/yaml.v2 v2.2.2
 	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
 )
+
+require github.com/tvdburgt/go-argon2 v0.0.0-20181109175329-49d0f0e5973c
 
 require (
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect

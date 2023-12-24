@@ -13,15 +13,8 @@ common: &common
   router-public: 8080
   router-private: 8081
 
-evolver:
+tasks:
   <<: *common
-
-runner:
-  <<: *common
-
-customs:
-  <<: *common
-  volume-mount: "NA"
 
 api_gateway:
   <<: *common

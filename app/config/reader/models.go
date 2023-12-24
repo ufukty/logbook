@@ -26,16 +26,7 @@ type Captcha struct {
 	Common `yaml:",inline"`
 }
 
-type Customs struct {
-	Common    `yaml:",inline"`
-	MountPath string `yaml:"volume-mount"`
-}
-
-type Evolver struct {
-	Common `yaml:",inline"`
-}
-
-type Runner struct {
+type Tasks struct {
 	Common `yaml:",inline"`
 }
 
@@ -43,7 +34,5 @@ type Config struct {
 	Common     Common     `yaml:"common"`
 	APIGateway APIGateway `yaml:"api_gateway"`
 	Captcha    Captcha    `yaml:"captcha"`
-	Customs    Customs    `yaml:"customs"`
-	Evolver    Evolver    `yaml:"evolver"`
-	Runner     Runner     `yaml:"runner"`
+	Tasks      Tasks      `yaml:"tasks"`
 }

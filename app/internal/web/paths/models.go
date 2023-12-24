@@ -13,7 +13,7 @@ import (
 
 type Domain struct {
 	Protocol string // eg. http, https
-	Domain   string // eg. deepthinker.app
+	Domain   string // eg. logbook.app
 	Port     string // eg. 8080
 }
 
