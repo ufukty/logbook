@@ -19,7 +19,7 @@ class BasicViewController extends AbstractManagedLayoutCellViewController {
         super();
 
         this.dom.container.style.width = "max-content";
-        this.dom.container.style.minHeight = "50px";
+        this.dom.container.style.minHeight = "100px";
     }
 
     async prepareForFreeAsync() {

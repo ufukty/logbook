@@ -22,7 +22,7 @@ const elementUpdater = (routeContainer, carLight, reflectiveLayers, clampedMidPo
 
 var scrollPositionForLastUpdate = undefined;
 const adjustReflectionsWithScrollPosition = () => {
-    if (scrollPositionForLastUpdate && scrollPositionForLastUpdate === window.scrollY) return;
+    if (scrollPositionForLastUpdate && Math.abs(scrollPositionForLastUpdate - window.scrollY) < 2) return;
 
     const midPointViewport = window.scrollY + 0.33 * window.innerHeight;
 
