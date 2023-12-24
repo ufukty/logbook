@@ -1,0 +1,57 @@
+html,
+body,
+#document-sheet,
+#page-content,
+#infinite-sheet {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+#infinite-sheet {
+    left: 0;
+    transition: transform var(--auto-focus-shift-transition-duration) var(--auto-focus-shift-transition-timing-function);
+    transition-delay: 400ms;
+}
+
+#infinite-sheet>div.abstract-cell-scroller-view {
+    --task-container-width: min(760px, 100vw);
+    --horizontal-padding: calc((100vw - var(--task-container-width)) / 2);
+    --badge-width: 32.8px;
+    --task-badge-space: 5px;
+    --badge-viewport-space: 10px;
+    --task-body-width: calc(var(--task-container-width) - 2 * var(--task-badge-space) - 2 * var(--badge-viewport-space) - 2 * var(--badge-width));
+
+
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+}
+
+#infinite-sheet .abstract-cell-scroller-view-content-area {
+    /* background: url("img/dot-background-2px.png"); */
+    /* background-position: 50% 0%; */
+    padding: 0 var(--horizontal-padding);
+}
+
+
+.infinite-sheet-header {
+    width: var(--task-container-width);
+    font-size: 1.1rem;
+    color: var(--clr-off-black);
+    padding-top: calc(0.4rem + 1px);
+    padding-left: calc(1rem + 2 * var(--badge-viewport-space) + 29px);
+    padding-right: 1rem;
+    padding-bottom: 0.4rem;
+}
+
+#infinite-sheet.context-menu-open .abstract-cell-scroller-view-cell-positioner.context-menu-focused-on .task-container {
+    transform: scale(1.05);
+    opacity: 1;
+}
+
+#infinite-sheet.context-menu-open .abstract-cell-scroller-view-cell-positioner:not(.context-menu-focused-on) .task-container,
+#infinite-sheet.context-menu-open .infinite-sheet-header {
+    opacity: 0.1;
+    transform: scale(0.90);
+}

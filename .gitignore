@@ -75,7 +75,6 @@ _.so
 *.vsix
 **/certificates
 /Godeps/
-/vendor/
 \*.dylib
 \*.lcov
 \*.out

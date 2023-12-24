@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+
+        <script async defer type="module" src="./2.js"></script>
+        <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                font-family: "Work Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+                font-weight: 600;
+                box-sizing: border-box;
+                color: inherit;
+                text-decoration: inherit;
+                cursor: default;
+                user-select: none;
+                font-size: 12pt;
+            }
+
+            #page {
+                width: 480px;
+                font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+                font-weight: 600;
+                resize: both;
+
+                padding: 500px 20px;
+                margin: 0 auto;
+            }
+
+            .route-container {
+                /* --clr-route-green-bg: #1D8A7D; */
+                --clr-route-green-bg: #016A68;
+                --clr-route-orange-bg: #FF9606;
+                --plate-corner-radius: 8px;
+
+                position: relative;
+
+                width: 100%;
+                height: 100%;
+
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                align-items: stretch;
+
+                background-color: var(--clr-route-green-bg);
+                color: white;
+
+                border-radius: var(--plate-corner-radius);
+                overflow: hidden;
+
+                isolation: isolate;
+                box-shadow: 0 23px 28px -15px #00000088;
+            }
+
+            .route-plate-border {
+                position: absolute;
+                z-index: 1;
+                top: 3px;
+                left: 3px;
+                right: 3px;
+                bottom: 3px;
+                border: 2px solid white;
+                border-radius: 6px;
+            }
+
+            .route-header-container {
+                position: relative;
+                z-index: 5;
+
+                margin: 15px 25px 0;
+
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+
+            }
+
+            .route-preview-container {
+                position: relative;
+                z-index: 5;
+
+                margin: 50px 25px;
+            }
+
+            .route-preview-container>div:not(:first-child) {
+                margin-top: 3px;
+            }
+
+            .route-approve-container {
+                position: relative;
+
+                padding: 10px 20px 15px;
+                overflow: hidden;
+
+                background: var(--clr-route-orange-bg);
+
+                color: black;
+            }
+
+            .route-approve-flex-container {
+                position: relative;
+                z-index: 5;
+
+                display: flex;
+                flex-direction: row;
+                justify-content: space-around;
+                align-items: center;
+            }
+
+            .route-approve-border {
+                position: absolute;
+                z-index: 1;
+                top: -10px;
+                left: 3px;
+                right: 3px;
+                bottom: 3px;
+                border: 2px solid black;
+                border-radius: 6px;
+            }
+
+            .route-arrow-svg-container {
+                width: 30px;
+                height: 22px;
+
+                transition: transform 100ms ease-in-out;
+            }
+
+            .route-car-light {
+                position: absolute;
+                z-index: 4;
+                top: 0;
+                left: 0;
+
+                width: 100%;
+                aspect-ratio: 1;
+
+                background-image: radial-gradient(closest-side, #ffffffff, #ffffff00);
+                mix-blend-mode: soft-light;
+
+                pointer-events: none;
+                will-change: transform;
+            }
+
+            .reflective-layers {
+                position: absolute;
+                z-index: 2;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+
+                -webkit-mask-mode: alpha;
+                -webkit-mask-repeat: no-repeat;
+                mask-mode: alpha;
+                mask-repeat: no-repeat;
+
+                mix-blend-mode: soft-light;
+
+                pointer-events: none;
+
+                opacity: 0.6;
+                background: url("assets/honeycomb-pattern-extended.png") repeat 0 0 / 12px 8px, url("assets/stripes-pattern.png") repeat 0 0 / 36px 36px, url("assets/random-polygons-pattern.png") repeat 0 0 / 64px 64px;
+
+                transition: opacity 200ms ease-in-out;
+
+                will-change: mask-position, -webkit-mask-position;
+            }
+
+            @media only screen and (-webkit-min-device-pixel-ratio: 2),
+            only screen and (min--moz-device-pixel-ratio: 2) {
+                .reflective-layers {
+                    background: url("assets/honeycomb-pattern-extended@2x.png") repeat 0 0 / 12px 8px, url("assets/stripes-pattern@2x.png") repeat 0 0 / 36px 36px, url("assets/random-polygons-pattern@2x.png") repeat 0 0 / 64px 64px;
+                }
+            }
+
+            @media only screen and (-webkit-min-device-pixel-ratio: 3),
+            only screen and (min--moz-device-pixel-ratio: 3) {
+                .reflective-layers {
+                    background: url("assets/honeycomb-pattern-extended@3x.png") repeat 0 0 / 12px 8px, url("assets/stripes-pattern@3x.png") repeat 0 0 / 36px 36px, url("assets/random-polygons-pattern@3x.png") repeat 0 0 / 64px 64px;
+                }
+            }
+
+            .reflective-layers.layer-one {
+                background-position: 0 0, 0 0, 0 0;
+                -webkit-mask-image: radial-gradient(closest-side, #ffffffff, #ffffff00 50%);
+                mask-image: radial-gradient(closest-side, #ffffffff, #ffffff00 50%);
+                /* -webkit-mask-image: linear-gradient(0deg, #ffffff00 25%, #ffffffff 50%, #ffffff00 75%); */
+                /* mask-image: linear-gradient(0deg, #ffffff00 25%, #ffffffff 50%, #ffffff00 75%) */
+            }
+
+            .reflective-layers.layer-two {
+                background-position: 0 0, 18px 0, 32px 32px;
+                -webkit-mask-image: radial-gradient(closest-side, #ffffff00, #ffffffff, #ffffff00);
+                mask-image: radial-gradient(closest-side, #ffffff00, #ffffffff, #ffffff00);
+                /* -webkit-mask-image: linear-gradient(0deg, #ffffff00 0%, #ffffff88 25%, #ffffff00 50%, #ffffff88 75%, #ffffff00 100%); */
+                /* mask-image: linear-gradient(0deg, #ffffff00 0%, #ffffff88 25%, #ffffff00 50%, #ffffff88 75%, #ffffff00 100%) */
+            }
+
+            .task {
+                background-color: white;
+                padding: 6px 20px;
+                border-radius: 8px;
+
+                color: black;
+            }
+
+            .route-prop {
+                display: flex;
+                flex-direction: column;
+                background-color: var(--clr-route-green-bg);
+                border: 2px solid white;
+                border-radius: 8px;
+                text-align: center;
+                overflow: hidden;
+            }
+
+            .route-prop-title {
+                background-color: white;
+                color: var(--clr-route-green-bg);
+                padding: 0 5px;
+            }
+
+            .route-prop-value {
+                padding: 2px 5px;
+            }
+
+            .route-number-container {
+                position: relative;
+
+                width: 51px;
+                height: 40px;
+
+                align-self: center;
+            }
+
+            .route-number {
+                color: black;
+                position: relative;
+                z-index: 1;
+                text-align: center;
+                margin-top: 5px;
+                font-size: 24px;
+            }
+
+            .route-badge-svg-container {
+                position: absolute;
+                z-index: 0;
+                width: 51px;
+                height: 40px;
+            }
+
+            .route-container {
+                cursor: pointer
+            }
+        </style>
+    </head>
+
+    <body>
+        <div style="display: none">
+            <svg id="route-badge-svg-def" width="51px" height="40px" viewBox="0 0 51 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                <path stroke="none" stroke-width="1" fill-rule="evenodd" fill="#FFFFFF" d="M25.3818073,1.42108547e-14 C27.8251464,1.65194852 30.4994712,2.83093735 33.5163784,3.30846443 C36.3145864,3.72207502 39.3374431,3.53205447 42.5959052,2.70886794 L43.6971091,2.41098132 L44.1961872,2.89563902 L49.9673246,8.39102489 C49.36894,8.81770259 48.8549671,9.23343783 48.4167335,9.63939288 C45.2774768,12.6407198 46.1735116,14.8347833 47.6816939,17.084583 L49.0842108,19.1061219 C50.0090045,20.4927334 50.7972378,21.986459 50.7521584,23.7629549 C50.761303,24.0479844 50.7442392,24.3353162 50.6956385,24.62711 C50.44515,26.1310154 49.9939298,27.3707058 49.3818717,28.4022184 C47.4572871,31.8153188 43.962721,32.9916922 40.1116306,33.8109453 L38.6531296,34.1050963 L36.4338146,34.531731 C34.4561063,34.9215351 32.4840684,35.3689034 30.6693828,36.1087867 C29.3005932,36.6762546 28.0250736,37.3989096 26.9100949,38.3721641 L26.7483791,38.5163146 C26.4232317,38.8135873 26.111578,39.1341402 25.8150503,39.480502 L25.3789141,40 C25.1578237,39.7066724 24.9234482,39.4498231 24.6834139,39.1887849 L24.3166561,38.8087202 L23.8481144,38.3721362 L24.0087931,38.5159996 C22.8579818,37.4712853 21.5276212,36.7062824 20.0947173,36.1128244 C18.5067797,35.4642431 16.7980912,35.0400887 15.0703874,34.682753 L11.3761353,33.9618699 C7.24036861,33.1305875 3.42104421,32.029423 1.37538236,28.4008569 C0.763376016,27.3707058 0.312155792,26.1310154 0.0616673374,24.62711 C0.013066551,24.3353162 -0.00399716828,24.0479844 0.00608555293,23.7645262 C-0.0392870058,21.9875393 0.748744745,20.4934761 1.673411,19.1066637 L2.23903274,18.286041 L2.80400181,17.4827262 L3.33487325,16.688287 C4.67533811,14.5741211 5.29534888,12.4646835 2.34093644,9.64041756 C2.04853796,9.36909774 1.72263938,9.09388658 1.36056326,8.8141361 L0.789981237,8.39102489 L6.55777098,2.89563902 L7.06019674,2.41098132 C10.7453433,3.48237545 14.1318074,3.76803175 17.2408433,3.30811597 C19.9226133,2.88395719 22.3336346,1.90528172 24.552344,0.532818558 L25.3818073,1.42108547e-14 Z"></path>
+            </svg>
+
+            <svg id="route-arrow-svg-def" width="30px" height="22px" viewBox="0 0 30 22" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                <path stroke="none" stroke-width="1" fill-rule="evenodd" fill="#000000" d="M0.325467227,12.573292 L13.5121259,0.523571473 C14.2760892,-0.174523824 15.4464278,-0.174523824 16.2103911,0.523571473 L29.3970497,12.573292 C29.8047542,12.9458447 29.8332504,13.5783681 29.4606977,13.9860726 C29.2015793,14.2696398 28.8029344,14.3797199 28.4350217,14.2692984 L19.3037838,11.5287437 L19.3037838,22.0077067 L10.4187332,22.0077067 L10.4187332,11.5287437 L1.28749529,14.2692984 C0.758521316,14.4280592 0.201002165,14.1279421 0.042241418,13.5989681 C-0.0681800738,13.2310554 0.0419000502,12.8324104 0.325467227,12.573292 Z"></path>
+            </svg>
+        </div>
+
+        <div id="page">
+
+            <div class="route-container">
+                <div class="route-plate-border"></div>
+                <div class="route-header-container">
+                    <div class="route-number-container">
+                        <svg class="route-badge-svg-container">
+                            <use href="#route-badge-svg-def"></use>
+                        </svg>
+                        <div class="route-number">1</div>
+                    </div>
+                    <div class="route-prop">
+                        <div class="route-prop-title">Est. Time</div>
+                        <div class="route-prop-value">8-12 days</div>
+                    </div>
+                    <div class="route-prop">
+                        <div class="route-prop-title">Popularity</div>
+                        <div class="route-prop-value">Most</div>
+                    </div>
+                    <div class="route-prop">
+                        <div class="route-prop-title">Familiarity</div>
+                        <div class="route-prop-value">10%</div>
+                    </div>
+                </div>
+                <div class="route-preview-container">
+                    <div class="task">Connect redis to app</div>
+                    <div class="task">Connect redis to app</div>
+                    <div class="task">Connect redis to app</div>
+                    <div class="task">Connect redis to app</div>
+                </div>
+                <div class="route-approve-container">
+                    <div class="route-approve-border"></div>
+                    <div class="route-approve-flex-container">
+                        <div class="route-approve-arrow left">
+                            <svg class="route-arrow-svg-container">
+                                <use href="#route-arrow-svg-def"></use>
+                            </svg>
+                        </div>
+                        <div class="route-approve-text">TAKE THIS ROUTE</div>
+                        <div class="route-approve-arrow right">
+                            <svg class="route-arrow-svg-container">
+                                <use href="#route-arrow-svg-def"></use>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="reflective-layers layer-one"></div>
+                <div class="reflective-layers layer-two"></div>
+                <div class="route-car-light"></div>
+            </div>
+
+            &nbsp;
+
+            <div class="route-container">
+                <div class="route-plate-border"></div>
+                <div class="route-header-container">
+                    <div class="route-number-container">
+                        <svg class="route-badge-svg-container">
+                            <use href="#route-badge-svg-def"></use>
+                        </svg>
+                        <div class="route-number">1</div>
+                    </div>
+                    <div class="route-prop">
+                        <div class="route-prop-title">Est. Time</div>
+                        <div class="route-prop-value">8-12 days</div>
+                    </div>
+                    <div class="route-prop">
+                        <div class="route-prop-title">Popularity</div>
+                        <div class="route-prop-value">Most</div>
+                    </div>
+                    <div class="route-prop">
+                        <div class="route-prop-title">Familiarity</div>
+                        <div class="route-prop-value">10%</div>
+                    </div>
+                </div>
+                <div class="route-preview-container">
+                    <div class="task">Connect redis to app</div>
+                    <div class="task">Connect redis to app</div>
+                    <div class="task">Connect redis to app</div>
+                    <div class="task">Connect redis to app</div>
+                    <div class="task">Connect redis to app</div>
+                    <div class="task">Connect redis to app</div>
+                    <div class="task">Connect redis to app</div>
+                    <div class="task">Connect redis to app</div>
+                    <div class="task">Connect redis to app</div>
+                    <div class="task">Connect redis to app</div>
+                    <div class="task">Connect redis to app</div>
+                    <div class="task">Connect redis to app</div>
+                </div>
+                <div class="route-approve-container">
+                    <div class="route-approve-border"></div>
+                    <div class="route-approve-flex-container">
+                        <div class="route-approve-arrow left">
+                            <svg class="route-arrow-svg-container">
+                                <use href="#route-arrow-svg-def"></use>
+                            </svg>
+                        </div>
+                        <div class="route-approve-text">TAKE THIS ROUTE</div>
+                        <div class="route-approve-arrow right">
+                            <svg class="route-arrow-svg-container">
+                                <use href="#route-arrow-svg-def"></use>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="reflective-layers layer-one"></div>
+                <div class="reflective-layers layer-two"></div>
+                <div class="route-car-light"></div>
+            </div>
+
+            &nbsp;
+
+            <div class="route-container">
+                <div class="route-plate-border"></div>
+                <div class="route-header-container">
+                    <div class="route-number-container">
+                        <svg class="route-badge-svg-container">
+                            <use href="#route-badge-svg-def"></use>
+                        </svg>
+                        <div class="route-number">1</div>
+                    </div>
+                    <div class="route-prop">
+                        <div class="route-prop-title">Est. Time</div>
+                        <div class="route-prop-value">8-12 days</div>
+                    </div>
+                    <div class="route-prop">
+                        <div class="route-prop-title">Popularity</div>
+                        <div class="route-prop-value">Most</div>
+                    </div>
+                    <div class="route-prop">
+                        <div class="route-prop-title">Familiarity</div>
+                        <div class="route-prop-value">10%</div>
+                    </div>
+                </div>
+                <div class="route-preview-container">
+                    <div class="task">Connect redis to app</div>
+                    <div class="task">Connect redis to app</div>
+                    <div class="task">Connect redis to app</div>
+                    <div class="task">Connect redis to app</div>
+                </div>
+                <div class="route-approve-container">
+                    <div class="route-approve-border"></div>
+                    <div class="route-approve-flex-container">
+                        <div class="route-approve-arrow left">
+                            <svg class="route-arrow-svg-container">
+                                <use href="#route-arrow-svg-def"></use>
+                            </svg>
+                        </div>
+                        <div class="route-approve-text">TAKE THIS ROUTE</div>
+                        <div class="route-approve-arrow right">
+                            <svg class="route-arrow-svg-container">
+                                <use href="#route-arrow-svg-def"></use>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="reflective-layers layer-one"></div>
+                <div class="reflective-layers layer-two"></div>
+                <div class="route-car-light"></div>
+            </div>
+
+            &nbsp;
+
+            <div class="route-container">
+                <div class="route-plate-border"></div>
+                <div class="route-header-container">
+                    <div class="route-number-container">
+                        <svg class="route-badge-svg-container">
+                            <use href="#route-badge-svg-def"></use>
+                        </svg>
+                        <div class="route-number">1</div>
+                    </div>
+                    <div class="route-prop">
+                        <div class="route-prop-title">Est. Time</div>
+                        <div class="route-prop-value">8-12 days</div>
+                    </div>
+                    <div class="route-prop">
+                        <div class="route-prop-title">Popularity</div>
+                        <div class="route-prop-value">Most</div>
+                    </div>
+                    <div class="route-prop">
+                        <div class="route-prop-title">Familiarity</div>
+                        <div class="route-prop-value">10%</div>
+                    </div>
+                </div>
+                <div class="route-preview-container">
+                    <div class="task">Connect redis to app</div>
+                    <div class="task">Connect redis to app</div>
+                    <div class="task">Connect redis to app</div>
+                    <div class="task">Connect redis to app</div>
+                </div>
+                <div class="route-approve-container">
+                    <div class="route-approve-border"></div>
+                    <div class="route-approve-flex-container">
+                        <div class="route-approve-arrow left">
+                            <svg class="route-arrow-svg-container">
+                                <use href="#route-arrow-svg-def"></use>
+                            </svg>
+                        </div>
+                        <div class="route-approve-text">TAKE THIS ROUTE</div>
+                        <div class="route-approve-arrow right">
+                            <svg class="route-arrow-svg-container">
+                                <use href="#route-arrow-svg-def"></use>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="reflective-layers layer-one"></div>
+                <div class="reflective-layers layer-two"></div>
+                <div class="route-car-light"></div>
+            </div>
+
+            &nbsp;
+
+
+
+        </div>
+    </body>
+
+</html>

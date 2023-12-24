@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Logbook</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="stylesheet" href="./css/colors.css" type="text/css" />
+        <link rel="stylesheet" href="./css/app.css" type="text/css" />
+        <link rel="stylesheet" href="./css/mode-selector.css" type="text/css" />
+        <link rel="stylesheet" href="./css/context-menu.css" type="text/css" />
+        <link rel="stylesheet" href="./css/baja.sl/AbstractTableViewController.css" type="text/css" />
+        <link rel="stylesheet" href="./css/infinite-sheet.css" type="text/css" />
+        <link rel="stylesheet" href="./css/tasks.css" type="text/css" />
+        <link rel="stylesheet" href="./css/blueprint-modal.css" type="text/css" />
+
+        <!-- <script async defer type="module" src="./js/viewControllers/Root.js"></script> -->
+        <script async defer type="module" src="./js/App.js"></script>
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    </head>
+
+    <body>
+        <div id="document-sheet">
+
+            <!-- <a id="home-button" class="floating-corner left top" href="index.html">
+                Logbook
+            </a> -->
+
+            <!-- <div id="sheet-settings" class="floating-corner right top dark">
+                <div>Share</div>
+
+                <div>Sync</div>
+            </div>
+
+            <div id="active-task-details" class="floating-corner left bottom light">
+                History for active task
+                <div class="task">PAM for SSH</div>
+                <div class="task">ACL - Redis</div>
+                <div class="task">TOTP for SSH</div>
+            </div>
+
+            <div id="date-anchors" class="floating-corner right bottom light">
+                <a href="#august-10-2021">10th August</a>
+                <a href="#august-12-2021">12th August</a>
+                <a href="#august-13-2021">13th August</a>
+                <a href="#august-14-2021">Active Tasks</a>
+                <a href="#august-14-2021">To-do Drawer</a>
+            </div>
+
+            <div id="debug" class="floating-corner right  bottom light">
+                Welcome back.
+            </div> -->
+
+            <div class="floating-corner right bottom">
+                <div id="mode-selector" data-selected-mode="chronological">
+                    <div class="left">C</div>
+                    <div class="right">H</div>
+                    <div class="left-activated-caption">Chronological</div>
+                    <div class="right-activated-caption">Hierarchical</div>
+                </div>
+            </div>
+
+            <div id="page-content">
+                <div id="infinite-sheet"></div>
+
+                <div id="blueprint-modal-mount"></div>
+
+                <!-- <div id="blueprint-modal-container">
+                    <div id="blueprint-modal-backdrop"></div>
+                    <div id="blueprint-modal-content">
+                        <div id="blueprint-header">
+                            <div class="title">Blueprint Overview</div>
+                            <div class="desc">You can review tasks and targets that will be included in the blueprint before proceed.</div>
+                        </div>
+                        <div id="blueprint-overview-bg-expander" class="blueprint-material">
+                            <div id="blueprint-overview" class="blueprint-grid">
+                                <div id="blueprint-overview-sheet" style="height:1000px"></div>
+                            </div>
+                        </div>
+                        <div id="blueprint-footer">
+                            lorem ipsum dolor sit amet.
+                        </div>
+                    </div>
+                </div> -->
+            </div>
+
+            <div id="context-menu" style="visibility:hidden">
+                <!--editor-should-not-format-this-->
+                <div class="context-menu-item"><div class="scale">Fold</div></div>
+                <div class="context-menu-item"><div class="scale">Focus</div></div>
+
+                <div class="seperator"></div>
+
+                <div class="context-menu-item" title="Mark the task (and its sub-tasks if there are any) complete. "><div class="scale">Add a prerequisite</div></div>
+                <div class="context-menu-item" title="Mark the task (and its sub-tasks if there are any) complete. "><div class="scale">Complete</div></div>
+                <div class="context-menu-item" title="Attact this task to a parent task different from currently attached one." ><div class="scale">Reattach</div></div>
+                <div class="context-menu-item" title="Deadline is the date in which the completion of this task will no longer be relevant. Subtasks inherit the deadline of their supertask even if a deadline is not set on them." ><div class="scale">Set deadline</div></div>
+    
+                <div class="seperator"></div>
+    
+                <div class="context-menu-item" title="Edit the text inside task. "><div class="scale">Edit task</div></div>
+                <div class="context-menu-item" title="Copy the text inside of the task into system clipboard."><div class="scale">Copy text</div></div>
+                
+                <div class="seperator"></div>
+                
+                <div class="context-menu-item" title="Tasks marked as improvement oppurtunity are ones you leave as guide to future when you need to get ideas about how to improve quality of work delivered or need a feature to develop. Incomplete IO tasks are ignored for measuring completion of super-task."><div class="scale">Set as "Bare minimum"</div></div>
+                <div class="context-menu-item" title="Tasks marked as improvement oppurtunity are ones you leave as guide to future when you need to get ideas about how to improve quality of work delivered or need a feature to develop. Incomplete IO tasks are ignored for measuring completion of super-task."><div class="scale">Set as "Improvement oppurtunity"</div></div>
+
+                <div class="seperator"></div>
+                
+                <div class="context-menu-item"><div class="scale">Reopen last Take</div></div>
+                <div class="context-menu-item"><div class="scale">Start another Take</div></div>
+    
+                <div class="seperator"></div>
+    
+                <div class="context-menu-item" title="Share your progress of completion on this task and its sub-tasks with people you select and keep them up-to-date with notifications."><div class="scale">Share progress</div></div>
+                <div class="context-menu-item" title="You can share a copy of your resolution for this goal with others. Each individual's progress are isolated and not shared with others."><div class="scale">Share a copy</div></div>
+                <div class="context-menu-item" title="Invite others to complete this task together"><div class="scale">Invite others</div></div>
+    
+                <div class="seperator"></div>
+    
+                <div class="context-menu-item" title="See parent task and all prerequisites of this task detailed view."><div class="scale">Show in hierarchical mode</div></div>
+                <div class="context-menu-item" title="List of historical actions performed on this task like completion, reopens, shared or invited users."><div class="scale">Historical info</div></div>
+                <div class="context-menu-item" title="Bookmarks let you access specific parts of the task tree instantly. You can see all of your bookmarks after you login to Logbook."><div class="scale">Create new bookmark on homepage</div></div>
+    
+                <div class="seperator"></div>
+    
+                <div id="context-menu-delete" class="context-menu-item destructive-action"><div class="scale">Delete</div></div>
+                <!--editor-should-not-format-this-->
+            </div>
+        </div>
+    </body>
+
+</html>

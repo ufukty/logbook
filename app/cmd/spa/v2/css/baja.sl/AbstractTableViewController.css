@@ -1,0 +1,23 @@
+.abstract-cell-scroller-view {
+    width: 100%;
+    height: 100%;
+    overflow-y: scroll;
+}
+
+.abstract-cell-scroller-view-content-area {
+    width: 100%;
+    height: 100%;
+}
+
+.abstract-cell-scroller-view-anchor-position {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.abstract-cell-scroller-view-cell-positioner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    visibility: hidden;
+}
