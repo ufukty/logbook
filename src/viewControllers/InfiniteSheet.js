@@ -4,7 +4,9 @@ import * as constants from "../utility/constants";
 import * as misc from "../utility/misc";
 
 import TaskPositioner from "./Task";
+import ContextMenu from "./ContextMenu";
 import DayHeader from "./DayHeader";
+import { toHaveAccessibleDescription } from "@testing-library/jest-dom/dist/matchers";
 
 class InfiniteSheet extends React.Component {
     constructor(props) {
@@ -15,8 +17,12 @@ class InfiniteSheet extends React.Component {
             chronologicalOrdering: props.chronologicalOrdering,
             paneShiftTotal: 0,
             effectiveDepthForDayHeaders: 0,
+            contextMenuEnabled: false,
+            contextMenuPosY: 0,
+            contextMenuPosX: 0,
         };
         this.autoFocusSetup();
+        this.contextMenuSetup();
         this.debug();
     }
 
@@ -265,6 +271,29 @@ class InfiniteSheet extends React.Component {
         }
     }
 
+    contextMenuSetup() {
+
+        const contextMenuEventHandler = function (e) {
+            console.log(e)
+            if (e.type !== "contextmenu" || !e.target.classList.contains("task")) {
+                return
+            }
+            e.preventDefault();
+            this.setState({ contextMenuEnabled: true, contextMenuPosY: e.pageY, contextMenuPosX: e.pageX })
+            // console.log(e.target.getAttribute("task_id"))
+        }
+
+        const clickEventListener = function (e) {
+            if (e.type !== "click") {
+                return
+            }
+            this.setState({ contextMenuEnabled: false })
+        }
+
+        document.addEventListener("contextmenu", contextMenuEventHandler.bind(this));
+        document.addEventListener("click", clickEventListener.bind(this));
+    }
+
     content() {
         var content = [];
         console.log(this.state.effectiveDepthForDayHeaders);
@@ -289,18 +318,26 @@ class InfiniteSheet extends React.Component {
 
     render() {
         var content = this.content();
-
+        console.log(this.state.contextMenuEnabled)
         return (
-            <div
-                id="infinite-sheet"
-                style={{
-                    transform:
-                        "translateX(calc(" +
-                        this.state.paneShiftTotal +
-                        " * var(--infinite-sheet-pixels-for-each-shift) - 50%))",
-                }}
-            >
-                {content}
+            <div>
+                <div
+                    id="infinite-sheet"
+                    style={{
+                        transform:
+                            "translateX(calc(" +
+                            this.state.paneShiftTotal +
+                            " * var(--infinite-sheet-pixels-for-each-shift) - 50%))",
+                    }}
+                >
+                    {content}
+                </div>
+
+                <ContextMenu
+                    enabled={this.state.contextMenuEnabled}
+                    posX={this.state.contextMenuPosX}
+                    posY={this.state.contextMenuPosY}
+                ></ContextMenu>
             </div>
         );
     }

@@ -11,7 +11,6 @@ import { classifyTasksByDays } from "./utility/dateTime";
 
 import InfiniteSheet from "./viewControllers/InfiniteSheet";
 import ModeSelector from "./viewControllers/ModeSelector";
-import ContextMenu from "./viewControllers/ContextMenu";
 
 import { TaskModel } from "./models/Task";
 
@@ -157,8 +156,6 @@ class App extends React.Component {
                 </div>
 
                 {content}
-
-                <ContextMenu></ContextMenu>
             </div>
         );
     }

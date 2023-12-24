@@ -1,44 +1,29 @@
+import { toHaveAccessibleDescription } from "@testing-library/jest-dom/dist/matchers";
 import React from "react";
 
 import "../css/context-menu.css"
 
-class ContextMenu extends React.Component {
-    constructor() {
+class ContextMenu extends React.PureComponent {
+    constructor(props) {
         super()
-        this.setEventListener()
+        // this.setEventListener()
         this.state = {
-            style: {
-                top: 0,
-                left: 0,
-                visibility: "hidden",
-            }
+            posY: 0,
+            posX: 0,
+            enabled: "hidden",
         }
     }
 
-    setEventListener() {
-        document.addEventListener("contextmenu", this.contextMenuEventHandler.bind(this));
-        document.addEventListener("click", this.clickEventListener.bind(this));
-    }
-
-    contextMenuEventHandler(e) {
-        if (e.type !== "contextmenu" || !e.target.classList.contains("task")) {
-            return
+    static getDerivedStateFromProps(props, state) {
+        console.log(props, state)
+        return {
+            posY: props.posY,
+            posX: props.posX,
+            enabled: props.enabled,
         }
-        e.preventDefault();
-        this.setState(prevState => {
-            return {
-                style: {
-                    top: e.pageY,
-                    left: e.pageX,
-                    visibility: "visible",
-                }
-            }
-        })
-        this.presentationHandler()
-        console.log(e.target.getAttribute("task_id"))
     }
 
-    presentationHandler() {
+    _presentationHandler() {
         const animatedElement = document.getElementById("context-menu");
         const animationName = "context-menu-appear"
         const triggerClass = "appearing";
@@ -52,22 +37,24 @@ class ContextMenu extends React.Component {
         animatedElement.classList.add(triggerClass);
     }
 
-    clickEventListener(e) {
-        if (e.type !== "click") {
+    componentDidUpdate(prevProps, prevState) {
+        if (prevState.enabled === this.state.enabled) {
             return
         }
-        this.setState(prevState => {
-            return {
-                style: {
-                    visibility: "hidden",
-                }
-            }
-        })
+        if (this.state.enabled) {
+            this._presentationHandler()
+        }
     }
 
 
     render() {
-        return <div id="context-menu" style={this.state.style}>
+        console.log("render")
+        const style = {
+            top: `${this.state.posY}px`,
+            left: `${this.state.posX}px`,
+            visibility: this.enabled ? "visible" : "hidden",
+        }
+        return <div id="context-menu" style={style}>
 
             <div className="context-menu-item" title="Mark the task (and its sub-tasks if there are any) complete. "><div className="scale">Complete</div></div>
             <div className="context-menu-item" title="Attact this task to a parent task different from currently attached one." ><div className="scale">Reattach</div></div>
