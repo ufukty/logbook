@@ -20,7 +20,7 @@ import (
 )
 
 var (
-	ErrMissingKeyInUrl = errors.New("Url has one or more missing keys")
+	ErrMissingKeyInUrl = errors.New("url has one or more missing keys")
 )
 
 func separateParams(in any) (map[string]string, map[string]any) {
@@ -59,7 +59,7 @@ func fillUrlParamaters(muxMap map[string]string, bq any) error {
 		}
 	}
 	if len(missing) > 0 {
-		return fmt.Errorf("%d: %d", ErrMissingKeyInUrl, strings.Join(missing, ", "))
+		return fmt.Errorf("%s: %s", ErrMissingKeyInUrl, strings.Join(missing, ", "))
 	}
 	return nil
 }
