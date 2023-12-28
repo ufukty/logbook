@@ -26,17 +26,16 @@ type Operation struct {
 type Objective struct {
 	Oid      ObjectiveId `json:"objective_id"`
 	ParentId ObjectiveId `json:"parent_id"`
-	Content  string      `json:"content"`
+	Vid      VersionId   `json:"vid"`
 
-	Vid               VersionId   `json:"vid"`
-	Creator           UserId      `json:"creator"`
-	ResponsibleUserId string      `json:"responsible_uid"`
-	ArchivedAt        pgtype.Date `json:"archived_at"`
-	Archived          bool        `json:"archived"`
-	RootObjective     bool        `json:"root_objective"`
+	Creator UserId `json:"creator"`
+	// ResponsibleUserId string      `json:"responsible_uid"`
+
+	Text string `json:"text"`
 
 	CreatedAt   pgtype.Date `json:"created_at"`
 	CompletedAt pgtype.Date `json:"completed_at"` // nullable type
+	ArchivedAt  pgtype.Date `json:"archived_at"`
 }
 
 type ObjectiveLink struct {
