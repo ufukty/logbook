@@ -1,0 +1,42 @@
+@apiUrl = 127.0.0.1:8080
+
+### Create User
+
+POST http://{{apiUrl}}/account HTTP/1.1
+Content-Type: application/json
+
+{
+    "name_surname": "Lightning McQueen",
+    "email_address": "ka-chow@test.balaasad.com",
+    "password": "sally-carrera"
+}
+
+### Authentication & Authorization
+
+POST http://{{apiUrl}}/auth HTTP/1.1
+Content-Type: application/json
+Cache-Control: no-store
+Pragma: no-cache
+{
+    "email_address": "ka-chow@test.balaasad.com",
+    "password": "sally-carrera"
+}
+
+// should return authorization token
+
+### List bookmarks
+
+GET http://{{apiUrl}}/bookmark HTTP/1.1
+Content-Type: application/json
+Authorization: TODO
+
+
+### Create Task
+
+POST {{apiUrl}}/task HTTP/1.1
+Content-Type: application/json
+
+{
+    "super_task_id": "My Test Document" 
+}
+
