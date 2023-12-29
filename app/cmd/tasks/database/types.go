@@ -15,9 +15,9 @@ type (
 
 var (
 	regexp_uuid          = regexp.MustCompile(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`)
-	regexp_text          = regexp.MustCompile(`^[a-zA-Z0-9 ,.?!'’“”-]+$`)
-	regexp_human_name    = regexp.MustCompile(`^[A-Za-z]+([ '-][A-Za-z]+)*$`)
-	regexp_url           = regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
+	regexp_text          = regexp.MustCompile(`^[\p{L}0-9 ,.?!'’“”-]+$`)
+	regexp_human_name    = regexp.MustCompile(`^\p{L}+([ '-]\p{L}+)*$`)
+	regexp_url           = regexp.MustCompile(`^[\p{L}0-9._%+-]+@[\p{L}0-9.-]+\.[\p{L}]{2,}$`)
 	regexp_email         = regexp.MustCompile(`^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([\/\w .-]*)*\/?$`)
 	regexp_username      = regexp.MustCompile(`^[A-Za-z0-9_]{3,15}$`)
 	regexp_phone_number  = regexp.MustCompile(`^\+?(\d{1,3})?[ -]?(\d{3})[ -]?(\d{3})[ -]?(\d{4})$`)
