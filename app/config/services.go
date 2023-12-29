@@ -16,6 +16,12 @@ var (
 )
 
 var (
-	Task     = Service{ApiGateway, "/task"}
+	Task     = Service{ApiGateway, "/tasks"}
 	TaskList = Endpoint{Task, "/list/{root}", GET}
+)
+
+var (
+	Tag         = Service{ApiGateway, "tags"}
+	TagCreation = Endpoint{Tag, "/", POST}
+	TagAssign   = Endpoint{Tag, "/assign", POST}
 )
