@@ -1,4 +1,4 @@
-package user
+package endpoints
 
 type Endpoints struct {
 }

@@ -1,4 +1,4 @@
-package user
+package endpoints
 
 import (
 	"fmt"
@@ -9,17 +9,20 @@ import (
 	"net/http"
 )
 
-type CreateUser struct {
-	Username database.Username `json:"username"`
-	Password string            `json:"password"`
+type CreateUserRequest struct {
+	NameSurname NonEmptyString    `json:"name_surname"`
+	Username    database.Username `json:"username"`
+	Password    string            `json:"password"`
 }
 
-func (bq CreateUser) Validate() error {
+func (bq CreateUserRequest) validate() error {
 	if !bq.Username.Validate() {
 		return fmt.Errorf("invalid value for username parameter")
 	}
 	return nil
 }
+
+type CreateUserResponse struct{}
 
 /*
  * Objectives for this function
@@ -36,14 +39,14 @@ func (bq CreateUser) Validate() error {
  */
 
 func (e *Endpoints) CreateUser(w http.ResponseWriter, r *http.Request) {
-	bq, err := reqs.ParseRequest[CreateUser](r)
+	bq, err := reqs.ParseRequest[CreateUserRequest](r)
 	if err != nil {
 		log.Println(fmt.Errorf("parsing request: %w", err))
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
 
-	if err := bq.Validate(); err != nil {
+	if err := bq.validate(); err != nil {
 		log.Println(fmt.Errorf("validating request parameters: %w", err))
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
