@@ -4,8 +4,8 @@ import (
 	"github.com/jackc/pgtype"
 )
 
-type Operation struct {
-	OpId string `json:"opid"`
+type Action struct {
+	Aid ActionId `json:"opid"`
 	// PreviousOpId sql.NullString `json:"previous_opid"`
 
 	Vid     VersionId `json:"vid"`
@@ -15,8 +15,8 @@ type Operation struct {
 
 	UserId string `json:"uid"`
 
-	Summary OperationSummary `json:"summary"`
-	Status  OperationStatus  `json:"status"`
+	Summary ActionSummary `json:"summary"`
+	Status  ActionStatus  `json:"status"`
 
 	CreatedAt  pgtype.Date `json:"created_at"`
 	ArchivedAt pgtype.Date `json:"archived_at"`
@@ -38,14 +38,14 @@ type Objective struct {
 	ArchivedAt  pgtype.Date `json:"archived_at"`
 }
 
-type ObjectiveLink struct {
+type Link struct {
 	Lid LinkId    `json:"lid"`
 	Vid VersionId `json:"vid"`
 
-	SupOid ObjectiveId `json:"sup_oid"`
-	SupVid VersionId   `json:"sup_vid"`
-	SubOid ObjectiveId `json:"sub_oid"`
-	SubVid VersionId   `json:"sub_vid"`
+	SupOid ObjectiveId `json:"sup_oid"` // immutable
+	SupVid VersionId   `json:"sup_vid"` // immutable
+	SubOid ObjectiveId `json:"sub_oid"` // immutable
+	SubVid VersionId   `json:"sub_vid"` // immutable
 
 	Index     int         `json:"index"`
 	Type      LinkType    `json:"type"`

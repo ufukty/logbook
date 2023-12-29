@@ -3,11 +3,30 @@ package database
 import (
 	"context"
 	"fmt"
+
+	"github.com/jackc/pgtype"
 )
 
-// Returns a list of updated items in addition to
+func (db *Database) GetPreviousVersion(vid VersionId) (*VersionId, error) {
+	q := `SELECT "prev" FROM "OPERATIONS" WHERE "vid" = $1 LIMIT 1`
+	rows, err := db.pool.Query(context.Background(), q, vid)
+	if err != nil {
+		return nil, fmt.Errorf("query: %w", err)
+	}
+	prev := new(pgtype.Text)
+	err = rows.Scan(&prev)
+	if err != nil {
+		return nil, fmt.Errorf("scan: %w", err)
+	}
+	if prev.Status != pgtype.Present {
+		return nil, fmt.Errorf("doesn't exist")
+	}
+	return (*VersionId)(&prev.String), nil
+}
+
+// Returns a list of updated objectives in addition to
 // the created task in first item.
-func (db *Database) CreateTask(task *Task) ([]Task, error) {
+func (db *Database) CreateObjective(task *Objective) ([]Objective, error) {
 	query := `
 		SELECT
 			"task_id",
@@ -31,11 +50,11 @@ func (db *Database) CreateTask(task *Task) ([]Task, error) {
 	if err != nil {
 		return nil, fmt.Errorf("running the query: %w", err)
 	}
-	tasks := []Task{}
+	tasks := []Objective{}
 	for rows.Next() {
-		task := Task{}
+		task := Objective{}
 		err := rows.Scan(
-			&task.TaskId,
+			&task.ObjectiveId,
 			&task.DocumentId,
 			&task.ParentId,
 			&task.Content,
@@ -53,83 +72,34 @@ func (db *Database) CreateTask(task *Task) ([]Task, error) {
 	return tasks, nil
 }
 
-func (db *Database) GetTaskByTaskId(taskId string) (Task, error) {
-	task := Task{}
-	query := `
-		SELECT
-			"document_id",
-			"parent_id",
-			"content",
-			"degree",
-			"depth",
-			"created_at",
-			"completed_at",
-			"ready_to_pick_up"
-		FROM
-			"TASK"
-		WHERE
-			"task_id"=$1`
-	err := db.pool.QueryRow(context.Background(), query, taskId).Scan(
-		&task.DocumentId,
-		&task.ParentId,
-		&task.Content,
-		&task.Degree,
-		&task.Depth,
-		&task.CreatedAt,
-		&task.CompletedAt,
-		&task.ReadyToPickUp,
-	)
+func (db *Database) GetObjective(oid ObjectiveId) (*Objective, error) {
+	q := `
+	SELECT 
+		"oid", 
+		"poid", 
+		"creator", 
+		"text", 
+		"created_at", 
+		"completed_at", 
+		"archived_at"
+	FROM 
+		"OBJECTIVE" 
+	WHERE 
+		"oid" = $1
+	LIMIT 1`
+	r, err := db.pool.Query(context.Background(), q, oid)
 	if err != nil {
-		return task, fmt.Errorf("running the query: %w", err)
+		return nil, fmt.Errorf("query: %w", err)
 	}
-	return task, nil
+	o := &Objective{}
+	if err = r.Scan(&o.Oid, &o.ParentId, &o.Vid, &o.Creator, &o.Text, &o.CreatedAt, &o.CompletedAt, &o.ArchivedAt); err != nil {
+		return nil, fmt.Errorf("scanning: %w", err)
+	}
+	return o, nil
 }
 
-func (db *Database) ListTasksInDocument(documentId string) ([]Task, error) {
-	tasks := []Task{}
-	query := `
-		SELECT
-			"document_id",
-			"parent_id",
-			"content",
-			"degree",
-			"depth",
-			"created_at",
-			"completed_at",
-			"ready_to_pick_up"
-		FROM
-			"TASK"
-		WHERE
-			"document_id"=$1`
-	rows, err := db.pool.Query(context.Background(), query, documentId)
-	if err != nil {
-		return tasks, fmt.Errorf("running the query: %w", err)
-	}
-	for rows.Next() {
-		task := Task{}
-		err = rows.Scan(
-			&task.DocumentId,
-			&task.ParentId,
-			&task.Content,
-			&task.Degree,
-			&task.Depth,
-			&task.CreatedAt,
-			&task.CompletedAt,
-			&task.ReadyToPickUp,
-		)
-		if err != nil {
-			continue
-		}
-		tasks = append(tasks, task)
-	}
-	if err != nil {
-		return nil, fmt.Errorf("scanning query results: %w", err)
-	}
-	return tasks, nil
-}
-
-func (db *Database) GetSubitems(iid string) ([]Task, error) {
-	tasks := []Task{}
+func (db *Database) GetSubObjectives(oid string) ([]Objective, error) {
+	tasks := []Objective{}
 	query := `
 	SELECT
 			"task_id",
@@ -145,27 +115,13 @@ func (db *Database) GetSubitems(iid string) ([]Task, error) {
 			"TASK"
 		WHERE
 			"parent_id"=$1`
-	rows, err := db.pool.Query(
-		context.Background(),
-		query,
-		iid,
-	)
+	rows, err := db.pool.Query(context.Background(), query, oid)
 	if err != nil {
 		return tasks, fmt.Errorf("running the query: %w", err)
 	}
 	for rows.Next() {
-		task := Task{}
-		err = rows.Scan(
-			&task.TaskId,
-			&task.DocumentId,
-			&task.ParentId,
-			&task.Content,
-			&task.Degree,
-			&task.Depth,
-			&task.CreatedAt,
-			&task.CompletedAt,
-			&task.ReadyToPickUp,
-		)
+		task := Objective{}
+		err = rows.Scan(&task.ObjectiveId, &task.DocumentId, &task.ParentId, &task.Content, &task.Degree, &task.Depth, &task.CreatedAt, &task.CompletedAt, &task.ReadyToPickUp)
 		if err != nil {
 			continue
 		}
@@ -177,91 +133,19 @@ func (db *Database) GetSubitems(iid string) ([]Task, error) {
 	return tasks, nil
 }
 
-// func (db *Database)UpdateTaskItem(task Task) (Task, error) {
-// 	query := `
-// 		UPDATE
-// 			"TASK"
-// 		SET
-// 			"content"=$2,
-// 			"created_at"=$3,
-// 			"degree"=$4,
-// 			"depth"=$5,
-// 			"parent_id"=$6,
-// 		WHERE
-// 			"task_id"=$1
-// 		RETURNING
-// 			"content",
-// 			"created_at",
-// 			"degree",
-// 			"depth",
-// 			"parent_id",
-// 			"task_group_id",
-// 			"task_status"`
-// 	err := db.pool.QueryRow(
-// 		context.Background(),
-// 		query,
-// 		task.TaskId,
-// 		task.Content,
-// 		task.CreatedAt,
-// 		task.Degree,
-// 		task.Depth,
-// 		task.ParentId,
-// 	).Scan(
-// 		&task.Content,
-// 		&task.CreatedAt,
-// 		&task.Degree,
-// 		&task.Depth,
-// 		&task.ParentId,
-// 	)
-// 	if err != nil {
-//      return nil, fmt.Errorf("scanning query results: %w", err)
-// 	}
-// 	return task, nil
-// }
-
-// Returns a list of updated items in addition to
-// the marked task in first item.
-func (db *Database) MarkDone(taskId string) ([]Task, error) {
-	query := `SELECT mark_a_task_done($1)`
-	rows, err := db.pool.Query(context.Background(), query, taskId)
-	if err != nil {
-		return nil, fmt.Errorf("running the query: %w", err)
-	}
-	tasks := []Task{}
-	for rows.Next() {
-		task := Task{}
-		err := rows.Scan(
-			&task.TaskId,
-			&task.DocumentId,
-			&task.ParentId,
-			&task.Content,
-			&task.Degree,
-			&task.Depth,
-			&task.CreatedAt,
-			&task.CompletedAt,
-			&task.ReadyToPickUp,
-		)
-		if err != nil {
-			return nil, fmt.Errorf("scanning query results: %w", err)
-		}
-		tasks = append(tasks, task)
-	}
-	return tasks, nil
-}
-
-// Returns a list of updated items in addition to
+// Returns a list of updated objectives in addition to
 // the reattached task in first item.
-func (db *Database) ReattachTask(taskId string, newParentId string) ([]Task, error) {
+func (db *Database) ReattachObjective(taskId string, newParentId string) ([]Objective, error) {
 	query := `SELECT reattach_task($1, $2)`
 	rows, err := db.pool.Query(context.Background(), query, taskId, newParentId)
 	if err != nil {
 		return nil, fmt.Errorf("running the query: %w", err)
 	}
-	tasks := []Task{}
+	tasks := []Objective{}
 	for rows.Next() {
-		task := Task{}
+		task := Objective{}
 		err := rows.Scan(
-			&task.TaskId,
+			&task.ObjectiveId,
 			&task.DocumentId,
 			&task.ParentId,
 			&task.Content,
@@ -279,8 +163,8 @@ func (db *Database) ReattachTask(taskId string, newParentId string) ([]Task, err
 	return tasks, nil
 }
 
-func (db *Database) GetDocumentOverviewWithDocumentId(documentId string) ([]Task, error) {
-	tasks := []Task{}
+func (db *Database) GetDocumentOverviewWithDocumentId(documentId string) ([]Objective, error) {
+	tasks := []Objective{}
 	query := `
 		SELECT
 			"task_id",
@@ -298,9 +182,9 @@ func (db *Database) GetDocumentOverviewWithDocumentId(documentId string) ([]Task
 		return nil, fmt.Errorf("running the query: %w", err)
 	}
 	for rows.Next() {
-		task := Task{}
+		task := Objective{}
 		rows.Scan(
-			&task.TaskId,
+			&task.ObjectiveId,
 			&task.DocumentId,
 			&task.ParentId,
 			&task.Content,
@@ -318,8 +202,8 @@ func (db *Database) GetDocumentOverviewWithDocumentId(documentId string) ([]Task
 	return tasks, nil
 }
 
-func (db *Database) GetChronologicalViewItems(documentId string, limit int, offset int) ([]Task, error) {
-	tasks := []Task{}
+func (db *Database) GetChronologicalViewItems(documentId string, limit int, offset int) ([]Objective, error) {
+	tasks := []Objective{}
 	query := `
 		SELECT
 			"task_id",
@@ -341,9 +225,9 @@ func (db *Database) GetChronologicalViewItems(documentId string, limit int, offs
 		return nil, fmt.Errorf("running the query: %w", err)
 	}
 	for rows.Next() {
-		task := Task{}
+		task := Objective{}
 		err := rows.Scan(
-			&(task.TaskId),
+			&(task.ObjectiveId),
 			&(task.DocumentId),
 			&(task.ParentId),
 			&(task.Content),
@@ -359,4 +243,26 @@ func (db *Database) GetChronologicalViewItems(documentId string, limit int, offs
 		tasks = append(tasks, task)
 	}
 	return tasks, nil
+}
+
+func (db *Database) SuperLinksVersioned(oid ObjectiveId, vid VersionId) []Link {
+	panic("not implemented")
+}
+
+func (db *Database) ListSuperObjectivesVersioned(oid ObjectiveId, vid VersionId) ([]Objective, error) {
+	q := `SELECT * FROM "LINK" WHERE suboid = $1 AND subvid = $2`
+	rows, err := db.pool.Query(context.Background(), q, oid, vid)
+	if err != nil {
+		return nil, fmt.Errorf("querying: %w", err)
+	}
+	os := []Objective{}
+	for rows.Next() {
+		o := Objective{}
+		err := rows.Scan(&o.Oid, &o.ParentId, &o.Vid, &o.Creator, &o.Text, &o.CreatedAt, &o.CompletedAt, &o.ArchivedAt)
+		if err != nil {
+			return nil, fmt.Errorf("scannnig a row: %w", err)
+		}
+		os = append(os, o)
+	}
+	return os, nil
 }

@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"logbook/cmd/tasks/database"
-	"logbook/cmd/tasks/tasks"
+	"logbook/cmd/tasks/endpoints"
 	"logbook/config"
 	"logbook/config/reader"
 	"logbook/internal/web/paths"
@@ -20,7 +20,7 @@ func main() {
 
 	cfg := reader.GetConfig()
 	// sd := serviced.New(cfg.Tasks.ServiceDiscoveryConfig, cfg.Tasks.ServiceDiscoveryUpdatePeriod)
-	em := tasks.NewManager(db)
+	em := endpoints.NewManager(db)
 
 	reader.Print(cfg.Tasks)
 
