@@ -1,93 +1,145 @@
 erDiagram
 
     USER {
-        uuid user_id PK
+        uuid user_id
         text password
     }
+
+    USER ||--o{ BOOKMARK : ""
 
     BOOKMARK {
         uuid user_id
         uuid task_id
         text display_name
-        bool is_root "true if the bookmark points the root task of user. root tasks don't present in UI"
+        %% rocks are hidden in the UI
+        bool is_rock 
         date creation_date
     }
 
+    %% a bookmark points to a root node of a work tree
+    BOOKMARK ||--o{ OBJECTIVE : ""
+
     OPERATION {
         uuid operation_id
-        uuid revision_id 
-        uuid previous_revision_id
+        uuid version_id
+        uuid previous_version_id
 
         uuid user_id
-        enum summary 
-        enum status 
+        enum summary
+        enum status
 
         uuid task_id
-        uuid link_id
+        uuid linkid
 
         uuid created_at
     }
 
+    OP_COMPLETION {
+        uuid operation_id
+        uuid generic_operation_id
+        uuid task_id 
+        uuid version_id
+        uuid actor
+        date created_at
+    }
+
+    OPERATION ||--|| OP_COMPLETION : ""
+
+    ROLE["enum Role"] {
+        e OWNER
+        e SUPERVISOR
+        e EXECUTOR
+        e GUEST
+    }
+
+    STATUS["enum Status"] {
+        e INVITED
+        e ACCEPTED
+        e REJECTED
+        e CANCELED
+    }
+
     PRIVILEGE {
-        uuid user_role_id PK "DEFAULT gen_random_uuid()"
-        uuid task_id FK
-        uuid user_id FK
-        enum role "OWNER | SUPERVISOR | EXECUTOR | GUEST"
-        enum status "INVITED | ACCEPTED | REJECTED | CANCELED"
+        uuid user_role_id 
+        uuid task_id
+        uuid user_id
+        Role role
+        Status status 
         date creation_date
         date update_date
     }
 
-    TASK {
-        uuid revision_id FK "ID of latest revision"
-        uuid task_id PK "Copy from prev.rev. Else generate randomly"
-        uuid sharding_id "NOT UNIQUE. Inherit sharding_id of primary super task. Gen. random when N/A"
+    PRIVILEGE ||--|| ROLE : ""
+    PRIVILEGE ||--|| STATUS : ""
 
-        uuid root_task_id PK "Back-end only. Needed for sharding."
+    OBJECTIVE {
+        uuid task_id 
+        uuid version_id
+
+        %% "Inherit super obj, randomize else"
+        uuid shardingid 
+        %% "Needed for sharding."
+        uuid root_task_id 
 
         text content
-        bool is_solo "Tasks that are not shared with another user. Represented with green at UI."
-        bool is_leaf
-        bool is_completed "only available when task is leaf"
 
-        uuid inherit_privileges "task_id value of the task which the privileges will be inherited from"
+        %% "id of inherited task"
+        uuid inherit_privileges 
     }
 
+    %% recalculate every link on a tree when new viewer come" ?
     LINK {
-        uuid relation_id PK
-        uuid sharding_id "NOT UNIQUE. Inherit sharding_id of primary super task. Gen. random when N/A"
+        uuid linkid
+        %% "Inherit super obj, randomize otherwise"
+        uuid sharding_id 
 
-        uuid user_id FK "duplicate/recalculate every link on a tree when new viewer come"
-        uuid task_id FK
-        uuid super_task_id FK
-
-        smallint index "changes for each user. inherited from inviter on task creation."
-        int degree "changes for each user. can be used to pass out-of-bound tasks on hier-view-placement creation"
-        int depth "changes for each user."
-
-        int completed_subtasks "changes for each user. divide with degree to find completion_percentage"
-        float completion_percentage "changes for each user. not the same with TASK.is_completed"
-
-        bool is_active "FALSE if the link is deleted by user"
-        bool is_primary_link "TRUE if this is the first link of task with any supertask"
-        bool updates_completion_of_
-
-        date creation_date
-        date deletion_date
-    }
-
-    TASK_COMPUTED_PROP {
+        uuid user_id 
         uuid task_id
-        uuid revision_id
-        uuid user_id
+        uuid super_task_id
+
+        %% "FALSE if the link is deleted by user"
+        bool is_active 
+        %% "TRUE if this is the first link of task with any supertask"
+        bool is_primary_link 
+
+        date creation_at
+        date deleted_at
     }
 
-    USER ||--o{ BOOKMARK : create
-    BOOKMARK ||--o{ TASK: "a bookmark points to a root node of a work tree"
+    %% Any task with custom privilege hand. can have owner/viewers/executors
+    PRIVILEGE }|--|| OBJECTIVE : ""
 
-    PRIVILEGE }|--|| TASK : "Any task with custom priv. hand. can have owner/viewers/executors"
-    TASK ||--|{ OPERATION : "user-agent reports updated revision; new operation triggers revision creation; then updating TASK table record"
-    TASK }|--|{ LINK: ""
+    OBJECTIVE ||--|{ OPERATION : ""
+    OBJECTIVE ||--|{ LINK: ""
 
 
-    TASK ||--|| TASK_COMPUTED_PROP: ""
+    COMPUTED_TO_TOP {
+        uuid task_id
+        uuid version_id
+        user viewer_id
+
+        bool is_solo
+        %% bool is_leaf
+        %% "for leaf"
+        bool is_completed 
+
+        %% "inherited from inviter on task creation."
+        int index 
+        int depth
+        %% "changes for each user. divide with degree to find completion_percentage"
+        int completed_subtasks 
+        %% "changes for each user. not the same with OBJECTIVE.is_completed"
+        float completion_percentage 
+
+    }
+
+    COMPUTED_TO_BOTTOM {
+        uuid task_id
+        uuid version_id
+        user viewer_id
+
+        int degree
+    }
+
+    OBJECTIVE ||--|| COMPUTED_TO_BOTTOM: ""
+    OBJECTIVE ||--|| COMPUTED_TO_TOP: ""
