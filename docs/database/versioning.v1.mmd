@@ -1,0 +1,71 @@
+erDiagram
+
+	USER {
+		uuid user_id PK
+		text password
+	}
+
+
+	DOCUMENT {
+		uuid document_id
+		uuid user_id "owner"
+	}
+
+	DOCUMENT_REVISION {
+		uuid revision_id
+		uuid prev_revision_id
+		uuid document_id
+	}
+
+	DOCUMENT_BRANCH {
+		uuid branch_id PK
+		uuid document_id FK
+		uuid revision_id FK "ID of latest revision"
+	}
+
+	ACTIVE_BRANCH_FOR_USER_AND_DOC {
+		uuid user_id FK
+		uuid document_id FK
+		uuid branch_id FK "ID of branch which specified user working on"
+	}
+
+	TASK {
+		uuid task_id FK "Copy from prev.rev. Else generate randomly"
+		uuid user_id FK
+		uuid document_id FK
+		uuid revision_id FK
+		text content
+		int index
+		bool isLeaf
+		bool isCompleted "only available when task is leaf"
+	}
+
+	TASK_CALCULATED_PROPS {
+		uuid task_id FK
+		uuid document_id FK
+		uuid branch_id FK
+		int degree
+		int depth
+		float completion_percentage
+	}
+
+	OPERATION {
+		uuid operation_id PK
+		uuid user_id FK
+		uuid document_id FK
+		uuid existing_rev_id FK
+		uuid created_rev_id FK
+	}
+
+    USER ||--o{ DOCUMENT : creates
+    DOCUMENT ||--o{ TASK : "document can contain 0+ tasks"
+
+	DOCUMENT_REVISION ||--|{ DOCUMENT_BRANCH : "branch records point to latest revision of any branch"
+    TASK ||--o{ DOCUMENT_REVISION : "each task belongs to a revision"
+
+    OPERATION ||--|| DOCUMENT_REVISION: "new operation triggers revision creation"
+
+    ACTIVE_BRANCH_FOR_USER_AND_DOC }o--|| DOCUMENT_BRANCH: "each branch has probabality to be used by 0+ users"
+    USER ||--|| ACTIVE_BRANCH_FOR_USER_AND_DOC: "each user-agent reports which branch user is working on"
+
+    TASK ||--|{ TASK_CALCULATED_PROPS: "each task that is in latest revision of a branch has its props computed"
