@@ -83,7 +83,6 @@ _.so
 .VolumeIcon.icns
 .vscode
 .vscode-test
-.vscode/*
 .vscode/*.code-snippets
 .vuepress/dist
 .yarn-integrity
