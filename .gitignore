@@ -81,7 +81,7 @@ _.so
 .Trash-*
 .Trashes
 .VolumeIcon.icns
-.vscode
+.vscode/*
 .vscode-test
 .vscode/*.code-snippets
 .vuepress/dist
