@@ -1,385 +1,485 @@
 [
-    { "id": "0", "parent": "-1", "i": "1", "text": "ACME & Co." },
-    { "id": "1", "parent": "0", "i": "1", "text": "Project Management" },
-    { "id": "1.1", "parent": "1", "i": "1", "text": "Project Planning" },
-    { "id": "1.1.1", "parent": "1.1", "i": "1", "text": "Define Project Scope" },
-    { "id": "1.1.2", "parent": "1.1", "i": "2", "text": "Identify Key Deliverables" },
-    { "id": "1.1.3", "parent": "1.1", "i": "3", "text": "Establish Project Objectives" },
-    { "id": "1.1.4", "parent": "1.1", "i": "4", "text": "Develop Initial Project Schedule" },
-    { "id": "1.1.5", "parent": "1.1", "i": "5", "text": "Determine Resource Requirements" },
-    { "id": "1.2", "parent": "1", "i": "2", "text": "Budgeting" },
-    { "id": "1.2.1", "parent": "1.2", "i": "1", "text": "Prepare Initial Budget Estimate" },
-    { "id": "1.2.2", "parent": "1.2", "i": "2", "text": "Identify Cost Constraints" },
-    { "id": "1.2.3", "parent": "1.2", "i": "3", "text": "Allocate Funds Across Tasks" },
-    { "id": "1.2.4", "parent": "1.2", "i": "4", "text": "Plan for Contingency Funds" },
-    { "id": "1.2.5", "parent": "1.2", "i": "5", "text": "Budget Approval Process" },
-    { "id": "1.3", "parent": "1", "i": "3", "text": "Scheduling" },
-    { "id": "1.3.1", "parent": "1.3", "i": "1", "text": "Develop Detailed Project Timeline" },
-    { "id": "1.3.2", "parent": "1.3", "i": "2", "text": "Assign Task Deadlines" },
-    { "id": "1.3.3", "parent": "1.3", "i": "3", "text": "Integrate Milestones into Schedule" },
-    { "id": "1.3.4", "parent": "1.3", "i": "4", "text": "Schedule Resource Allocation" },
-    { "id": "1.3.5", "parent": "1.3", "i": "5", "text": "Monitor and Update Schedule" },
-    { "id": "1.4", "parent": "1", "i": "4", "text": "Resource Allocation" },
-    { "id": "1.4.1", "parent": "1.4", "i": "1", "text": "Identify Required Project Resources" },
-    { "id": "1.4.2", "parent": "1.4", "i": "2", "text": "Allocate Human Resources" },
-    { "id": "1.4.3", "parent": "1.4", "i": "3", "text": "Allocate Material Resources" },
-    { "id": "1.4.4", "parent": "1.4", "i": "4", "text": "Plan for Resource Availability" },
-    { "id": "1.4.5", "parent": "1.4", "i": "5", "text": "Adjust Resources as Needed" },
-    { "id": "1.5", "parent": "1", "i": "5", "text": "Risk Management" },
-    { "id": "1.5.1", "parent": "1.5", "i": "1", "text": "Identify Potential Risks" },
-    { "id": "1.5.2", "parent": "1.5", "i": "2", "text": "Assess Risk Impact and Likelihood" },
-    { "id": "1.5.3", "parent": "1.5", "i": "3", "text": "Develop Risk Mitigation Strategies" },
-    { "id": "1.5.4", "parent": "1.5", "i": "4", "text": "Implement Risk Management Plan" },
-    { "id": "1.5.5", "parent": "1.5", "i": "5", "text": "Monitor and Review Risks" },
-    { "id": "1.6", "parent": "1", "i": "6", "text": "Quality Control" },
-    { "id": "1.6.1", "parent": "1.6", "i": "1", "text": "Define Quality Standards" },
-    { "id": "1.6.2", "parent": "1.6", "i": "2", "text": "Develop Quality Control Processes" },
-    { "id": "1.6.3", "parent": "1.6", "i": "3", "text": "Implement Quality Assurance Procedures" },
-    { "id": "1.6.4", "parent": "1.6", "i": "4", "text": "Conduct Regular Quality Reviews" },
-    { "id": "1.6.5", "parent": "1.6", "i": "5", "text": "Manage Quality Improvement" },
-    { "id": "1.7", "parent": "1", "i": "7", "text": "Communication Planning" },
-    { "id": "1.7.1", "parent": "1.7", "i": "1", "text": "Identify Stakeholder Communication Needs" },
-    { "id": "1.7.2", "parent": "1.7", "i": "2", "text": "Develop Communication Plan" },
-    { "id": "1.7.3", "parent": "1.7", "i": "3", "text": "Establish Communication Channels" },
-    { "id": "1.7.4", "parent": "1.7", "i": "4", "text": "Schedule Regular Updates and Meetings" },
-    { "id": "1.7.5", "parent": "1.7", "i": "5", "text": "Monitor and Adjust Communication Strategies" },
-    { "id": "1.8", "parent": "1", "i": "8", "text": "Stakeholder Management" },
-    { "id": "1.8.1", "parent": "1.8", "i": "1", "text": "Identify Key Stakeholders" },
-    { "id": "1.8.2", "parent": "1.8", "i": "2", "text": "Analyze Stakeholder Influence and Interest" },
-    { "id": "1.8.3", "parent": "1.8", "i": "3", "text": "Develop Stakeholder Engagement Plan" },
-    { "id": "1.8.4", "parent": "1.8", "i": "4", "text": "Manage Stakeholder Expectations" },
-    { "id": "1.8.5", "parent": "1.8", "i": "5", "text": "Maintain Stakeholder Relationships" },
-    { "id": "1.9", "parent": "1", "i": "9", "text": "Reporting" },
-    { "id": "1.9.1", "parent": "1.9", "i": "1", "text": "Develop Reporting Formats and Templates" },
-    { "id": "1.9.2", "parent": "1.9", "i": "2", "text": "Establish Reporting Schedule" },
-    { "id": "1.9.3", "parent": "1.9", "i": "3", "text": "Collect Data for Reports" },
-    { "id": "1.9.4", "parent": "1.9", "i": "4", "text": "Prepare and Distribute Reports" },
-    { "id": "1.9.5", "parent": "1.9", "i": "5", "text": "Review and Adjust Reporting Practices" },
-    { "id": "1.10", "parent": "1.1", "i": "0", "text": "Project Closure" },
-    { "id": "1.10.1", "parent": "1.10", "i": "1", "text": "Confirm Project Deliverables Completion" },
-    { "id": "1.10.2", "parent": "1.10", "i": "2", "text": "Conduct Project Evaluation" },
-    { "id": "1.10.3", "parent": "1.10", "i": "3", "text": "Document Lessons Learned" },
-    { "id": "1.10.4", "parent": "1.10", "i": "4", "text": "Release Project Resources" },
-    { "id": "1.10.5", "parent": "1.10", "i": "5", "text": "Formalize Project Closure" },
-    { "id": "2", "parent": "0", "i": "2", "text": "Product Development" },
-    { "id": "2.1", "parent": "2", "i": "1", "text": "Market Research" },
-    { "id": "2.1.1", "parent": "2.1", "i": "1", "text": "Identify Target Market" },
-    { "id": "2.1.2", "parent": "2.1", "i": "2", "text": "Conduct Competitor Analysis" },
-    { "id": "2.1.3", "parent": "2.1", "i": "3", "text": "Gather Customer Preferences" },
-    { "id": "2.1.4", "parent": "2.1", "i": "4", "text": "Analyze Market Trends" },
-    { "id": "2.1.5", "parent": "2.1", "i": "5", "text": "Determine Market Needs" },
-    { "id": "2.1.6", "parent": "2.1", "i": "6", "text": "Evaluate Market Potential" },
-    { "id": "2.2", "parent": "2", "i": "2", "text": "Concept Development" },
-    { "id": "2.2.1", "parent": "2.2", "i": "1", "text": "Brainstorm Product Ideas" },
-    { "id": "2.2.2", "parent": "2.2", "i": "2", "text": "Select Promising Concepts" },
-    { "id": "2.2.3", "parent": "2.2", "i": "3", "text": "Develop Concept Prototypes" },
-    { "id": "2.2.4", "parent": "2.2", "i": "4", "text": "Conduct Feasibility Studies" },
-    { "id": "2.3", "parent": "2", "i": "3", "text": "Design" },
-    { "id": "2.3.1", "parent": "2.3", "i": "1", "text": "Create Design Specifications" },
-    { "id": "2.3.2", "parent": "2.3", "i": "2", "text": "Develop Initial Designs" },
-    { "id": "2.3.3", "parent": "2.3", "i": "3", "text": "Iterate Design Based on Feedback" },
-    { "id": "2.3.4", "parent": "2.3", "i": "4", "text": "Finalize Product Design" },
-    { "id": "2.4", "parent": "2", "i": "4", "text": "Prototyping" },
-    { "id": "2.4.1", "parent": "2.4", "i": "1", "text": "Build Prototype Models" },
-    { "id": "2.4.2", "parent": "2.4", "i": "2", "text": "Test Prototypes Internally" },
-    { "id": "2.4.3", "parent": "2.4", "i": "3", "text": "Revise Prototypes Based on Tests" },
-    { "id": "2.5", "parent": "2", "i": "5", "text": "Testing" },
-    { "id": "2.5.1", "parent": "2.5", "i": "1", "text": "Plan Product Testing" },
-    { "id": "2.5.2", "parent": "2.5", "i": "2", "text": "Conduct User Testing Sessions" },
-    { "id": "2.5.3", "parent": "2.5", "i": "3", "text": "Collect and Analyze Feedback" },
-    { "id": "2.5.4", "parent": "2.5", "i": "4", "text": "Implement Changes from Testing" },
-    { "id": "2.6", "parent": "2", "i": "6", "text": "Product Refinement" },
-    { "id": "2.6.1", "parent": "2.6", "i": "1", "text": "Refine Product Design" },
-    { "id": "2.6.2", "parent": "2.6", "i": "2", "text": "Update Prototypes" },
-    { "id": "2.6.3", "parent": "2.6", "i": "3", "text": "Validate Final Product Design" },
-    { "id": "2.7", "parent": "2", "i": "7", "text": "Supplier Sourcing" },
-    { "id": "2.7.1", "parent": "2.7", "i": "1", "text": "Identify Potential Suppliers" },
-    { "id": "2.7.2", "parent": "2.7", "i": "2", "text": "Evaluate Supplier Capabilities" },
-    { "id": "2.7.3", "parent": "2.7", "i": "3", "text": "Negotiate Supplier Contracts" },
-    { "id": "2.7.4", "parent": "2.7", "i": "4", "text": "Finalize Supplier Agreements" },
-    { "id": "2.7.5", "parent": "2.7", "i": "5", "text": "Establish Quality Control Measures with Suppliers" },
-    { "id": "2.8", "parent": "2", "i": "8", "text": "Production Planning" },
-    { "id": "2.8.1", "parent": "2.8", "i": "1", "text": "Develop Production Schedule" },
-    { "id": "2.8.2", "parent": "2.8", "i": "2", "text": "Plan Production Processes" },
-    { "id": "2.8.3", "parent": "2.8", "i": "3", "text": "Coordinate with Suppliers for Materials" },
-    { "id": "2.8.4", "parent": "2.8", "i": "4", "text": "Prepare Production Facilities" },
-    { "id": "2.9", "parent": "2", "i": "9", "text": "Manufacturing" },
-    { "id": "2.9.1", "parent": "2.9", "i": "1", "text": "Production Planning" },
-    { "id": "2.9.1.1", "parent": "2.9.1", "i": "1", "text": "Develop Production Strategy" },
-    { "id": "2.9.1.2", "parent": "2.9.1", "i": "2", "text": "Define Production Goals" },
-    { "id": "2.9.1.3", "parent": "2.9.1", "i": "3", "text": "Analyze Production Capacity" },
-    { "id": "2.9.1.4", "parent": "2.9.1", "i": "4", "text": "Plan Production Schedule" },
-    { "id": "2.9.1.5", "parent": "2.9.1", "i": "5", "text": "Optimize Production Layout" },
-    { "id": "2.9.1.6", "parent": "2.9.1", "i": "6", "text": "Select Manufacturing Methods" },
-    { "id": "2.9.1.7", "parent": "2.9.1", "i": "7", "text": "Establish Quality Control Benchmarks" },
-    { "id": "2.9.1.8", "parent": "2.9.1", "i": "8", "text": "Develop Material Handling Procedures" },
-    { "id": "2.9.1.9", "parent": "2.9.1", "i": "9", "text": "Plan for Equipment Utilization" },
-    { "id": "2.9.1.10", "parent": "2.9.1.1", "i": "0", "text": "Set Production Milestones" },
-    { "id": "2.9.2", "parent": "2.9", "i": "2", "text": "Raw Material Management" },
-    { "id": "2.9.2.1", "parent": "2.9.2", "i": "1", "text": "Identify Material Requirements" },
-    { "id": "2.9.2.2", "parent": "2.9.2", "i": "2", "text": "Evaluate Material Suppliers" },
-    { "id": "2.9.2.3", "parent": "2.9.2", "i": "3", "text": "Develop Material Procurement Plan" },
-    { "id": "2.9.2.4", "parent": "2.9.2", "i": "4", "text": "Implement Material Quality Checks" },
-    { "id": "2.9.2.5", "parent": "2.9.2", "i": "5", "text": "Optimize Material Storage" },
-    { "id": "2.9.2.6", "parent": "2.9.2", "i": "6", "text": "Plan Just-In-Time Inventory" },
-    { "id": "2.9.2.7", "parent": "2.9.2", "i": "7", "text": "Monitor Material Usage" },
-    { "id": "2.9.2.8", "parent": "2.9.2", "i": "8", "text": "Implement Waste Reduction Techniques" },
-    { "id": "2.9.2.9", "parent": "2.9.2", "i": "9", "text": "Ensure Material Traceability" },
-    { "id": "2.9.2.10", "parent": "2.9.2.1", "i": "0", "text": "Manage Material Recycling Processes" },
-    { "id": "2.9.3", "parent": "2.9", "i": "3", "text": "Equipment Management" },
-    { "id": "2.9.3.1", "parent": "2.9.3", "i": "1", "text": "Identify Equipment Needs" },
-    { "id": "2.9.3.2", "parent": "2.9.3", "i": "2", "text": "Plan Equipment Purchases" },
-    { "id": "2.9.3.3", "parent": "2.9.3", "i": "3", "text": "Implement Preventive Maintenance" },
-    { "id": "2.9.3.4", "parent": "2.9.3", "i": "4", "text": "Develop Equipment Upgrade Strategies" },
-    { "id": "2.9.3.5", "parent": "2.9.3", "i": "5", "text": "Train Staff on Equipment Use" },
-    { "id": "2.9.3.6", "parent": "2.9.3", "i": "6", "text": "Monitor Equipment Performance" },
-    { "id": "2.9.3.7", "parent": "2.9.3", "i": "7", "text": "Optimize Equipment Layout" },
-    { "id": "2.9.3.8", "parent": "2.9.3", "i": "8", "text": "Ensure Equipment Safety Compliance" },
-    { "id": "2.9.3.9", "parent": "2.9.3", "i": "9", "text": "Plan for Equipment Downtime" },
-    { "id": "2.9.3.10", "parent": "2.9.3.1", "i": "0", "text": "Implement Energy-Efficient Equipment Practices" },
-    { "id": "2.9.4", "parent": "2.9", "i": "4", "text": "Workforce Management" },
-    { "id": "2.9.4.1", "parent": "2.9.4", "i": "1", "text": "Define Workforce Requirements" },
-    { "id": "2.9.4.2", "parent": "2.9.4", "i": "2", "text": "Develop Skill Development Programs" },
-    { "id": "2.9.4.3", "parent": "2.9.4", "i": "3", "text": "Implement Shift Scheduling" },
-    { "id": "2.9.4.4", "parent": "2.9.4", "i": "4", "text": "Foster a Safe Working Environment" },
-    { "id": "2.9.4.5", "parent": "2.9.4", "i": "5", "text": "Encourage Team Collaboration" },
-    { "id": "2.9.4.6", "parent": "2.9.4", "i": "6", "text": "Monitor Workforce Efficiency" },
-    { "id": "2.9.4.7", "parent": "2.9.4", "i": "7", "text": "Plan for Workforce Flexibility" },
-    { "id": "2.9.4.8", "parent": "2.9.4", "i": "8", "text": "Implement Labor Compliance" },
-    { "id": "2.9.4.9", "parent": "2.9.4", "i": "9", "text": "Develop Employee Recognition Programs" },
-    { "id": "2.9.4.10", "parent": "2.9.4.1", "i": "0", "text": "Manage Workforce Diversity" },
-    { "id": "2.9.5", "parent": "2.9", "i": "5", "text": "Production Execution" },
-    { "id": "2.9.5.1", "parent": "2.9.5", "i": "1", "text": "Initiate Production Cycles" },
-    { "id": "2.9.5.2", "parent": "2.9.5", "i": "2", "text": "Monitor Production Progress" },
-    { "id": "2.9.5.3", "parent": "2.9.5", "i": "3", "text": "Implement Quality Control Checks" },
-    { "id": "2.9.5.4", "parent": "2.9.5", "i": "4", "text": "Adjust Production for Efficiency" },
-    { "id": "2.9.5.5", "parent": "2.9.5", "i": "5", "text": "Manage Production Challenges" },
-    { "id": "2.9.5.6", "parent": "2.9.5", "i": "6", "text": "Document Production Processes" },
-    { "id": "2.9.5.7", "parent": "2.9.5", "i": "7", "text": "Coordinate Between Departments" },
-    { "id": "2.9.5.8", "parent": "2.9.5", "i": "8", "text": "Implement Lean Manufacturing Principles" },
-    { "id": "2.9.5.9", "parent": "2.9.5", "i": "9", "text": "Optimize Production Flow" },
-    { "id": "2.9.5.10", "parent": "2.9.5.1", "i": "0", "text": "Evaluate Production Outcomes" },
-    { "id": "2.9.6", "parent": "2.9", "i": "6", "text": "Quality Assurance" },
-    { "id": "2.9.6.1", "parent": "2.9.6", "i": "1", "text": "Develop Quality Standards" },
-    { "id": "2.9.6.2", "parent": "2.9.6", "i": "2", "text": "Implement Quality Control Procedures" },
-    { "id": "2.9.6.3", "parent": "2.9.6", "i": "3", "text": "Train Staff in Quality Assurance" },
-    { "id": "2.9.6.4", "parent": "2.9.6", "i": "4", "text": "Monitor Quality Metrics" },
-    { "id": "2.9.6.5", "parent": "2.9.6", "i": "5", "text": "Conduct Product Inspections" },
-    { "id": "2.9.6.6", "parent": "2.9.6", "i": "6", "text": "Manage Quality Improvement Initiatives" },
-    { "id": "2.9.6.7", "parent": "2.9.6", "i": "7", "text": "Document Quality Issues" },
-    { "id": "2.9.6.8", "parent": "2.9.6", "i": "8", "text": "Develop Corrective Action Plans" },
-    { "id": "2.9.6.9", "parent": "2.9.6", "i": "9", "text": "Review Supplier Quality Standards" },
-    { "id": "2.9.6.10", "parent": "2.9.6.1", "i": "0", "text": "Foster a Quality-Focused Culture" },
-    { "id": "2.9.7", "parent": "2.9", "i": "7", "text": "Safety and Compliance" },
-    { "id": "2.9.7.1", "parent": "2.9.7", "i": "1", "text": "Implement Safety Protocols" },
-    { "id": "2.9.7.2", "parent": "2.9.7", "i": "2", "text": "Conduct Safety Training" },
-    { "id": "2.9.7.3", "parent": "2.9.7", "i": "3", "text": "Monitor Compliance with Regulations" },
-    { "id": "2.9.7.4", "parent": "2.9.7", "i": "4", "text": "Develop Emergency Response Plans" },
-    { "id": "2.9.7.5", "parent": "2.9.7", "i": "5", "text": "Conduct Safety Audits" },
-    { "id": "2.9.7.6", "parent": "2.9.7", "i": "6", "text": "Manage Hazardous Materials" },
-    { "id": "2.9.7.7", "parent": "2.9.7", "i": "7", "text": "Implement Ergonomic Practices" },
-    { "id": "2.9.7.8", "parent": "2.9.7", "i": "8", "text": "Develop Environmental Compliance Strategies" },
-    { "id": "2.9.7.9", "parent": "2.9.7", "i": "9", "text": "Promote Health and Wellness" },
-    { "id": "2.9.7.10", "parent": "2.9.7.1", "i": "0", "text": "Plan for Occupational Health Management" },
-    { "id": "2.9.8", "parent": "2.9", "i": "8", "text": "Process Improvement" },
-    { "id": "2.9.8.1", "parent": "2.9.8", "i": "1", "text": "Identify Improvement Opportunities" },
-    { "id": "2.9.8.2", "parent": "2.9.8", "i": "2", "text": "Implement Continuous Improvement Programs" },
-    { "id": "2.9.8.3", "parent": "2.9.8", "i": "3", "text": "Apply Six Sigma Methodologies" },
-    { "id": "2.9.8.4", "parent": "2.9.8", "i": "4", "text": "Conduct Process Reengineering" },
-    { "id": "2.9.8.5", "parent": "2.9.8", "i": "5", "text": "Utilize Lean Tools" },
-    { "id": "2.9.8.6", "parent": "2.9.8", "i": "6", "text": "Foster Innovation in Processes" },
-    { "id": "2.9.8.7", "parent": "2.9.8", "i": "7", "text": "Implement Automation Where Feasible" },
-    { "id": "2.9.8.8", "parent": "2.9.8", "i": "8", "text": "Evaluate New Manufacturing Technologies" },
-    { "id": "2.9.8.9", "parent": "2.9.8", "i": "9", "text": "Optimize Supply Chain Processes" },
-    { "id": "2.9.8.10", "parent": "2.9.8.1", "i": "0", "text": "Develop Sustainable Manufacturing Practices" },
-    { "id": "2.9.9", "parent": "2.9", "i": "9", "text": "Production Monitoring and Control" },
-    { "id": "2.9.9.1", "parent": "2.9.9", "i": "1", "text": "Implement Production Monitoring Systems" },
-    { "id": "2.9.9.2", "parent": "2.9.9", "i": "2", "text": "Develop Real-Time Dashboard" },
-    { "id": "2.9.9.3", "parent": "2.9.9", "i": "3", "text": "Monitor Key Performance Indicators" },
-    { "id": "2.9.9.4", "parent": "2.9.9", "i": "4", "text": "Adjust Production for Real-Time Feedback" },
-    { "id": "2.9.9.5", "parent": "2.9.9", "i": "5", "text": "Manage Production Risks" },
-    { "id": "2.9.9.6", "parent": "2.9.9", "i": "6", "text": "Utilize Predictive Maintenance Techniques" },
-    { "id": "2.9.9.7", "parent": "2.9.9", "i": "7", "text": "Implement SCADA Systems" },
-    { "id": "2.9.9.8", "parent": "2.9.9", "i": "8", "text": "Conduct Regular Production Reviews" },
-    { "id": "2.9.9.9", "parent": "2.9.9", "i": "9", "text": "Coordinate Production with Sales Forecasts" },
-    { "id": "2.9.9.10", "parent": "2.9.9.1", "i": "0", "text": "Manage Production Data Analytics" },
-    { "id": "2.9.10", "parent": "2.9.1", "i": "0", "text": "Packaging and Distribution" },
-    { "id": "2.9.10.1", "parent": "2.9.10", "i": "1", "text": "Develop Packaging Designs" },
-    { "id": "2.9.10.2", "parent": "2.9.10", "i": "2", "text": "Optimize Packaging Materials" },
-    { "id": "2.9.10.3", "parent": "2.9.10", "i": "3", "text": "Implement Automated Packaging Lines" },
-    { "id": "2.9.10.4", "parent": "2.9.10", "i": "4", "text": "Plan for Efficient Distribution" },
-    { "id": "2.9.10.5", "parent": "2.9.10", "i": "5", "text": "Coordinate with Logistics Partners" },
-    { "id": "2.9.10.6", "parent": "2.9.10", "i": "6", "text": "Monitor Packaging Quality" },
-    { "id": "2.9.10.7", "parent": "2.9.10", "i": "7", "text": "Develop Eco-Friendly Packaging Solutions" },
-    { "id": "2.9.10.8", "parent": "2.9.10", "i": "8", "text": "Manage Inventory for Distribution" },
-    { "id": "2.9.10.9", "parent": "2.9.10", "i": "9", "text": "Optimize Distribution Routes" },
-    { "id": "2.9.10.10", "parent": "2.9.10.1", "i": "0", "text": "Implement Traceability in Distribution" },
-    { "id": "2.10", "parent": "2.1", "i": "0", "text": "Quality Assurance" },
-    { "id": "2.10.1", "parent": "2.10", "i": "1", "text": "Develop QA Procedures" },
-    { "id": "2.10.2", "parent": "2.10", "i": "2", "text": "Implement QA Testing" },
-    { "id": "2.10.3", "parent": "2.10", "i": "3", "text": "Analyze QA Results" },
-    { "id": "2.10.4", "parent": "2.10", "i": "4", "text": "Make Adjustments for Quality Improvement" },
-    { "id": "2.10.5", "parent": "2.10", "i": "5", "text": "Ensure Compliance with Standards" },
-    { "id": "3", "parent": "0", "i": "3", "text": "Marketing and Sales" },
-    { "id": "3.1", "parent": "3", "i": "1", "text": "Marketing Strategy" },
-    { "id": "3.1.1", "parent": "3.1", "i": "1", "text": "Develop Overall Marketing Goals" },
-    { "id": "3.1.2", "parent": "3.1", "i": "2", "text": "Identify Target Market Segments" },
-    { "id": "3.1.3", "parent": "3.1", "i": "3", "text": "Select Marketing Channels" },
-    { "id": "3.1.4", "parent": "3.1", "i": "4", "text": "Plan Marketing Budget" },
-    { "id": "3.1.5", "parent": "3.1", "i": "5", "text": "Create Marketing Timeline" },
-    { "id": "3.1.6", "parent": "3.1", "i": "6", "text": "Define Key Performance Indicators (KPIs)" },
-    { "id": "3.2", "parent": "3", "i": "2", "text": "Branding" },
-    { "id": "3.2.1", "parent": "3.2", "i": "1", "text": "Develop Brand Identity" },
-    { "id": "3.2.2", "parent": "3.2", "i": "2", "text": "Create Brand Messaging" },
-    { "id": "3.2.3", "parent": "3.2", "i": "3", "text": "Design Brand Logo and Assets" },
-    { "id": "3.2.4", "parent": "3.2", "i": "4", "text": "Establish Brand Guidelines" },
-    { "id": "3.3", "parent": "3", "i": "3", "text": "Advertising" },
-    { "id": "3.3.1", "parent": "3.3", "i": "1", "text": "Develop Advertising Campaign Concepts" },
-    { "id": "3.3.2", "parent": "3.3", "i": "2", "text": "Select Advertising Mediums" },
-    { "id": "3.3.3", "parent": "3.3", "i": "3", "text": "Create Advertisements" },
-    { "id": "3.3.4", "parent": "3.3", "i": "4", "text": "Launch Advertising Campaigns" },
-    { "id": "3.3.5", "parent": "3.3", "i": "5", "text": "Monitor and Analyze Campaign Performance" },
-    { "id": "3.4", "parent": "3", "i": "4", "text": "Online Presence" },
-    { "id": "3.4.1", "parent": "3.4", "i": "1", "text": "Design Company Website" },
-    { "id": "3.4.2", "parent": "3.4", "i": "2", "text": "Implement SEO Strategies" },
-    { "id": "3.4.3", "parent": "3.4", "i": "3", "text": "Manage Social Media Accounts" },
-    { "id": "3.4.4", "parent": "3.4", "i": "4", "text": "Create Online Content Strategy" },
-    { "id": "3.4.5", "parent": "3.4", "i": "5", "text": "Monitor Online Engagement" },
-    { "id": "3.5", "parent": "3", "i": "5", "text": "Customer Outreach" },
-    { "id": "3.5.1", "parent": "3.5", "i": "1", "text": "Identify Outreach Opportunities" },
-    { "id": "3.5.2", "parent": "3.5", "i": "2", "text": "Develop Outreach Plan" },
-    { "id": "3.5.3", "parent": "3.5", "i": "3", "text": "Execute Outreach Activities" },
-    { "id": "3.5.4", "parent": "3.5", "i": "4", "text": "Evaluate Outreach Effectiveness" },
-    { "id": "3.6", "parent": "3", "i": "6", "text": "Sales Strategy" },
-    { "id": "3.6.1", "parent": "3.6", "i": "1", "text": "Define Sales Goals" },
-    { "id": "3.6.2", "parent": "3.6", "i": "2", "text": "Develop Sales Processes" },
-    { "id": "3.6.3", "parent": "3.6", "i": "3", "text": "Train Sales Team" },
-    { "id": "3.6.4", "parent": "3.6", "i": "4", "text": "Implement Sales Tools and Software" },
-    { "id": "3.7", "parent": "3", "i": "7", "text": "Pricing Strategy" },
-    { "id": "3.7.1", "parent": "3.7", "i": "1", "text": "Analyze Market Pricing" },
-    { "id": "3.7.2", "parent": "3.7", "i": "2", "text": "Define Pricing Model" },
-    { "id": "3.7.3", "parent": "3.7", "i": "3", "text": "Set Product Prices" },
-    { "id": "3.7.4", "parent": "3.7", "i": "4", "text": "Review and Adjust Prices as Needed" },
-    { "id": "3.8", "parent": "3", "i": "8", "text": "Distribution Channels" },
-    { "id": "3.8.1", "parent": "3.8", "i": "1", "text": "Identify Potential Distribution Channels" },
-    { "id": "3.8.2", "parent": "3.8", "i": "2", "text": "Evaluate Channel Effectiveness" },
-    { "id": "3.8.3", "parent": "3.8", "i": "3", "text": "Establish Distribution Agreements" },
-    { "id": "3.8.4", "parent": "3.8", "i": "4", "text": "Manage Distribution Logistics" },
-    { "id": "3.9", "parent": "3", "i": "9", "text": "Customer Feedback" },
-    { "id": "3.9.1", "parent": "3.9", "i": "1", "text": "Develop Feedback Collection Methods" },
-    { "id": "3.9.2", "parent": "3.9", "i": "2", "text": "Gather Customer Feedback" },
-    { "id": "3.9.3", "parent": "3.9", "i": "3", "text": "Analyze Feedback for Insights" },
-    { "id": "3.9.4", "parent": "3.9", "i": "4", "text": "Implement Changes Based on Feedback" },
-    { "id": "3.10", "parent": "3.1", "i": "0", "text": "Sales Analysis" },
-    { "id": "3.10.1", "parent": "3.10", "i": "1", "text": "Track Sales Data" },
-    { "id": "3.10.2", "parent": "3.10", "i": "2", "text": "Analyze Sales Trends" },
-    { "id": "3.10.3", "parent": "3.10", "i": "3", "text": "Report on Sales Performance" },
-    { "id": "3.10.4", "parent": "3.10", "i": "4", "text": "Adjust Sales Strategies Based on Analysis" },
-    { "id": "4", "parent": "0", "i": "4", "text": "Customer Support" },
-    { "id": "4.1", "parent": "4", "i": "1", "text": "Support Strategy" },
-    { "id": "4.1.1", "parent": "4.1", "i": "1", "text": "Develop Overall Customer Support Goals" },
-    { "id": "4.1.2", "parent": "4.1", "i": "2", "text": "Identify Key Support Channels (Phone, Email, Chat, etc.)" },
-    { "id": "4.1.3", "parent": "4.1", "i": "3", "text": "Define Support Service Levels" },
-    { "id": "4.1.4", "parent": "4.1", "i": "4", "text": "Establish Key Performance Indicators (KPIs)" },
-    { "id": "4.1.5", "parent": "4.1", "i": "5", "text": "Plan Support Staff Training Programs" },
-    { "id": "4.2", "parent": "4", "i": "2", "text": "Customer Service Training" },
-    { "id": "4.2.1", "parent": "4.2", "i": "1", "text": "Develop Training Material" },
-    { "id": "4.2.2", "parent": "4.2", "i": "2", "text": "Conduct Training Sessions" },
-    { "id": "4.2.3", "parent": "4.2", "i": "3", "text": "Evaluate Training Effectiveness" },
-    { "id": "4.2.4", "parent": "4.2", "i": "4", "text": "Implement Continuous Training Programs" },
-    { "id": "4.3", "parent": "4", "i": "3", "text": "Helpdesk Management" },
-    { "id": "4.3.1", "parent": "4.3", "i": "1", "text": "Implement Helpdesk Software" },
-    { "id": "4.3.2", "parent": "4.3", "i": "2", "text": "Train Staff on Helpdesk Tools" },
-    { "id": "4.3.3", "parent": "4.3", "i": "3", "text": "Monitor Helpdesk Performance" },
-    { "id": "4.3.4", "parent": "4.3", "i": "4", "text": "Optimize Helpdesk Processes" },
-    { "id": "4.4", "parent": "4", "i": "4", "text": "Customer Feedback Collection" },
-    { "id": "4.4.1", "parent": "4.4", "i": "1", "text": "Design Feedback Surveys" },
-    { "id": "4.4.2", "parent": "4.4", "i": "2", "text": "Distribute Surveys to Customers" },
-    { "id": "4.4.3", "parent": "4.4", "i": "3", "text": "Analyze Survey Results" },
-    { "id": "4.4.4", "parent": "4.4", "i": "4", "text": "Integrate Feedback into Support Improvements" },
-    { "id": "4.5", "parent": "4", "i": "5", "text": "Issue Resolution" },
-    { "id": "4.5.1", "parent": "4.5", "i": "1", "text": "Develop Issue Resolution Procedures" },
-    { "id": "4.5.2", "parent": "4.5", "i": "2", "text": "Train Staff on Issue Resolution" },
-    { "id": "4.5.3", "parent": "4.5", "i": "3", "text": "Monitor Resolution Efficiency" },
-    { "id": "4.5.4", "parent": "4.5", "i": "4", "text": "Improve Resolution Processes Based on Feedback" },
-    { "id": "4.6", "parent": "4", "i": "6", "text": "Support Metrics Analysis" },
-    { "id": "4.6.1", "parent": "4.6", "i": "1", "text": "Identify Critical Support Metrics" },
-    { "id": "4.6.2", "parent": "4.6", "i": "2", "text": "Implement Metrics Tracking Tools" },
-    { "id": "4.6.3", "parent": "4.6", "i": "3", "text": "Analyze Performance Data" },
-    { "id": "4.6.4", "parent": "4.6", "i": "4", "text": "Report on Support Metrics" },
-    { "id": "4.7", "parent": "4", "i": "7", "text": "Customer Retention Strategies" },
-    { "id": "4.7.1", "parent": "4.7", "i": "1", "text": "Identify Key Factors for Customer Retention" },
-    { "id": "4.7.2", "parent": "4.7", "i": "2", "text": "Develop Retention Programs" },
-    { "id": "4.7.3", "parent": "4.7", "i": "3", "text": "Implement Customer Loyalty Initiatives" },
-    { "id": "4.7.4", "parent": "4.7", "i": "4", "text": "Evaluate Retention Program Effectiveness" },
-    { "id": "4.8", "parent": "4", "i": "8", "text": "Knowledge Base Development" },
-    { "id": "4.8.1", "parent": "4.8", "i": "1", "text": "Create Knowledge Base Content" },
-    { "id": "4.8.2", "parent": "4.8", "i": "2", "text": "Organize Content for Easy Access" },
-    { "id": "4.8.3", "parent": "4.8", "i": "3", "text": "Update Content Regularly" },
-    { "id": "4.8.4", "parent": "4.8", "i": "4", "text": "Promote Knowledge Base Usage" },
-    { "id": "4.9", "parent": "4", "i": "9", "text": "Customer Communication" },
-    { "id": "4.9.1", "parent": "4.9", "i": "1", "text": "Develop Communication Templates" },
-    { "id": "4.9.2", "parent": "4.9", "i": "2", "text": "Train Staff on Effective Communication" },
-    { "id": "4.9.3", "parent": "4.9", "i": "3", "text": "Monitor Customer Interaction Quality" },
-    { "id": "4.9.4", "parent": "4.9", "i": "4", "text": "Implement Automated Communication Systems" },
-    { "id": "4.10", "parent": "4.1", "i": "0", "text": "Escalation Procedures" },
-    { "id": "4.10.1", "parent": "4.10", "i": "1", "text": "Define Escalation Criteria" },
-    { "id": "4.10.2", "parent": "4.10", "i": "2", "text": "Establish Escalation Processes" },
-    { "id": "4.10.3", "parent": "4.10", "i": "3", "text": "Train Staff on Escalation Protocols" },
-    { "id": "4.10.4", "parent": "4.10", "i": "4", "text": "Review and Optimize Escalation Procedures" },
-    { "id": "5", "parent": "0", "i": "5", "text": "Operations and Maintenance" },
-    { "id": "5.1", "parent": "5", "i": "1", "text": "Facility Management" },
-    { "id": "5.1.1", "parent": "5.1", "i": "1", "text": "Conduct Facility Needs Assessment" },
-    { "id": "5.1.2", "parent": "5.1", "i": "2", "text": "Plan Facility Maintenance Schedule" },
-    { "id": "5.1.3", "parent": "5.1", "i": "3", "text": "Implement Energy Efficiency Measures" },
-    { "id": "5.1.4", "parent": "5.1", "i": "4", "text": "Manage Facility Security" },
-    { "id": "5.1.5", "parent": "5.1", "i": "5", "text": "Oversee Facility Cleaning and Upkeep" },
-    { "id": "5.2", "parent": "5", "i": "2", "text": "Equipment Maintenance" },
-    { "id": "5.2.1", "parent": "5.2", "i": "1", "text": "Develop Equipment Inventory" },
-    { "id": "5.2.2", "parent": "5.2", "i": "2", "text": "Schedule Regular Maintenance Checks" },
-    { "id": "5.2.3", "parent": "5.2", "i": "3", "text": "Perform Preventive Maintenance" },
-    { "id": "5.2.4", "parent": "5.2", "i": "4", "text": "Track Equipment Performance" },
-    { "id": "5.3", "parent": "5", "i": "3", "text": "Inventory Management" },
-    { "id": "5.3.1", "parent": "5.3", "i": "1", "text": "Design Inventory Tracking System" },
-    { "id": "5.3.2", "parent": "5.3", "i": "2", "text": "Monitor Inventory Levels" },
-    { "id": "5.3.3", "parent": "5.3", "i": "3", "text": "Optimize Stock Reordering Process" },
-    { "id": "5.3.4", "parent": "5.3", "i": "4", "text": "Conduct Regular Inventory Audits" },
-    { "id": "5.3.5", "parent": "5.3", "i": "5", "text": "Implement Loss Prevention Strategies" },
-    { "id": "5.4", "parent": "5", "i": "4", "text": "Supply Chain Management" },
-    { "id": "5.4.1", "parent": "5.4", "i": "1", "text": "Assess Supply Chain Efficiency" },
-    { "id": "5.4.2", "parent": "5.4", "i": "2", "text": "Develop Supplier Relationships" },
-    { "id": "5.4.3", "parent": "5.4", "i": "3", "text": "Coordinate Logistics and Distribution" },
-    { "id": "5.4.4", "parent": "5.4", "i": "4", "text": "Manage Supply Chain Risks" },
-    { "id": "5.4.5", "parent": "5.4", "i": "5", "text": "Implement Supply Chain Sustainability Practices" },
-    { "id": "5.5", "parent": "5", "i": "5", "text": "Logistics" },
-    { "id": "5.5.1", "parent": "5.5", "i": "1", "text": "Plan Transportation Routes" },
-    { "id": "5.5.2", "parent": "5.5", "i": "2", "text": "Optimize Shipping and Receiving Processes" },
-    { "id": "5.5.3", "parent": "5.5", "i": "3", "text": "Monitor Logistics Performance" },
-    { "id": "5.5.4", "parent": "5.5", "i": "4", "text": "Implement Cost-Effective Logistics Solutions" },
-    { "id": "5.6", "parent": "5", "i": "6", "text": "Compliance and Regulations" },
-    { "id": "5.6.1", "parent": "5.6", "i": "1", "text": "Identify Relevant Legal Requirements" },
-    { "id": "5.6.2", "parent": "5.6", "i": "2", "text": "Ensure Regulatory Compliance" },
-    { "id": "5.6.3", "parent": "5.6", "i": "3", "text": "Conduct Compliance Training" },
-    { "id": "5.6.4", "parent": "5.6", "i": "4", "text": "Prepare for Audits and Inspections" },
-    { "id": "5.7", "parent": "5", "i": "7", "text": "Health and Safety" },
-    { "id": "5.7.1", "parent": "5.7", "i": "1", "text": "Develop Safety Policies and Procedures" },
-    { "id": "5.7.2", "parent": "5.7", "i": "2", "text": "Conduct Safety Training for Employees" },
-    { "id": "5.7.3", "parent": "5.7", "i": "3", "text": "Implement Emergency Response Plans" },
-    { "id": "5.7.4", "parent": "5.7", "i": "4", "text": "Monitor Workplace Safety Compliance" },
-    { "id": "5.7.5", "parent": "5.7", "i": "5", "text": "Address Safety Concerns and Incidents" },
-    { "id": "5.8", "parent": "5", "i": "8", "text": "Energy Management" },
-    { "id": "5.8.1", "parent": "5.8", "i": "1", "text": "Assess Energy Consumption" },
-    { "id": "5.8.2", "parent": "5.8", "i": "2", "text": "Implement Energy-Saving Initiatives" },
-    { "id": "5.8.3", "parent": "5.8", "i": "3", "text": "Monitor Energy Usage" },
-    { "id": "5.8.4", "parent": "5.8", "i": "4", "text": "Explore Renewable Energy Options" },
-    { "id": "5.9", "parent": "5", "i": "9", "text": "Waste Management" },
-    { "id": "5.9.1", "parent": "5.9", "i": "1", "text": "Develop Waste Reduction Strategies" },
-    { "id": "5.9.2", "parent": "5.9", "i": "2", "text": "Implement Recycling Programs" },
-    { "id": "5.9.3", "parent": "5.9", "i": "3", "text": "Manage Hazardous Waste Disposal" },
-    { "id": "5.9.4", "parent": "5.9", "i": "4", "text": "Monitor Waste Management Efficiency" },
-    { "id": "5.10", "parent": "5.1", "i": "0", "text": "Continuous Improvement" },
-    { "id": "5.10.1", "parent": "5.10", "i": "1", "text": "Identify Improvement Opportunities" },
-    { "id": "5.10.2", "parent": "5.10", "i": "2", "text": "Implement Process Improvement Projects" },
-    { "id": "5.10.3", "parent": "5.10", "i": "3", "text": "Monitor Improvement Efforts" },
-    { "id": "5.10.4", "parent": "5.10", "i": "4", "text": "Foster a Culture of Continuous Improvement" }
+    {
+        "content": "Project Management",
+        "children": [
+            {
+                "content": "Project Planning",
+                "children": [
+                    { "content": "Define Project Scope" },
+                    { "content": "Identify Key Deliverables" },
+                    { "content": "Establish Project Objectives" },
+                    { "content": "Develop Initial Project Schedule" },
+                    { "content": "Determine Resource Requirements" }
+                ]
+            },
+            {
+                "content": "Budgeting",
+                "children": [
+                    { "content": "Prepare Initial Budget Estimate" },
+                    { "content": "Identify Cost Constraints" },
+                    { "content": "Allocate Funds Across Tasks" },
+                    { "content": "Plan for Contingency Funds" },
+                    { "content": "Budget Approval Process" }
+                ]
+            },
+            {
+                "content": "Scheduling",
+                "children": [
+                    { "content": "Develop Detailed Project Timeline" },
+                    { "content": "Assign Task Deadlines" },
+                    { "content": "Integrate Milestones into Schedule" },
+                    { "content": "Schedule Resource Allocation" },
+                    { "content": "Monitor and Update Schedule" }
+                ]
+            },
+            {
+                "content": "Resource Allocation",
+                "children": [
+                    { "content": "Identify Required Project Resources" },
+                    { "content": "Allocate Human Resources" },
+                    { "content": "Allocate Material Resources" },
+                    { "content": "Plan for Resource Availability" },
+                    { "content": "Adjust Resources as Needed" }
+                ]
+            },
+            {
+                "content": "Risk Management",
+                "children": [
+                    { "content": "Identify Potential Risks" },
+                    { "content": "Assess Risk Impact and Likelihood" },
+                    { "content": "Develop Risk Mitigation Strategies" },
+                    { "content": "Implement Risk Management Plan" },
+                    { "content": "Monitor and Review Risks" }
+                ]
+            },
+            {
+                "content": "Quality Control",
+                "children": [
+                    { "content": "Define Quality Standards" },
+                    { "content": "Develop Quality Control Processes" },
+                    { "content": "Implement Quality Assurance Procedures" },
+                    { "content": "Conduct Regular Quality Reviews" },
+                    { "content": "Manage Quality Improvement" }
+                ]
+            },
+            {
+                "content": "Communication Planning",
+                "children": [
+                    { "content": "Identify Stakeholder Communication Needs" },
+                    { "content": "Develop Communication Plan" },
+                    { "content": "Establish Communication Channels" },
+                    { "content": "Schedule Regular Updates and Meetings" },
+                    { "content": "Monitor and Adjust Communication Strategies" }
+                ]
+            },
+            {
+                "content": "Stakeholder Management",
+                "children": [
+                    { "content": "Identify Key Stakeholders" },
+                    { "content": "Analyze Stakeholder Influence and Interest" },
+                    { "content": "Develop Stakeholder Engagement Plan" },
+                    { "content": "Manage Stakeholder Expectations" },
+                    { "content": "Maintain Stakeholder Relationships" }
+                ]
+            },
+            {
+                "content": "Reporting",
+                "children": [
+                    { "content": "Develop Reporting Formats and Templates" },
+                    { "content": "Establish Reporting Schedule" },
+                    { "content": "Collect Data for Reports" },
+                    { "content": "Prepare and Distribute Reports" },
+                    { "content": "Review and Adjust Reporting Practices" }
+                ]
+            },
+            {
+                "content": "Project Closure",
+                "children": [
+                    { "content": "Confirm Project Deliverables Completion" },
+                    { "content": "Conduct Project Evaluation" },
+                    { "content": "Document Lessons Learned" },
+                    { "content": "Release Project Resources" },
+                    { "content": "Formalize Project Closure" }
+                ]
+            }
+        ]
+    },
+    {
+        "content": "Product Development",
+        "children": [
+            {
+                "content": "Market Research",
+                "children": [
+                    { "content": "Identify Target Market" },
+                    { "content": "Conduct Competitor Analysis" },
+                    { "content": "Gather Customer Preferences" },
+                    { "content": "Analyze Market Trends" },
+                    { "content": "Determine Market Needs" },
+                    { "content": "Evaluate Market Potential" }
+                ]
+            },
+            {
+                "content": "Concept Development",
+                "children": [
+                    { "content": "Brainstorm Product Ideas" },
+                    { "content": "Select Promising Concepts" },
+                    { "content": "Develop Concept Prototypes" },
+                    { "content": "Conduct Feasibility Studies" }
+                ]
+            },
+            {
+                "content": "Design",
+                "children": [
+                    { "content": "Create Design Specifications" },
+                    { "content": "Develop Initial Designs" },
+                    { "content": "Iterate Design Based on Feedback" },
+                    { "content": "Finalize Product Design" }
+                ]
+            },
+            {
+                "content": "Prototyping",
+                "children": ["Build Prototype Models", "Test Prototypes Internally", "Revise Prototypes Based on Tests"]
+            },
+            {
+                "content": "Testing",
+                "children": [
+                    { "content": "Plan Product Testing" },
+                    { "content": "Conduct User Testing Sessions" },
+                    { "content": "Collect and Analyze Feedback" },
+                    { "content": "Implement Changes from Testing" }
+                ]
+            },
+            {
+                "content": "Product Refinement",
+                "children": ["Refine Product Design", "Update Prototypes", "Validate Final Product Design"]
+            },
+            {
+                "content": "Supplier Sourcing",
+                "children": [
+                    { "content": "Identify Potential Suppliers" },
+                    { "content": "Evaluate Supplier Capabilities" },
+                    { "content": "Negotiate Supplier Contracts" },
+                    { "content": "Finalize Supplier Agreements" },
+                    { "content": "Establish Quality Control Measures with Suppliers" }
+                ]
+            },
+            {
+                "content": "Production Planning",
+                "children": [
+                    { "content": "Develop Production Schedule" },
+                    { "content": "Plan Production Processes" },
+                    { "content": "Coordinate with Suppliers for Materials" },
+                    { "content": "Prepare Production Facilities" }
+                ]
+            },
+            {
+                "content": "Manufacturing",
+                "children": ["Initiate Production Run", "Monitor Production Quality", "Address Production Issues"]
+            },
+            {
+                "content": "Quality Assurance",
+                "children": [
+                    { "content": "Develop QA Procedures" },
+                    { "content": "Implement QA Testing" },
+                    { "content": "Analyze QA Results" },
+                    { "content": "Make Adjustments for Quality Improvement" },
+                    { "content": "Ensure Compliance with Standards" }
+                ]
+            }
+        ]
+    },
+    {
+        "content": "Marketing and Sales",
+        "children": [
+            {
+                "content": "Marketing Strategy",
+                "children": [
+                    { "content": "Develop Overall Marketing Goals" },
+                    { "content": "Identify Target Market Segments" },
+                    { "content": "Select Marketing Channels" },
+                    { "content": "Plan Marketing Budget" },
+                    { "content": "Create Marketing Timeline" },
+                    { "content": "Define Key Performance Indicators (KPIs)" }
+                ]
+            },
+            {
+                "content": "Branding",
+                "children": [
+                    { "content": "Develop Brand Identity" },
+                    { "content": "Create Brand Messaging" },
+                    { "content": "Design Brand Logo and Assets" },
+                    { "content": "Establish Brand Guidelines" }
+                ]
+            },
+            {
+                "content": "Advertising",
+                "children": [
+                    { "content": "Develop Advertising Campaign Concepts" },
+                    { "content": "Select Advertising Mediums" },
+                    { "content": "Create Advertisements" },
+                    { "content": "Launch Advertising Campaigns" },
+                    { "content": "Monitor and Analyze Campaign Performance" }
+                ]
+            },
+            {
+                "content": "Online Presence",
+                "children": [
+                    { "content": "Design Company Website" },
+                    { "content": "Implement SEO Strategies" },
+                    { "content": "Manage Social Media Accounts" },
+                    { "content": "Create Online Content Strategy" },
+                    { "content": "Monitor Online Engagement" }
+                ]
+            },
+            {
+                "content": "Customer Outreach",
+                "children": [
+                    { "content": "Identify Outreach Opportunities" },
+                    { "content": "Develop Outreach Plan" },
+                    { "content": "Execute Outreach Activities" },
+                    { "content": "Evaluate Outreach Effectiveness" }
+                ]
+            },
+            {
+                "content": "Sales Strategy",
+                "children": [
+                    { "content": "Define Sales Goals" },
+                    { "content": "Develop Sales Processes" },
+                    { "content": "Train Sales Team" },
+                    { "content": "Implement Sales Tools and Software" }
+                ]
+            },
+            {
+                "content": "Pricing Strategy",
+                "children": [
+                    { "content": "Analyze Market Pricing" },
+                    { "content": "Define Pricing Model" },
+                    { "content": "Set Product Prices" },
+                    { "content": "Review and Adjust Prices as Needed" }
+                ]
+            },
+            {
+                "content": "Distribution Channels",
+                "children": [
+                    { "content": "Identify Potential Distribution Channels" },
+                    { "content": "Evaluate Channel Effectiveness" },
+                    { "content": "Establish Distribution Agreements" },
+                    { "content": "Manage Distribution Logistics" }
+                ]
+            },
+            {
+                "content": "Customer Feedback",
+                "children": [
+                    { "content": "Develop Feedback Collection Methods" },
+                    { "content": "Gather Customer Feedback" },
+                    { "content": "Analyze Feedback for Insights" },
+                    { "content": "Implement Changes Based on Feedback" }
+                ]
+            },
+            {
+                "content": "Sales Analysis",
+                "children": [
+                    { "content": "Track Sales Data" },
+                    { "content": "Analyze Sales Trends" },
+                    { "content": "Report on Sales Performance" },
+                    { "content": "Adjust Sales Strategies Based on Analysis" }
+                ]
+            }
+        ]
+    },
+    {
+        "content": "Customer Support",
+        "children": [
+            {
+                "content": "Support Strategy",
+                "children": [
+                    { "content": "Develop Overall Customer Support Goals" },
+                    { "content": "Identify Key Support Channels" },
+                    { "content": "Define Support Service Levels" },
+                    { "content": "Establish Key Performance Indicators" },
+                    { "content": "Plan Support Staff Training Programs" }
+                ]
+            },
+            {
+                "content": "Customer Service Training",
+                "children": [
+                    { "content": "Develop Training Material" },
+                    { "content": "Conduct Training Sessions" },
+                    { "content": "Evaluate Training Effectiveness" },
+                    { "content": "Implement Continuous Training Programs" }
+                ]
+            },
+            {
+                "content": "Helpdesk Management",
+                "children": [
+                    { "content": "Implement Helpdesk Software" },
+                    { "content": "Train Staff on Helpdesk Tools" },
+                    { "content": "Monitor Helpdesk Performance" },
+                    { "content": "Optimize Helpdesk Processes" }
+                ]
+            },
+            {
+                "content": "Customer Feedback Collection",
+                "children": [
+                    { "content": "Design Feedback Surveys" },
+                    { "content": "Distribute Surveys to Customers" },
+                    { "content": "Analyze Survey Results" },
+                    { "content": "Integrate Feedback into Support Improvements" }
+                ]
+            },
+            {
+                "content": "Issue Resolution",
+                "children": [
+                    { "content": "Develop Issue Resolution Procedures" },
+                    { "content": "Train Staff on Issue Resolution" },
+                    { "content": "Monitor Resolution Efficiency" },
+                    { "content": "Improve Resolution Processes Based on Feedback" }
+                ]
+            },
+            {
+                "content": "Support Metrics Analysis",
+                "children": [
+                    { "content": "Identify Critical Support Metrics" },
+                    { "content": "Implement Metrics Tracking Tools" },
+                    { "content": "Analyze Performance Data" },
+                    { "content": "Report on Support Metrics" }
+                ]
+            },
+            {
+                "content": "Customer Retention Strategies",
+                "children": [
+                    { "content": "Identify Key Factors for Customer Retention" },
+                    { "content": "Develop Retention Programs" },
+                    { "content": "Implement Customer Loyalty Initiatives" },
+                    { "content": "Evaluate Retention Program Effectiveness" }
+                ]
+            },
+            {
+                "content": "Knowledge Base Development",
+                "children": [
+                    { "content": "Create Knowledge Base Content" },
+                    { "content": "Organize Content for Easy Access" },
+                    { "content": "Update Content Regularly" },
+                    { "content": "Promote Knowledge Base Usage" }
+                ]
+            },
+            {
+                "content": "Customer Communication",
+                "children": [
+                    { "content": "Develop Communication Templates" },
+                    { "content": "Train Staff on Effective Communication" },
+                    { "content": "Monitor Customer Interaction Quality" },
+                    { "content": "Implement Automated Communication Systems" }
+                ]
+            },
+            {
+                "content": "Escalation Procedures",
+                "children": [
+                    { "content": "Define Escalation Criteria" },
+                    { "content": "Establish Escalation Processes" },
+                    { "content": "Train Staff on Escalation Protocols" },
+                    { "content": "Review and Optimize Escalation Procedures" }
+                ]
+            }
+        ]
+    },
+    {
+        "content": "Operations and Maintenance",
+        "children": [
+            {
+                "content": "Facility Management",
+                "children": [
+                    { "content": "Conduct Facility Needs Assessment" },
+                    { "content": "Plan Facility Maintenance Schedule" },
+                    { "content": "Implement Energy Efficiency Measures" },
+                    { "content": "Manage Facility Security" },
+                    { "content": "Oversee Facility Cleaning and Upkeep" }
+                ]
+            },
+            {
+                "content": "Equipment Maintenance",
+                "children": [
+                    { "content": "Develop Equipment Inventory" },
+                    { "content": "Schedule Regular Maintenance Checks" },
+                    { "content": "Perform Preventive Maintenance" },
+                    { "content": "Track Equipment Performance" }
+                ]
+            },
+            {
+                "content": "Inventory Management",
+                "children": [
+                    { "content": "Design Inventory Tracking System" },
+                    { "content": "Monitor Inventory Levels" },
+                    { "content": "Optimize Stock Reordering Process" },
+                    { "content": "Conduct Regular Inventory Audits" },
+                    { "content": "Implement Loss Prevention Strategies" }
+                ]
+            },
+            {
+                "content": "Supply Chain Management",
+                "children": [
+                    { "content": "Assess Supply Chain Efficiency" },
+                    { "content": "Develop Supplier Relationships" },
+                    { "content": "Coordinate Logistics and Distribution" },
+                    { "content": "Manage Supply Chain Risks" },
+                    { "content": "Implement Supply Chain Sustainability Practices" }
+                ]
+            },
+            {
+                "content": "Logistics",
+                "children": [
+                    { "content": "Plan Transportation Routes" },
+                    { "content": "Optimize Shipping and Receiving Processes" },
+                    { "content": "Monitor Logistics Performance" },
+                    { "content": "Implement Cost-Effective Logistics Solutions" }
+                ]
+            },
+            {
+                "content": "Compliance and Regulations",
+                "children": [
+                    { "content": "Identify Relevant Legal Requirements" },
+                    { "content": "Ensure Regulatory Compliance" },
+                    { "content": "Conduct Compliance Training" },
+                    { "content": "Prepare for Audits and Inspections" }
+                ]
+            },
+            {
+                "content": "Health and Safety",
+                "children": [
+                    { "content": "Develop Safety Policies and Procedures" },
+                    { "content": "Conduct Safety Training for Employees" },
+                    { "content": "Implement Emergency Response Plans" },
+                    { "content": "Monitor Workplace Safety Compliance" },
+                    { "content": "Address Safety Concerns and Incidents" }
+                ]
+            },
+            {
+                "content": "Energy Management",
+                "children": [
+                    { "content": "Assess Energy Consumption" },
+                    { "content": "Implement Energy-Saving Initiatives" },
+                    { "content": "Monitor Energy Usage" },
+                    { "content": "Explore Renewable Energy Options" }
+                ]
+            },
+            {
+                "content": "Waste Management",
+                "children": [
+                    { "content": "Develop Waste Reduction Strategies" },
+                    { "content": "Implement Recycling Programs" },
+                    { "content": "Manage Hazardous Waste Disposal" },
+                    { "content": "Monitor Waste Management Efficiency" }
+                ]
+            },
+            {
+                "content": "Continuous Improvement",
+                "children": [
+                    { "content": "Identify Improvement Opportunities" },
+                    { "content": "Implement Process Improvement Projects" },
+                    { "content": "Monitor Improvement Efforts" },
+                    { "content": "Foster a Culture of Continuous Improvement" }
+                ]
+            }
+        ]
+    }
 ]
