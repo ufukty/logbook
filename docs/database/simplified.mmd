@@ -45,14 +45,14 @@ erDiagram
 
     OPERATION ||--|| OP_COMPLETION : ""
 
-    ROLE["enum Role"] {
+    ROLE["enum ROLE"] {
         e OWNER
         e SUPERVISOR
         e EXECUTOR
         e GUEST
     }
 
-    STATUS["enum Status"] {
+    STATUS["enum STATUS"] {
         e INVITED
         e ACCEPTED
         e REJECTED
@@ -63,8 +63,8 @@ erDiagram
         uuid user_role_id 
         uuid task_id
         uuid user_id
-        Role role
-        Status status 
+        ROLE role
+        STATUS status 
         date creation_date
         date update_date
     }
@@ -87,6 +87,11 @@ erDiagram
         uuid inherit_privileges 
     }
 
+
+    %% Any task with custom privilege hand. can have owner/viewers/executors
+    PRIVILEGE }|--|| OBJECTIVE : ""
+    OBJECTIVE ||--|| OPERATION : ""
+
     %% recalculate every link on a tree when new viewer come" ?
     LINK {
         uuid linkid
@@ -106,12 +111,7 @@ erDiagram
         date deleted_at
     }
 
-    %% Any task with custom privilege hand. can have owner/viewers/executors
-    PRIVILEGE }|--|| OBJECTIVE : ""
-
-    OBJECTIVE ||--|{ OPERATION : ""
     OBJECTIVE ||--|{ LINK: ""
-
 
     COMPUTED_TO_TOP {
         uuid task_id

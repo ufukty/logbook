@@ -2,9 +2,9 @@
     "editor.wordWrap": "off",
     "runOnSave.commands": [
         {
-            "match": ".mmd$",
+            "match": "[.mmd|.d2]$",
             "command": "echo && cd '${fileDirname}' && test -e Makefile && make all && echo",
-            "runningStatusMessage": "compiling mmd files"
+            "runningStatusMessage": "make..."
         }
         // {
         //     "match": ".mmd$",
