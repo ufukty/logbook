@@ -6,10 +6,5 @@
             "command": "echo && cd '${fileDirname}' && test -e Makefile && make all && echo",
             "runningStatusMessage": "make..."
         }
-        // {
-        //     "match": ".mmd$",
-        //     "command": "mmdc -f -e png -w 5000 -H 5000 -s 4 -b '#222' -t dark -i '${file}' -o '${fileDirname}/build/${fileBasename}.png'",
-        //     "runningStatusMessage": "build/${fileBasename}.png..."
-        // }
     ]
 }
