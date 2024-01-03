@@ -1,8 +1,9 @@
 {
     "editor.wordWrap": "off",
+    "go.lintFlags": ["-ST1001"], // "ST1001: Dot imports are discouraged"
     "runOnSave.commands": [
         {
-            "match": "[.mmd|.d2]$",
+            "match": "\\.(mmd|d2)$",
             "command": "echo && cd '${fileDirname}' && test -e Makefile && make all && echo",
             "runningStatusMessage": "make..."
         }
