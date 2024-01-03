@@ -11,61 +11,40 @@ bookmark: {
   shape: sql_table
 
   user_id: uuid
-  obj_id: uuid
+  oid: uuid
   display_name: text
-  rocks: are hidden in the UI %%
+  rocks: are hidden in the UI
   is_rock: bool
   creation_date: date
-}
-
-role: {
-  shape: sql_table
-
-  OWNER: e
-  SUPERVISOR: e
-  EXECUTOR: e
-  GUEST: e
-}
-
-status: {
-  shape: sql_table
-
-  INVITED: e
-  ACCEPTED: e
-  REJECTED: e
-  CANCELED: e
 }
 
 privilege: {
   shape: sql_table
 
   user_role_id: uuid
-  obj_id: uuid
+  oid: uuid
   user_id: uuid
-  role: role
-  status: status
+  role: "Owner, Supervisor, Executor, Guest"
+  status: "Invited, Accepted, Rejected, Canceled"
   creation_date: date
   update_date: date
 }
 
-privilege -- role
-privilege -- status
-
 objective: {
   shape: sql_table
 
-  obj_id: uuid
-  version_id: uuid
+  oid: uuid
+  vid: uuid
+  based: uuid
+  type: "Regular, Rock"
+  content: text
+  creator: uuid
+  creation: timestamp
 
   # "Inherit: super obj, randomize else" 
   sharding_id: uuid
   # "Needed: for sharding." 
-  root_obj_id: uuid
-
-  content: text
-
-  # "id: of inherited task" 
-  inherit_privileges: uuid
+  root_oid: uuid
 }
 
 # recalculate every link on a tree when new viewer come" ?
@@ -77,41 +56,36 @@ objective_link: {
   # "Inherit: super obj, randomize otherwise" 
   sharding_id: uuid
 
-  sub_obj_id: uuid
-  sup_obj_id: uuid
-  sub_version_id: uuid
-  sup_version_id: uuid
-
-  # "FALSE: if the link is deleted by user" 
-  is_active: bool
-  # "TRUE: if this is the first link of task with any supertask" 
-  is_primary_link: bool
+  sub_oid: uuid
+  sup_oid: uuid
+  sub_vid: uuid
+  sup_vid: uuid
 
   creation_at: date
   deleted_at: date
 }
 
-objective.obj_id -- objective_link.sup_obj_id
-objective.obj_id -- objective_link.sub_obj_id
-objective.version_id -- objective_link.sup_version_id
-objective.version_id -- objective_link.sub_version_id
+objective.oid -- objective_link.sup_oid
+objective.oid -- objective_link.sub_oid
+objective.vid -- objective_link.sup_vid
+objective.vid -- objective_link.sub_vid
 
 # a bookmark points to a root node of a work tree
 bookmark -- objective
 
 # Any task with custom privilege hand.can have owner/viewers/executors
-privilege.obj_id -- objective.obj_id
-privilege.version_id -- objective.version_id
+privilege.oid -- objective.oid
+privilege.vid -- objective.vid
 
 computed_to_top: {
   shape: sql_table
 
-  obj_id: uuid
-  version_id: uuid
+  oid: uuid
+  vid: uuid
   viewer_id: user
 
   is_solo: bool
-  bool: is_leaf %%
+  bool: is_leaf
   # "for: leaf" 
   is_completed: bool
 
@@ -127,31 +101,31 @@ computed_to_top: {
 computed_to_bottom: {
   shape: sql_table
 
-  obj_id: uuid
-  version_id: uuid
+  oid: uuid
+  vid: uuid
   viewer_id: user
 
   degree: int
 }
 
-objective.obj_id -- computed_to_top.obj_id
-objective.version_id -- computed_to_top.version_id
+objective.oid -- computed_to_top.oid
+objective.vid -- computed_to_top.vid
 
-objective.obj_id -- computed_to_bottom.obj_id
-objective.version_id -- computed_to_bottom.version_id
+objective.oid -- computed_to_bottom.oid
+objective.vid -- computed_to_bottom.vid
 
 operation: {
   shape: sql_table
 
   operation_id: uuid
-  version_id: uuid
-  previous_version_id: uuid
+  vid: uuid
+  previous_vid: uuid
 
   user_id: uuid
   summary: enum
   status: enum
 
-  obj_id: uuid
+  oid: uuid
   linkid: uuid
 
   created_at: uuid
@@ -162,8 +136,8 @@ operation_completion: {
 
   operation_id: uuid
   generic_operation_id: uuid
-  obj_id: uuid
-  version_id: uuid
+  oid: uuid
+  vid: uuid
   actor: uuid
   created_at: date
 }

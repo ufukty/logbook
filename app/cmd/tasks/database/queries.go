@@ -7,262 +7,99 @@ import (
 	"github.com/jackc/pgtype"
 )
 
-func (db *Database) GetPreviousVersion(vid VersionId) (*VersionId, error) {
+func (db *Database) SelectPreviousVersion(oid ObjectiveId, vid VersionId) (VersionId, error) {
 	q := `SELECT "prev" FROM "OPERATIONS" WHERE "vid" = $1 LIMIT 1`
 	rows, err := db.pool.Query(context.Background(), q, vid)
 	if err != nil {
-		return nil, fmt.Errorf("query: %w", err)
+		return "", fmt.Errorf("query: %w", err)
 	}
 	prev := new(pgtype.Text)
 	err = rows.Scan(&prev)
 	if err != nil {
-		return nil, fmt.Errorf("scan: %w", err)
+		return "", fmt.Errorf("scan: %w", err)
 	}
 	if prev.Status != pgtype.Present {
-		return nil, fmt.Errorf("doesn't exist")
+		return "", fmt.Errorf("doesn't exist")
 	}
-	return (*VersionId)(&prev.String), nil
+	return VersionId(prev.String), nil
 }
 
-// Returns a list of updated objectives in addition to
-// the created task in first item.
-func (db *Database) CreateObjective(task *Objective) ([]Objective, error) {
-	query := `
-		SELECT
-			"task_id",
-			"document_id",
-			"parent_id",
-			"content",
-			"degree",
-			"depth",
-			"created_at",
-			"completed_at",
-			"ready_to_pick_up"
-		FROM
-			create_task($1, $2, $3)`
-	rows, err := db.pool.Query(
-		context.Background(),
-		query,
-		&task.DocumentId,
-		&task.Content,
-		&task.ParentId,
-	)
-	if err != nil {
-		return nil, fmt.Errorf("running the query: %w", err)
-	}
-	tasks := []Objective{}
-	for rows.Next() {
-		task := Objective{}
-		err := rows.Scan(
-			&task.ObjectiveId,
-			&task.DocumentId,
-			&task.ParentId,
-			&task.Content,
-			&task.Degree,
-			&task.Depth,
-			&task.CreatedAt,
-			&task.CompletedAt,
-			&task.ReadyToPickUp,
-		)
-		if err != nil {
-			return nil, fmt.Errorf("scanning query results: %w", err)
-		}
-		tasks = append(tasks, task)
-	}
-	return tasks, nil
-}
-
-func (db *Database) GetObjective(oid ObjectiveId) (*Objective, error) {
+func (db *Database) InsertObjective(o Objective) (Objective, error) {
 	q := `
-	SELECT 
-		"oid", 
-		"poid", 
-		"creator", 
-		"text", 
-		"created_at", 
-		"completed_at", 
-		"archived_at"
-	FROM 
-		"OBJECTIVE" 
-	WHERE 
-		"oid" = $1
-	LIMIT 1`
-	r, err := db.pool.Query(context.Background(), q, oid)
+		INSERT INTO "objective" ( "vid", "based", "type", "content", "creator" ) 
+		VALUES ( $1, $2, $3, $4, $5 ) 
+		RETURNING ( "oid", "creation" )`
+	err := db.pool.QueryRow(context.Background(), q,
+		&o.Vid, &o.Based, &o.Type, &o.Content, &o.Creator,
+	).Scan(&o.Oid, &o.Creation)
 	if err != nil {
-		return nil, fmt.Errorf("query: %w", err)
-	}
-	o := &Objective{}
-	if err = r.Scan(&o.Oid, &o.ParentId, &o.Vid, &o.Creator, &o.Text, &o.CreatedAt, &o.CompletedAt, &o.ArchivedAt); err != nil {
-		return nil, fmt.Errorf("scanning: %w", err)
+		return o, fmt.Errorf("query and scan: %w", err)
 	}
 	return o, nil
 }
 
-func (db *Database) GetSubObjectives(oid string) ([]Objective, error) {
-	tasks := []Objective{}
-	query := `
-	SELECT
-			"task_id",
-			"document_id",
-			"parent_id",
-			"content",
-			"degree",
-			"depth",
-			"created_at",
-			"completed_at",
-			"ready_to_pick_up"
-		FROM
-			"TASK"
-		WHERE
-			"parent_id"=$1`
-	rows, err := db.pool.Query(context.Background(), query, oid)
+func (db *Database) SelectObjective(oid ObjectiveId, vid VersionId) (Objective, error) {
+	q := `
+		SELECT "oid", "vid", "based", "type", "content", "creator", "creation"
+		FROM "OBJECTIVE"
+		WHERE "oid" = $1 AND "vid" == $2
+		LIMIT 1`
+	o := Objective{}
+	err := db.pool.QueryRow(context.Background(), q, oid, vid).Scan(
+		&o.Oid, &o.Vid, &o.Based, &o.Type, &o.Content, &o.Creator, &o.Creation,
+	)
 	if err != nil {
-		return tasks, fmt.Errorf("running the query: %w", err)
+		return o, fmt.Errorf("query and scan: %w", err)
 	}
-	for rows.Next() {
-		task := Objective{}
-		err = rows.Scan(&task.ObjectiveId, &task.DocumentId, &task.ParentId, &task.Content, &task.Degree, &task.Depth, &task.CreatedAt, &task.CompletedAt, &task.ReadyToPickUp)
-		if err != nil {
-			continue
-		}
-		tasks = append(tasks, task)
-	}
-	if err != nil {
-		return nil, fmt.Errorf("scanning query results: %w", err)
-	}
-	return tasks, nil
+	return o, nil
 }
 
-// Returns a list of updated objectives in addition to
-// the reattached task in first item.
-func (db *Database) ReattachObjective(taskId string, newParentId string) ([]Objective, error) {
-	query := `SELECT reattach_task($1, $2)`
-	rows, err := db.pool.Query(context.Background(), query, taskId, newParentId)
+func (db *Database) SelectSubLinks(supoid string, supvid VersionId) ([]Link, error) {
+	ls := []Link{}
+	q := `
+		SELECT "lid", "sup_oid", "sup_vid", "sub_oid", "sub_vid", "creation"
+		FROM "objective_link" 
+		WHERE "supoid" = $1 AND "supvid" = $2 
+		LIMIT 50`
+	rs, err := db.pool.Query(context.Background(), q, supoid, supvid)
 	if err != nil {
-		return nil, fmt.Errorf("running the query: %w", err)
+		return nil, fmt.Errorf("query: %w", err)
 	}
-	tasks := []Objective{}
-	for rows.Next() {
-		task := Objective{}
-		err := rows.Scan(
-			&task.ObjectiveId,
-			&task.DocumentId,
-			&task.ParentId,
-			&task.Content,
-			&task.Degree,
-			&task.Depth,
-			&task.CreatedAt,
-			&task.CompletedAt,
-			&task.ReadyToPickUp,
+	for rs.Next() {
+		l := Link{}
+		err := rs.Scan(
+			&l.Lid, &l.SupOid, &l.SupVid, &l.SubOid, &l.SubVid, &l.Creation,
 		)
 		if err != nil {
-			return nil, fmt.Errorf("scanning query results: %w", err)
+			return ls, fmt.Errorf("scan: %w", err)
 		}
-		tasks = append(tasks, task)
+		ls = append(ls, l)
 	}
-	return tasks, nil
+	return ls, nil
 }
 
-func (db *Database) GetDocumentOverviewWithDocumentId(documentId string) ([]Objective, error) {
-	tasks := []Objective{}
-	query := `
-		SELECT
-			"task_id",
-			"document_id",
-			"parent_id",
-			"content",
-			"degree",
-			"depth",
-			"created_at",
-			COALESCE("completed_at", '0001-01-01'),
-			"ready_to_pick_up"
-		FROM document_overview($1)`
-	rows, err := db.pool.Query(context.Background(), query, documentId)
+func (db *Database) SelectTheUpperLink(suboid ObjectiveId, subvid VersionId) (Link, error) {
+	l := Link{}
+	q := `
+		SELECT "lid", "sup_oid", "sup_vid", "sub_oid", "sub_vid", "creation"
+		FROM "objective_link" 
+		WHERE "suboid" = $1 AND "subvid" = $2 
+		LIMIT 1`
+	err := db.pool.QueryRow(context.Background(), q, suboid, subvid).Scan(
+		&l.Lid, &l.SupOid, &l.SupVid, &l.SubOid, &l.SubVid, &l.Creation,
+	)
 	if err != nil {
-		return nil, fmt.Errorf("running the query: %w", err)
+		return Link{}, fmt.Errorf("query and scan: %w", err)
 	}
-	for rows.Next() {
-		task := Objective{}
-		rows.Scan(
-			&task.ObjectiveId,
-			&task.DocumentId,
-			&task.ParentId,
-			&task.Content,
-			&task.Degree,
-			&task.Depth,
-			&task.CreatedAt,
-			&task.CompletedAt,
-			&task.ReadyToPickUp,
-		)
-		if err != nil {
-			return nil, fmt.Errorf("scanning query results: %w", err)
-		}
-		tasks = append(tasks, task)
-	}
-	return tasks, nil
+	return l, nil
 }
 
-func (db *Database) GetChronologicalViewItems(documentId string, limit int, offset int) ([]Objective, error) {
-	tasks := []Objective{}
-	query := `
-		SELECT
-			"task_id",
-			"document_id",
-			"parent_id",
-			"content",
-			"degree",
-			"depth",
-			"created_at",
-			"completed_at",
-			"ready_to_pick_up"
-		FROM "TASK"
-		WHERE "document_id" = $1
-		ORDER BY "created_at" ASC
-		LIMIT $2 OFFSET $3
-		`
-	rows, err := db.pool.Query(context.Background(), query, documentId, limit, offset)
+func (db *Database) SelectEffectiveVersionOfObjective(oid VersionId) (VersionId, error) {
+	var vid VersionId
+	q := `SELECT "vid" FROM "objective_effective_version" WHERE "oid" = $1 LIMIT 1`
+	err := db.pool.QueryRow(context.Background(), q, oid).Scan(&vid)
 	if err != nil {
-		return nil, fmt.Errorf("running the query: %w", err)
+		return "", fmt.Errorf("query & scan: %w", err)
 	}
-	for rows.Next() {
-		task := Objective{}
-		err := rows.Scan(
-			&(task.ObjectiveId),
-			&(task.DocumentId),
-			&(task.ParentId),
-			&(task.Content),
-			&(task.Degree),
-			&(task.Depth),
-			&(task.CreatedAt),
-			&(task.CompletedAt),
-			&(task.ReadyToPickUp),
-		)
-		if err != nil {
-			return nil, fmt.Errorf("scanning query results: %w", err)
-		}
-		tasks = append(tasks, task)
-	}
-	return tasks, nil
-}
-
-func (db *Database) SuperLinksVersioned(oid ObjectiveId, vid VersionId) []Link {
-	panic("not implemented")
-}
-
-func (db *Database) ListSuperObjectivesVersioned(oid ObjectiveId, vid VersionId) ([]Objective, error) {
-	q := `SELECT * FROM "LINK" WHERE suboid = $1 AND subvid = $2`
-	rows, err := db.pool.Query(context.Background(), q, oid, vid)
-	if err != nil {
-		return nil, fmt.Errorf("querying: %w", err)
-	}
-	os := []Objective{}
-	for rows.Next() {
-		o := Objective{}
-		err := rows.Scan(&o.Oid, &o.ParentId, &o.Vid, &o.Creator, &o.Text, &o.CreatedAt, &o.CompletedAt, &o.ArchivedAt)
-		if err != nil {
-			return nil, fmt.Errorf("scannnig a row: %w", err)
-		}
-		os = append(os, o)
-	}
-	return os, nil
+	return vid, nil
 }
