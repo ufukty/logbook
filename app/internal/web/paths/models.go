@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"path/filepath"
 	"sort"
 	"strings"
 
@@ -38,20 +39,20 @@ func (d Domain) Url() string {
 }
 
 func (g Gateway) Url() string {
-	return fmt.Sprintf("%s%s", g.Root.Url(), g.Listens)
+	return filepath.Join(g.Root.Url(), g.Listens)
 }
 
 func (s Service) Url() string {
-	return fmt.Sprintf("%s%s", s.Gateway.Url(), s.Listens)
+	return filepath.Join(s.Gateway.Url(), s.Listens)
 }
 
 // returns the path that is supposed to get trimmed at gateway from each request's Host header
 func (s Service) PathByGateway() string {
-	return fmt.Sprintf("%s%s", s.Gateway.Listens, s.Listens)
+	return filepath.Join(s.Gateway.Listens, s.Listens)
 }
 
 func (e Endpoint) Url() string {
-	return fmt.Sprintf("%s%s", e.Service.Url(), e.Listens)
+	return filepath.Join(e.Service.Url(), e.Listens)
 }
 
 func checkPrefix(a Endpoint, b Endpoint) bool {

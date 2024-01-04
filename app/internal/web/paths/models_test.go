@@ -13,7 +13,7 @@ func Test_Order(t *testing.T) {
 
 	eps := []paths.Endpoint{
 		config.DocumentList,
-		config.TaskList,
+		config.ObjectivesGetPlacementArray,
 	}
 
 	for take := 0; take < 10; take++ {

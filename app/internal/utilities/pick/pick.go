@@ -2,9 +2,9 @@ package pick
 
 import (
 	"fmt"
-	"tde/internal/utilities/numerics"
-	"tde/internal/utilities/randoms"
-	"tde/internal/utilities/setops"
+	"logbook/internal/utilities/numerics"
+	"logbook/internal/utilities/randoms"
+	"logbook/internal/utilities/setops"
 
 	"golang.org/x/exp/constraints"
 )

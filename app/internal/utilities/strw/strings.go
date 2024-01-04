@@ -1,8 +1,8 @@
 package strw
 
 import (
+	"logbook/internal/utilities/functional"
 	"strings"
-	"tde/internal/utilities/functional"
 )
 
 func Fold(str string, partLength int) (splitted []string) {

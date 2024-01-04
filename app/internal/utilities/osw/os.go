@@ -3,8 +3,8 @@ package osw
 import (
 	"fmt"
 	"io/fs"
+	"logbook/internal/utilities/functional"
 	"os"
-	"tde/internal/utilities/functional"
 
 	"github.com/pkg/errors"
 )

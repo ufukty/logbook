@@ -2,8 +2,8 @@ package pick
 
 import (
 	"fmt"
+	"logbook/internal/utilities/numerics"
 	"slices"
-	"tde/internal/utilities/numerics"
 	"testing"
 )
 
