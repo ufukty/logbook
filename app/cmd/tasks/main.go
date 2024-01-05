@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"logbook/cmd/tasks/app"
 	"logbook/cmd/tasks/database"
 	"logbook/cmd/tasks/endpoints"
 	"logbook/config"
@@ -20,12 +21,14 @@ func main() {
 
 	cfg := reader.GetConfig()
 	// sd := serviced.New(cfg.Tasks.ServiceDiscoveryConfig, cfg.Tasks.ServiceDiscoveryUpdatePeriod)
-	em := endpoints.NewManager(db)
+	app := app.New(db)
+	em := endpoints.NewManager(app)
 
 	reader.Print(cfg.Tasks)
 
 	var handlers = map[paths.Endpoint]http.HandlerFunc{
-		config.TaskList: em.ListTasks,
+		config.ObjectivesGetPlacementArray: em.GetPlacementArray,
+		config.ObjectivesCreate:            em.CreateTask,
 	}
 
 	router.StartRouter(":"+cfg.Tasks.RouterPrivate, &cfg.Tasks.RouterParameters, paths.RouteRegisterer(handlers))
