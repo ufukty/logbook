@@ -7,6 +7,47 @@ import (
 	"github.com/jackc/pgtype"
 )
 
+func (db *Database) SelectVersioningConfig(oid ObjectiveId) (VersioningConfig, error) {
+	vc := VersioningConfig{}
+	q := `SELECT "oid", "first", "effective" FROM "versioning_config" WHERE "oid" = $1 LIMIT 1`
+	r, err := db.pool.Query(context.Background(), q, oid)
+	if err != nil {
+		return vc, fmt.Errorf("query: %w", err)
+	}
+	err = r.Scan(&vc)
+	if err != nil {
+		return vc, fmt.Errorf("scan: %w", err)
+	}
+	return vc, nil
+}
+
+func (db *Database) SelectVersion(vid VersionId) (Version, error) {
+	v := Version{}
+	q := `SELECT "vid", "based" FROM "version" WHERE "vid" = $1 LIMIT 1`
+	rows, err := db.pool.Query(context.Background(), q, vid)
+	if err != nil {
+		return v, fmt.Errorf("query: %w", err)
+	}
+	err = rows.Scan(&v.Vid, &v.Based)
+	if err != nil {
+		return v, fmt.Errorf("scan: %w", err)
+	}
+	return v, nil
+}
+
+func (db *Database) InsertVersion(based VersionId) (Version, error) {
+	v := Version{Based: based}
+	q := `
+		INSERT INTO "version" ( "based" ) 
+		VALUES ( $1 ) 
+		RETURNING ( "vid" )`
+	err := db.pool.QueryRow(context.Background(), q, based).Scan(&v.Vid)
+	if err != nil {
+		return v, fmt.Errorf("query and scan: %w", err)
+	}
+	return v, nil
+}
+
 func (db *Database) SelectPreviousVersion(oid ObjectiveId, vid VersionId) (VersionId, error) {
 	q := `SELECT "prev" FROM "OPERATIONS" WHERE "vid" = $1 LIMIT 1`
 	rows, err := db.pool.Query(context.Background(), q, vid)

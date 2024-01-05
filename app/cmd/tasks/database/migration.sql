@@ -4,6 +4,17 @@ CREATE DATABASE logbook_objective;
 
 \c logbook_objective;
 --
+CREATE TABLE "versioning_config" (
+    "oid" uuid NOT NULL, -- objective id
+    "first" uuid NOT NULL, -- version id
+    "effective" uuid NOT NULL -- version id
+);
+
+CREATE TABLE "version" (
+    "vid" uuid NOT NULL UNIQUE DEFAULT gen_random_uuid (), -- version id
+    "based" uuid, -- version id
+);
+
 CREATE TYPE OTYPE AS ENUM (
     'rock',
     'regular'

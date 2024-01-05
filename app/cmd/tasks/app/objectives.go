@@ -87,10 +87,22 @@ func (a *App) ComposeView(root database.ObjectiveId, vid database.VersionId) (an
 
 // TODO: Create new version of parent (and whole ancestry)
 // TODO: Turn the parent objective into a goal if it is currently a task
-func (a *App) CreateObjective() {
+func (a *App) createObjectiveInVersioning(
+	parentOid database.ObjectiveId,
+	parentVid database.VersionId,
+	ancestry []ObjectiveVersionId,
+	vancestry []database.VersioningConfig,
+) (*database.Objective, error) {
 	// TODO: get version number to create updated versions of ancestry with it
 
-	a.db.SelectObjective()
+	vc := vancestry[len(vancestry)-1]
+	v, err := a.db.InsertVersion(vc.Effective)
+	if err != nil {
+		return nil, fmt.Errorf("producing the next version id before updating ancestry: %w", err)
+	}
+
+	// TODO: start transaction
+	// TODO: defer rollback
 
 	// TODO:
 	o := database.Objective{
@@ -107,25 +119,32 @@ func (a *App) CreateObjective() {
 	if err != nil {
 		log.Println(fmt.Errorf("querying the db: %w", err))
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
+		return nil, err
+	}
+
+	for _, parent := range ancestry {
+		p, err := a.db.SelectObjective(parentOid, parentVid)
+		if err != nil {
+			return nil, fmt.Errorf("selectObjective on parent (%s/%s): %w", parentOid, parentVid, err)
+		}
 	}
 
 	// check auth
 
 	// creation of task
-	// database.CreateTask(database.Task{
-	// 	RevisionId:            "00000000-0000-0000-0000-000000000000",
-	// 	OriginalCreatorUserId: "00000000-0000-0000-0000-000000000000",
-	// 	ResponsibleUserId:     "00000000-0000-0000-0000-000000000000",
-	// 	Content:               "Lorem ipsum dolor sit amet",
-	// 	Notes:                 "Consectetur adipiscing elit",
-	// })
+	a.db.CreateTask(a.db.Task{
+		RevisionId:            "00000000-0000-0000-0000-000000000000",
+		OriginalCreatorUserId: "00000000-0000-0000-0000-000000000000",
+		ResponsibleUserId:     "00000000-0000-0000-0000-000000000000",
+		Content:               "Lorem ipsum dolor sit amet",
+		Notes:                 "Consectetur adipiscing elit",
+	})
 
 	// creation of ownership role in PERM
-	// database.CreatePermission(database.TaskPermission{
-	// 	UserId: "00000000-0000-0000-0000-000000000000",
-	// 	Role: "Role.Ownership",
-	// })
+	a.db.CreatePermission(a.db.TaskPermission{
+		UserId: "00000000-0000-0000-0000-000000000000",
+		Role:   "Role.Ownership",
+	})
 
 	// check existence of super task
 
@@ -136,4 +155,24 @@ func (a *App) CreateObjective() {
 	// create NewOperation
 
 	// trigger task-props calculation
+}
+
+func (a *App) CreateObjective(parentOid database.ObjectiveId, parentVid database.VersionId) (*database.Objective, error) {
+	ancestry, err := a.ListObjectiveAncestry(parentOid, parentVid)
+	if err != nil {
+		return nil, fmt.Errorf("listing ancestry: %w", parentOid, parentVid, err)
+	}
+	vancestry, err := a.ListVersioningConfigForAncestry(ancestry)
+	if err != nil {
+		return nil, fmt.Errorf("listing versioning config for parents: %w", err)
+	}
+	if len(vancestry) > 0 {
+		o, err := a.createObjectiveInVersioning(parentOid, parentVid, ancestry, vancestry)
+		if err != nil {
+			return nil, fmt.Errorf("creating objective under versioning: %w", err)
+		}
+		return o, nil
+	} else {
+
+	}
 }

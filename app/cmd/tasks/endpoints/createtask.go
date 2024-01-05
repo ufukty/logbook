@@ -4,19 +4,19 @@ import (
 	"fmt"
 	"log"
 	"logbook/cmd/tasks/database"
+	"logbook/config"
 	"logbook/internal/web/reqs"
 	"net/http"
-
-	"github.com/jackc/pgtype"
 )
 
 type CreateTaskRequest struct {
-	Parent database.ObjectiveId `json:"parent"`
-	Text   string               `json:"text"`
+	ParentOid database.ObjectiveId `json:"parent_oid"`
+	ParentVid database.VersionId   `json:"parent_vid"`
+	Text      string               `json:"text"`
 }
 
 func (ct CreateTaskRequest) validate() error {
-	if !ct.Parent.Validate() {
+	if !ct.ParentOid.Validate() {
 		return fmt.Errorf("invalid value for 'parent' parameter")
 	}
 	return nil
@@ -42,53 +42,12 @@ func (e *Endpoints) CreateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO:
-	o := &database.Objective{
-		Oid:         "",
-		ParentId:    "",
-		Vid:         "",
-		Creator:     "",
-		Text:        "",
-		CreatedAt:   pgtype.Date{},
-		CompletedAt: pgtype.Date{},
-		ArchivedAt:  pgtype.Date{},
-	}
-
-	// TODO: link to parent
-
-	tasks, err := e.db.CreateObjective(o)
-	if err != nil || len(tasks) == 0 {
-		log.Println(fmt.Errorf("querying the db: %w", err))
+	o, err := e.app.CreateObjective(bq.ParentOid, bq.ParentVid)
+	if err != nil {
+		log.Println(fmt.Errorf("app.createObjective: %w", err))
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
-
-	// check auth
-
-	// creation of task
-	// database.CreateTask(database.Task{
-	// 	RevisionId:            "00000000-0000-0000-0000-000000000000",
-	// 	OriginalCreatorUserId: "00000000-0000-0000-0000-000000000000",
-	// 	ResponsibleUserId:     "00000000-0000-0000-0000-000000000000",
-	// 	Content:               "Lorem ipsum dolor sit amet",
-	// 	Notes:                 "Consectetur adipiscing elit",
-	// })
-
-	// creation of ownership role in PERM
-	// database.CreatePermission(database.TaskPermission{
-	// 	UserId: "00000000-0000-0000-0000-000000000000",
-	// 	Role: "Role.Ownership",
-	// })
-
-	// check existence of super task
-
-	// create link in TASK_LINK table
-
-	// check permissions between task and user
-
-	// create NewOperation
-
-	// trigger task-props calculation
 
 	bs := CreateTaskResponse{
 		Created: tasks[0],
@@ -99,4 +58,8 @@ func (e *Endpoints) CreateTask(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
+}
+
+func (bq *CreateTaskRequest) Send() (*CreateTaskResponse, error) {
+	return reqs.Send[CreateTaskRequest, CreateTaskResponse](config.ObjectivesCreate, bq)
 }

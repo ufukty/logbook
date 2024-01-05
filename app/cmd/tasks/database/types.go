@@ -95,3 +95,5 @@ const (
 	Remote  = LinkType("REMOTE")  // eg. Collaborated objective attached to local objectives
 	Private = LinkType("PRIVATE") //
 )
+
+var NullObjectId = ObjectiveId("00000000-0000-0000-0000-000000000000")

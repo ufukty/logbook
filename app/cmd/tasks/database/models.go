@@ -4,6 +4,17 @@ import (
 	"github.com/jackc/pgtype"
 )
 
+type VersioningConfig struct {
+	Oid       ObjectiveId
+	First     VersionId
+	Effective VersionId
+}
+
+type Version struct {
+	Vid   VersionId
+	Based VersionId
+}
+
 type Action struct {
 	Aid ActionId
 	// PreviousOpId sql.NullString
