@@ -3,73 +3,70 @@ DROP DATABASE IF EXISTS logbook_objective;
 CREATE DATABASE logbook_objective;
 
 \c logbook_objective;
+--
+CREATE TYPE OTYPE AS ENUM (
+    'rock',
+    'regular'
+);
 
-CREATE TYPE OTYPE AS ENUM('rock', 'regular');
-
-CREATE TABLE
-    "objective" (
-        "oid" UUID NOT NULL DEFAULT gen_random_uuid (), -- objective id
-        "vid" UUID NOT NULL, -- version id
-        "based" UUID, -- previous "vid" OR '00000000-0000-0000-0000-000000000000'
-        "type" OTYPE NOT NULL DEFAULT 'regular',
-        "content" TEXT NOT NULL,
-        "creator" UUID NOT NULL, -- user id
-        "creation" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        PRIMARY KEY ("oid", "vid")
-    );
+CREATE TABLE "objective" (
+    "oid" uuid NOT NULL DEFAULT gen_random_uuid (), -- objective id
+    "vid" uuid NOT NULL, -- version id
+    "based" uuid, -- previous "vid" OR '00000000-0000-0000-0000-000000000000'
+    "type" OTYPE NOT NULL DEFAULT 'regular',
+    "content" text NOT NULL,
+    "creator" uuid NOT NULL, -- user id
+    "creation" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY ("oid", "vid")
+);
 
 CREATE INDEX "index_objective" ON "objective" ("creation");
-    
-CREATE TABLE
-    "objective_link" (
-        "lid" UUID NOT NULL DEFAULT gen_random_uuid (), -- link id
-        "sup_oid" UUID NOT NULL, -- super objective id
-        "sup_vid" UUID NOT NULL, -- super version id
-        "sub_oid" UUID NOT NULL, -- sub objective id
-        "sub_vid" UUID NOT NULL, -- sub version id
-        "creation" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        PRIMARY KEY ("sup_oid", "sup_vid", "sub_oid")
-    );
 
-CREATE TABLE
-    "objective_completion" (
-        "oid" UUID NOT NULL,
-        "vid" UUID NOT NULL,
-        "actor" UUID NOT NULL, -- user id
-        "completed" BOOLEAN NOT NULL DEFAULT FALSE,
-        "creation" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-    );
+CREATE TABLE "objective_link" (
+    "lid" uuid NOT NULL DEFAULT gen_random_uuid (), -- link id
+    "sup_oid" uuid NOT NULL, -- super objective id
+    "sup_vid" uuid NOT NULL, -- super version id
+    "sub_oid" uuid NOT NULL, -- sub objective id
+    "sub_vid" uuid NOT NULL, -- sub version id
+    "creation" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY ("sup_oid", "sup_vid", "sub_oid")
+);
 
-CREATE TABLE
-    "objective_deleted" (
-        "oid" UUID NOT NULL,
-        "vid" UUID NOT NULL,
-        "deletion" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-    );
+CREATE TABLE "objective_completion" (
+    "oid" uuid NOT NULL,
+    "vid" uuid NOT NULL,
+    "actor" uuid NOT NULL, -- user id
+    "completed" boolean NOT NULL DEFAULT FALSE,
+    "creation" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 
-CREATE TABLE
-    "computed_to_top" (
-        "oid" UUID NOT NULL,
-        "vid" UUID NOT NULL,
-        "dependencies_are_cleared" BOOLEAN NOT NULL,
-        "all_cleared" BOOLEAN NOT NULL,
-        "degree" INT NOT NULL,
-        "completed_subtasks" INT NOT NULL,
-        PRIMARY KEY ("oid", "vid")
-    );
+CREATE TABLE "objective_deleted" (
+    "oid" uuid NOT NULL,
+    "vid" uuid NOT NULL,
+    "deletion" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 
-CREATE TABLE
-    "computed_to_bottom" (
-        "oid" UUID NOT NULL,
-        "vid" UUID NOT NULL,
-        "depth" INT NOT NULL,
-        PRIMARY KEY ("oid", "vid")
-    );
+CREATE TABLE "computed_to_top" (
+    "oid" uuid NOT NULL,
+    "vid" uuid NOT NULL,
+    "dependencies_are_cleared" boolean NOT NULL,
+    "all_cleared" boolean NOT NULL,
+    "degree" int NOT NULL,
+    "completed_subtasks" int NOT NULL,
+    PRIMARY KEY ("oid", "vid")
+);
 
-CREATE TABLE
-    "objective_effective_version" (
-        "oid" UUID NOT NULL UNIQUE,
-        "vid" UUID NOT NULL
-    );
+CREATE TABLE "computed_to_bottom" (
+    "oid" uuid NOT NULL,
+    "vid" uuid NOT NULL,
+    "depth" int NOT NULL,
+    PRIMARY KEY ("oid", "vid")
+);
+
+CREATE TABLE "objective_effective_version" (
+    "oid" uuid NOT NULL UNIQUE,
+    "vid" uuid NOT NULL
+);
 
 CREATE INDEX "index_effective_version" ON "objective_effective_version" ("oid");
+
