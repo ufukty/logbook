@@ -2,13 +2,15 @@ package app
 
 import (
 	"fmt"
+	"log"
 	"logbook/cmd/tags/endpoints"
-	db "logbook/cmd/tasks/database"
+	"logbook/cmd/tasks/database"
+	"net/http"
 
 	"github.com/google/uuid"
 )
 
-func ApplyActionsOnObjective(o *db.Objective, as []db.Action) error {
+func (a *App) ApplyActionsOnObjective(o *database.Objective, as []database.Action) error {
 	// apply all actions in one version number change
 	for _, a := range as {
 		switch a.Summary {
@@ -18,27 +20,27 @@ func ApplyActionsOnObjective(o *db.Objective, as []db.Action) error {
 
 		// case db.TASK_DELETE:
 
-		case db.ObjectiveTextAssign:
+		case database.ObjectiveTextAssign:
 
-		case db.ObjectiveMarkComplete:
+		case database.ObjectiveMarkComplete:
 
-		case db.ObjectiveUnmarkComplete:
+		case database.ObjectiveUnmarkComplete:
 
-		case db.ObjectiveNoteAssign:
+		case database.ObjectiveNoteAssign:
 
-		case db.CollaborationAssign:
+		case database.CollaborationAssign:
 
-		case db.CollaborationUnassign:
+		case database.CollaborationUnassign:
 
-		case db.COLLABORATION_RESTRICT:
+		case database.COLLABORATION_RESTRICT:
 
-		case db.COLLABORATION_DERESTRICT:
+		case database.COLLABORATION_DERESTRICT:
 
-		case db.COLLABORATION_CHANGE_ROLE:
+		case database.COLLABORATION_CHANGE_ROLE:
 
-		case db.HISTORY_ROLLBACK:
+		case database.HISTORY_ROLLBACK:
 
-		case db.HISTORY_FASTFORWARD:
+		case database.HISTORY_FASTFORWARD:
 
 		}
 	}
@@ -46,27 +48,27 @@ func ApplyActionsOnObjective(o *db.Objective, as []db.Action) error {
 }
 
 // proposals can have multiple actions
-func UpdateObjective(database *db.Database, oid db.ObjectiveId, vid db.VersionId, as []db.Action) error {
+func (a *App) UpdateObjective(oid database.ObjectiveId, vid database.VersionId, as []database.Action) error {
 	nextVid := uuid.New()
 
-	o, err := database.GetObjective(oid)
+	o, err := a.db.SelectObjective(oid, vid)
 	if err != nil {
 		return fmt.Errorf("getting objective for oid: %w", err)
 	}
 
-	if err := ApplyActionsOnObjective(o.Clone(), as); err != nil {
+	if err := a.ApplyActionsOnObjective(o.Clone(), as); err != nil {
 		return fmt.Errorf("applying action list on objective: %w", err)
 	}
 
-	createNextVersionOfParent := func(oid db.ObjectiveId) db.Objective {
-		links := database.SuperLinksVersioned(oid, vid)
+	createNextVersionOfParent := func(oid database.ObjectiveId) database.Objective {
+		links := a.db.SuperLinksVersioned(oid, vid)
 		for _, link := range links {
 			if link.Type == nil {
 			}
 		}
 		// TODO: same version of update sibling
 	}
-	updateChildren := func(oid db.ObjectiveId, vid db.VersionId) {
+	updateChildren := func(oid database.ObjectiveId, vid database.VersionId) {
 
 	}
 
@@ -79,6 +81,59 @@ func UpdateObjective(database *db.Database, oid db.ObjectiveId, vid db.VersionId
 	return nil
 }
 
-func ComposeView(db *db.Database, root db.ObjectiveId, vid db.VersionId) (any, error) {
+func (a *App) ComposeView(root database.ObjectiveId, vid database.VersionId) (any, error) {
 
+}
+
+// TODO: Create new version of parent (and whole ancestry)
+// TODO: Turn the parent objective into a goal if it is currently a task
+func (a *App) CreateObjective() {
+	// TODO: get version number to create updated versions of ancestry with it
+
+	a.db.SelectObjective()
+
+	// TODO:
+	o := database.Objective{
+		Vid:     "",
+		Based:   "",
+		Type:    "",
+		Content: "",
+		Creator: "",
+	}
+
+	// TODO: link to parent
+
+	o, err = a.db.InsertObjective(o)
+	if err != nil {
+		log.Println(fmt.Errorf("querying the db: %w", err))
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	// check auth
+
+	// creation of task
+	// database.CreateTask(database.Task{
+	// 	RevisionId:            "00000000-0000-0000-0000-000000000000",
+	// 	OriginalCreatorUserId: "00000000-0000-0000-0000-000000000000",
+	// 	ResponsibleUserId:     "00000000-0000-0000-0000-000000000000",
+	// 	Content:               "Lorem ipsum dolor sit amet",
+	// 	Notes:                 "Consectetur adipiscing elit",
+	// })
+
+	// creation of ownership role in PERM
+	// database.CreatePermission(database.TaskPermission{
+	// 	UserId: "00000000-0000-0000-0000-000000000000",
+	// 	Role: "Role.Ownership",
+	// })
+
+	// check existence of super task
+
+	// create link in TASK_LINK table
+
+	// check permissions between task and user
+
+	// create NewOperation
+
+	// trigger task-props calculation
 }

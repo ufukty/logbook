@@ -1,4 +1,4 @@
-package database
+package app
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 )
 
 func TestMain(m *testing.M) {
-	run.ExitAfterStderr("psql", "-U", "ufuktan", "-d", "postgres", "-f", "migration.sql")
+	run.ExitAfterStderr("psql", "-U", "ufuktan", "-d", "postgres", "-f", "../database/migration.sql")
 	os.Exit(m.Run())
 }
 
