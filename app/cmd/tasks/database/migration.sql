@@ -2,7 +2,7 @@ DROP DATABASE IF EXISTS logbook_objective;
 
 CREATE DATABASE logbook_objective;
 
-CONNECT logbook_objective;
+\c logbook_objective;
 
 CREATE TYPE OTYPE AS ENUM('rock', 'regular');
 
@@ -22,7 +22,7 @@ CREATE INDEX "index_objective" ON "objective" ("creation");
     
 CREATE TABLE
     "objective_link" (
-        "lid" UUID NOT NULL DEFAULT generate_safe_uuid (), -- link id
+        "lid" UUID NOT NULL DEFAULT gen_random_uuid (), -- link id
         "sup_oid" UUID NOT NULL, -- super objective id
         "sup_vid" UUID NOT NULL, -- super version id
         "sub_oid" UUID NOT NULL, -- sub objective id
@@ -53,7 +53,7 @@ CREATE TABLE
         "vid" UUID NOT NULL,
         "dependencies_are_cleared" BOOLEAN NOT NULL,
         "all_cleared" BOOLEAN NOT NULL,
-        "degree" INT NOT NULL
+        "degree" INT NOT NULL,
         "completed_subtasks" INT NOT NULL,
         PRIMARY KEY ("oid", "vid")
     );
@@ -68,8 +68,8 @@ CREATE TABLE
 
 CREATE TABLE
     "objective_effective_version" (
-        "oid" UUIT NOT NULL UNIQUE,
-        "vid" UUIT NOT NULL
-    )
+        "oid" UUID NOT NULL UNIQUE,
+        "vid" UUID NOT NULL
+    );
 
 CREATE INDEX "index_effective_version" ON "objective_effective_version" ("oid");
