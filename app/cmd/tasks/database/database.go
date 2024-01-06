@@ -14,7 +14,7 @@ type Database struct {
 func New(connection string) (*Database, error) {
 	db := &Database{}
 	var err error
-	db.pool, err = pgxpool.Connect(context.Background(), connection)
+	db.pool, err = pgxpool.New(context.Background(), connection)
 	if err != nil {
 		return nil, fmt.Errorf("pgxpool.Connect: %w", err)
 	}
