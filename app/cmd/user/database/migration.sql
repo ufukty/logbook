@@ -5,9 +5,15 @@ CREATE DATABASE logbook_user;
 CONNECT logbook_user;
 
 CREATE TABLE
+    "user" (
+        "uid" UUID NOT NULL DEFAULT gen_random_uuid(),
+        "creation" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+
+CREATE TABLE
     "ACCESS" (
-        "document_id" UUID NOT NULL REFERENCES "DOCUMENT" ("document_id"),
-        "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        "user-agent" VARCHAR(256),
-        "ip-address" INET NOT NULL
+        "uid" UUID NOT NULL,
+        "useragent" VARCHAR(256),
+        "ipaddress" INET NOT NULL,
+        "creation" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );

@@ -9,7 +9,7 @@ import (
 )
 
 // FIXME: Don't return error on pgx returns NoData but continoue to next iteration on loop
-func (a *App) ListVersioningConfigForAncestry(ancestry []ObjectiveVersionId) ([]database.VersioningConfig, error) {
+func (a *App) ListVersioningConfigForAncestry(ancestry []database.Ovid) ([]database.VersioningConfig, error) {
 	vancestry := []database.VersioningConfig{}
 	for _, c := range ancestry {
 		vc, err := a.db.SelectVersioningConfig(c.Oid)

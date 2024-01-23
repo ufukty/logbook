@@ -11,17 +11,18 @@ var Site Domain // assigned after config read
 var ApiGateway = Gateway{Site, "/api/v1.0.0"}
 
 var (
-	Document     = Service{ApiGateway, "/document"}
-	DocumentList = Endpoint{Document, "/list/{root}", GET}
+	Document     = Service{ApiGateway, "document"}
+	DocumentList = Endpoint{Document, "list/{root}", GET}
 )
 
 var (
-	Task     = Service{ApiGateway, "/tasks"}
-	TaskList = Endpoint{Task, "/list/{root}", GET}
+	Objectives                  = Service{ApiGateway, "tasks"}
+	ObjectivesCreate            = Endpoint{Objectives, "task", POST}
+	ObjectivesGetPlacementArray = Endpoint{Objectives, "placement/{root}", GET}
 )
 
 var (
 	Tag         = Service{ApiGateway, "tags"}
-	TagCreation = Endpoint{Tag, "/", POST}
-	TagAssign   = Endpoint{Tag, "/assign", POST}
+	TagCreation = Endpoint{Tag, "", POST}
+	TagAssign   = Endpoint{Tag, "assign", POST}
 )

@@ -45,15 +45,12 @@ type Objective struct {
 
 type Link struct {
 	Lid LinkId
-	Vid VersionId
 
 	SupOid ObjectiveId
 	SupVid VersionId
 	SubOid ObjectiveId
 	SubVid VersionId
 
-	Index    int
-	Type     LinkType
 	Creation pgtype.Date
 }
 

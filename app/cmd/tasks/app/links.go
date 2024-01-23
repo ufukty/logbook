@@ -5,14 +5,9 @@ import (
 	"logbook/cmd/tasks/database"
 )
 
-type ObjectiveVersionId struct {
-	Oid database.ObjectiveId
-	Vid database.VersionId
-}
-
-func (a *App) ListObjectiveAncestry(oid database.ObjectiveId, vid database.VersionId) ([]ObjectiveVersionId, error) {
-	anc := []ObjectiveVersionId{ObjectiveVersionId{oid, vid}}
-	c := anc[0]
+func (a *App) ListObjectiveAncestry(ovid database.Ovid) ([]database.Ovid, error) {
+	anc := []database.Ovid{}
+	c := ovid
 	for limit := 0; true; limit++ {
 		l, err := a.db.SelectTheUpperLink(c.Oid, c.Vid)
 		if err != nil {

@@ -1,0 +1,37 @@
+# Server-Client Communication
+
+## Placement Cache (Invalidation/Re-computation/Notification)
+
+```mermaid
+sequenceDiagram
+
+participant db as Server<br>Database
+participant rd as Server<br>Redis
+participant ep as Server<br>Endpoint
+participant a as Client<br>App
+participant ds as Client<br>DataSource
+participant ui as Client<br>UI
+actor u as User
+
+u->>a: opens the website
+a->>ui: initializes
+a->>ds: initializes
+ds->>ep: creates a socket, subscribes to event stream
+
+u->>ui: moves a "task"
+ui->>ds: notifies change
+ds->>ep: notifies change
+ep->>db: update table(s)
+ep->>rd: invalidates cache(s)
+
+ep->>ds: pushes notification: "new placement", "new parent (?)", "new order (?)"
+ds->>ep: asks for new placement / task details<br>(if it is still necessary / in-view)
+ep->>db: compute placement
+ep->>rd: save to redis
+ep->>ds: pushes data: "new placement"
+
+ds->>ui: updates config
+ui->>ui: diffs configs
+ui->>ui: updates html, if necessary
+```
+
