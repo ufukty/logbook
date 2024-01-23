@@ -4,7 +4,6 @@ go 1.21.5
 
 require (
 	github.com/go-chi/chi v1.5.5
-	github.com/google/uuid v1.3.0
 	github.com/gorilla/mux v1.8.0
 	github.com/jackc/pgtype v1.8.1
 	github.com/jackc/pgx/v4 v4.13.0
