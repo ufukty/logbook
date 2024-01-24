@@ -155,7 +155,7 @@ func (a *App) createVersionedObjective(act CreateObjectiveAction, ancestry []dat
 func (a *App) CreateObjective(act CreateObjectiveAction) ([]database.Ovid, error) {
 	ancestry, err := a.ListObjectiveAncestry(act.Parent)
 	if err != nil {
-		return nil, fmt.Errorf("listing ancestry: %w", act.Parent.Oid, act.Parent.Vid, err)
+		return nil, fmt.Errorf("listing ancestry of %q: %w", act.Parent, err)
 	}
 	vancestry, err := a.ListVersioningConfigForAncestry(ancestry)
 	if err != nil {
