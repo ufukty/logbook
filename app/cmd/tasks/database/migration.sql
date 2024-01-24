@@ -1,8 +1,6 @@
-DROP DATABASE IF EXISTS logbook_objective;
-
-CREATE DATABASE logbook_objective;
-
-\c logbook_objective;
+-- DROP DATABASE IF EXISTS logbook_objective;
+-- CREATE DATABASE logbook_objective;
+-- \c logbook_objective;
 --
 CREATE TABLE "versioning_config" (
     "oid" uuid NOT NULL, -- objective id
@@ -32,6 +30,12 @@ CREATE TABLE "objective" (
 );
 
 CREATE INDEX "index_objective" ON "objective" ("creation");
+
+-- name: CreateTask :one
+INSERT INTO "objective" ("based", "type", "content", "creator")
+    VALUES ($1, $2, $3, $4)
+RETURNING
+    *;
 
 CREATE TABLE "objective_link" (
     "lid" uuid NOT NULL DEFAULT gen_random_uuid (), -- link id
@@ -80,4 +84,35 @@ CREATE TABLE "objective_effective_version" (
 );
 
 CREATE INDEX "index_effective_version" ON "objective_effective_version" ("oid");
+
+CREATE TABLE "op_objective_create" (
+    "opid" uuid NOT NULL DEFAULT gen_random_uuid (),
+    "poid" uuid NOT NULL, -- parent oid
+    "pvid" uuid NOT NULL, -- parent vid based on
+    "actor" uuid NOT NULL,
+    "content" text,
+    "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE "op_objective_delete" (
+    "opid" uuid NOT NULL DEFAULT gen_random_uuid (),
+    "oid" uuid NOT NULL,
+    "vid" uuid NOT NULL, -- based on
+    "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE "op_objective_content_update" (
+    "opid" uuid NOT NULL DEFAULT gen_random_uuid (),
+    "oid" uuid NOT NULL,
+    "vid" uuid NOT NULL, -- based on
+    "content" text,
+    "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE "op_objective_attach" (
+    "opid" uuid NOT NULL DEFAULT gen_random_uuid (),
+    "oid" uuid NOT NULL,
+    "vid" uuid NOT NULL, -- based on
+    "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 

@@ -60,35 +60,35 @@ func (v NonNegativeNumber) Validate() bool {
 type ActionSummary string
 
 const (
-	ObjectiveCreate           ActionSummary = "OBJECTIVE_CREATE"
-	ObjectiveReorder          ActionSummary = "OBJECTIVE_REORDER"
-	ObjectiveDelete           ActionSummary = "OBJECTIVE_DELETE"
-	ObjectiveTextAssign       ActionSummary = "TEXT_ASSIGN"
-	ObjectiveMarkComplete     ActionSummary = "TASK_MARK_COMPLETE"
-	ObjectiveUnmarkComplete   ActionSummary = "TASK_MARK_UNCOMPLETE"
-	ObjectiveNoteAssign       ActionSummary = "OBJECTIVE_"
-	CollaborationAssign       ActionSummary = "COLLABORATION_ASSIGN"
-	CollaborationUnassign     ActionSummary = "COLLABORATION_UNASSIGN"
-	COLLABORATION_RESTRICT    ActionSummary = "COLLABORATION_RESTRICT"
-	COLLABORATION_DERESTRICT  ActionSummary = "COLLABORATION_DERESTRICT"
-	COLLABORATION_CHANGE_ROLE ActionSummary = "COLLABORATION_CHANGE_ROLE"
-	HISTORY_ROLLBACK          ActionSummary = "HISTORY_ROLLBACK"
-	HISTORY_FASTFORWARD       ActionSummary = "HISTORY_FASTFORWARD"
+	ObjectiveCreate         ActionSummary = "OBJECTIVE_CREATE"
+	ObjectiveReorder        ActionSummary = "OBJECTIVE_REORDER"
+	ObjectiveDelete         ActionSummary = "OBJECTIVE_DELETE"
+	ObjectiveTextAssign     ActionSummary = "TEXT_ASSIGN"
+	ObjectiveMarkComplete   ActionSummary = "TASK_MARK_COMPLETE"
+	ObjectiveUnmarkComplete ActionSummary = "TASK_MARK_UNCOMPLETE"
+	ObjectiveNoteAssign     ActionSummary = "OBJECTIVE_"
+	CollaborationAssign     ActionSummary = "COLLABORATION_ASSIGN"
+	CollaborationUnassign   ActionSummary = "COLLABORATION_UNASSIGN"
+	CollaborationRestrict   ActionSummary = "COLLABORATION_RESTRICT"
+	CollaborationDerestrict ActionSummary = "COLLABORATION_DERESTRICT"
+	CollaborationChangeRole ActionSummary = "COLLABORATION_CHANGE_ROLE"
+	HistoryRollback         ActionSummary = "HISTORY_ROLLBACK"
+	HistoryFastforward      ActionSummary = "HISTORY_FASTFORWARD"
 )
 
 type ActionStatus string
 
 const (
-	SERVER_ORIGINATED           ActionStatus = "SERVER_ORIGINATED"
-	IN_REVIEW                   ActionStatus = "IN_REVIEW"
-	PRIV_ACCEPTED               ActionStatus = "PRIV_ACCEPTED"
-	PRIV_REJECTED               ActionStatus = "PRIV_REJECTED"
-	APPLIED_FASTFORWARD         ActionStatus = "APPLIED_FASTFORWARD"
-	CONFLICT_DETECTED           ActionStatus = "CONFLICT_DETECTED"
-	MANAGER_SELECTION_IN_REVIEW ActionStatus = "MANAGER_SELECTION_IN_REVIEW"
-	MANAGER_SELECTION_ACCEPTED  ActionStatus = "MANAGER_SELECTION_ACCEPTED"
-	MANAGER_SELECTION_APPLIED   ActionStatus = "MANAGER_SELECTION_APPLIED"
-	MANAGER_SELECTION_REJECTED  ActionStatus = "MANAGER_SELECTION_REJECTED"
+	ServerOriginated         ActionStatus = "SERVER_ORIGINATED"
+	InReview                 ActionStatus = "IN_REVIEW"
+	PrivilageAccepted        ActionStatus = "PRIV_ACCEPTED"
+	PrivilegeRejected        ActionStatus = "PRIV_REJECTED"
+	AppliedFastforward       ActionStatus = "APPLIED_FASTFORWARD"
+	ConflictDetected         ActionStatus = "CONFLICT_DETECTED"
+	ManagerSelectionInReview ActionStatus = "MANAGER_SELECTION_IN_REVIEW"
+	ManagerSelectionAccepted ActionStatus = "MANAGER_SELECTION_ACCEPTED"
+	ManagerSelectionApplied  ActionStatus = "MANAGER_SELECTION_APPLIED"
+	ManagerSelectionRejected ActionStatus = "MANAGER_SELECTION_REJECTED"
 )
 
 type LinkType string
