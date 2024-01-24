@@ -57,40 +57,6 @@ func (v NonNegativeNumber) Validate() bool {
 	return v >= 0
 }
 
-type ActionSummary string
-
-const (
-	ObjectiveCreate         ActionSummary = "OBJECTIVE_CREATE"
-	ObjectiveReorder        ActionSummary = "OBJECTIVE_REORDER"
-	ObjectiveDelete         ActionSummary = "OBJECTIVE_DELETE"
-	ObjectiveTextAssign     ActionSummary = "TEXT_ASSIGN"
-	ObjectiveMarkComplete   ActionSummary = "TASK_MARK_COMPLETE"
-	ObjectiveUnmarkComplete ActionSummary = "TASK_MARK_UNCOMPLETE"
-	ObjectiveNoteAssign     ActionSummary = "OBJECTIVE_"
-	CollaborationAssign     ActionSummary = "COLLABORATION_ASSIGN"
-	CollaborationUnassign   ActionSummary = "COLLABORATION_UNASSIGN"
-	CollaborationRestrict   ActionSummary = "COLLABORATION_RESTRICT"
-	CollaborationDerestrict ActionSummary = "COLLABORATION_DERESTRICT"
-	CollaborationChangeRole ActionSummary = "COLLABORATION_CHANGE_ROLE"
-	HistoryRollback         ActionSummary = "HISTORY_ROLLBACK"
-	HistoryFastforward      ActionSummary = "HISTORY_FASTFORWARD"
-)
-
-type ActionStatus string
-
-const (
-	ServerOriginated         ActionStatus = "SERVER_ORIGINATED"
-	InReview                 ActionStatus = "IN_REVIEW"
-	PrivilageAccepted        ActionStatus = "PRIV_ACCEPTED"
-	PrivilegeRejected        ActionStatus = "PRIV_REJECTED"
-	AppliedFastforward       ActionStatus = "APPLIED_FASTFORWARD"
-	ConflictDetected         ActionStatus = "CONFLICT_DETECTED"
-	ManagerSelectionInReview ActionStatus = "MANAGER_SELECTION_IN_REVIEW"
-	ManagerSelectionAccepted ActionStatus = "MANAGER_SELECTION_ACCEPTED"
-	ManagerSelectionApplied  ActionStatus = "MANAGER_SELECTION_APPLIED"
-	ManagerSelectionRejected ActionStatus = "MANAGER_SELECTION_REJECTED"
-)
-
 type LinkType string
 
 const (

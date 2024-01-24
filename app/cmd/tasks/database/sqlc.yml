@@ -1,0 +1,14 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    queries: "queries.sql"
+    schema: "migration.sql"
+    gen:
+      go:
+        package: "database"
+        out: "."
+        sql_package: "pgx/v5"
+        overrides:
+          - column: "*.oid"
+            go_type:
+              type: ObjectiveId
