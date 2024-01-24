@@ -2,9 +2,7 @@ package app
 
 import (
 	"fmt"
-	"logbook/cmd/tasks/app/iterables"
 	"logbook/cmd/tasks/database"
-	"strconv"
 )
 
 func (a *App) ApplyActionsOnVersionedObjective(o *database.Objective, as []database.Action) error {
@@ -172,25 +170,4 @@ func (a *App) CreateObjective(act CreateObjectiveAction) ([]database.Ovid, error
 	} else {
 		return nil, nil
 	}
-}
-
-type Ints []int
-
-type pair struct {
-	a, b string
-}
-
-func (i Ints) At(idx int) pair {
-	return pair{strconv.Itoa(i[idx]), ""}
-}
-
-func (i Ints) Length() int {
-	return len(i)
-}
-
-func demo() {
-	var ii = Ints{}
-	iterables.ForEach(ii, func(i int, v pair) {
-		fmt.Println(v.a, v.b)
-	})
 }
