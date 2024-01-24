@@ -10,7 +10,7 @@ type (
 	ObjectiveId string
 	VersionId   string
 	CommitId    string
-	ActionId    string
+	OperationId string
 	LinkId      string
 
 	NonNegativeNumber int
@@ -45,7 +45,7 @@ func (v CommitId) Validate() bool {
 	return regexp_uuid.MatchString(string(v))
 }
 
-func (v ActionId) Validate() bool {
+func (v OperationId) Validate() bool {
 	return regexp_uuid.MatchString(string(v))
 }
 

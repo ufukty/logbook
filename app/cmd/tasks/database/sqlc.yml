@@ -12,3 +12,15 @@ sql:
           - column: "*.oid"
             go_type:
               type: ObjectiveId
+          - column: "*.uid"
+            go_type:
+              type: UserId
+          - column: "*.vid"
+            go_type:
+              type: VersionId
+          - column: "*.opid"
+            go_type:
+              type: OperationId
+          - column: "*.lid"
+            go_type:
+              type: LinkId

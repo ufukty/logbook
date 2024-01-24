@@ -86,7 +86,7 @@ RETURNING
 `
 
 type InsertObjectiveParams struct {
-	Vid     pgtype.UUID
+	Vid     VersionId
 	Based   pgtype.UUID
 	Type    Otype
 	Content string
@@ -138,9 +138,9 @@ WHERE
 LIMIT 1
 `
 
-func (q *Queries) SelectEffectiveVersionOfObjective(ctx context.Context, oid ObjectiveId) (pgtype.UUID, error) {
+func (q *Queries) SelectEffectiveVersionOfObjective(ctx context.Context, oid ObjectiveId) (VersionId, error) {
 	row := q.db.QueryRow(ctx, selectEffectiveVersionOfObjective, oid)
-	var vid pgtype.UUID
+	var vid VersionId
 	err := row.Scan(&vid)
 	return vid, err
 }
@@ -164,7 +164,7 @@ LIMIT 1
 
 type SelectObjectiveParams struct {
 	Oid ObjectiveId
-	Vid pgtype.UUID
+	Vid VersionId
 }
 
 func (q *Queries) SelectObjective(ctx context.Context, arg SelectObjectiveParams) (Objective, error) {
@@ -276,7 +276,7 @@ WHERE
 LIMIT 1
 `
 
-func (q *Queries) SelectVersion(ctx context.Context, vid pgtype.UUID) (Version, error) {
+func (q *Queries) SelectVersion(ctx context.Context, vid VersionId) (Version, error) {
 	row := q.db.QueryRow(ctx, selectVersion, vid)
 	var i Version
 	err := row.Scan(&i.Vid, &i.Based)

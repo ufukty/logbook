@@ -64,7 +64,7 @@ CREATE TABLE "objective_view" (
     "depth" int NOT NULL,
     "ready" boolean NOT NULL,
     "completion_pct" float NOT NULL,
-    "fold" NOT NULL
+    "fold" boolean NOT NULL
 );
 
 CREATE TABLE "computed_to_top" (

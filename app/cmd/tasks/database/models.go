@@ -56,7 +56,7 @@ func (ns NullOtype) Value() (driver.Value, error) {
 type Bookmark struct {
 	User      pgtype.UUID
 	Oid       ObjectiveId
-	Vid       pgtype.UUID
+	Vid       VersionId
 	Name      pgtype.Text
 	CreatedAt pgtype.Timestamp
 	DeletedAt pgtype.Timestamp
@@ -64,13 +64,13 @@ type Bookmark struct {
 
 type ComputedToBottom struct {
 	Oid   ObjectiveId
-	Vid   pgtype.UUID
+	Vid   VersionId
 	Depth int32
 }
 
 type ComputedToTop struct {
 	Oid                    ObjectiveId
-	Vid                    pgtype.UUID
+	Vid                    VersionId
 	DependenciesAreCleared bool
 	AllCleared             bool
 	Degree                 int32
@@ -79,7 +79,7 @@ type ComputedToTop struct {
 
 type Objective struct {
 	Oid       ObjectiveId
-	Vid       pgtype.UUID
+	Vid       VersionId
 	Based     pgtype.UUID
 	Type      Otype
 	Content   string
@@ -89,7 +89,7 @@ type Objective struct {
 
 type ObjectiveCompletion struct {
 	Oid       ObjectiveId
-	Vid       pgtype.UUID
+	Vid       VersionId
 	Actor     pgtype.UUID
 	Completed bool
 	CreatedAt pgtype.Timestamp
@@ -97,17 +97,17 @@ type ObjectiveCompletion struct {
 
 type ObjectiveDeleted struct {
 	Oid      ObjectiveId
-	Vid      pgtype.UUID
+	Vid      VersionId
 	Deletion pgtype.Timestamp
 }
 
 type ObjectiveEffectiveVersion struct {
 	Oid ObjectiveId
-	Vid pgtype.UUID
+	Vid VersionId
 }
 
 type ObjectiveLink struct {
-	Lid       pgtype.UUID
+	Lid       LinkId
 	SupOid    pgtype.UUID
 	SupVid    pgtype.UUID
 	SubOid    pgtype.UUID
@@ -115,8 +115,19 @@ type ObjectiveLink struct {
 	CreatedAt pgtype.Timestamp
 }
 
+type ObjectiveView struct {
+	Oid           ObjectiveId
+	Vid           VersionId
+	Uid           UserId
+	Degree        int32
+	Depth         int32
+	Ready         bool
+	CompletionPct float64
+	Fold          bool
+}
+
 type OpObjectiveAttachSubobjective struct {
-	Opid      pgtype.UUID
+	Opid      OperationId
 	SupOid    pgtype.UUID
 	SupVid    pgtype.UUID
 	SubOid    pgtype.UUID
@@ -125,15 +136,15 @@ type OpObjectiveAttachSubobjective struct {
 }
 
 type OpObjectiveContentUpdate struct {
-	Opid      pgtype.UUID
+	Opid      OperationId
 	Oid       ObjectiveId
-	Vid       pgtype.UUID
+	Vid       VersionId
 	Content   pgtype.Text
 	CreatedAt pgtype.Timestamp
 }
 
 type OpObjectiveCreate struct {
-	Opid      pgtype.UUID
+	Opid      OperationId
 	Poid      pgtype.UUID
 	Pvid      pgtype.UUID
 	Actor     pgtype.UUID
@@ -142,22 +153,22 @@ type OpObjectiveCreate struct {
 }
 
 type OpObjectiveDelete struct {
-	Opid      pgtype.UUID
+	Opid      OperationId
 	Oid       ObjectiveId
-	Vid       pgtype.UUID
+	Vid       VersionId
 	CreatedAt pgtype.Timestamp
 }
 
 type OpObjectiveUpdateCompletion struct {
-	Opid      pgtype.UUID
+	Opid      OperationId
 	Oid       ObjectiveId
-	Vid       pgtype.UUID
+	Vid       VersionId
 	Completed bool
 	CreatedAt pgtype.Timestamp
 }
 
 type Version struct {
-	Vid   pgtype.UUID
+	Vid   VersionId
 	Based pgtype.UUID
 }
 
