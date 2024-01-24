@@ -12,7 +12,7 @@ CREATE TABLE "versioning_config" (
 
 CREATE TABLE "version" (
     "vid" uuid NOT NULL UNIQUE DEFAULT gen_random_uuid (), -- version id
-    "based" uuid, -- version id
+    "based" uuid -- version id
 );
 
 CREATE TYPE OTYPE AS ENUM (
