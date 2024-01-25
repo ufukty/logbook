@@ -3,7 +3,7 @@ package database
 import "github.com/jackc/pgtype"
 
 type Action struct {
-	Aid ActionId
+	Aid OperationId
 	// PreviousOpId sql.NullString
 
 	Vid   VersionId

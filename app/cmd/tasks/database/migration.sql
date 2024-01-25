@@ -107,6 +107,7 @@ CREATE TABLE "op_objective_delete" (
     "opid" uuid NOT NULL DEFAULT gen_random_uuid (),
     "oid" uuid NOT NULL,
     "vid" uuid NOT NULL, -- based on
+    "actor" uuid NOT NULL,
     "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -114,12 +115,14 @@ CREATE TABLE "op_objective_content_update" (
     "opid" uuid NOT NULL DEFAULT gen_random_uuid (),
     "oid" uuid NOT NULL,
     "vid" uuid NOT NULL, -- based on
+    "actor" uuid NOT NULL,
     "content" text,
     "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE "op_objective_attach_subobjective" (
     "opid" uuid NOT NULL DEFAULT gen_random_uuid (),
+    "actor" uuid NOT NULL,
     "sup_oid" uuid NOT NULL,
     "sup_vid" uuid NOT NULL, -- based on
     "sub_oid" uuid NOT NULL,
@@ -131,6 +134,7 @@ CREATE TABLE "op_objective_update_completion" (
     "opid" uuid NOT NULL DEFAULT gen_random_uuid (),
     "oid" uuid NOT NULL,
     "vid" uuid NOT NULL,
+    "actor" uuid NOT NULL,
     "completed" boolean NOT NULL,
     "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
