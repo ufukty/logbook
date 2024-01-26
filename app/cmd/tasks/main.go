@@ -10,10 +10,15 @@ import (
 	"logbook/internal/web/paths"
 	"logbook/internal/web/router"
 	"net/http"
+	"os"
+
+	"github.com/joho/godotenv"
 )
 
 func main() {
-	db, err := database.New("postgres://ufuktan:password@localhost:5432/logbook_dev")
+	godotenv.Load("../.env")
+	godotenv.Load("../.local.env")
+	db, err := database.New(os.Getenv("CONN"))
 	if err != nil {
 		panic(fmt.Errorf("creating database instance: %w", err))
 	}

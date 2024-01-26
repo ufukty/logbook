@@ -10,7 +10,7 @@ import (
 )
 
 func TestMain(m *testing.M) {
-	godotenv.Load("../test.env")
+	godotenv.Load("../.test.local.env")
 	run.ExitAfterStderr("psql", "-U", "ufuktan", "-d", "postgres", "-f", "migration.sql")
 	os.Exit(m.Run())
 }
