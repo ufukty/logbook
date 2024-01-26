@@ -48,7 +48,7 @@ type OpObjectiveUpdateCompletion struct {
 	Oid       ObjectiveId
 	Vid       VersionId
 	Actor     UserId
-	Completed string
+	Completed bool
 	CreatedAt pgtype.Date
 }
 
