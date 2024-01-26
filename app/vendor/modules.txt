@@ -2,8 +2,6 @@
 ## explicit; go 1.16
 github.com/go-chi/chi
 github.com/go-chi/chi/middleware
-# github.com/google/uuid v1.3.0
-## explicit
 # github.com/gorilla/mux v1.8.0
 ## explicit; go 1.12
 github.com/gorilla/mux
@@ -52,6 +50,8 @@ github.com/jackc/pgx/v5/pgxpool
 ## explicit; go 1.19
 github.com/jackc/puddle/v2
 github.com/jackc/puddle/v2/internal/genstack
+# github.com/joho/godotenv v1.5.1
+## explicit; go 1.12
 # github.com/pkg/errors v0.8.1
 ## explicit
 github.com/pkg/errors
