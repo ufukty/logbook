@@ -1,8 +1,8 @@
-DROP DATABASE IF EXISTS logbook_objective;
+DROP DATABASE IF EXISTS logbook;
 
-CREATE DATABASE logbook_objective;
+CREATE DATABASE logbook;
 
-\c logbook_objective;
+\c logbook;
 ;
 
 CREATE TABLE "versioning_config" (

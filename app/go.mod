@@ -13,7 +13,10 @@ require (
 
 require github.com/tvdburgt/go-argon2 v0.0.0-20181109175329-49d0f0e5973c
 
-require github.com/jackc/pgx/v5 v5.5.1
+require (
+	github.com/jackc/pgx/v5 v5.5.1
+	github.com/joho/godotenv v1.5.1
+)
 
 require (
 	github.com/jackc/puddle/v2 v2.2.1 // indirect
