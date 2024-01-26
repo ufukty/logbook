@@ -59,7 +59,6 @@ func (a *App) createVersionedObjective(act CreateObjectiveAction, ancestry []dat
 		Oid:     act.Parent.Oid,
 		Vid:     v.Vid,
 		Based:   database.NullVersionId,
-		Type:    database.Regular,
 		Content: act.Content,
 		Creator: act.Creator,
 	}
