@@ -12,7 +12,6 @@ type Objective struct {
 	Oid      ObjectiveId
 	Vid      VersionId
 	Based    VersionId
-	Type     ObjectiveType
 	Content  string
 	Creator  UserId
 	Creation pgtype.Date
@@ -20,11 +19,11 @@ type Objective struct {
 
 func (db *Database) InsertObjective(o Objective) (Objective, error) {
 	q := `
-		INSERT INTO "objective" ( "vid", "based", "type", "content", "creator" ) 
-		VALUES ( $1, $2, $3, $4, $5 ) 
+		INSERT INTO "objective" ( "vid", "based", "content", "creator" ) 
+		VALUES ( $1, $2, $3, $4) 
 		RETURNING ( "oid", "creation" )`
 	err := db.pool.QueryRow(context.Background(), q,
-		&o.Vid, &o.Based, &o.Type, &o.Content, &o.Creator,
+		&o.Vid, &o.Based, &o.Content, &o.Creator,
 	).Scan(&o.Oid, &o.Creation)
 	if err != nil {
 		return o, fmt.Errorf("query and scan: %w", err)
@@ -34,13 +33,13 @@ func (db *Database) InsertObjective(o Objective) (Objective, error) {
 
 func (db *Database) SelectObjective(ovid Ovid) (Objective, error) {
 	q := `
-		SELECT "oid", "vid", "based", "type", "content", "creator", "creation"
+		SELECT "oid", "vid", "based", "content", "creator", "creation"
 		FROM "OBJECTIVE"
 		WHERE "oid" = $1 AND "vid" == $2
 		LIMIT 1`
 	o := Objective{}
 	err := db.pool.QueryRow(context.Background(), q, ovid.Oid, ovid.Vid).Scan(
-		&o.Oid, &o.Vid, &o.Based, &o.Type, &o.Content, &o.Creator, &o.Creation,
+		&o.Oid, &o.Vid, &o.Based, &o.Content, &o.Creator, &o.Creation,
 	)
 	if err != nil {
 		return o, fmt.Errorf("query and scan: %w", err)

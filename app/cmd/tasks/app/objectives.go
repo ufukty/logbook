@@ -5,43 +5,6 @@ import (
 	"logbook/cmd/tasks/database"
 )
 
-func (a *App) ApplyActionsOnVersionedObjective(o *database.Objective, as []database.Action) error {
-	// apply all actions in one version number change
-	for _, a := range as {
-		switch a.Summary {
-		// case db.TASK_CREATE:
-
-		// case db.TASK_REORDER:
-
-		// case db.TASK_DELETE:
-
-		case database.ObjectiveTextAssign:
-
-		case database.ObjectiveMarkComplete:
-
-		case database.ObjectiveUnmarkComplete:
-
-		case database.ObjectiveNoteAssign:
-
-		case database.CollaborationAssign:
-
-		case database.CollaborationUnassign:
-
-		case database.COLLABORATION_RESTRICT:
-
-		case database.COLLABORATION_DERESTRICT:
-
-		case database.COLLABORATION_CHANGE_ROLE:
-
-		case database.HISTORY_ROLLBACK:
-
-		case database.HISTORY_FASTFORWARD:
-
-		}
-	}
-	return nil
-}
-
 // proposals can have multiple actions
 // func (a *App) UpdateObjective(ovid database.Ovid, as []database.Action) error {
 // 	nextVid := uuid.New()

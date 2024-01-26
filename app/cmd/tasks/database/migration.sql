@@ -16,16 +16,10 @@ CREATE TABLE "version" (
     "based" uuid -- version id
 );
 
-CREATE TYPE OTYPE AS ENUM (
-    'rock',
-    'regular'
-);
-
 CREATE TABLE "objective" (
     "oid" uuid NOT NULL DEFAULT gen_random_uuid (), -- objective id
     "vid" uuid NOT NULL, -- version id
     "based" uuid, -- previous "vid" OR '00000000-0000-0000-0000-000000000000'
-    "type" OTYPE NOT NULL DEFAULT 'regular',
     "content" text NOT NULL,
     "creator" uuid NOT NULL, -- user id
     "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -139,7 +133,7 @@ CREATE TABLE "op_objective_update_completion" (
     "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- TODO: operations: reorder, delegation (assign, unassign), collaboration (init, invite, restrict), versioning (rollback, fastforward)
+-- TODO: operations: reorder, note (create,update,delete), delegation (assign, unassign), collaboration (init, invite, restrict), versioning (rollback, fastforward)
 ;
 
 CREATE TABLE "bookmark" (
