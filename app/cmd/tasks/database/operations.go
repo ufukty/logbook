@@ -56,11 +56,11 @@ type Operation interface {
 	op()
 }
 
-func (OpObjectiveCreate) op()
-func (OpObjectiveDelete) op()
-func (OpObjectiveContentUpdate) op()
-func (OpObjectiveAttachSubobjective) op()
-func (OpObjectiveUpdateCompletion) op()
+func (OpObjectiveCreate) op() {}
+func (OpObjectiveDelete) op() {}
+func (OpObjectiveContentUpdate) op() {}
+func (OpObjectiveAttachSubobjective) op() {}
+func (OpObjectiveUpdateCompletion) op() {}
 
 func (db *Database) InsertOpObjectiveCreate(op OpObjectiveCreate) (OpObjectiveCreate, error) {
 	const q = `
