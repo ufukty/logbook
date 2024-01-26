@@ -23,7 +23,7 @@ func (db *Database) SelectSubLinks(supoid ObjectiveId, supvid VersionId) ([]Link
 	q := `
 		SELECT "lid", "sup_oid", "sup_vid", "sub_oid", "sub_vid", "creation"
 		FROM "objective_link" 
-		WHERE "supoid" = $1 AND "supvid" = $2 
+		WHERE "sup_oid" = $1 AND "sup_vid" = $2 
 		LIMIT 50`
 	rs, err := db.pool.Query(context.Background(), q, supoid, supvid)
 	if err != nil {
@@ -47,7 +47,7 @@ func (db *Database) SelectTheUpperLink(sub Ovid) (Link, error) {
 	q := `
 		SELECT "lid", "sup_oid", "sup_vid", "sub_oid", "sub_vid", "creation"
 		FROM "objective_link" 
-		WHERE "suboid" = $1 AND "subvid" = $2 
+		WHERE "sub_oid" = $1 AND "sub_vid" = $2 
 		LIMIT 1`
 	err := db.pool.QueryRow(context.Background(), q, sub.Oid, sub.Vid).Scan(
 		&l.Lid, &l.SupOid, &l.SupVid, &l.SubOid, &l.SubVid, &l.Creation,
