@@ -1,0 +1,30 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    queries: "queries.sql"
+    schema: "schema.sql"
+    gen:
+      go:
+        package: "database"
+        out: "."
+        sql_package: "pgx/v5"
+        overrides:
+          - column: "*.oid"
+            go_type:
+              type: ObjectiveId
+
+          - column: "*.uid"
+            go_type:
+              type: UserId
+
+          - column: "*.vid"
+            go_type:
+              type: VersionId
+
+          - column: "*.opid"
+            go_type:
+              type: OperationId
+
+          - column: "*.lid"
+            go_type:
+              type: LinkId
