@@ -14,7 +14,7 @@ func TestMain(m *testing.M) {
 }
 
 func runMigration() {
-	run.ExitAfterStderr("psql", "-U", "ufuktan", "-d", "postgres", "-f", "migration.sql")
+	run.ExitAfterStderr("psql", "-U", os.Getenv("DBUSER"), "-d", os.Getenv("DBNAME"), "-f", "migration.sql")
 }
 
 func TestMigration(t *testing.T) {
