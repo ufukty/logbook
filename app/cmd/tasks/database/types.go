@@ -3,6 +3,8 @@ package database
 import (
 	"fmt"
 	"regexp"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type (
@@ -69,7 +71,10 @@ const (
 	ZeroObjectId  = ObjectiveId("00000000-0000-0000-0000-000000000000")
 	ZeroVersionId = VersionId("00000000-0000-0000-0000-000000000000")
 	ZeroUserId    = UserId("00000000-0000-0000-0000-000000000000")
+	ZeroLinkId    = LinkId("00000000-0000-0000-0000-000000000000")
 )
+
+var ZeroDate = pgtype.Date{}
 
 // ObjectiveVersionedId: use to describe specific version of an objective
 type Ovid struct {

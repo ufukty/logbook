@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"os"
 	"testing"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 func Test_Objectives(t *testing.T) {
@@ -36,8 +34,7 @@ func Test_Objectives(t *testing.T) {
 		t.Fatal("assert, o1 != o2")
 	}
 
-	zeroDate := pgtype.Date{}
-	if o2.CreatedAt == zeroDate {
+	if o2.CreatedAt == ZeroDate {
 		t.Fatal("assert 2, o2.CreatedAt is not populated")
 	}
 
