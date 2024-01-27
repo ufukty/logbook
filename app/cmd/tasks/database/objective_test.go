@@ -9,6 +9,8 @@ import (
 )
 
 func Test_Objectives(t *testing.T) {
+	runMigration()
+
 	db, err := New(os.Getenv("DSN"))
 	if err != nil {
 		t.Fatal(fmt.Errorf("prep, db connect: %w", err))
