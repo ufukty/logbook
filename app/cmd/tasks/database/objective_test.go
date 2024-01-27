@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"testing"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 func Test_Objectives(t *testing.T) {
@@ -14,11 +16,10 @@ func Test_Objectives(t *testing.T) {
 	defer db.Close()
 
 	o1, err := db.InsertObjective(Objective{
-		Oid:     "",
-		Vid:     "",
-		Based:   "",
+		Vid:     ZeroVersionId,
+		Based:   ZeroVersionId,
 		Content: "Hello world",
-		Creator: "",
+		Creator: ZeroUserId,
 	})
 	if err != nil {
 		t.Fatal(fmt.Errorf("act 1: %w", err))
@@ -31,5 +32,14 @@ func Test_Objectives(t *testing.T) {
 
 	if o1 != o2 {
 		t.Fatal("assert, o1 != o2")
+	}
+
+	zeroDate := pgtype.Date{}
+	if o2.CreatedAt == zeroDate {
+		t.Fatal("assert 2, o2.CreatedAt is not populated")
+	}
+
+	if o2.Oid == ZeroObjectId {
+		t.Fatal("assert 2, o2.CreatedAt is not populated")
 	}
 }

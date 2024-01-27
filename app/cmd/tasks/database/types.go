@@ -65,8 +65,11 @@ const (
 	Private = LinkType("PRIVATE") //
 )
 
-var NullObjectId = ObjectiveId("00000000-0000-0000-0000-000000000000")
-var NullVersionId = VersionId("00000000-0000-0000-0000-000000000000")
+const (
+	ZeroObjectId  = ObjectiveId("00000000-0000-0000-0000-000000000000")
+	ZeroVersionId = VersionId("00000000-0000-0000-0000-000000000000")
+	ZeroUserId    = UserId("00000000-0000-0000-0000-000000000000")
+)
 
 // ObjectiveVersionedId: use to describe specific version of an objective
 type Ovid struct {
