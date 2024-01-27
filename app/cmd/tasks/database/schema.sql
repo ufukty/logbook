@@ -14,19 +14,19 @@ CREATE DOMAIN "OperationId" AS uuid;
 
 CREATE DOMAIN "LinkId" AS uuid;
 
-CREATE TABLE "versioning_config" (
+CREATE TABLE "versioning_config"(
     "oid" "ObjectiveId" NOT NULL,
     "first" "VersionId" NOT NULL,
     "effective" "VersionId" NOT NULL
 );
 
-CREATE TABLE "version" (
-    "vid" "VersionId" NOT NULL UNIQUE DEFAULT gen_random_uuid (),
-    "based" "VersionId"
+CREATE TABLE "version"(
+    "vid" "VersionId" NOT NULL UNIQUE DEFAULT gen_random_uuid(),
+    "based" "VersionId" NOT NULL
 );
 
-CREATE TABLE "objective" (
-    "oid" "ObjectiveId" NOT NULL DEFAULT gen_random_uuid (), -- objective id
+CREATE TABLE "objective"(
+    "oid" "ObjectiveId" NOT NULL DEFAULT gen_random_uuid(), -- objective id
     "vid" "VersionId" NOT NULL,
     "based" "VersionId" NOT NULL, -- previous "vid" OR '00000000-0000-0000-0000-000000000000'
     "content" text NOT NULL,
@@ -35,10 +35,10 @@ CREATE TABLE "objective" (
     PRIMARY KEY ("oid", "vid")
 );
 
-CREATE INDEX "index_objective" ON "objective" ("created_at");
+CREATE INDEX "index_objective" ON "objective"("created_at");
 
-CREATE TABLE "objective_link" (
-    "lid" "LinkId" NOT NULL DEFAULT gen_random_uuid (), -- link id
+CREATE TABLE "objective_link"(
+    "lid" "LinkId" NOT NULL DEFAULT gen_random_uuid(), -- link id
     "sup_oid" "ObjectiveId" NOT NULL, -- super objective id
     "sup_vid" "VersionId" NOT NULL, -- super version id
     "sub_oid" "ObjectiveId" NOT NULL, -- sub objective id
@@ -48,7 +48,7 @@ CREATE TABLE "objective_link" (
     PRIMARY KEY ("sup_oid", "sup_vid", "sub_oid")
 );
 
-CREATE TABLE "objective_completion" (
+CREATE TABLE "objective_completion"(
     "oid" "ObjectiveId" NOT NULL,
     "vid" "VersionId" NOT NULL,
     "actor" "UserId" NOT NULL, -- user id
@@ -56,15 +56,17 @@ CREATE TABLE "objective_completion" (
     "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE "objective_deleted" (
+CREATE TABLE "objective_deleted"(
     "oid" "ObjectiveId" NOT NULL,
     "vid" "VersionId" NOT NULL,
     "deleted_by" "UserId" NOT NULL,
     "deleted_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- Computed properties and user preferences per item per user
-CREATE TABLE "objective_view" (
+-- MARK: Computed properties and user preferences per item per user
+;
+
+CREATE TABLE "objective_view"(
     "oid" "ObjectiveId" NOT NULL,
     "vid" "VersionId" NOT NULL,
     "viewer" "UserId" NOT NULL,
@@ -75,7 +77,7 @@ CREATE TABLE "objective_view" (
     "fold" boolean NOT NULL
 );
 
-CREATE TABLE "computed_to_top" (
+CREATE TABLE "computed_to_top"(
     "oid" "ObjectiveId" NOT NULL,
     "vid" "VersionId" NOT NULL,
     "dependencies_are_cleared" boolean NOT NULL,
@@ -85,22 +87,25 @@ CREATE TABLE "computed_to_top" (
     PRIMARY KEY ("oid", "vid")
 );
 
-CREATE TABLE "computed_to_bottom" (
+CREATE TABLE "computed_to_bottom"(
     "oid" "ObjectiveId" NOT NULL,
     "vid" "VersionId" NOT NULL,
     "depth" int NOT NULL,
     PRIMARY KEY ("oid", "vid")
 );
 
-CREATE TABLE "objective_effective_version" (
+CREATE TABLE "objective_effective_version"(
     "oid" "ObjectiveId" NOT NULL UNIQUE,
     "vid" "VersionId" NOT NULL
 );
 
-CREATE INDEX "index_effective_version" ON "objective_effective_version" ("oid");
+CREATE INDEX "index_effective_version" ON "objective_effective_version"("oid");
 
-CREATE TABLE "op_objective_create" (
-    "opid" "OperationId" NOT NULL DEFAULT gen_random_uuid (),
+-- MARK: operations
+;
+
+CREATE TABLE "op_objective_create"(
+    "opid" "OperationId" NOT NULL DEFAULT gen_random_uuid(),
     "actor" "UserId" NOT NULL,
     "poid" "ObjectiveId" NOT NULL, -- parent oid
     "pvid" "VersionId" NOT NULL, -- parent vid based on
@@ -108,16 +113,16 @@ CREATE TABLE "op_objective_create" (
     "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE "op_objective_delete" (
-    "opid" "OperationId" NOT NULL DEFAULT gen_random_uuid (),
+CREATE TABLE "op_objective_delete"(
+    "opid" "OperationId" NOT NULL DEFAULT gen_random_uuid(),
     "actor" "UserId" NOT NULL,
     "oid" "ObjectiveId" NOT NULL,
     "vid" "VersionId" NOT NULL, -- based on
     "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE "op_objective_content_update" (
-    "opid" "OperationId" NOT NULL DEFAULT gen_random_uuid (),
+CREATE TABLE "op_objective_content_update"(
+    "opid" "OperationId" NOT NULL DEFAULT gen_random_uuid(),
     "actor" "UserId" NOT NULL,
     "oid" "ObjectiveId" NOT NULL,
     "vid" "VersionId" NOT NULL, -- based on
@@ -125,8 +130,8 @@ CREATE TABLE "op_objective_content_update" (
     "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE "op_objective_attach_subobjective" (
-    "opid" "OperationId" NOT NULL DEFAULT gen_random_uuid (),
+CREATE TABLE "op_objective_attach_subobjective"(
+    "opid" "OperationId" NOT NULL DEFAULT gen_random_uuid(),
     "actor" "UserId" NOT NULL,
     "sup_oid" "ObjectiveId" NOT NULL,
     "sup_vid" "VersionId" NOT NULL, -- based on
@@ -135,8 +140,8 @@ CREATE TABLE "op_objective_attach_subobjective" (
     "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE "op_objective_update_completion" (
-    "opid" "OperationId" NOT NULL DEFAULT gen_random_uuid (),
+CREATE TABLE "op_objective_update_completion"(
+    "opid" "OperationId" NOT NULL DEFAULT gen_random_uuid(),
     "actor" "UserId" NOT NULL,
     "oid" "ObjectiveId" NOT NULL,
     "vid" "VersionId" NOT NULL,
@@ -147,7 +152,7 @@ CREATE TABLE "op_objective_update_completion" (
 -- TODO: operations: reorder, note (create,update,delete), delegation (assign, unassign), collaboration (init, invite, restrict), versioning (rollback, fastforward)
 ;
 
-CREATE TABLE "bookmark" (
+CREATE TABLE "bookmark"(
     "user" "UserId" NOT NULL,
     "oid" "ObjectiveId" NOT NULL,
     "vid" "VersionId" NOT NULL,

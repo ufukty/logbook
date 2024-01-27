@@ -129,7 +129,7 @@ type OpObjectiveUpdateCompletion struct {
 
 type Version struct {
 	Vid   VersionId
-	Based interface{}
+	Based VersionId
 }
 
 type VersioningConfig struct {

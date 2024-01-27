@@ -275,7 +275,7 @@ RETURNING
     vid, based
 `
 
-func (q *Queries) InsertVersion(ctx context.Context, based interface{}) (Version, error) {
+func (q *Queries) InsertVersion(ctx context.Context, based VersionId) (Version, error) {
 	row := q.db.QueryRow(ctx, insertVersion, based)
 	var i Version
 	err := row.Scan(&i.Vid, &i.Based)
