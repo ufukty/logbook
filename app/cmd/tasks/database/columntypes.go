@@ -1,7 +1,6 @@
 package database
 
 import (
-	"fmt"
 	"regexp"
 
 	"github.com/jackc/pgx/v5/pgtype"
@@ -75,13 +74,3 @@ const (
 )
 
 var ZeroTimestamp = pgtype.Timestamp{}
-
-// ObjectiveVersionedId: use to describe specific version of an objective
-type Ovid struct {
-	Oid ObjectiveId
-	Vid VersionId
-}
-
-func (ovid Ovid) String() string {
-	return fmt.Sprintf("(Oid: %q, Vid: %q)", ovid.Oid, ovid.Vid)
-}

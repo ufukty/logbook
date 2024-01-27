@@ -24,7 +24,7 @@ func (ct CreateTaskRequest) validate() error {
 }
 
 type CreateTaskResponse struct {
-	Update []database.Ovid `json:"update"`
+	Update []app.Ovid `json:"update"`
 }
 
 // TODO: Check user input for script tags in order to prevent XSS attempts

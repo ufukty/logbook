@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"logbook/cmd/tasks/database"
@@ -9,10 +10,10 @@ import (
 )
 
 // FIXME: Don't return error on pgx returns NoData but continoue to next iteration on loop
-func (a *App) ListVersioningConfigForAncestry(ancestry []database.Ovid) ([]database.VersioningConfig, error) {
+func (a *App) ListVersioningConfigForAncestry(ctx context.Context, ancestry []Ovid) ([]database.VersioningConfig, error) {
 	vancestry := []database.VersioningConfig{}
 	for _, c := range ancestry {
-		vc, err := a.queries.SelectVersioningConfig(c.Oid)
+		vc, err := a.queries.SelectVersioningConfig(ctx, c.Oid)
 		if err != nil {
 			if errors.Is(err, pgx.ErrNoRows) {
 				continue
