@@ -9,7 +9,7 @@ func (a *App) ListObjectiveAncestry(ovid database.Ovid) ([]database.Ovid, error)
 	anc := []database.Ovid{}
 	c := ovid
 	for limit := 0; true; limit++ {
-		l, err := a.db.SelectTheUpperLink(c)
+		l, err := a.queries.SelectTheUpperLink(c)
 		if err != nil {
 			return nil, fmt.Errorf("db.SelectTheUpperLink(%q, %q): %w", c.Oid, c.Vid, err)
 		}

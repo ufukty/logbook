@@ -50,7 +50,7 @@ import (
 func (a *App) createVersionedObjective(act CreateObjectiveAction, ancestry []database.Ovid, vancestry []database.VersioningConfig) ([]database.Ovid, error) {
 	// check authz
 	vc := vancestry[len(vancestry)-1]
-	v, err := a.db.InsertVersion(vc.Effective)
+	v, err := a.queries.InsertVersion(vc.Effective)
 	if err != nil {
 		return nil, fmt.Errorf("producing the next version id before updating ancestry: %w", err)
 	}
@@ -62,7 +62,7 @@ func (a *App) createVersionedObjective(act CreateObjectiveAction, ancestry []dat
 		Content: act.Content,
 		Creator: act.Creator,
 	}
-	o, err = a.db.InsertObjective(o)
+	o, err = a.queries.InsertObjective(o)
 	if err != nil {
 		return nil, fmt.Errorf("inserting objective into the db: %w", err)
 	}
@@ -70,16 +70,16 @@ func (a *App) createVersionedObjective(act CreateObjectiveAction, ancestry []dat
 	updates := []database.Ovid{}
 	var prev database.Ovid
 	for _, parentOvid := range ancestry {
-		parent, err := a.db.SelectObjective(parentOvid)
+		parent, err := a.queries.SelectObjective(parentOvid)
 		if err != nil {
 			return nil, fmt.Errorf("selecting parent %s from db: %w", parentOvid, err)
 		}
 		parent.Based, parent.Vid = parent.Vid, v.Vid
-		parent, err = a.db.InsertObjective(parent)
+		parent, err = a.queries.InsertObjective(parent)
 		if err != nil {
 			return nil, fmt.Errorf("inserting version bumped parent into the db: %w", err)
 		}
-		sublinks, err := a.db.SelectSubLinks(parent.Oid, parent.Vid)
+		sublinks, err := a.queries.SelectSubLinks(parent.Oid, parent.Vid)
 		if err != nil {
 			return nil, fmt.Errorf("selecting sublinks of parent (%q/%q) from db: %w", parent.Oid, parent.Vid, err)
 		}
@@ -91,7 +91,7 @@ func (a *App) createVersionedObjective(act CreateObjectiveAction, ancestry []dat
 					SubOid: prev.Oid,
 					SubVid: v.Vid,
 				}
-				_, err = a.db.InsertLink(l)
+				_, err = a.queries.InsertLink(l)
 				if err != nil {
 					return nil, fmt.Errorf("inserting the link from %q (direct ancestry) to %q in version %q: %w", prev.Oid, parent.Oid, v.Vid, err)
 				}
@@ -102,7 +102,7 @@ func (a *App) createVersionedObjective(act CreateObjectiveAction, ancestry []dat
 					SubOid: link.SubOid,
 					SubVid: link.SubVid,
 				}
-				_, err = a.db.InsertLink(l)
+				_, err = a.queries.InsertLink(l)
 				if err != nil {
 					return nil, fmt.Errorf("inserting the link from %q (sibling from ancestry) to %q in version %q: %w", prev.Oid, parent.Oid, v.Vid, err)
 				}

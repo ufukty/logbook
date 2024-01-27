@@ -12,7 +12,7 @@ import (
 func (a *App) ListVersioningConfigForAncestry(ancestry []database.Ovid) ([]database.VersioningConfig, error) {
 	vancestry := []database.VersioningConfig{}
 	for _, c := range ancestry {
-		vc, err := a.db.SelectVersioningConfig(c.Oid)
+		vc, err := a.queries.SelectVersioningConfig(c.Oid)
 		if err != nil {
 			if errors.Is(err, pgx.ErrNoRows) {
 				continue

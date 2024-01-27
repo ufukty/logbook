@@ -1,11 +1,11 @@
 package app
 
-import db "logbook/cmd/tasks/database"
+import "logbook/cmd/tasks/database"
 
 type App struct {
-	db *db.Database
+	queries *database.Queries
 }
 
-func New(db *db.Database) *App {
-	return &App{db: db}
+func New(queries *database.Queries) *App {
+	return &App{queries: queries}
 }
