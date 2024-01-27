@@ -15,7 +15,7 @@ func (a *App) ListObjectiveAncestry(ovid database.Ovid) ([]database.Ovid, error)
 		}
 		c.Oid = l.SupOid
 		c.Vid = l.SupVid
-		if c.Oid == database.NullObjectId {
+		if c.Oid == database.ZeroObjectId {
 			break
 		}
 		anc = append(anc, c)
