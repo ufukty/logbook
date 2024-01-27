@@ -18,7 +18,7 @@ import (
 func main() {
 	godotenv.Load("../.env")
 	godotenv.Load("../.local.env")
-	db, err := database.New(os.Getenv("CONN"))
+	db, err := database.New(os.Getenv("DSN"))
 	if err != nil {
 		panic(fmt.Errorf("creating database instance: %w", err))
 	}
