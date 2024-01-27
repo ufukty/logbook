@@ -5,56 +5,11 @@
 package database
 
 import (
-	"database/sql/driver"
-	"fmt"
-
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-type Otype string
-
-const (
-	OtypeRock    Otype = "rock"
-	OtypeRegular Otype = "regular"
-)
-
-func (e *Otype) Scan(src interface{}) error {
-	switch s := src.(type) {
-	case []byte:
-		*e = Otype(s)
-	case string:
-		*e = Otype(s)
-	default:
-		return fmt.Errorf("unsupported scan type for Otype: %T", src)
-	}
-	return nil
-}
-
-type NullOtype struct {
-	Otype Otype
-	Valid bool // Valid is true if Otype is not NULL
-}
-
-// Scan implements the Scanner interface.
-func (ns *NullOtype) Scan(value interface{}) error {
-	if value == nil {
-		ns.Otype, ns.Valid = "", false
-		return nil
-	}
-	ns.Valid = true
-	return ns.Otype.Scan(value)
-}
-
-// Value implements the driver Valuer interface.
-func (ns NullOtype) Value() (driver.Value, error) {
-	if !ns.Valid {
-		return nil, nil
-	}
-	return string(ns.Otype), nil
-}
-
 type Bookmark struct {
-	User      pgtype.UUID
+	User      UserId
 	Oid       ObjectiveId
 	Vid       VersionId
 	Name      pgtype.Text
@@ -80,25 +35,25 @@ type ComputedToTop struct {
 type Objective struct {
 	Oid       ObjectiveId
 	Vid       VersionId
-	Based     pgtype.UUID
-	Type      Otype
+	Based     VersionId
 	Content   string
-	Creator   pgtype.UUID
+	Creator   UserId
 	CreatedAt pgtype.Timestamp
 }
 
 type ObjectiveCompletion struct {
 	Oid       ObjectiveId
 	Vid       VersionId
-	Actor     pgtype.UUID
+	Actor     UserId
 	Completed bool
 	CreatedAt pgtype.Timestamp
 }
 
 type ObjectiveDeleted struct {
-	Oid      ObjectiveId
-	Vid      VersionId
-	Deletion pgtype.Timestamp
+	Oid       ObjectiveId
+	Vid       VersionId
+	DeletedBy UserId
+	DeletedAt pgtype.Timestamp
 }
 
 type ObjectiveEffectiveVersion struct {
@@ -108,17 +63,18 @@ type ObjectiveEffectiveVersion struct {
 
 type ObjectiveLink struct {
 	Lid       LinkId
-	SupOid    pgtype.UUID
-	SupVid    pgtype.UUID
-	SubOid    pgtype.UUID
-	SubVid    pgtype.UUID
+	SupOid    ObjectiveId
+	SupVid    VersionId
+	SubOid    ObjectiveId
+	SubVid    VersionId
+	Creator   UserId
 	CreatedAt pgtype.Timestamp
 }
 
 type ObjectiveView struct {
 	Oid           ObjectiveId
 	Vid           VersionId
-	Uid           UserId
+	Viewer        UserId
 	Degree        int32
 	Depth         int32
 	Ready         bool
@@ -128,15 +84,17 @@ type ObjectiveView struct {
 
 type OpObjectiveAttachSubobjective struct {
 	Opid      OperationId
-	SupOid    pgtype.UUID
-	SupVid    pgtype.UUID
-	SubOid    pgtype.UUID
-	SubVid    pgtype.UUID
+	Actor     UserId
+	SupOid    ObjectiveId
+	SupVid    VersionId
+	SubOid    ObjectiveId
+	SubVid    VersionId
 	CreatedAt pgtype.Timestamp
 }
 
 type OpObjectiveContentUpdate struct {
 	Opid      OperationId
+	Actor     UserId
 	Oid       ObjectiveId
 	Vid       VersionId
 	Content   pgtype.Text
@@ -145,15 +103,16 @@ type OpObjectiveContentUpdate struct {
 
 type OpObjectiveCreate struct {
 	Opid      OperationId
-	Poid      pgtype.UUID
-	Pvid      pgtype.UUID
-	Actor     pgtype.UUID
+	Actor     UserId
+	Poid      ObjectiveId
+	Pvid      VersionId
 	Content   pgtype.Text
 	CreatedAt pgtype.Timestamp
 }
 
 type OpObjectiveDelete struct {
 	Opid      OperationId
+	Actor     UserId
 	Oid       ObjectiveId
 	Vid       VersionId
 	CreatedAt pgtype.Timestamp
@@ -161,6 +120,7 @@ type OpObjectiveDelete struct {
 
 type OpObjectiveUpdateCompletion struct {
 	Opid      OperationId
+	Actor     UserId
 	Oid       ObjectiveId
 	Vid       VersionId
 	Completed bool
@@ -169,11 +129,11 @@ type OpObjectiveUpdateCompletion struct {
 
 type Version struct {
 	Vid   VersionId
-	Based pgtype.UUID
+	Based interface{}
 }
 
 type VersioningConfig struct {
 	Oid       ObjectiveId
-	First     pgtype.UUID
-	Effective pgtype.UUID
+	First     VersionId
+	Effective VersionId
 }

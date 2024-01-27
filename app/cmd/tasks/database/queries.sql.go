@@ -12,32 +12,25 @@ import (
 )
 
 const createTask = `-- name: CreateTask :one
-INSERT INTO "objective" ("based", "type", "content", "creator")
-    VALUES ($1, $2, $3, $4)
+INSERT INTO "objective"("based", "content", "creator")
+    VALUES ($1, $2, $3)
 RETURNING
-    oid, vid, based, type, content, creator, created_at
+    oid, vid, based, content, creator, created_at
 `
 
 type CreateTaskParams struct {
-	Based   pgtype.UUID
-	Type    Otype
+	Based   VersionId
 	Content string
-	Creator pgtype.UUID
+	Creator UserId
 }
 
 func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (Objective, error) {
-	row := q.db.QueryRow(ctx, createTask,
-		arg.Based,
-		arg.Type,
-		arg.Content,
-		arg.Creator,
-	)
+	row := q.db.QueryRow(ctx, createTask, arg.Based, arg.Content, arg.Creator)
 	var i Objective
 	err := row.Scan(
 		&i.Oid,
 		&i.Vid,
 		&i.Based,
-		&i.Type,
 		&i.Content,
 		&i.Creator,
 		&i.CreatedAt,
@@ -46,17 +39,18 @@ func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (Objecti
 }
 
 const insertLink = `-- name: InsertLink :one
-INSERT INTO "objective_link" ("sup_oid", "sup_vid", "sub_oid", "sub_vid")
-    VALUES ($1, $2, $3, $4)
+INSERT INTO "objective_link"("sup_oid", "sup_vid", "sub_oid", "sub_vid", "creator")
+    VALUES ($1, $2, $3, $4, $5)
 RETURNING
-    lid, sup_oid, sup_vid, sub_oid, sub_vid, created_at
+    lid, sup_oid, sup_vid, sub_oid, sub_vid, creator, created_at
 `
 
 type InsertLinkParams struct {
-	SupOid pgtype.UUID
-	SupVid pgtype.UUID
-	SubOid pgtype.UUID
-	SubVid pgtype.UUID
+	SupOid  ObjectiveId
+	SupVid  VersionId
+	SubOid  ObjectiveId
+	SubVid  VersionId
+	Creator UserId
 }
 
 func (q *Queries) InsertLink(ctx context.Context, arg InsertLinkParams) (ObjectiveLink, error) {
@@ -65,10 +59,81 @@ func (q *Queries) InsertLink(ctx context.Context, arg InsertLinkParams) (Objecti
 		arg.SupVid,
 		arg.SubOid,
 		arg.SubVid,
+		arg.Creator,
 	)
 	var i ObjectiveLink
 	err := row.Scan(
 		&i.Lid,
+		&i.SupOid,
+		&i.SupVid,
+		&i.SubOid,
+		&i.SubVid,
+		&i.Creator,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const insertObjective = `-- name: InsertObjective :one
+INSERT INTO "objective"("vid", "based", "content", "creator")
+    VALUES ($1, $2, $3, $4)
+RETURNING
+    oid, vid, based, content, creator, created_at
+`
+
+type InsertObjectiveParams struct {
+	Vid     VersionId
+	Based   VersionId
+	Content string
+	Creator UserId
+}
+
+func (q *Queries) InsertObjective(ctx context.Context, arg InsertObjectiveParams) (Objective, error) {
+	row := q.db.QueryRow(ctx, insertObjective,
+		arg.Vid,
+		arg.Based,
+		arg.Content,
+		arg.Creator,
+	)
+	var i Objective
+	err := row.Scan(
+		&i.Oid,
+		&i.Vid,
+		&i.Based,
+		&i.Content,
+		&i.Creator,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const insertOpObjectiveAttachSubobjective = `-- name: InsertOpObjectiveAttachSubobjective :one
+INSERT INTO op_objective_attach_subobjective("actor", "sup_oid", "sup_vid", "sub_oid", "sub_vid")
+    VALUES ($1, $2, $3, $4, $5)
+RETURNING
+    opid, actor, sup_oid, sup_vid, sub_oid, sub_vid, created_at
+`
+
+type InsertOpObjectiveAttachSubobjectiveParams struct {
+	Actor  UserId
+	SupOid ObjectiveId
+	SupVid VersionId
+	SubOid ObjectiveId
+	SubVid VersionId
+}
+
+func (q *Queries) InsertOpObjectiveAttachSubobjective(ctx context.Context, arg InsertOpObjectiveAttachSubobjectiveParams) (OpObjectiveAttachSubobjective, error) {
+	row := q.db.QueryRow(ctx, insertOpObjectiveAttachSubobjective,
+		arg.Actor,
+		arg.SupOid,
+		arg.SupVid,
+		arg.SubOid,
+		arg.SubVid,
+	)
+	var i OpObjectiveAttachSubobjective
+	err := row.Scan(
+		&i.Opid,
+		&i.Actor,
 		&i.SupOid,
 		&i.SupVid,
 		&i.SubOid,
@@ -78,50 +143,139 @@ func (q *Queries) InsertLink(ctx context.Context, arg InsertLinkParams) (Objecti
 	return i, err
 }
 
-const insertObjective = `-- name: InsertObjective :one
-INSERT INTO "objective" ("vid", "based", "type", "content", "creator")
-    VALUES ($1, $2, $3, $4, $5)
+const insertOpObjectiveContentUpdate = `-- name: InsertOpObjectiveContentUpdate :one
+INSERT INTO op_objective_content_update("oid", "vid", "actor", "content")
+    VALUES ($1, $2, $3, $4)
 RETURNING
-    oid, vid, based, type, content, creator, created_at
+    opid, actor, oid, vid, content, created_at
 `
 
-type InsertObjectiveParams struct {
+type InsertOpObjectiveContentUpdateParams struct {
+	Oid     ObjectiveId
 	Vid     VersionId
-	Based   pgtype.UUID
-	Type    Otype
-	Content string
-	Creator pgtype.UUID
+	Actor   UserId
+	Content pgtype.Text
 }
 
-func (q *Queries) InsertObjective(ctx context.Context, arg InsertObjectiveParams) (Objective, error) {
-	row := q.db.QueryRow(ctx, insertObjective,
+func (q *Queries) InsertOpObjectiveContentUpdate(ctx context.Context, arg InsertOpObjectiveContentUpdateParams) (OpObjectiveContentUpdate, error) {
+	row := q.db.QueryRow(ctx, insertOpObjectiveContentUpdate,
+		arg.Oid,
 		arg.Vid,
-		arg.Based,
-		arg.Type,
+		arg.Actor,
 		arg.Content,
-		arg.Creator,
 	)
-	var i Objective
+	var i OpObjectiveContentUpdate
 	err := row.Scan(
+		&i.Opid,
+		&i.Actor,
 		&i.Oid,
 		&i.Vid,
-		&i.Based,
-		&i.Type,
 		&i.Content,
-		&i.Creator,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const insertOpObjectiveCreate = `-- name: InsertOpObjectiveCreate :one
+INSERT INTO op_objective_create("poid", "pvid", "actor", "content")
+    VALUES ($1, $2, $3, $4)
+RETURNING
+    opid, actor, poid, pvid, content, created_at
+`
+
+type InsertOpObjectiveCreateParams struct {
+	Poid    ObjectiveId
+	Pvid    VersionId
+	Actor   UserId
+	Content pgtype.Text
+}
+
+func (q *Queries) InsertOpObjectiveCreate(ctx context.Context, arg InsertOpObjectiveCreateParams) (OpObjectiveCreate, error) {
+	row := q.db.QueryRow(ctx, insertOpObjectiveCreate,
+		arg.Poid,
+		arg.Pvid,
+		arg.Actor,
+		arg.Content,
+	)
+	var i OpObjectiveCreate
+	err := row.Scan(
+		&i.Opid,
+		&i.Actor,
+		&i.Poid,
+		&i.Pvid,
+		&i.Content,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const insertOpObjectiveDelete = `-- name: InsertOpObjectiveDelete :one
+INSERT INTO op_objective_delete("oid", "vid", "actor")
+    VALUES ($1, $2, $3)
+RETURNING
+    opid, actor, oid, vid, created_at
+`
+
+type InsertOpObjectiveDeleteParams struct {
+	Oid   ObjectiveId
+	Vid   VersionId
+	Actor UserId
+}
+
+func (q *Queries) InsertOpObjectiveDelete(ctx context.Context, arg InsertOpObjectiveDeleteParams) (OpObjectiveDelete, error) {
+	row := q.db.QueryRow(ctx, insertOpObjectiveDelete, arg.Oid, arg.Vid, arg.Actor)
+	var i OpObjectiveDelete
+	err := row.Scan(
+		&i.Opid,
+		&i.Actor,
+		&i.Oid,
+		&i.Vid,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const insertOpObjectiveUpdateCompletion = `-- name: InsertOpObjectiveUpdateCompletion :one
+INSERT INTO op_objective_update_completion("oid", "vid", "actor", "completed")
+    VALUES ($1, $2, $3, $4)
+RETURNING
+    opid, actor, oid, vid, completed, created_at
+`
+
+type InsertOpObjectiveUpdateCompletionParams struct {
+	Oid       ObjectiveId
+	Vid       VersionId
+	Actor     UserId
+	Completed bool
+}
+
+func (q *Queries) InsertOpObjectiveUpdateCompletion(ctx context.Context, arg InsertOpObjectiveUpdateCompletionParams) (OpObjectiveUpdateCompletion, error) {
+	row := q.db.QueryRow(ctx, insertOpObjectiveUpdateCompletion,
+		arg.Oid,
+		arg.Vid,
+		arg.Actor,
+		arg.Completed,
+	)
+	var i OpObjectiveUpdateCompletion
+	err := row.Scan(
+		&i.Opid,
+		&i.Actor,
+		&i.Oid,
+		&i.Vid,
+		&i.Completed,
 		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const insertVersion = `-- name: InsertVersion :one
-INSERT INTO "version" ("based")
+INSERT INTO "version"("based")
     VALUES ($1)
 RETURNING
     vid, based
 `
 
-func (q *Queries) InsertVersion(ctx context.Context, based pgtype.UUID) (Version, error) {
+func (q *Queries) InsertVersion(ctx context.Context, based interface{}) (Version, error) {
 	row := q.db.QueryRow(ctx, insertVersion, based)
 	var i Version
 	err := row.Scan(&i.Vid, &i.Based)
@@ -150,7 +304,6 @@ SELECT
     "oid",
     "vid",
     "based",
-    "type",
     "content",
     "creator",
     "created_at"
@@ -158,7 +311,7 @@ FROM
     "objective"
 WHERE
     "oid" = $1
-    AND "vid" == $2
+    AND "vid" = $2
 LIMIT 1
 `
 
@@ -174,7 +327,6 @@ func (q *Queries) SelectObjective(ctx context.Context, arg SelectObjectiveParams
 		&i.Oid,
 		&i.Vid,
 		&i.Based,
-		&i.Type,
 		&i.Content,
 		&i.Creator,
 		&i.CreatedAt,
@@ -199,19 +351,28 @@ LIMIT 50
 `
 
 type SelectSubLinksParams struct {
-	SupOid pgtype.UUID
-	SupVid pgtype.UUID
+	SupOid ObjectiveId
+	SupVid VersionId
 }
 
-func (q *Queries) SelectSubLinks(ctx context.Context, arg SelectSubLinksParams) ([]ObjectiveLink, error) {
+type SelectSubLinksRow struct {
+	Lid       LinkId
+	SupOid    ObjectiveId
+	SupVid    VersionId
+	SubOid    ObjectiveId
+	SubVid    VersionId
+	CreatedAt pgtype.Timestamp
+}
+
+func (q *Queries) SelectSubLinks(ctx context.Context, arg SelectSubLinksParams) ([]SelectSubLinksRow, error) {
 	rows, err := q.db.Query(ctx, selectSubLinks, arg.SupOid, arg.SupVid)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ObjectiveLink
+	var items []SelectSubLinksRow
 	for rows.Next() {
-		var i ObjectiveLink
+		var i SelectSubLinksRow
 		if err := rows.Scan(
 			&i.Lid,
 			&i.SupOid,
@@ -247,13 +408,22 @@ LIMIT 1
 `
 
 type SelectTheUpperLinkParams struct {
-	SubOid pgtype.UUID
-	SubVid pgtype.UUID
+	SubOid ObjectiveId
+	SubVid VersionId
 }
 
-func (q *Queries) SelectTheUpperLink(ctx context.Context, arg SelectTheUpperLinkParams) (ObjectiveLink, error) {
+type SelectTheUpperLinkRow struct {
+	Lid       LinkId
+	SupOid    ObjectiveId
+	SupVid    VersionId
+	SubOid    ObjectiveId
+	SubVid    VersionId
+	CreatedAt pgtype.Timestamp
+}
+
+func (q *Queries) SelectTheUpperLink(ctx context.Context, arg SelectTheUpperLinkParams) (SelectTheUpperLinkRow, error) {
 	row := q.db.QueryRow(ctx, selectTheUpperLink, arg.SubOid, arg.SubVid)
-	var i ObjectiveLink
+	var i SelectTheUpperLinkRow
 	err := row.Scan(
 		&i.Lid,
 		&i.SupOid,

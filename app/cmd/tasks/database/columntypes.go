@@ -74,7 +74,7 @@ const (
 	ZeroLinkId    = LinkId("00000000-0000-0000-0000-000000000000")
 )
 
-var ZeroDate = pgtype.Date{}
+var ZeroTimestamp = pgtype.Timestamp{}
 
 // ObjectiveVersionedId: use to describe specific version of an objective
 type Ovid struct {

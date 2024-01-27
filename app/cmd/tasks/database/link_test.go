@@ -1,21 +1,26 @@
 package database
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"testing"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func Test_Links(t *testing.T) {
 	runMigration()
 
-	db, err := New(os.Getenv("DSN"))
+	pool, err := pgxpool.New(context.Background(), os.Getenv("DSN"))
 	if err != nil {
 		t.Fatal(fmt.Errorf("prep, db connect: %w", err))
 	}
-	defer db.Close()
+	defer pool.Close()
 
-	o1, err := db.InsertObjective(Objective{
+	q := New(pool)
+
+	o1, err := q.InsertObjective(context.Background(), InsertObjectiveParams{
 		Vid:     ZeroVersionId,
 		Based:   ZeroVersionId,
 		Content: "Hello world",
@@ -25,7 +30,7 @@ func Test_Links(t *testing.T) {
 		t.Fatal(fmt.Errorf("act 1: %w", err))
 	}
 
-	o2, err := db.InsertObjective(Objective{
+	o2, err := q.InsertObjective(context.Background(), InsertObjectiveParams{
 		Vid:     ZeroVersionId,
 		Based:   ZeroVersionId,
 		Content: "Quick brown fox",
@@ -35,17 +40,18 @@ func Test_Links(t *testing.T) {
 		t.Fatal(fmt.Errorf("act 2: %w", err))
 	}
 
-	li, err := db.InsertLink(Link{
-		SupOid: o1.Oid,
-		SupVid: o1.Vid,
-		SubOid: o2.Oid,
-		SubVid: o2.Vid,
+	li, err := q.InsertLink(context.Background(), InsertLinkParams{
+		SupOid:  o1.Oid,
+		SupVid:  o1.Vid,
+		SubOid:  o2.Oid,
+		SubVid:  o2.Vid,
+		Creator: ZeroUserId,
 	})
 	if err != nil {
 		t.Fatal(fmt.Errorf("act 3, adding link: %w", err))
 	}
 
-	if li.CreatedAt == ZeroDate {
+	if li.CreatedAt == ZeroTimestamp {
 		t.Fatal(fmt.Println("assert 1, created_at is not populated"))
 	}
 

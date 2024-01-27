@@ -6,7 +6,6 @@ SELECT
     "oid",
     "vid",
     "based",
-    "type",
     "content",
     "creator",
     "created_at"
@@ -14,12 +13,12 @@ FROM
     "objective"
 WHERE
     "oid" = $1
-    AND "vid" == $2
+    AND "vid" = $2
 LIMIT 1;
 
 -- name: InsertObjective :one
-INSERT INTO "objective" ("vid", "based", "type", "content", "creator")
-    VALUES ($1, $2, $3, $4, $5)
+INSERT INTO "objective"("vid", "based", "content", "creator")
+    VALUES ($1, $2, $3, $4)
 RETURNING
     *;
 
@@ -33,8 +32,8 @@ WHERE
 LIMIT 1;
 
 -- name: CreateTask :one
-INSERT INTO "objective" ("based", "type", "content", "creator")
-    VALUES ($1, $2, $3, $4)
+INSERT INTO "objective"("based", "content", "creator")
+    VALUES ($1, $2, $3)
 RETURNING
     *;
 
@@ -72,8 +71,8 @@ WHERE
 LIMIT 1;
 
 -- name: InsertLink :one
-INSERT INTO "objective_link" ("sup_oid", "sup_vid", "sub_oid", "sub_vid")
-    VALUES ($1, $2, $3, $4)
+INSERT INTO "objective_link"("sup_oid", "sup_vid", "sub_oid", "sub_vid", "creator")
+    VALUES ($1, $2, $3, $4, $5)
 RETURNING
     *;
 
@@ -91,7 +90,7 @@ WHERE
 LIMIT 1;
 
 -- name: InsertVersion :one
-INSERT INTO "version" ("based")
+INSERT INTO "version"("based")
     VALUES ($1)
 RETURNING
     *;
@@ -109,4 +108,39 @@ FROM
 WHERE
     "oid" = $1
 LIMIT 1;
+
+;
+
+-- MARK: operations
+;
+
+-- name: InsertOpObjectiveCreate :one
+INSERT INTO op_objective_create("poid", "pvid", "actor", "content")
+    VALUES ($1, $2, $3, $4)
+RETURNING
+    *;
+
+-- name: InsertOpObjectiveDelete :one
+INSERT INTO op_objective_delete("oid", "vid", "actor")
+    VALUES ($1, $2, $3)
+RETURNING
+    *;
+
+-- name: InsertOpObjectiveContentUpdate :one
+INSERT INTO op_objective_content_update("oid", "vid", "actor", "content")
+    VALUES ($1, $2, $3, $4)
+RETURNING
+    *;
+
+-- name: InsertOpObjectiveAttachSubobjective :one
+INSERT INTO op_objective_attach_subobjective("actor", "sup_oid", "sup_vid", "sub_oid", "sub_vid")
+    VALUES ($1, $2, $3, $4, $5)
+RETURNING
+    *;
+
+-- name: InsertOpObjectiveUpdateCompletion :one
+INSERT INTO op_objective_update_completion("oid", "vid", "actor", "completed")
+    VALUES ($1, $2, $3, $4)
+RETURNING
+    *;
 

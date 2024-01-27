@@ -1,21 +1,26 @@
 package database
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"testing"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func Test_Objectives(t *testing.T) {
 	runMigration()
 
-	db, err := New(os.Getenv("DSN"))
+	pool, err := pgxpool.New(context.Background(), os.Getenv("DSN"))
 	if err != nil {
 		t.Fatal(fmt.Errorf("prep, db connect: %w", err))
 	}
-	defer db.Close()
+	defer pool.Close()
 
-	o1, err := db.InsertObjective(Objective{
+	q := New(pool)
+
+	o1, err := q.InsertObjective(context.Background(), InsertObjectiveParams{
 		Vid:     ZeroVersionId,
 		Based:   ZeroVersionId,
 		Content: "Hello world",
@@ -25,7 +30,10 @@ func Test_Objectives(t *testing.T) {
 		t.Fatal(fmt.Errorf("act 1: %w", err))
 	}
 
-	o2, err := db.SelectObjective(Ovid{o1.Oid, o1.Vid})
+	o2, err := q.SelectObjective(context.Background(), SelectObjectiveParams{
+		Oid: o1.Oid,
+		Vid: o1.Vid,
+	})
 	if err != nil {
 		t.Fatal(fmt.Errorf("act 2: %w", err))
 	}
@@ -34,7 +42,7 @@ func Test_Objectives(t *testing.T) {
 		t.Fatal("assert, o1 != o2")
 	}
 
-	if o2.CreatedAt == ZeroDate {
+	if o2.CreatedAt == ZeroTimestamp {
 		t.Fatal("assert 2, o2.CreatedAt is not populated")
 	}
 

@@ -9,22 +9,22 @@ sql:
         out: "."
         sql_package: "pgx/v5"
         overrides:
-          - column: "*.oid"
+          - db_type: ObjectiveId
             go_type:
               type: ObjectiveId
 
-          - column: "*.uid"
+          - db_type: UserId
             go_type:
               type: UserId
 
-          - column: "*.vid"
+          - db_type: VersionId
             go_type:
               type: VersionId
 
-          - column: "*.opid"
+          - db_type: OperationId
             go_type:
               type: OperationId
 
-          - column: "*.lid"
+          - db_type: LinkId
             go_type:
               type: LinkId
