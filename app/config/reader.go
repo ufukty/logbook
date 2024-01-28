@@ -1,7 +1,6 @@
 package config
 
 import (
-	"flag"
 	"fmt"
 	"logbook/internal/utilities/reflux"
 	"logbook/internal/utilities/strw"
@@ -12,19 +11,9 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func getConfigPath() string {
-	var configpath string
-	flag.StringVar(&configpath, "config", "", "")
-	flag.Parse()
-	return configpath
-}
-
-func Read() Config {
+func Read(configpath string) Config {
 	var log = logger.NewLogger("ConfigReader")
-
-	configpath := getConfigPath()
-	log.Println("Using config file:", configpath)
-
+	
 	f, err := os.Open(configpath)
 	if err != nil {
 		log.Fatalln(fmt.Errorf("could not open config file: %w", err))
