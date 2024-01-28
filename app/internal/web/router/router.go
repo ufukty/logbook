@@ -1,10 +1,9 @@
 package router
 
 import (
-	"logbook/config/reader"
-	"logbook/internal/web/logger"
-
 	"context"
+	"logbook/config"
+	"logbook/internal/web/logger"
 	"net/http"
 	"os"
 	"os/signal"
@@ -19,7 +18,7 @@ var servers = []*http.Server{}
 
 var log = logger.NewLogger("Router")
 
-func StartRouter(baseURL string, cfg *reader.RouterParameters, endpointRegisterer func(r *mux.Router)) {
+func StartRouter(baseURL string, cfg *config.RouterParameters, endpointRegisterer func(r *mux.Router)) {
 	r := mux.NewRouter()
 	endpointRegisterer(r)
 	r.HandleFunc("/ping", Pong)
@@ -87,7 +86,7 @@ func waitInterrupSignal() {
 	<-sigInterruptChannel
 }
 
-func Wait(cfg *reader.RouterParameters) {
+func Wait(cfg *config.RouterParameters) {
 	waitInterrupSignal()
 
 	// Create a deadline to wait for.

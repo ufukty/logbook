@@ -6,7 +6,7 @@ import (
 	"logbook/cmd/tasks/database"
 	"logbook/cmd/tasks/endpoints"
 	"logbook/config"
-	"logbook/config/reader"
+	"logbook/internal/utilities/reflux"
 	"logbook/internal/web/paths"
 	"logbook/internal/web/router"
 	"net/http"
@@ -24,12 +24,11 @@ func main() {
 	}
 	defer db.Close()
 
-	cfg := reader.GetConfig()
+	cfg := config.Read()
+	reflux.Print(cfg.Tasks)
 	// sd := serviced.New(cfg.Tasks.ServiceDiscoveryConfig, cfg.Tasks.ServiceDiscoveryUpdatePeriod)
 	app := app.New(db)
 	em := endpoints.NewManager(app)
-
-	reader.Print(cfg.Tasks)
 
 	var handlers = map[paths.Endpoint]http.HandlerFunc{
 		config.ObjectivesGetPlacementArray: em.GetPlacementArray,
