@@ -47,24 +47,22 @@ func getFlags() *flags {
 	return flags
 }
 
-func GetConfig() *Config {
+func PopulateConfig(cfgPtr any) {
 	var (
 		flags           = getFlags()
 		fileReadHandler *os.File
 		err             error
-		config          = &Config{}
 	)
 	log.Printf("Reading '%s' as config file\n", flags.Config)
 	fileReadHandler, err = os.Open(flags.Config)
 	if err != nil {
 		log.Fatalln(errors.Wrap(err, "Could not open config file"))
 	}
-	err = yaml.NewDecoder(fileReadHandler).Decode(config)
+	err = yaml.NewDecoder(fileReadHandler).Decode(cfgPtr)
 	if err != nil {
 		log.Fatalln(errors.Wrap(err, "Could not decode config file"))
 	}
-	checkZeroValuedFields(config)
-	return config
+	checkZeroValuedFields(cfgPtr)
 }
 
 func printConfigHelper(typeOf reflect.Type, valueOf reflect.Value, scopeStack []string) {
