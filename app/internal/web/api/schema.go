@@ -2,7 +2,6 @@ package api
 
 import (
 	"fmt"
-	"logbook/internal/web/paths"
 	"os"
 
 	"gopkg.in/yaml.v3"
@@ -17,24 +16,36 @@ type Config struct {
 				Document struct {
 					Path      string `yaml:"Path"`
 					Endpoints struct {
-						List paths.Endpoint `yaml:"List"`
+						List struct {
+							Method string `yaml:"Method"`
+							Path   string `yaml:"Path"`
+						} `yaml:"List"`
 					} `yaml:"Endpoints"`
 				} `yaml:"Document"`
 				Objectives struct {
 					Path      string `yaml:"Path"`
 					Endpoints struct {
 						Create struct {
-							Path   string `yaml:"Path"`
 							Method string `yaml:"Method"`
+							Path   string `yaml:"Path"`
 						} `yaml:"Create"`
-						GetPlacement paths.Endpoint `yaml:"GetPlacement"`
+						GetPlacement struct {
+							Method string `yaml:"Method"`
+							Path   string `yaml:"Path"`
+						} `yaml:"GetPlacement"`
 					} `yaml:"Endpoints"`
 				} `yaml:"Objectives"`
 				Tags struct {
 					Path      string `yaml:"Path"`
 					Endpoints struct {
-						Creation paths.Endpoint `yaml:"Creation"`
-						Assign   paths.Endpoint `yaml:"Assign"`
+						Creation struct {
+							Path   string `yaml:"Path"`
+							Method string `yaml:"Method"`
+						} `yaml:"Creation"`
+						Assign struct {
+							Method string `yaml:"Method"`
+							Path   string `yaml:"Path"`
+						} `yaml:"Assign"`
 					} `yaml:"Endpoints"`
 				} `yaml:"Tags"`
 			} `yaml:"Services"`
