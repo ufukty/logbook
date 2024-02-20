@@ -3,54 +3,55 @@ package api
 import (
 	"fmt"
 	"os"
-
 	"gopkg.in/yaml.v3"
 )
 
+type Endpoint struct {
+	Method string `yaml:"method"`
+	Path   Path   `yaml:"path"`
+}
+type Path string
+type Public struct {
+	Path     Path `yaml:"path"`
+	Services struct {
+		Document struct {
+			Endpoints struct {
+				List Endpoint `yaml:"list"`
+			} `yaml:"endpoints"`
+			Path Path `yaml:"path"`
+		} `yaml:"document"`
+		Objectives Objectives `yaml:"objectives"`
+		Tags       struct {
+			Endpoints struct {
+				Assign   Endpoint `yaml:"assign"`
+				Creation Endpoint `yaml:"creation"`
+			} `yaml:"endpoints"`
+			Path Path `yaml:"path"`
+		} `yaml:"tags"`
+	} `yaml:"services"`
+}
+type Objectives struct {
+	Endpoints struct {
+		Create       Endpoint `yaml:"create"`
+		GetPlacement Endpoint `yaml:"getPlacement"`
+	} `yaml:"endpoints"`
+	Path Path `yaml:"path"`
+}
+// IMPORTANT:
+// Types are defined only for internal purposes.
+// Do not refer auto generated type names from outside.
+// Because they will change as config schema changes.
+type autoGenA struct {
+	Public Public `yaml:"public"`
+}
+
+func (a autoGenA) Range() map[string]Public {
+	return map[string]Public{"public": a.Public}
+}
+
 type Config struct {
-	Domain   string `yaml:"Domain"`
-	Gateways struct {
-		Public struct {
-			Path     string `yaml:"Path"`
-			Services struct {
-				Document struct {
-					Path      string `yaml:"Path"`
-					Endpoints struct {
-						List struct {
-							Method string `yaml:"Method"`
-							Path   string `yaml:"Path"`
-						} `yaml:"List"`
-					} `yaml:"Endpoints"`
-				} `yaml:"Document"`
-				Objectives struct {
-					Path      string `yaml:"Path"`
-					Endpoints struct {
-						Create struct {
-							Method string `yaml:"Method"`
-							Path   string `yaml:"Path"`
-						} `yaml:"Create"`
-						GetPlacement struct {
-							Method string `yaml:"Method"`
-							Path   string `yaml:"Path"`
-						} `yaml:"GetPlacement"`
-					} `yaml:"Endpoints"`
-				} `yaml:"Objectives"`
-				Tags struct {
-					Path      string `yaml:"Path"`
-					Endpoints struct {
-						Creation struct {
-							Path   string `yaml:"Path"`
-							Method string `yaml:"Method"`
-						} `yaml:"Creation"`
-						Assign struct {
-							Method string `yaml:"Method"`
-							Path   string `yaml:"Path"`
-						} `yaml:"Assign"`
-					} `yaml:"Endpoints"`
-				} `yaml:"Tags"`
-			} `yaml:"Services"`
-		} `yaml:"Public"`
-	} `yaml:"Gateways"`
+	Domain   string   `yaml:"domain"`
+	Gateways autoGenA `yaml:"gateways"`
 }
 
 func ReadConfig(path string) (Config, error) {

@@ -1,0 +1,4 @@
+"**.endpoints.*": Endpoint
+"**.path": Path
+gateways.public: Public
+gateways.public.services.objectives: Objectives

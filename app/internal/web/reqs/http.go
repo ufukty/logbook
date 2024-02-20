@@ -10,7 +10,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"logbook/internal/web/paths"
 	"mime"
 	"net/http"
 	"reflect"
@@ -64,7 +63,7 @@ func fillUrlParamaters(muxMap map[string]string, bq any) error {
 	return nil
 }
 
-func NewRequest(ep paths.Endpoint, params any) (*http.Request, error) {
+func newRequest(url, method string, params any) (*http.Request, error) {
 	var err error
 	var urlParams, bodyParams = separateParams(params)
 	var buffer = bytes.NewBuffer([]byte{})
@@ -75,7 +74,7 @@ func NewRequest(ep paths.Endpoint, params any) (*http.Request, error) {
 		}
 	}
 	var r *http.Request
-	r, err = http.NewRequest(ep.Method.String(), ep.Url(), buffer)
+	r, err = http.NewRequest(method, url, buffer)
 	if err != nil {
 		return nil, fmt.Errorf("creating request object: %w", err)
 	}
@@ -114,7 +113,7 @@ func WriteJsonResponse(bs any, rsw http.ResponseWriter) error {
 	return nil
 }
 
-func ParseJsonResponse[Response any](rs *http.Response) (bs *Response, err error) {
+func parseJsonResponse[Response any](rs *http.Response) (bs *Response, err error) {
 	rs.Header.Get("Content-Type")
 	bs = new(Response)
 	err = json.NewDecoder(rs.Body).Decode(bs)
@@ -124,14 +123,14 @@ func ParseJsonResponse[Response any](rs *http.Response) (bs *Response, err error
 	return
 }
 
-func Send[Request any, Response any](ep paths.Endpoint, bq *Request) (*Response, error) {
+func Send[Request any, Response any](url, method string, bq *Request) (*Response, error) {
 	var (
 		rq  *http.Request
 		rs  *http.Response
 		bs  = new(Response)
 		err error
 	)
-	rq, err = NewRequest(ep, bq)
+	rq, err = newRequest(url, method, bq)
 	if err != nil {
 		return nil, fmt.Errorf("creating request: %w", err)
 	}
@@ -139,7 +138,7 @@ func Send[Request any, Response any](ep paths.Endpoint, bq *Request) (*Response,
 	if err != nil {
 		return nil, fmt.Errorf("sending the request: %w", err)
 	}
-	bs, err = ParseJsonResponse[Response](rs)
+	bs, err = parseJsonResponse[Response](rs)
 	if err != nil {
 		return nil, fmt.Errorf("binding response: %w", err)
 	}

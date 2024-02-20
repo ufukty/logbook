@@ -1,19 +1,19 @@
-Domain: localhost
-Gateways:
-  Public:
-    Path: /api/v1.0.0
-    Services:
-      Document:
-        Path: document
-        Endpoints:
-          List: { Method: "GET", Path: "list/{root}" }
-      Objectives:
-        Path: tasks
-        Endpoints:
-          Create: { Method: "POST", Path: "task" }
-          GetPlacement: { Method: "GET", Path: "placement/{root}" }
-      Tags:
-        Path: tags
-        Endpoints:
-          Creation: { Method: "POST", Path: "" }
-          Assign: { Method: "POST", Path: "assign" }
+domain: localhost
+gateways:
+  public:
+    path: /api/v1.0.0
+    services:
+      document:
+        path: document
+        endpoints:
+          list: { method: "GET", path: "list/{root}" }
+      objectives:
+        path: tasks
+        endpoints:
+          create: { method: "POST", path: "task" }
+          getPlacement: { method: "GET", path: "placement/{root}" }
+      tags:
+        path: tags
+        endpoints:
+          creation: { method: "POST", path: "" }
+          assign: { method: "POST", path: "assign" }
