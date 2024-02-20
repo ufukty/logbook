@@ -5,7 +5,6 @@ import (
 	"log"
 	"logbook/cmd/tasks/app"
 	"logbook/cmd/tasks/database"
-	"logbook/config"
 	"logbook/internal/web/reqs"
 	"net/http"
 )
@@ -64,8 +63,4 @@ func (e *Endpoints) CreateTask(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
-}
-
-func (bq *CreateTaskRequest) Send() (*CreateTaskResponse, error) {
-	return reqs.Send[CreateTaskRequest, CreateTaskResponse](config.ObjectivesCreate, bq)
 }
