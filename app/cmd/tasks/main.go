@@ -36,7 +36,7 @@ func main() {
 	cfg := config.Read(getConfigPath()).Tasks
 	reflux.Print(cfg)
 
-	apicfg, err := api.ReadConfig("../config.yml")
+	apicfg, err := api.ReadConfig("../../api.yml")
 	if err != nil {
 		panic(fmt.Errorf("reading api config: %w", err))
 	}
