@@ -71,7 +71,7 @@ func RouteRegisterer(handlers map[Endpoint]http.HandlerFunc) func(*mux.Router) {
 		r = r.UseEncodedPath()
 		for _, ep := range sortEndpoints(maps.Keys(handlers)) {
 			var handler = handlers[ep]
-			log.Printf("Registering route: %-6s %s\n", ep.Method, ep.Method)
+			log.Printf("Registering route: %-6s %s\n", ep.Method, ep.Path)
 			r.HandleFunc(string(ep.Path), handler).Methods(ep.Method)
 		}
 	}
