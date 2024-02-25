@@ -1,10 +1,10 @@
 ---
 router-parameters: &router-parameters
   request-timeout: 2s
-  write-timeout: 15s
-  read-timeout: 15s
-  idle-timeout: 60s
-  grace-period: 1ms
+  write-timeout: 100ms
+  read-timeout: 100ms
+  idle-timeout: 100ms
+  grace-period: 100ms
 
 common: &common
   <<: *router-parameters
@@ -25,6 +25,5 @@ tasks:
 
 captcha:
   <<: *common
-  request-timeout: 5s
   router-public: 8085
   router-private: 8086
