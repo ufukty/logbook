@@ -12,14 +12,14 @@ type Client struct {
 	config api.Objectives
 }
 
-func NewClient(config api.Config) Client {
-	return Client{
+func NewClient(config api.Config) *Client {
+	return &Client{
 		path:   filepath.Join(string(config.Gateways.Public.Path), string(config.Gateways.Public.Services.Objectives.Path)),
 		config: config.Gateways.Public.Services.Objectives,
 	}
 }
 
-func (c Client) CreateTask(bq *endpoints.CreateTaskRequest) (*endpoints.CreateTaskResponse, error) {
+func (c Client) CreateObjective(bq *endpoints.CreateTaskRequest) (*endpoints.CreateTaskResponse, error) {
 	return reqs.Send[endpoints.CreateTaskRequest, endpoints.CreateTaskResponse](
 		filepath.Join(c.path, string(c.config.Endpoints.Create.Path)), c.config.Endpoints.Create.Method, bq,
 	)
