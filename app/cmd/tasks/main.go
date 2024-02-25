@@ -51,6 +51,5 @@ func main() {
 		eps.Create:       em.CreateTask,
 	}
 
-	router.StartRouter(":"+cfg.RouterPrivate, &cfg.RouterParameters, api.RouteRegisterer(handlers))
-	router.Wait(&cfg.RouterParameters)
+	router.StartServer(":"+cfg.RouterPrivate, false, cfg.RouterParameters, api.RouteRegisterer(handlers))
 }
