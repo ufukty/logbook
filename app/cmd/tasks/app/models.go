@@ -3,6 +3,7 @@ package app
 import (
 	"fmt"
 	"logbook/cmd/tasks/database"
+	"logbook/internal/web/validate"
 )
 
 type CreateObjectiveAction struct {
@@ -19,4 +20,11 @@ type Ovid struct {
 
 func (ovid Ovid) String() string {
 	return fmt.Sprintf("(Oid: %q, Vid: %q)", ovid.Oid, ovid.Vid)
+}
+
+func (ovid Ovid) Validate() error {
+	return validate.All(map[string]validate.Validator{
+		"oid": ovid.Oid,
+		"vid": ovid.Vid,
+	})
 }
