@@ -6,9 +6,9 @@ import (
 )
 
 var (
-	ErrPattern = fmt.Errorf("given value doesn't fit into expected pattern")
-	ErrLong    = fmt.Errorf("given value is longer than expected")
-	ErrShort   = fmt.Errorf("given value is shorter than expected")
+	ErrPattern = fmt.Errorf("content")
+	ErrLong    = fmt.Errorf("too long")
+	ErrShort   = fmt.Errorf("too short")
 )
 
 // for external use

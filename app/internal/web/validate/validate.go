@@ -3,6 +3,7 @@ package validate
 import (
 	"fmt"
 	"reflect"
+	"strings"
 )
 
 type Validator interface {
@@ -10,10 +11,14 @@ type Validator interface {
 }
 
 func All(vs map[string]Validator) error {
+	errs := []string{}
 	for k, v := range vs {
 		if err := v.Validate(); err != nil {
-			return fmt.Errorf("invalid value for %q: %q", k, v)
+			errs = append(errs, fmt.Sprintf("%s (%s)", k, err))
 		}
+	}
+	if len(errs) > 0 {
+		return fmt.Errorf("invalid value(s) for %s", strings.Join(errs, ", "))
 	}
 	return nil
 }
