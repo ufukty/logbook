@@ -1,6 +1,7 @@
 package database
 
 import (
+	"logbook/internal/web/validate"
 	"regexp"
 
 	"github.com/jackc/pgx/v5/pgtype"
@@ -13,6 +14,7 @@ type (
 	CommitId    string
 	OperationId string
 	LinkId      string
+	HumanName   string
 
 	NonNegativeNumber int
 )
@@ -30,32 +32,49 @@ var (
 	regexp_credit_card  = regexp.MustCompile(`^(?:4[0-9]{12}(?:[0-9]{3})?)$`)
 )
 
-func (v UserId) Validate() bool {
-	return regexp_uuid.MatchString(string(v))
+var (
+	max_length_uuid       = len("00000000-0000-0000-0000-000000000000")
+	max_length_human_name = 100
+)
+
+var (
+	min_length_uuid       = len("00000000-0000-0000-0000-000000000000")
+	min_length_human_name = 1
+)
+
+func (v HumanName) Validate() error {
+	return validate.StringBasics(string(v), min_length_human_name, max_length_human_name, regexp_human_name)
 }
 
-func (v ObjectiveId) Validate() bool {
-	return regexp_uuid.MatchString(string(v))
+func (v UserId) Validate() error {
+	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
 }
 
-func (v VersionId) Validate() bool {
-	return regexp_uuid.MatchString(string(v))
+func (v ObjectiveId) Validate() error {
+	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
 }
 
-func (v CommitId) Validate() bool {
-	return regexp_uuid.MatchString(string(v))
+func (v VersionId) Validate() error {
+	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
 }
 
-func (v OperationId) Validate() bool {
-	return regexp_uuid.MatchString(string(v))
+func (v CommitId) Validate() error {
+	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
 }
 
-func (v LinkId) Validate() bool {
-	return regexp_uuid.MatchString(string(v))
+func (v OperationId) Validate() error {
+	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
 }
 
-func (v NonNegativeNumber) Validate() bool {
-	return v >= 0
+func (v LinkId) Validate() error {
+	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
+}
+
+func (v NonNegativeNumber) Validate() error {
+	if v < 0 {
+		return validate.ErrPattern
+	}
+	return nil
 }
 
 type LinkType string
