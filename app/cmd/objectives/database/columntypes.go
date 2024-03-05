@@ -8,7 +8,6 @@ import (
 )
 
 type (
-	UserId      string
 	ObjectiveId string
 	VersionId   string
 	CommitId    string
@@ -40,10 +39,6 @@ var (
 	min_length_uuid       = len("00000000-0000-0000-0000-000000000000")
 	min_length_human_name = 1
 )
-
-func (v UserId) Validate() error {
-	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
-}
 
 func (v ObjectiveId) Validate() error {
 	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
@@ -83,7 +78,6 @@ const (
 const (
 	ZeroObjectId  = ObjectiveId("00000000-0000-0000-0000-000000000000")
 	ZeroVersionId = VersionId("00000000-0000-0000-0000-000000000000")
-	ZeroUserId    = UserId("00000000-0000-0000-0000-000000000000")
 	ZeroLinkId    = LinkId("00000000-0000-0000-0000-000000000000")
 )
 

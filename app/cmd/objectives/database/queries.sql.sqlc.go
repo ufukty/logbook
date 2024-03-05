@@ -9,6 +9,7 @@ import (
 	"context"
 
 	"github.com/jackc/pgx/v5/pgtype"
+	"logbook/cmd/account/database"
 )
 
 const createTask = `-- name: CreateTask :one
@@ -21,7 +22,7 @@ RETURNING
 type CreateTaskParams struct {
 	Based   VersionId
 	Content string
-	Creator UserId
+	Creator database.UserId
 }
 
 func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (Objective, error) {
@@ -50,7 +51,7 @@ type InsertLinkParams struct {
 	SupVid  VersionId
 	SubOid  ObjectiveId
 	SubVid  VersionId
-	Creator UserId
+	Creator database.UserId
 }
 
 func (q *Queries) InsertLink(ctx context.Context, arg InsertLinkParams) (ObjectiveLink, error) {
@@ -85,7 +86,7 @@ type InsertObjectiveParams struct {
 	Vid     VersionId
 	Based   VersionId
 	Content string
-	Creator UserId
+	Creator database.UserId
 }
 
 func (q *Queries) InsertObjective(ctx context.Context, arg InsertObjectiveParams) (Objective, error) {
@@ -115,7 +116,7 @@ RETURNING
 `
 
 type InsertOpObjectiveAttachSubobjectiveParams struct {
-	Actor  UserId
+	Actor  database.UserId
 	SupOid ObjectiveId
 	SupVid VersionId
 	SubOid ObjectiveId
@@ -153,7 +154,7 @@ RETURNING
 type InsertOpObjectiveContentUpdateParams struct {
 	Oid     ObjectiveId
 	Vid     VersionId
-	Actor   UserId
+	Actor   database.UserId
 	Content pgtype.Text
 }
 
@@ -186,7 +187,7 @@ RETURNING
 type InsertOpObjectiveCreateParams struct {
 	Poid    ObjectiveId
 	Pvid    VersionId
-	Actor   UserId
+	Actor   database.UserId
 	Content pgtype.Text
 }
 
@@ -219,7 +220,7 @@ RETURNING
 type InsertOpObjectiveDeleteParams struct {
 	Oid   ObjectiveId
 	Vid   VersionId
-	Actor UserId
+	Actor database.UserId
 }
 
 func (q *Queries) InsertOpObjectiveDelete(ctx context.Context, arg InsertOpObjectiveDeleteParams) (OpObjectiveDelete, error) {
@@ -245,7 +246,7 @@ RETURNING
 type InsertOpObjectiveUpdateCompletionParams struct {
 	Oid       ObjectiveId
 	Vid       VersionId
-	Actor     UserId
+	Actor     database.UserId
 	Completed bool
 }
 

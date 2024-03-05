@@ -6,10 +6,11 @@ package database
 
 import (
 	"github.com/jackc/pgx/v5/pgtype"
+	"logbook/cmd/account/database"
 )
 
 type Bookmark struct {
-	User      UserId
+	User      database.UserId
 	Oid       ObjectiveId
 	Vid       VersionId
 	Name      pgtype.Text
@@ -37,14 +38,14 @@ type Objective struct {
 	Vid       VersionId
 	Based     VersionId
 	Content   string
-	Creator   UserId
+	Creator   database.UserId
 	CreatedAt pgtype.Timestamp
 }
 
 type ObjectiveCompletion struct {
 	Oid       ObjectiveId
 	Vid       VersionId
-	Actor     UserId
+	Actor     database.UserId
 	Completed bool
 	CreatedAt pgtype.Timestamp
 }
@@ -52,7 +53,7 @@ type ObjectiveCompletion struct {
 type ObjectiveDeleted struct {
 	Oid       ObjectiveId
 	Vid       VersionId
-	DeletedBy UserId
+	DeletedBy database.UserId
 	DeletedAt pgtype.Timestamp
 }
 
@@ -67,14 +68,14 @@ type ObjectiveLink struct {
 	SupVid    VersionId
 	SubOid    ObjectiveId
 	SubVid    VersionId
-	Creator   UserId
+	Creator   database.UserId
 	CreatedAt pgtype.Timestamp
 }
 
 type ObjectiveView struct {
 	Oid           ObjectiveId
 	Vid           VersionId
-	Viewer        UserId
+	Viewer        database.UserId
 	Degree        int32
 	Depth         int32
 	Ready         bool
@@ -84,7 +85,7 @@ type ObjectiveView struct {
 
 type OpObjectiveAttachSubobjective struct {
 	Opid      OperationId
-	Actor     UserId
+	Actor     database.UserId
 	SupOid    ObjectiveId
 	SupVid    VersionId
 	SubOid    ObjectiveId
@@ -94,7 +95,7 @@ type OpObjectiveAttachSubobjective struct {
 
 type OpObjectiveContentUpdate struct {
 	Opid      OperationId
-	Actor     UserId
+	Actor     database.UserId
 	Oid       ObjectiveId
 	Vid       VersionId
 	Content   pgtype.Text
@@ -103,7 +104,7 @@ type OpObjectiveContentUpdate struct {
 
 type OpObjectiveCreate struct {
 	Opid      OperationId
-	Actor     UserId
+	Actor     database.UserId
 	Poid      ObjectiveId
 	Pvid      VersionId
 	Content   pgtype.Text
@@ -112,7 +113,7 @@ type OpObjectiveCreate struct {
 
 type OpObjectiveDelete struct {
 	Opid      OperationId
-	Actor     UserId
+	Actor     database.UserId
 	Oid       ObjectiveId
 	Vid       VersionId
 	CreatedAt pgtype.Timestamp
@@ -120,7 +121,7 @@ type OpObjectiveDelete struct {
 
 type OpObjectiveUpdateCompletion struct {
 	Opid      OperationId
-	Actor     UserId
+	Actor     database.UserId
 	Oid       ObjectiveId
 	Vid       VersionId
 	Completed bool

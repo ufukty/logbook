@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"fmt"
+	"logbook/cmd/account/database"
 	"os"
 	"testing"
 )
@@ -20,7 +21,7 @@ func Test_Objectives(t *testing.T) {
 		Vid:     ZeroVersionId,
 		Based:   ZeroVersionId,
 		Content: "Hello world",
-		Creator: ZeroUserId,
+		Creator: database.ZeroUserId,
 	})
 	if err != nil {
 		t.Fatal(fmt.Errorf("act 1: %w", err))

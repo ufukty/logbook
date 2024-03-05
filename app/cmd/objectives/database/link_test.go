@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"fmt"
+	"logbook/cmd/account/database"
 	"os"
 	"testing"
 )
@@ -20,7 +21,7 @@ func Test_Links(t *testing.T) {
 		Vid:     ZeroVersionId,
 		Based:   ZeroVersionId,
 		Content: "Hello world",
-		Creator: ZeroUserId,
+		Creator: database.ZeroUserId,
 	})
 	if err != nil {
 		t.Fatal(fmt.Errorf("act 1: %w", err))
@@ -30,7 +31,7 @@ func Test_Links(t *testing.T) {
 		Vid:     ZeroVersionId,
 		Based:   ZeroVersionId,
 		Content: "Quick brown fox",
-		Creator: ZeroUserId,
+		Creator: database.ZeroUserId,
 	})
 	if err != nil {
 		t.Fatal(fmt.Errorf("act 2: %w", err))
@@ -41,7 +42,7 @@ func Test_Links(t *testing.T) {
 		SupVid:  o1.Vid,
 		SubOid:  o2.Oid,
 		SubVid:  o2.Vid,
-		Creator: ZeroUserId,
+		Creator: database.ZeroUserId,
 	})
 	if err != nil {
 		t.Fatal(fmt.Errorf("act 3, adding link: %w", err))

@@ -7,20 +7,26 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type Database struct {
-	pool *pgxpool.Pool
+type Queries struct {
+	db *pgxpool.Pool
 }
 
-func New(connection string) (*Database, error) {
-	db := &Database{}
+func New(connection string) (*Queries, error) {
+	q := &Queries{}
 	var err error
-	db.pool, err = pgxpool.New(context.Background(), connection)
+	q.db, err = pgxpool.New(context.Background(), connection)
 	if err != nil {
 		return nil, fmt.Errorf("pgxpool.Connect: %w", err)
 	}
-	return db, nil
+	return q, nil
 }
 
-func (db *Database) Close() {
-	db.pool.Close()
+func (q *Queries) Close() {
+	q.db.Close()
 }
+
+// func (q *Queries) WithTx(tx pgx.Tx) *Queries {
+// 	return &Queries{
+// 		db: tx,
+// 	}
+// }

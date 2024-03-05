@@ -70,7 +70,7 @@ func (e *Endpoints) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	user := database.User{
 		NameSurname:       string(bq.NameSurname),
-		EmailAddress:      string(bq.EmailAddress),
+		EmailAddress:      string(bq.Email),
 		SaltBase64Encoded: string(crypto.Base64Encode(salt)),
 		HashEncoded:       hashedPassword,
 	}

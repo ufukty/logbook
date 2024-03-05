@@ -9,7 +9,7 @@ import (
 
 type (
 	Username          string
-	Uid               string
+	UserId            string
 	Email             string
 	NonNegativeNumber int
 	HumanName         string
@@ -25,14 +25,14 @@ var (
 var (
 	max_length_email      = 150
 	max_length_human_name = 100
-	max_length_username   = 100
+	max_length_username   = 20
 	max_length_uuid       = len("00000000-0000-0000-0000-000000000000")
 )
 
 var (
 	min_length_email      = 6
-	min_length_human_name = 1
-	min_length_username   = 1
+	min_length_human_name = 6
+	min_length_username   = 6
 	min_length_uuid       = len("00000000-0000-0000-0000-000000000000")
 )
 
@@ -40,7 +40,7 @@ func (v Username) Validate() error {
 	return validate.StringBasics(string(v), min_length_username, max_length_username, regexp_username)
 }
 
-func (v Uid) Validate() error {
+func (v UserId) Validate() error {
 	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
 }
 
@@ -60,7 +60,7 @@ func (v HumanName) Validate() error {
 }
 
 const (
-	ZeroUserId = Uid("00000000-0000-0000-0000-000000000000")
+	ZeroUserId = UserId("00000000-0000-0000-0000-000000000000")
 )
 
 var ZeroTimestamp = pgtype.Timestamp{}
