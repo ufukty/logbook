@@ -6,14 +6,11 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-type Endpoint struct {
-	Method string `yaml:"method"`
-	Path   Path   `yaml:"path"`
-}
 type Path string
 type Public struct {
 	Path     Path `yaml:"path"`
 	Services struct {
+		Account  Account `yaml:"account"`
 		Document struct {
 			Endpoints struct {
 				List Endpoint `yaml:"list"`
@@ -30,12 +27,25 @@ type Public struct {
 		} `yaml:"tags"`
 	} `yaml:"services"`
 }
-type Objectives struct {
+type Account struct {
 	Endpoints struct {
-		Create       Endpoint `yaml:"create"`
-		GetPlacement Endpoint `yaml:"getPlacement"`
+		Register Endpoint `yaml:"register"`
 	} `yaml:"endpoints"`
 	Path Path `yaml:"path"`
+}
+type Objectives struct {
+	Endpoints struct {
+		Attach    Endpoint `yaml:"attach"`
+		Create    Endpoint `yaml:"create"`
+		Delete    Endpoint `yaml:"delete"`
+		Mark      Endpoint `yaml:"mark"`
+		Placement Endpoint `yaml:"placement"`
+	} `yaml:"endpoints"`
+	Path Path `yaml:"path"`
+}
+type Endpoint struct {
+	Method string `yaml:"method"`
+	Path   Path   `yaml:"path"`
 }
 // IMPORTANT:
 // Types are defined only for internal purposes.

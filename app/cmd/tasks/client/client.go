@@ -20,7 +20,5 @@ func NewClient(config api.Config) *Client {
 }
 
 func (c Client) CreateObjective(bq *endpoints.CreateTaskRequest) (*endpoints.CreateTaskResponse, error) {
-	return reqs.Send[endpoints.CreateTaskRequest, endpoints.CreateTaskResponse](
-		filepath.Join(c.path, string(c.config.Endpoints.Create.Path)), c.config.Endpoints.Create.Method, bq,
-	)
+	return reqs.SendTo[endpoints.CreateTaskRequest, endpoints.CreateTaskResponse](c.path, c.config.Endpoints.Create, bq)
 }

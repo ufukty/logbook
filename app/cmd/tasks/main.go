@@ -47,8 +47,10 @@ func main() {
 
 	eps := apicfg.Gateways.Public.Services.Objectives.Endpoints
 	var handlers = map[api.Endpoint]http.HandlerFunc{
-		eps.GetPlacement: em.GetPlacementArray,
-		eps.Create:       em.CreateTask,
+		eps.Attach:    em.ReattachObjective,
+		eps.Create:    em.CreateTask,
+		eps.Mark:      em.MarkComplete,
+		eps.Placement: em.GetPlacementArray,
 	}
 
 	router.StartServer(":"+cfg.RouterPrivate, false, cfg.RouterParameters, api.RouteRegisterer(handlers))

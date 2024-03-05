@@ -4,22 +4,18 @@ import (
 	"fmt"
 	"log"
 	"logbook/cmd/tasks/app"
-	"logbook/cmd/tasks/database"
 	"logbook/internal/web/reqs"
+	"logbook/internal/web/validate"
 	"net/http"
 )
 
 type CreateTaskRequest struct {
-	ParentOid database.ObjectiveId `json:"parent_oid"`
-	ParentVid database.VersionId   `json:"parent_vid"`
-	Text      string               `json:"text"`
+	Parent  app.Ovid         `json:"parent"`
+	Content ObjectiveContent `json:"content"`
 }
 
 func (ct CreateTaskRequest) validate() error {
-	if !ct.ParentOid.Validate() {
-		return fmt.Errorf("invalid value for 'parent' parameter")
-	}
-	return nil
+	return validate.RequestFields(ct)
 }
 
 type CreateTaskResponse struct {
@@ -41,14 +37,11 @@ func (e *Endpoints) CreateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	act := app.CreateObjectiveAction{
-		ParentOid: bq.ParentOid,
-		ParentVid: bq.ParentVid,
-		Content:   bq.Text,
-		Creator:   "00000000-0000-0000-0000-000000000000", // TODO: check auth header
-	}
-
-	o, err := e.app.CreateObjective(act)
+	o, err := e.app.CreateObjective(r.Context(), app.CreateObjectiveAction{
+		Parent:  bq.Parent,
+		Content: string(bq.Content),
+		Creator: "00000000-0000-0000-0000-000000000000", // TODO: check auth header
+	})
 	if err != nil {
 		log.Println(fmt.Errorf("app.createObjective: %w", err))
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -56,7 +49,7 @@ func (e *Endpoints) CreateTask(w http.ResponseWriter, r *http.Request) {
 	}
 
 	bs := CreateTaskResponse{
-		Created: o.Oid,
+		Update: o,
 	}
 	if err := reqs.WriteJsonResponse(bs, w); err != nil {
 		log.Println(fmt.Errorf("writing json response: %w", err))

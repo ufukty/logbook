@@ -1,7 +1,8 @@
-package database
+package integration
 
 import (
 	"fmt"
+	"logbook/integration/data"
 	"os"
 	"testing"
 )
@@ -14,22 +15,31 @@ func TestMain(m *testing.M) {
 }
 
 func TestIntegration(t *testing.T) {
-	os, err := load()
+	objs, err := data.LoadTestData()
 	if err != nil {
 		t.Fatal(fmt.Errorf("prep, load: %w", err))
 	}
 
-	if len(os) == 0 {
+	if len(objs) == 0 {
 		t.Fatal(fmt.Errorf("prep, assert: test file has no objective instance to create"))
 	}
 
+	uctl, err := NewUserClient("../testing")
+	if err != nil {
+		t.Fatal(fmt.Errorf("prep, user client: %w", err))
+	}
+
+	if err = uctl.Register(); err != nil {
+		t.Fatal(fmt.Errorf("act, registering: %w", err))
+	}
+
 	// create the Rock and get its id
-	rockId, err := createTheRock()
+	rockId, err := uctl.createTheRock()
 	if err != nil {
 		t.Fatal(fmt.Errorf("act, creating the rock: %w", err))
 	}
 
-	if err := createOnRock(rockId, os); err != nil {
+	if err := createOnRock(rockId, objs); err != nil {
 		t.Fatal(fmt.Errorf("act, creating the rock: %w", err))
 	}
 

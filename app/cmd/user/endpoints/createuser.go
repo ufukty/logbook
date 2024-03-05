@@ -6,20 +6,23 @@ import (
 	"logbook/cmd/user/database"
 	"logbook/internal/web/crypto"
 	"logbook/internal/web/reqs"
+	"logbook/internal/web/validate"
 	"net/http"
 )
 
 type CreateUserRequest struct {
-	NameSurname NonEmptyString    `json:"name_surname"`
-	Username    database.Username `json:"username"`
-	Password    string            `json:"password"`
+	Email       database.Email     `json:"email"`
+	NameSurname database.HumanName `json:"name_surname"`
+	Password    string             `json:"password"`
+	Username    database.Username  `json:"username"`
 }
 
 func (bq CreateUserRequest) validate() error {
-	if !bq.Username.Validate() {
-		return fmt.Errorf("invalid value for username parameter")
-	}
-	return nil
+	return validate.All(map[string]validate.Validator{
+		"email":        bq.Email,
+		"name surname": bq.NameSurname,
+		"username":     bq.Username,
+	})
 }
 
 type CreateUserResponse struct{}
@@ -66,8 +69,8 @@ func (e *Endpoints) CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user := database.User{
-		NameSurname:       string(params.Request.NameSurname),
-		EmailAddress:      string(params.Request.EmailAddress),
+		NameSurname:       string(bq.NameSurname),
+		EmailAddress:      string(bq.EmailAddress),
 		SaltBase64Encoded: string(crypto.Base64Encode(salt)),
 		HashEncoded:       hashedPassword,
 	}

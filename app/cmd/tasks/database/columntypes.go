@@ -14,7 +14,6 @@ type (
 	CommitId    string
 	OperationId string
 	LinkId      string
-	HumanName   string
 
 	NonNegativeNumber int
 )
@@ -41,10 +40,6 @@ var (
 	min_length_uuid       = len("00000000-0000-0000-0000-000000000000")
 	min_length_human_name = 1
 )
-
-func (v HumanName) Validate() error {
-	return validate.StringBasics(string(v), min_length_human_name, max_length_human_name, regexp_human_name)
-}
 
 func (v UserId) Validate() error {
 	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)

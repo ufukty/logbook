@@ -3,6 +3,10 @@ gateways:
   public:
     path: /api/v1.0.0
     services:
+      account:
+        path: account
+        endpoints:
+          register: { method: "POST", path: "user" }
       document:
         path: document
         endpoints:
@@ -10,8 +14,11 @@ gateways:
       objectives:
         path: tasks
         endpoints:
+          attach: { method: "POST", path: "task/attach" }
           create: { method: "POST", path: "task" }
-          getPlacement: { method: "GET", path: "placement/{root}" }
+          delete: { method: "POST", path: "task/delete" }
+          placement: { method: "GET", path: "task/{root}/placement" }
+          mark: { method: "POST", path: "task/mark" }
       tags:
         path: tags
         endpoints:
