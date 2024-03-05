@@ -3,7 +3,6 @@ package endpoints
 import (
 	"fmt"
 	"log"
-	"logbook/config"
 	"logbook/internal/web/reqs"
 	"net/http"
 )
@@ -43,7 +42,4 @@ func (e *Endpoints) TagCreation(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
-}
-func (bq *TagCreationRequest) Send() (*TagCreationResponse, error) {
-	return reqs.Send[TagCreationRequest, TagCreationResponse](config.TagCreation, bq)
 }
