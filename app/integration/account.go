@@ -2,7 +2,7 @@ package integration
 
 import (
 	"fmt"
-	"logbook/cmd/user/endpoints"
+	"logbook/cmd/account/endpoints"
 )
 
 func (ctl UserClient) Register() error {

@@ -1,7 +1,7 @@
 package objectives
 
 import (
-	"logbook/cmd/tasks/endpoints"
+	"logbook/cmd/objectives/endpoints"
 	"logbook/internal/web/api"
 	"logbook/internal/web/reqs"
 	"path/filepath"

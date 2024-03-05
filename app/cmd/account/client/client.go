@@ -1,7 +1,7 @@
 package account
 
 import (
-	"logbook/cmd/user/endpoints"
+	"logbook/cmd/account/endpoints"
 	"logbook/internal/web/api"
 	"logbook/internal/web/reqs"
 	"path/filepath"

@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"logbook/cmd/tasks/controllers/document"
-	"logbook/cmd/tasks/controllers/task"
+	"logbook/cmd/objectives/controllers/document"
+	"logbook/cmd/objectives/controllers/task"
 	"net/http"
 
 	"github.com/gorilla/mux"

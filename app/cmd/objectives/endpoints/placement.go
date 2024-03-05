@@ -1,12 +1,11 @@
 package endpoints
 
 import (
-	"logbook/cmd/tasks/database"
+	"logbook/cmd/objectives/database"
 	"net/http"
 )
 
 type GetPlacementArrayRequest struct {
-	
 }
 
 type GetPlacementArrayResponse struct {

@@ -1,6 +1,6 @@
 package webhook
 
-import "logbook/cmd/tasks/database"
+import "logbook/cmd/objectives/database"
 
 type eventOutdate struct {
 	oid           database.ObjectiveId

@@ -2,11 +2,11 @@ package integration
 
 import (
 	"fmt"
-	"logbook/cmd/tasks/app"
-	objectives "logbook/cmd/tasks/client"
-	"logbook/cmd/tasks/database"
-	"logbook/cmd/tasks/endpoints"
-	account "logbook/cmd/user/client"
+	account "logbook/cmd/account/client"
+	"logbook/cmd/objectives/app"
+	objectives "logbook/cmd/objectives/client"
+	"logbook/cmd/objectives/database"
+	"logbook/cmd/objectives/endpoints"
 	"logbook/internal/web/api"
 )
 

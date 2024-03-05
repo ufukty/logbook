@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
-	"logbook/cmd/tasks/database"
+	"logbook/cmd/objectives/database"
 )
 
 // proposals can have multiple actions

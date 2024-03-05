@@ -1,6 +1,6 @@
 package app
 
-import "logbook/cmd/tasks/database"
+import "logbook/cmd/objectives/database"
 
 type App struct {
 	queries *database.Queries

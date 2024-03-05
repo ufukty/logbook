@@ -3,7 +3,7 @@ package endpoints
 import (
 	"fmt"
 	"log"
-	"logbook/cmd/tasks/app"
+	"logbook/cmd/objectives/app"
 	"logbook/internal/web/reqs"
 	"logbook/internal/web/validate"
 	"net/http"

@@ -2,7 +2,7 @@ package app
 
 import (
 	"fmt"
-	"logbook/cmd/tasks/database"
+	"logbook/cmd/objectives/database"
 	"logbook/internal/web/validate"
 )
 

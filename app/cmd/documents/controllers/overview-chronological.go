@@ -1,10 +1,12 @@
 package document
 
 import (
-	// db "logbook/cmd/tasks/database"
-	// c "logbook/cmd/tasks/controller"
+	// db "logbook/cmd/objectives/database"
+	// c "logbook/cmd/objectives/controller"
 	// e "logbook/internal/errors"
 	// v "logbook/internal/validate"
+	e "logbook/controller/utilities/errors"
+	v "logbook/controller/utilities/validate"
 	"net/http"
 	"strconv"
 

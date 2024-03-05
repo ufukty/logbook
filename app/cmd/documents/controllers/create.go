@@ -1,7 +1,7 @@
 package document
 
 import (
-	"logbook/cmd/tasks/database"
+	"logbook/cmd/objectives/database"
 	c "logbook/controller"
 	e "logbook/controller/utilities/errors"
 	"net/http"

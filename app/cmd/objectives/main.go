@@ -3,9 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
-	"logbook/cmd/tasks/app"
-	"logbook/cmd/tasks/database"
-	"logbook/cmd/tasks/endpoints"
+	"logbook/cmd/objectives/app"
+	"logbook/cmd/objectives/database"
+	"logbook/cmd/objectives/endpoints"
 	"logbook/config"
 	"logbook/internal/utilities/reflux"
 	"logbook/internal/web/api"

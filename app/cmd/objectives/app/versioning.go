@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"logbook/cmd/tasks/database"
+	"logbook/cmd/objectives/database"
 
 	"github.com/jackc/pgx/v4"
 )

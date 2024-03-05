@@ -2,8 +2,8 @@ package endpoints
 
 import (
 	"fmt"
-	"logbook/cmd/tasks/app"
-	"logbook/cmd/tasks/database"
+	"logbook/cmd/objectives/app"
+	"logbook/cmd/objectives/database"
 	"logbook/internal/utilities/run"
 	"os"
 	"testing"

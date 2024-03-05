@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
-	"logbook/cmd/tasks/database"
+	"logbook/cmd/objectives/database"
 )
 
 func (a *App) ListObjectiveAncestry(ctx context.Context, ovid Ovid) ([]Ovid, error) {

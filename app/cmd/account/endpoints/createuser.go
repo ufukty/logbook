@@ -3,7 +3,7 @@ package endpoints
 import (
 	"fmt"
 	"log"
-	"logbook/cmd/user/database"
+	"logbook/cmd/account/database"
 	"logbook/internal/web/crypto"
 	"logbook/internal/web/reqs"
 	"logbook/internal/web/validate"

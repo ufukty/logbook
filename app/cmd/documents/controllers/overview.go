@@ -1,7 +1,7 @@
 package document
 
 import (
-	db "logbook/cmd/tasks/database"
+	db "logbook/cmd/objectives/database"
 	c "logbook/controller"
 	e "logbook/controller/utilities/errors"
 	v "logbook/controller/utilities/validate"

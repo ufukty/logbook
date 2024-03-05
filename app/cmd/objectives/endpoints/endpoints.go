@@ -1,7 +1,7 @@
 package endpoints
 
 import (
-	"logbook/cmd/tasks/app"
+	"logbook/cmd/objectives/app"
 	"logbook/internal/web/logger"
 )
 
