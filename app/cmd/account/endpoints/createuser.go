@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"log"
 	"logbook/cmd/account/database"
-	"logbook/internal/web/crypto"
 	"logbook/internal/web/reqs"
 	"logbook/internal/web/validate"
 	"net/http"
+
+	"github.com/alexedwards/argon2id"
 )
 
 type CreateUserRequest struct {
@@ -27,6 +28,14 @@ func (bq CreateUserRequest) validate() error {
 
 type CreateUserResponse struct{}
 
+var argon2idParams = &argon2id.Params{
+	Memory:      64 * 1024,
+	Iterations:  3,
+	Parallelism: 1,
+	SaltLength:  16,
+	KeyLength:   32,
+}
+
 /*
  * Objectives for this function
  * TODO: Sanitize user input
@@ -40,7 +49,6 @@ type CreateUserResponse struct{}
  * TODO: Create first bookmark
  * TODO: Wrap creation of user-task-bookmark with transaction, rollback on failure to not-lock person to re-register with same email
  */
-
 func (e *Endpoints) CreateUser(w http.ResponseWriter, r *http.Request) {
 	bq, err := reqs.ParseRequest[CreateUserRequest](r)
 	if err != nil {
@@ -55,32 +63,11 @@ func (e *Endpoints) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	salt, err := crypto.NewSalt()
-	if err != nil {
-		log.Println(fmt.Errorf("creating salt: %w", err))
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
-	hash, err := crypto.Argon2Hash([]byte(bq.Password), salt)
+	hash, err := argon2id.CreateHash(bq.Password, argon2idParams)
 	if err != nil {
 		log.Println(fmt.Errorf("creating hash: %w", err))
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
-	user := database.User{
-		NameSurname:       string(bq.NameSurname),
-		EmailAddress:      string(bq.Email),
-		SaltBase64Encoded: string(crypto.Base64Encode(salt)),
-		HashEncoded:       hashedPassword,
-	}
-	result := database.Db.Create(&user)
-	if result.Error != nil {
-		if errorCode := database.StripSQLState(fmt.Sprint(result.Error)); errorCode == pgerrcode.UniqueViolation {
-			CallErrorHandler(w, r, err, "UserCreate()/UserCreation/EmailUniqueness")
-		} else {
-			CallErrorHandler(w, r, err, "UserCreate()/UserCreation/GeneralError")
-		}
-		return
-	}
 }
