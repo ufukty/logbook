@@ -11,14 +11,14 @@ import (
 )
 
 type Access struct {
-	Uid       pgtype.UUID
+	Uid       UserId
 	Useragent pgtype.Text
 	Ipaddress netip.Addr
 	CreatedAt pgtype.Timestamp
 }
 
 type User struct {
-	Uid       pgtype.UUID
+	Uid       UserId
 	Email     string
 	Hash      string
 	CreatedAt pgtype.Timestamp
