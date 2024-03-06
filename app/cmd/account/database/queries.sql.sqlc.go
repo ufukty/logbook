@@ -20,7 +20,7 @@ RETURNING
 `
 
 type InsertAccessParams struct {
-	Uid       pgtype.UUID
+	Uid       UserId
 	Useragent pgtype.Text
 	Ipaddress netip.Addr
 }
@@ -45,7 +45,7 @@ RETURNING
 `
 
 type InsertUserParams struct {
-	Uid   pgtype.UUID
+	Uid   UserId
 	Email string
 	Hash  string
 }
