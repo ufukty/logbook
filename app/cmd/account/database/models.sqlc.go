@@ -11,15 +11,37 @@ import (
 )
 
 type Access struct {
+	Aid       AccessId
 	Uid       UserId
 	Useragent pgtype.Text
 	Ipaddress netip.Addr
 	CreatedAt pgtype.Timestamp
 }
 
-type User struct {
+type Login struct {
+	Lid       LoginId
 	Uid       UserId
 	Email     string
 	Hash      string
+	Deleted   bool
+	CreatedAt pgtype.Timestamp
+}
+
+type Profile struct {
+	Uid       UserId
+	Firstname string
+	Lastname  string
+	CreatedAt pgtype.Timestamp
+}
+
+type Session struct {
+	Sid       SessionId
+	Uid       UserId
+	CreatedAt pgtype.Timestamp
+}
+
+type User struct {
+	Uid       UserId
+	Deleted   bool
 	CreatedAt pgtype.Timestamp
 }

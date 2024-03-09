@@ -12,11 +12,25 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const deleteLoginByLid = `-- name: DeleteLoginByLid :exec
+UPDATE
+    "login"
+SET
+    "deleted" = TRUE
+WHERE
+    "lid" = $1
+`
+
+func (q *Queries) DeleteLoginByLid(ctx context.Context, lid LoginId) error {
+	_, err := q.db.Exec(ctx, deleteLoginByLid, lid)
+	return err
+}
+
 const insertAccess = `-- name: InsertAccess :one
 INSERT INTO "access"("uid", "useragent", "ipaddress")
     VALUES ($1, $2, $3)
 RETURNING
-    uid, useragent, ipaddress, created_at
+    aid, uid, useragent, ipaddress, created_at
 `
 
 type InsertAccessParams struct {
@@ -29,6 +43,59 @@ func (q *Queries) InsertAccess(ctx context.Context, arg InsertAccessParams) (Acc
 	row := q.db.QueryRow(ctx, insertAccess, arg.Uid, arg.Useragent, arg.Ipaddress)
 	var i Access
 	err := row.Scan(
+		&i.Aid,
+		&i.Uid,
+		&i.Useragent,
+		&i.Ipaddress,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const insertLogin = `-- name: InsertLogin :one
+INSERT INTO "login"("uid", "email", "hash")
+    VALUES ($1, $2, $3)
+RETURNING
+    lid, uid, email, hash, deleted, created_at
+`
+
+type InsertLoginParams struct {
+	Uid   UserId
+	Email string
+	Hash  string
+}
+
+func (q *Queries) InsertLogin(ctx context.Context, arg InsertLoginParams) (Login, error) {
+	row := q.db.QueryRow(ctx, insertLogin, arg.Uid, arg.Email, arg.Hash)
+	var i Login
+	err := row.Scan(
+		&i.Lid,
+		&i.Uid,
+		&i.Email,
+		&i.Hash,
+		&i.Deleted,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const insertSession = `-- name: InsertSession :one
+INSERT INTO "access"("uid", "uid")
+    VALUES ($1, $2)
+RETURNING
+    aid, uid, useragent, ipaddress, created_at
+`
+
+type InsertSessionParams struct {
+	Uid   UserId
+	Uid_2 UserId
+}
+
+func (q *Queries) InsertSession(ctx context.Context, arg InsertSessionParams) (Access, error) {
+	row := q.db.QueryRow(ctx, insertSession, arg.Uid, arg.Uid_2)
+	var i Access
+	err := row.Scan(
+		&i.Aid,
 		&i.Uid,
 		&i.Useragent,
 		&i.Ipaddress,
@@ -38,26 +105,134 @@ func (q *Queries) InsertAccess(ctx context.Context, arg InsertAccessParams) (Acc
 }
 
 const insertUser = `-- name: InsertUser :one
-INSERT INTO "user"("uid", "email", "hash")
-    VALUES ($1, $2, $3)
-RETURNING
-    uid, email, hash, created_at
+INSERT INTO "user" DEFAULT
+    VALUES
+    RETURNING
+        uid, deleted, created_at
 `
 
-type InsertUserParams struct {
-	Uid   UserId
-	Email string
-	Hash  string
+func (q *Queries) InsertUser(ctx context.Context) (User, error) {
+	row := q.db.QueryRow(ctx, insertUser)
+	var i User
+	err := row.Scan(&i.Uid, &i.Deleted, &i.CreatedAt)
+	return i, err
 }
 
-func (q *Queries) InsertUser(ctx context.Context, arg InsertUserParams) (User, error) {
-	row := q.db.QueryRow(ctx, insertUser, arg.Uid, arg.Email, arg.Hash)
-	var i User
+const selectLatestLoginByEmail = `-- name: SelectLatestLoginByEmail :one
+SELECT
+    lid, uid, email, hash, deleted, created_at
+FROM
+    "login"
+WHERE
+    "email" = $1
+    AND ! "deleted"
+ORDER BY
+    "created_at"
+LIMIT 1
+`
+
+func (q *Queries) SelectLatestLoginByEmail(ctx context.Context, email string) (Login, error) {
+	row := q.db.QueryRow(ctx, selectLatestLoginByEmail, email)
+	var i Login
 	err := row.Scan(
+		&i.Lid,
 		&i.Uid,
 		&i.Email,
 		&i.Hash,
+		&i.Deleted,
 		&i.CreatedAt,
 	)
+	return i, err
+}
+
+const selectLatestTwentyAccessesByUid = `-- name: SelectLatestTwentyAccessesByUid :many
+SELECT
+    aid, uid, useragent, ipaddress, created_at
+FROM
+    "access"
+WHERE
+    "uid" = $1
+ORDER BY
+    "created_at"
+LIMIT 20
+`
+
+func (q *Queries) SelectLatestTwentyAccessesByUid(ctx context.Context, uid UserId) ([]Access, error) {
+	rows, err := q.db.Query(ctx, selectLatestTwentyAccessesByUid, uid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Access
+	for rows.Next() {
+		var i Access
+		if err := rows.Scan(
+			&i.Aid,
+			&i.Uid,
+			&i.Useragent,
+			&i.Ipaddress,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const selectLoginsByUid = `-- name: SelectLoginsByUid :many
+SELECT
+    lid, uid, email, hash, deleted, created_at
+FROM
+    "login"
+WHERE
+    "uid" = $1
+    AND ! "deleted"
+`
+
+func (q *Queries) SelectLoginsByUid(ctx context.Context, uid UserId) ([]Login, error) {
+	rows, err := q.db.Query(ctx, selectLoginsByUid, uid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Login
+	for rows.Next() {
+		var i Login
+		if err := rows.Scan(
+			&i.Lid,
+			&i.Uid,
+			&i.Email,
+			&i.Hash,
+			&i.Deleted,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const selectUserByUserId = `-- name: SelectUserByUserId :one
+SELECT
+    uid, deleted, created_at
+FROM
+    "user"
+WHERE
+    "uid" = $1
+LIMIT 1
+`
+
+func (q *Queries) SelectUserByUserId(ctx context.Context, uid UserId) (User, error) {
+	row := q.db.QueryRow(ctx, selectUserByUserId, uid)
+	var i User
+	err := row.Scan(&i.Uid, &i.Deleted, &i.CreatedAt)
 	return i, err
 }

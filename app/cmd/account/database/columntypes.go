@@ -10,6 +10,9 @@ import (
 type (
 	Username          string
 	UserId            string
+	LoginId           string
+	AccessId          string
+	SessionId         string
 	Email             string
 	NonNegativeNumber int
 	HumanName         string
@@ -41,6 +44,18 @@ func (v Username) Validate() error {
 }
 
 func (v UserId) Validate() error {
+	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
+}
+
+func (v LoginId) Validate() error {
+	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
+}
+
+func (v AccessId) Validate() error {
+	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
+}
+
+func (v SessionId) Validate() error {
 	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
 }
 

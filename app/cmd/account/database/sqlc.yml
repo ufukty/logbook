@@ -15,3 +15,12 @@ sql:
           - db_type: UserId
             go_type:
               type: UserId
+          - db_type: LoginId
+            go_type:
+              type: LoginId
+          - db_type: AccessId
+            go_type:
+              type: AccessId
+          - db_type: SessionId
+            go_type:
+              type: SessionId
