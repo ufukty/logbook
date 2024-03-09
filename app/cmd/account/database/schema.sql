@@ -42,6 +42,8 @@ CREATE DOMAIN "SessionId" AS uuid;
 CREATE TABLE "session"(
     "sid" "SessionId" NOT NULL DEFAULT gen_random_uuid(),
     "uid" "UserId" NOT NULL,
+    "token" text NOT NULL,
+    "valid_until" timestamp NOT NULL,
     "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 

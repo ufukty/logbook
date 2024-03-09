@@ -35,9 +35,11 @@ type Profile struct {
 }
 
 type Session struct {
-	Sid       SessionId
-	Uid       UserId
-	CreatedAt pgtype.Timestamp
+	Sid        SessionId
+	Uid        UserId
+	Token      string
+	ValidUntil pgtype.Timestamp
+	CreatedAt  pgtype.Timestamp
 }
 
 type User struct {

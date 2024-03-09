@@ -80,25 +80,25 @@ func (q *Queries) InsertLogin(ctx context.Context, arg InsertLoginParams) (Login
 }
 
 const insertSession = `-- name: InsertSession :one
-INSERT INTO "access"("uid", "uid")
+INSERT INTO "session"("uid", "token")
     VALUES ($1, $2)
 RETURNING
-    aid, uid, useragent, ipaddress, created_at
+    sid, uid, token, valid_until, created_at
 `
 
 type InsertSessionParams struct {
 	Uid   UserId
-	Uid_2 UserId
+	Token string
 }
 
-func (q *Queries) InsertSession(ctx context.Context, arg InsertSessionParams) (Access, error) {
-	row := q.db.QueryRow(ctx, insertSession, arg.Uid, arg.Uid_2)
-	var i Access
+func (q *Queries) InsertSession(ctx context.Context, arg InsertSessionParams) (Session, error) {
+	row := q.db.QueryRow(ctx, insertSession, arg.Uid, arg.Token)
+	var i Session
 	err := row.Scan(
-		&i.Aid,
+		&i.Sid,
 		&i.Uid,
-		&i.Useragent,
-		&i.Ipaddress,
+		&i.Token,
+		&i.ValidUntil,
 		&i.CreatedAt,
 	)
 	return i, err

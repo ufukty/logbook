@@ -53,7 +53,7 @@ LIMIT 1;
 ;
 
 -- name: InsertSession :one
-INSERT INTO "access"("uid", "uid")
+INSERT INTO "session"("uid", "token")
     VALUES ($1, $2)
 RETURNING
     *;
