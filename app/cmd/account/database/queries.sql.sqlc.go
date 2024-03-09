@@ -80,10 +80,10 @@ func (q *Queries) InsertLogin(ctx context.Context, arg InsertLoginParams) (Login
 }
 
 const insertSession = `-- name: InsertSession :one
-INSERT INTO "session"("uid", "token")
+INSERT INTO "session_standard"("uid", "token")
     VALUES ($1, $2)
 RETURNING
-    sid, uid, token, valid_until, created_at
+    sid, uid, token, created_at
 `
 
 type InsertSessionParams struct {
@@ -91,14 +91,61 @@ type InsertSessionParams struct {
 	Token string
 }
 
-func (q *Queries) InsertSession(ctx context.Context, arg InsertSessionParams) (Session, error) {
+func (q *Queries) InsertSession(ctx context.Context, arg InsertSessionParams) (SessionStandard, error) {
 	row := q.db.QueryRow(ctx, insertSession, arg.Uid, arg.Token)
-	var i Session
+	var i SessionStandard
 	err := row.Scan(
 		&i.Sid,
 		&i.Uid,
 		&i.Token,
-		&i.ValidUntil,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const insertSessionAccountRead = `-- name: InsertSessionAccountRead :one
+INSERT INTO "session_account_read"("uid", "token")
+    VALUES ($1, $2)
+RETURNING
+    sid, uid, token, created_at
+`
+
+type InsertSessionAccountReadParams struct {
+	Uid   UserId
+	Token string
+}
+
+func (q *Queries) InsertSessionAccountRead(ctx context.Context, arg InsertSessionAccountReadParams) (SessionAccountRead, error) {
+	row := q.db.QueryRow(ctx, insertSessionAccountRead, arg.Uid, arg.Token)
+	var i SessionAccountRead
+	err := row.Scan(
+		&i.Sid,
+		&i.Uid,
+		&i.Token,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const insertSessionAccountWrite = `-- name: InsertSessionAccountWrite :one
+INSERT INTO "session_account_write"("uid", "token")
+    VALUES ($1, $2)
+RETURNING
+    sid, uid, token, created_at
+`
+
+type InsertSessionAccountWriteParams struct {
+	Uid   UserId
+	Token string
+}
+
+func (q *Queries) InsertSessionAccountWrite(ctx context.Context, arg InsertSessionAccountWriteParams) (SessionAccountWrite, error) {
+	row := q.db.QueryRow(ctx, insertSessionAccountWrite, arg.Uid, arg.Token)
+	var i SessionAccountWrite
+	err := row.Scan(
+		&i.Sid,
+		&i.Uid,
+		&i.Token,
 		&i.CreatedAt,
 	)
 	return i, err
@@ -218,6 +265,69 @@ func (q *Queries) SelectLoginsByUid(ctx context.Context, uid UserId) ([]Login, e
 		return nil, err
 	}
 	return items, nil
+}
+
+const selectSession = `-- name: SelectSession :one
+SELECT
+    sid, uid, token, created_at
+FROM
+    "session_standard"
+WHERE
+    "sid" = $1
+`
+
+func (q *Queries) SelectSession(ctx context.Context, sid SessionId) (SessionStandard, error) {
+	row := q.db.QueryRow(ctx, selectSession, sid)
+	var i SessionStandard
+	err := row.Scan(
+		&i.Sid,
+		&i.Uid,
+		&i.Token,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const selectSessionAccountRead = `-- name: SelectSessionAccountRead :one
+SELECT
+    sid, uid, token, created_at
+FROM
+    "session_account_read"
+WHERE
+    "sid" = $1
+`
+
+func (q *Queries) SelectSessionAccountRead(ctx context.Context, sid SessionId) (SessionAccountRead, error) {
+	row := q.db.QueryRow(ctx, selectSessionAccountRead, sid)
+	var i SessionAccountRead
+	err := row.Scan(
+		&i.Sid,
+		&i.Uid,
+		&i.Token,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const selectSessionAccountWrite = `-- name: SelectSessionAccountWrite :one
+SELECT
+    sid, uid, token, created_at
+FROM
+    "session_account_write"
+WHERE
+    "sid" = $1
+`
+
+func (q *Queries) SelectSessionAccountWrite(ctx context.Context, sid SessionId) (SessionAccountWrite, error) {
+	row := q.db.QueryRow(ctx, selectSessionAccountWrite, sid)
+	var i SessionAccountWrite
+	err := row.Scan(
+		&i.Sid,
+		&i.Uid,
+		&i.Token,
+		&i.CreatedAt,
+	)
+	return i, err
 }
 
 const selectUserByUserId = `-- name: SelectUserByUserId :one

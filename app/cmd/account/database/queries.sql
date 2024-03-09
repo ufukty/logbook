@@ -53,10 +53,46 @@ LIMIT 1;
 ;
 
 -- name: InsertSession :one
-INSERT INTO "session"("uid", "token")
+INSERT INTO "session_standard"("uid", "token")
     VALUES ($1, $2)
 RETURNING
     *;
+
+-- name: SelectSession :one
+SELECT
+    *
+FROM
+    "session_standard"
+WHERE
+    "sid" = $1;
+
+-- name: InsertSessionAccountRead :one
+INSERT INTO "session_account_read"("uid", "token")
+    VALUES ($1, $2)
+RETURNING
+    *;
+
+-- name: SelectSessionAccountRead :one
+SELECT
+    *
+FROM
+    "session_account_read"
+WHERE
+    "sid" = $1;
+
+-- name: InsertSessionAccountWrite :one
+INSERT INTO "session_account_write"("uid", "token")
+    VALUES ($1, $2)
+RETURNING
+    *;
+
+-- name: SelectSessionAccountWrite :one
+SELECT
+    *
+FROM
+    "session_account_write"
+WHERE
+    "sid" = $1;
 
 ;
 

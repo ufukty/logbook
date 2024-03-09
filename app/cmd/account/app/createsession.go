@@ -52,19 +52,19 @@ func renewHash(q *database.Queries, ctx context.Context, login database.Login, p
 	return nil
 }
 
-func (a *App) CreateSession(ctx context.Context, params CreateSessionParameters) (database.Session, error) {
+func (a *App) CreateSession(ctx context.Context, params CreateSessionParameters) (database.SessionStandard, error) {
 	login, err := a.queries.SelectLatestLoginByEmail(ctx, params.Email)
 	if err != nil {
-		return database.Session{}, fmt.Errorf("selecting latest hash from database: %w", err)
+		return database.SessionStandard{}, fmt.Errorf("selecting latest hash from database: %w", err)
 	}
 
 	match, _, err := argon2id.CheckHash(params.Password, login.Hash)
 	if err != nil {
-		return database.Session{}, fmt.Errorf("comparing hashes: %w", err)
+		return database.SessionStandard{}, fmt.Errorf("comparing hashes: %w", err)
 	}
 
 	if !match {
-		return database.Session{}, ErrHashMismatch
+		return database.SessionStandard{}, ErrHashMismatch
 	}
 
 	if time.Now().Sub(login.CreatedAt.Time) > month {
@@ -75,7 +75,7 @@ func (a *App) CreateSession(ctx context.Context, params CreateSessionParameters)
 
 	tok, err := generateToken(32)
 	if err != nil {
-		return database.Session{}, fmt.Errorf("generating session token: %w", err)
+		return database.SessionStandard{}, fmt.Errorf("generating session token: %w", err)
 	}
 
 	session, err := a.queries.InsertSession(ctx, database.InsertSessionParams{
@@ -83,7 +83,7 @@ func (a *App) CreateSession(ctx context.Context, params CreateSessionParameters)
 		Token: tok,
 	})
 	if err != nil {
-		return database.Session{}, fmt.Errorf("inserting session information into database: %w", err)
+		return database.SessionStandard{}, fmt.Errorf("inserting session information into database: %w", err)
 	}
 
 	return session, nil

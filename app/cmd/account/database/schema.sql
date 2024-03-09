@@ -39,11 +39,23 @@ CREATE TABLE "access"(
 
 CREATE DOMAIN "SessionId" AS uuid;
 
-CREATE TABLE "session"(
+CREATE TABLE "session_standard"(
     "sid" "SessionId" NOT NULL DEFAULT gen_random_uuid(),
     "uid" "UserId" NOT NULL,
     "token" text NOT NULL,
-    "valid_until" timestamp NOT NULL,
     "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE "session_account_read"(
+    "sid" "SessionId" NOT NULL DEFAULT gen_random_uuid(),
+    "uid" "UserId" NOT NULL,
+    "token" text NOT NULL,
+    "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE "session_account_write"(
+    "sid" "SessionId" NOT NULL DEFAULT gen_random_uuid(),
+    "uid" "UserId" NOT NULL,
+    "token" text NOT NULL,
+    "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
