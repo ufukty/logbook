@@ -53,7 +53,7 @@ func (e *Endpoints) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = e.app.Register(r.Context(), app.RegistrationParameters{
+	err = e.app.CreateUser(r.Context(), app.RegistrationParameters{
 		Firstname: bq.Firstname,
 		Lastname:  bq.Lastname,
 		Email:     bq.Email,
