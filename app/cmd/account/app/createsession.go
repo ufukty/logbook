@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 	"crypto/rand"
-	"encoding/hex"
+	"encoding/base64"
 	"fmt"
 	"log"
 	"logbook/cmd/account/database"
@@ -26,7 +26,7 @@ func generateToken(length int) (string, error) {
 	if _, err := rand.Read(bytes); err != nil {
 		return "", err
 	}
-	return hex.EncodeToString(bytes), nil
+	return base64.URLEncoding.EncodeToString(bytes), nil
 }
 
 func renewHash(q *database.Queries, ctx context.Context, login database.Login, params CreateSessionParameters) error {
