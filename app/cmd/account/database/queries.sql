@@ -13,6 +13,14 @@ WHERE
     "uid" = $1
 LIMIT 1;
 
+-- name: DeleteUserByUid :exec
+UPDATE
+    "user"
+SET
+    "deleted" = TRUE
+WHERE
+    "uid" = $1;
+
 ;
 
 -- name: InsertLogin :one
@@ -58,13 +66,22 @@ INSERT INTO "session_standard"("uid", "token")
 RETURNING
     *;
 
--- name: SelectSession :one
+-- name: SelectSessionBySid :one
 SELECT
     *
 FROM
     "session_standard"
 WHERE
     "sid" = $1;
+
+-- name: SelectActiveSessionsByUid :many
+SELECT
+    *
+FROM
+    "session_standard"
+WHERE
+    "uid" = $1
+    AND ! "deleted";
 
 -- name: DeleteSessionBySid :exec
 UPDATE

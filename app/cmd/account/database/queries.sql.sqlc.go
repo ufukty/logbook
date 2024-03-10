@@ -40,6 +40,20 @@ func (q *Queries) DeleteSessionBySid(ctx context.Context, sid SessionId) error {
 	return err
 }
 
+const deleteUserByUid = `-- name: DeleteUserByUid :exec
+UPDATE
+    "user"
+SET
+    "deleted" = TRUE
+WHERE
+    "uid" = $1
+`
+
+func (q *Queries) DeleteUserByUid(ctx context.Context, uid UserId) error {
+	_, err := q.db.Exec(ctx, deleteUserByUid, uid)
+	return err
+}
+
 const insertAccess = `-- name: InsertAccess :one
 INSERT INTO "access"("uid", "useragent", "ipaddress")
     VALUES ($1, $2, $3)
@@ -182,6 +196,42 @@ func (q *Queries) InsertUser(ctx context.Context) (User, error) {
 	return i, err
 }
 
+const selectActiveSessionsByUid = `-- name: SelectActiveSessionsByUid :many
+SELECT
+    sid, uid, token, deleted, created_at
+FROM
+    "session_standard"
+WHERE
+    "uid" = $1
+    AND ! "deleted"
+`
+
+func (q *Queries) SelectActiveSessionsByUid(ctx context.Context, uid UserId) ([]SessionStandard, error) {
+	rows, err := q.db.Query(ctx, selectActiveSessionsByUid, uid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []SessionStandard
+	for rows.Next() {
+		var i SessionStandard
+		if err := rows.Scan(
+			&i.Sid,
+			&i.Uid,
+			&i.Token,
+			&i.Deleted,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const selectLatestLoginByEmail = `-- name: SelectLatestLoginByEmail :one
 SELECT
     lid, uid, email, hash, deleted, created_at
@@ -284,28 +334,6 @@ func (q *Queries) SelectLoginsByUid(ctx context.Context, uid UserId) ([]Login, e
 	return items, nil
 }
 
-const selectSession = `-- name: SelectSession :one
-SELECT
-    sid, uid, token, deleted, created_at
-FROM
-    "session_standard"
-WHERE
-    "sid" = $1
-`
-
-func (q *Queries) SelectSession(ctx context.Context, sid SessionId) (SessionStandard, error) {
-	row := q.db.QueryRow(ctx, selectSession, sid)
-	var i SessionStandard
-	err := row.Scan(
-		&i.Sid,
-		&i.Uid,
-		&i.Token,
-		&i.Deleted,
-		&i.CreatedAt,
-	)
-	return i, err
-}
-
 const selectSessionAccountRead = `-- name: SelectSessionAccountRead :one
 SELECT
     sid, uid, token, deleted, created_at
@@ -340,6 +368,28 @@ WHERE
 func (q *Queries) SelectSessionAccountWrite(ctx context.Context, sid SessionId) (SessionAccountWrite, error) {
 	row := q.db.QueryRow(ctx, selectSessionAccountWrite, sid)
 	var i SessionAccountWrite
+	err := row.Scan(
+		&i.Sid,
+		&i.Uid,
+		&i.Token,
+		&i.Deleted,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const selectSessionBySid = `-- name: SelectSessionBySid :one
+SELECT
+    sid, uid, token, deleted, created_at
+FROM
+    "session_standard"
+WHERE
+    "sid" = $1
+`
+
+func (q *Queries) SelectSessionBySid(ctx context.Context, sid SessionId) (SessionStandard, error) {
+	row := q.db.QueryRow(ctx, selectSessionBySid, sid)
+	var i SessionStandard
 	err := row.Scan(
 		&i.Sid,
 		&i.Uid,
