@@ -66,6 +66,16 @@ FROM
 WHERE
     "sid" = $1;
 
+-- name: DeleteSessionBySid :exec
+UPDATE
+    "session_standard"
+SET
+    "deleted" = TRUE
+WHERE
+    "sid" = $1;
+
+;
+
 -- name: InsertSessionAccountRead :one
 INSERT INTO "session_account_read"("uid", "token")
     VALUES ($1, $2)
@@ -79,6 +89,8 @@ FROM
     "session_account_read"
 WHERE
     "sid" = $1;
+
+;
 
 -- name: InsertSessionAccountWrite :one
 INSERT INTO "session_account_write"("uid", "token")

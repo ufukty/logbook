@@ -38,6 +38,7 @@ type SessionAccountRead struct {
 	Sid       SessionId
 	Uid       UserId
 	Token     string
+	Deleted   bool
 	CreatedAt pgtype.Timestamp
 }
 
@@ -45,6 +46,7 @@ type SessionAccountWrite struct {
 	Sid       SessionId
 	Uid       UserId
 	Token     string
+	Deleted   bool
 	CreatedAt pgtype.Timestamp
 }
 
@@ -52,6 +54,7 @@ type SessionStandard struct {
 	Sid       SessionId
 	Uid       UserId
 	Token     string
+	Deleted   bool
 	CreatedAt pgtype.Timestamp
 }
 

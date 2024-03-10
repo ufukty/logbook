@@ -26,6 +26,20 @@ func (q *Queries) DeleteLoginByLid(ctx context.Context, lid LoginId) error {
 	return err
 }
 
+const deleteSessionBySid = `-- name: DeleteSessionBySid :exec
+UPDATE
+    "session_standard"
+SET
+    "deleted" = TRUE
+WHERE
+    "sid" = $1
+`
+
+func (q *Queries) DeleteSessionBySid(ctx context.Context, sid SessionId) error {
+	_, err := q.db.Exec(ctx, deleteSessionBySid, sid)
+	return err
+}
+
 const insertAccess = `-- name: InsertAccess :one
 INSERT INTO "access"("uid", "useragent", "ipaddress")
     VALUES ($1, $2, $3)
@@ -83,7 +97,7 @@ const insertSession = `-- name: InsertSession :one
 INSERT INTO "session_standard"("uid", "token")
     VALUES ($1, $2)
 RETURNING
-    sid, uid, token, created_at
+    sid, uid, token, deleted, created_at
 `
 
 type InsertSessionParams struct {
@@ -98,6 +112,7 @@ func (q *Queries) InsertSession(ctx context.Context, arg InsertSessionParams) (S
 		&i.Sid,
 		&i.Uid,
 		&i.Token,
+		&i.Deleted,
 		&i.CreatedAt,
 	)
 	return i, err
@@ -107,7 +122,7 @@ const insertSessionAccountRead = `-- name: InsertSessionAccountRead :one
 INSERT INTO "session_account_read"("uid", "token")
     VALUES ($1, $2)
 RETURNING
-    sid, uid, token, created_at
+    sid, uid, token, deleted, created_at
 `
 
 type InsertSessionAccountReadParams struct {
@@ -122,6 +137,7 @@ func (q *Queries) InsertSessionAccountRead(ctx context.Context, arg InsertSessio
 		&i.Sid,
 		&i.Uid,
 		&i.Token,
+		&i.Deleted,
 		&i.CreatedAt,
 	)
 	return i, err
@@ -131,7 +147,7 @@ const insertSessionAccountWrite = `-- name: InsertSessionAccountWrite :one
 INSERT INTO "session_account_write"("uid", "token")
     VALUES ($1, $2)
 RETURNING
-    sid, uid, token, created_at
+    sid, uid, token, deleted, created_at
 `
 
 type InsertSessionAccountWriteParams struct {
@@ -146,6 +162,7 @@ func (q *Queries) InsertSessionAccountWrite(ctx context.Context, arg InsertSessi
 		&i.Sid,
 		&i.Uid,
 		&i.Token,
+		&i.Deleted,
 		&i.CreatedAt,
 	)
 	return i, err
@@ -269,7 +286,7 @@ func (q *Queries) SelectLoginsByUid(ctx context.Context, uid UserId) ([]Login, e
 
 const selectSession = `-- name: SelectSession :one
 SELECT
-    sid, uid, token, created_at
+    sid, uid, token, deleted, created_at
 FROM
     "session_standard"
 WHERE
@@ -283,6 +300,7 @@ func (q *Queries) SelectSession(ctx context.Context, sid SessionId) (SessionStan
 		&i.Sid,
 		&i.Uid,
 		&i.Token,
+		&i.Deleted,
 		&i.CreatedAt,
 	)
 	return i, err
@@ -290,7 +308,7 @@ func (q *Queries) SelectSession(ctx context.Context, sid SessionId) (SessionStan
 
 const selectSessionAccountRead = `-- name: SelectSessionAccountRead :one
 SELECT
-    sid, uid, token, created_at
+    sid, uid, token, deleted, created_at
 FROM
     "session_account_read"
 WHERE
@@ -304,6 +322,7 @@ func (q *Queries) SelectSessionAccountRead(ctx context.Context, sid SessionId) (
 		&i.Sid,
 		&i.Uid,
 		&i.Token,
+		&i.Deleted,
 		&i.CreatedAt,
 	)
 	return i, err
@@ -311,7 +330,7 @@ func (q *Queries) SelectSessionAccountRead(ctx context.Context, sid SessionId) (
 
 const selectSessionAccountWrite = `-- name: SelectSessionAccountWrite :one
 SELECT
-    sid, uid, token, created_at
+    sid, uid, token, deleted, created_at
 FROM
     "session_account_write"
 WHERE
@@ -325,6 +344,7 @@ func (q *Queries) SelectSessionAccountWrite(ctx context.Context, sid SessionId) 
 		&i.Sid,
 		&i.Uid,
 		&i.Token,
+		&i.Deleted,
 		&i.CreatedAt,
 	)
 	return i, err
