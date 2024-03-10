@@ -17,12 +17,20 @@ var argon2idParams = &argon2id.Params{
 }
 
 type RegistrationParameters struct {
-	Username string
-	Email    string
-	Password string
+	Firstname database.HumanName
+	Lastname  database.HumanName
+	Email     database.Email
+	Password  string
 }
 
+var ErrEmailExists = fmt.Errorf("given email address used in already existing account")
+
 func (a *App) Register(ctx context.Context, params RegistrationParameters) error {
+	_, err := a.queries.SelectLatestLoginByEmail(ctx, string(params.Email))
+	if err != nil {
+		return ErrEmailExists
+	}
+
 	user, err := a.queries.InsertUser(ctx)
 	if err != nil {
 		return fmt.Errorf("inserting record to database: %w", err)
@@ -35,7 +43,7 @@ func (a *App) Register(ctx context.Context, params RegistrationParameters) error
 
 	_, err = a.queries.InsertLogin(ctx, database.InsertLoginParams{
 		Uid:   user.Uid,
-		Email: params.Email,
+		Email: string(params.Email),
 		Hash:  hash,
 	})
 	if err != nil {
