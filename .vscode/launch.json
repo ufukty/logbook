@@ -10,6 +10,15 @@
             "request": "launch",
             "mode": "auto",
             "program": "."
-        }
+        },
+        {
+            "name": "Account",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "app/cmd/account",
+            "cwd": "${workspaceFolder}/app/cmd/account",
+            "args": ["-config=../../../platform/testing/config.yml"],
+        },
     ]
 }
