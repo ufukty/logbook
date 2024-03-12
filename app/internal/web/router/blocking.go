@@ -3,21 +3,33 @@ package router
 import (
 	"fmt"
 	"logbook/config"
+	"logbook/internal/web/api"
 	"logbook/internal/web/logger"
 	"net/http"
 	"time"
 
 	"github.com/go-chi/chi/middleware"
 	"github.com/gorilla/mux"
+	"golang.org/x/exp/maps"
 )
 
-func StartServer(baseURL string, tls bool, cfg config.RouterParameters, endpointRegisterer func(r *mux.Router)) {
-	l := logger.NewLogger(fmt.Sprintf("router(%s)", baseURL))
-
+func StartServer(baseURL string, tls bool, cfg config.RouterParameters, handlers map[api.Endpoint]http.HandlerFunc) {
+	l := logger.NewLogger("Router")
 	r := mux.NewRouter()
-	endpointRegisterer(r)
-	r.HandleFunc("/ping", pongBuilder(l))
-	r.PathPrefix("/").HandlerFunc(lastMatchBuilder(l))
+
+	{
+		l.Println("registering routes in the order:")
+		r := r.UseEncodedPath()
+		for _, ep := range sortEndpoints(maps.Keys(handlers)) {
+			str := fmt.Sprintf("%s %s", ep.Method, ep.Path)
+			handler := handlers[ep]
+			// r.HandleFunc(str, handler)
+			r.HandleFunc(string(ep.Path), handler).Methods(ep.Method)
+			l.Printf("%q -> %p\n", str, handler)
+		}
+		r.HandleFunc("/ping", pongBuilder(l))
+		r.HandleFunc("/", lastMatchBuilder(l))
+	}
 
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Timeout(cfg.RequestTimeout))
