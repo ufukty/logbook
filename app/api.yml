@@ -6,7 +6,7 @@ gateways:
       account:
         path: account
         endpoints:
-          create: { method: "POST", path: "" }
+          create: { method: "POST", path: "/account" }
       document:
         path: document
         endpoints:
