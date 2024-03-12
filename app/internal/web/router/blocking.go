@@ -2,8 +2,8 @@ package router
 
 import (
 	"fmt"
-	"logbook/config"
-	"logbook/internal/web/api"
+	"logbook/config/api"
+	config "logbook/config/deployment"
 	"logbook/internal/web/logger"
 	"net/http"
 	"time"

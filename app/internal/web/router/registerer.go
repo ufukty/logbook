@@ -1,7 +1,7 @@
 package router
 
 import (
-	"logbook/internal/web/api"
+	"logbook/config/api"
 	"net/http"
 	"sort"
 	"strings"

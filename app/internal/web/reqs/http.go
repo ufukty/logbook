@@ -10,7 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"logbook/internal/web/api"
+	"logbook/config/api"
 	"mime"
 	"net/http"
 	"path/filepath"

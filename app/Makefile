@@ -1,10 +1,10 @@
-all: internal/web/api/schema.go
+all: config/api/schema.go
 
-internal/web/api/schema.go: api.yml
+config/api/schema.go: api.yml
 	gonfique \
 		-pkg api \
-		-mappings internal/web/api/mappings.yml \
+		-mappings config/api/mappings.yml \
 		-organize \
 		-in api.yml \
-		-out internal/web/api/schema.go
+		-out config/api/schema.go
 

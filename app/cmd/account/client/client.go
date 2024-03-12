@@ -1,9 +1,7 @@
 package account
 
 import (
-	"logbook/cmd/account/endpoints"
-	"logbook/internal/web/api"
-	"logbook/internal/web/reqs"
+	"logbook/config/api"
 	"path/filepath"
 )
 
@@ -19,6 +17,6 @@ func NewClient(config api.Config) *Client {
 	}
 }
 
-func (c Client) Register(bq *endpoints.CreateUserRequest) (*endpoints.CreateUserResponse, error) {
-	return reqs.SendTo[endpoints.CreateUserRequest, endpoints.CreateUserResponse](c.path, c.config.Endpoints.Register, bq)
-}
+// func (c Client) Register(bq *endpoints.CreateUserRequest) (*endpoints.CreateUserResponse, error) {
+// 	return reqs.SendTo[endpoints.CreateUserRequest, endpoints.CreateUserResponse](c.path, c.config.Endpoints.Register, bq)
+// }

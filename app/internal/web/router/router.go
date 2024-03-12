@@ -3,7 +3,7 @@ package router
 // import (
 // 	"context"
 // 	"fmt"
-// 	"logbook/config"
+// 	"logbook/config/deployment"
 // 	"logbook/internal/web/logger"
 // 	"net/http"
 // 	"os"
