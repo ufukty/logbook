@@ -6,8 +6,8 @@ import (
 	"logbook/cmd/account/app"
 	"logbook/cmd/account/database"
 	"logbook/cmd/account/endpoints"
-	"logbook/config/deployment"
 	"logbook/config/api"
+	"logbook/config/deployment"
 	"logbook/internal/web/router"
 	"net/http"
 	"os"
@@ -32,7 +32,7 @@ func main() {
 	}
 	defer db.Close()
 
-	cfg := config.Read(getConfigPath()).Tasks
+	cfg := deployment.Read(getConfigPath()).Tasks
 
 	apicfg, err := api.ReadConfig("../../api.yml")
 	if err != nil {
