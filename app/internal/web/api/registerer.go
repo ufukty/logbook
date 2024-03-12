@@ -67,11 +67,13 @@ func sortEndpoints(eps []Endpoint) []Endpoint {
 }
 
 func RouteRegisterer(handlers map[Endpoint]http.HandlerFunc) func(*mux.Router) {
+	l := logger.NewLogger("RouteRegisterer")
 	return func(r *mux.Router) {
 		r = r.UseEncodedPath()
+		l.Println("Registering routes in order:")
 		for _, ep := range sortEndpoints(maps.Keys(handlers)) {
-			var handler = handlers[ep]
-			log.Printf("Registering route: %-6s %s\n", ep.Method, ep.Path)
+			handler := handlers[ep]
+			l.Printf("%s %s -> %p\n", ep.Method, ep.Path, handler)
 			r.HandleFunc(string(ep.Path), handler).Methods(ep.Method)
 		}
 	}
