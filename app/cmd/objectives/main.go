@@ -33,7 +33,7 @@ func Main() error {
 	}
 	defer db.Close()
 
-	cfg := config.Read(getConfigPath()).Tasks
+	cfg := deployment.Read(getConfigPath()).Tasks
 	reflux.Print(cfg)
 
 	apicfg, err := api.ReadConfig("../../api.yml")
