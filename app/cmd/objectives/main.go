@@ -1,13 +1,13 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"logbook/cmd/objectives/app"
 	"logbook/cmd/objectives/database"
 	"logbook/cmd/objectives/endpoints"
 	"logbook/config/api"
 	"logbook/config/deployment"
+	"logbook/internal/args"
 	"logbook/internal/utilities/reflux"
 	"logbook/internal/web/router"
 	"net/http"
@@ -16,24 +16,20 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func getConfigPath() string {
-	var configpath string
-	flag.StringVar(&configpath, "config", "", "")
-	flag.Parse()
-	return configpath
-}
-
 func Main() error {
-	godotenv.Load("../.env")
-	godotenv.Load("../.local.env")
+	flags, err := args.Parse()
+	if err != nil {
+		return fmt.Errorf("parsing args: %w", err)
+	}
 
+	godotenv.Load(flags.Environment)
 	db, err := database.New(os.Getenv("DSN"))
 	if err != nil {
 		return fmt.Errorf("creating database instance: %w", err)
 	}
 	defer db.Close()
 
-	cfg := deployment.Read(getConfigPath()).Tasks
+	cfg := deployment.Read(flags.Config).Tasks
 	reflux.Print(cfg)
 
 	apicfg, err := api.ReadConfig("../../api.yml")
