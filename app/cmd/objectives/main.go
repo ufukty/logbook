@@ -7,7 +7,7 @@ import (
 	"logbook/cmd/objectives/database"
 	"logbook/cmd/objectives/endpoints"
 	"logbook/config/api"
-	config "logbook/config/deployment"
+	"logbook/config/deployment"
 	"logbook/internal/utilities/reflux"
 	"logbook/internal/web/router"
 	"net/http"
