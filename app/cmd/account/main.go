@@ -52,7 +52,8 @@ func Main() error {
 
 	eps := apicfg.Gateways.Public.Services.Account.Endpoints
 	router.StartServer(":"+cfg.RouterPrivate, false, cfg.RouterParameters, map[api.Endpoint]http.HandlerFunc{
-		eps.Create: em.CreateUser,
+		eps.Create:        em.CreateUser,
+		eps.CreateSession: em.CreateSession,
 	})
 
 	return nil
