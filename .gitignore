@@ -20,7 +20,6 @@ _.so
 .cache/
 .com.apple.timemachine.donotpresent
 .cxx/
-.development.local.env
 .directory
 .DocumentRevisions-V100
 .DS_*
@@ -50,7 +49,6 @@ _.so
 .idea/tasks.xml
 .idea/workspace.xml
 .ionide
-.local.env
 .lock-wscript
 .LSOverride
 .navigation/
@@ -65,7 +63,6 @@ _.so
 .pnp.\*
 .pnp.js
 .pnpm-debug.log*
-.production.local.env
 .rpt2_cache/
 .rts2_cache_cjs/
 .rts2_cache_es/
@@ -74,7 +71,6 @@ _.so
 .Spotlight-V100
 .TemporaryItems
 .tern-port
-.test.local.env
 .Trash-*
 .Trashes
 .VolumeIcon.icns
@@ -96,6 +92,7 @@ _.so
 *.dex
 *.dll
 *.dylib
+*.env
 *.exe
 *.exe~
 *.hprof
@@ -199,3 +196,4 @@ yarn-error.log*
 !default.pbxuser
 !default.perspectivev3
 !gradle-wrapper.jar
+!template.env
