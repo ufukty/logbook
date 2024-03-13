@@ -48,12 +48,12 @@ func StartServer(baseURL string, tls bool, cfg config.RouterParameters, handlers
 	}
 
 	if tls {
-		l.Printf("calling ListenAndServeTLS on '%s'\n", baseURL)
+		l.Printf("calling ListenAndServeTLS on %q\n", baseURL)
 		if err := server.ListenAndServeTLS(publicCertPath, privateCertPath); err != nil {
 			l.Println(fmt.Errorf("http.Server returned an error from ListenAndServeTLS call: %w", err))
 		}
 	} else {
-		l.Printf("calling ListenAndServe on '%s'\n", baseURL)
+		l.Printf("calling ListenAndServe on %q\n", baseURL)
 		if err := server.ListenAndServe(); err != nil {
 			l.Println(fmt.Errorf("http.Server returned an error from ListendAndServe call: %w", err))
 		}
