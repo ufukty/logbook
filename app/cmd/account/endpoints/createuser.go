@@ -3,7 +3,6 @@ package endpoints
 import (
 	"errors"
 	"fmt"
-	"log"
 	"logbook/cmd/account/app"
 	"logbook/cmd/account/database"
 	"logbook/internal/web/reqs"
@@ -42,13 +41,13 @@ func (bq CreateUserRequest) validate() error {
 func (e *Endpoints) CreateUser(w http.ResponseWriter, r *http.Request) {
 	bq, err := reqs.ParseRequest[CreateUserRequest](r)
 	if err != nil {
-		log.Println(fmt.Errorf("binding: %w", err))
+		e.l.Println(fmt.Errorf("binding: %w", err))
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
 
 	if err := bq.validate(); err != nil {
-		log.Println(fmt.Errorf("validation: %w", err))
+		e.l.Println(fmt.Errorf("validation: %w", err))
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -60,7 +59,7 @@ func (e *Endpoints) CreateUser(w http.ResponseWriter, r *http.Request) {
 		Password:  bq.Password,
 	})
 	if err != nil {
-		log.Println(fmt.Errorf("app.Register: %w", err))
+		e.l.Println(fmt.Errorf("app.Register: %w", err))
 		if errors.Is(err, app.ErrEmailExists) {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 		} else {
