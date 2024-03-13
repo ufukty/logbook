@@ -3,10 +3,14 @@ package api
 import (
 	"fmt"
 	"os"
-
 	"gopkg.in/yaml.v3"
 )
 
+type Endpoint struct {
+	Method string `yaml:"method"`
+	Path   Path   `yaml:"path"`
+}
+type Path string
 type Public struct {
 	Path     Path `yaml:"path"`
 	Services struct {
@@ -29,7 +33,8 @@ type Public struct {
 }
 type Account struct {
 	Endpoints struct {
-		Create Endpoint `yaml:"create"`
+		Create        Endpoint `yaml:"create"`
+		CreateSession Endpoint `yaml:"create_session"`
 	} `yaml:"endpoints"`
 	Path Path `yaml:"path"`
 }
@@ -43,12 +48,6 @@ type Objectives struct {
 	} `yaml:"endpoints"`
 	Path Path `yaml:"path"`
 }
-type Endpoint struct {
-	Method string `yaml:"method"`
-	Path   Path   `yaml:"path"`
-}
-type Path string
-
 // IMPORTANT:
 // Types are defined only for internal purposes.
 // Do not refer auto generated type names from outside.
