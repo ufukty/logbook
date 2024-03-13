@@ -3,11 +3,10 @@ package app
 import (
 	"context"
 	"fmt"
+	"logbook/cmd/account/app/average"
 	"logbook/cmd/account/database"
 	"time"
 )
-
-var week = time.Hour * 24 * 7
 
 var ErrExpiredSession = fmt.Errorf("session is expired")
 
@@ -19,7 +18,7 @@ func (a *App) ValidateSession(ctx context.Context, sid database.SessionId) error
 	if session.Deleted {
 		return ErrExpiredSession
 	}
-	if time.Now().Sub(session.CreatedAt.Time) > week {
+	if time.Now().Sub(session.CreatedAt.Time) > average.Week {
 		return ErrExpiredSession
 	}
 	return nil
