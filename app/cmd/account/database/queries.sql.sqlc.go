@@ -203,7 +203,7 @@ FROM
     "session_standard"
 WHERE
     "uid" = $1
-    AND ! "deleted"
+    AND NOT "deleted"
 `
 
 func (q *Queries) SelectActiveSessionsByUid(ctx context.Context, uid UserId) ([]SessionStandard, error) {
@@ -239,7 +239,7 @@ FROM
     "login"
 WHERE
     "email" = $1
-    AND ! "deleted"
+    AND NOT "deleted"
 ORDER BY
     "created_at"
 LIMIT 1
@@ -304,7 +304,7 @@ FROM
     "login"
 WHERE
     "uid" = $1
-    AND ! "deleted"
+    AND NOT "deleted"
 `
 
 func (q *Queries) SelectLoginsByUid(ctx context.Context, uid UserId) ([]Login, error) {

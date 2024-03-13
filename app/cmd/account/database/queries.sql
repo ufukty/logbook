@@ -44,7 +44,7 @@ FROM
     "login"
 WHERE
     "uid" = $1
-    AND ! "deleted";
+    AND NOT "deleted";
 
 -- name: SelectLatestLoginByEmail :one
 SELECT
@@ -53,7 +53,7 @@ FROM
     "login"
 WHERE
     "email" = $1
-    AND ! "deleted"
+    AND NOT "deleted"
 ORDER BY
     "created_at"
 LIMIT 1;
@@ -81,7 +81,7 @@ FROM
     "session_standard"
 WHERE
     "uid" = $1
-    AND ! "deleted";
+    AND NOT "deleted";
 
 -- name: DeleteSessionBySid :exec
 UPDATE
