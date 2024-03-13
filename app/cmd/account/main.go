@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"logbook/cmd/account/app"
 	"logbook/cmd/account/database"
 	"logbook/cmd/account/endpoints"
@@ -22,13 +23,13 @@ func getConfigPath() string {
 	return configpath
 }
 
-func main() {
+func Main() error {
 	godotenv.Load("../.env")
 	godotenv.Load("../.local.env")
 
 	db, err := database.New(os.Getenv("DSN"))
 	if err != nil {
-		panic(fmt.Errorf("creating database instance: %w", err))
+		return fmt.Errorf("creating database instance: %w", err)
 	}
 	defer db.Close()
 
@@ -36,7 +37,7 @@ func main() {
 
 	apicfg, err := api.ReadConfig("../../api.yml")
 	if err != nil {
-		panic(fmt.Errorf("reading api config: %w", err))
+		return fmt.Errorf("reading api config: %w", err)
 	}
 
 	// sd := serviced.New(cfg.ServiceDiscoveryConfig, cfg.ServiceDiscoveryUpdatePeriod)
@@ -47,4 +48,12 @@ func main() {
 	router.StartServer(":"+cfg.RouterPrivate, false, cfg.RouterParameters, map[api.Endpoint]http.HandlerFunc{
 		eps.Create: em.CreateUser,
 	})
+
+	return nil
+}
+
+func main() {
+	if err := Main(); err != nil {
+		log.Fatalln(err)
+	}
 }

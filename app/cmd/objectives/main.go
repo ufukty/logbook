@@ -23,13 +23,13 @@ func getConfigPath() string {
 	return configpath
 }
 
-func main() {
+func Main() error {
 	godotenv.Load("../.env")
 	godotenv.Load("../.local.env")
 
 	db, err := database.New(os.Getenv("DSN"))
 	if err != nil {
-		panic(fmt.Errorf("creating database instance: %w", err))
+		return fmt.Errorf("creating database instance: %w", err)
 	}
 	defer db.Close()
 
@@ -38,7 +38,7 @@ func main() {
 
 	apicfg, err := api.ReadConfig("../../api.yml")
 	if err != nil {
-		panic(fmt.Errorf("reading api config: %w", err))
+		return fmt.Errorf("reading api config: %w", err)
 	}
 
 	// sd := serviced.New(cfg.ServiceDiscoveryConfig, cfg.ServiceDiscoveryUpdatePeriod)
@@ -52,4 +52,12 @@ func main() {
 		eps.Mark:      em.MarkComplete,
 		eps.Placement: em.GetPlacementArray,
 	})
+
+	return nil
+}
+
+func main() {
+	if err := Main(); err != nil {
+		panic(err)
+	}
 }
