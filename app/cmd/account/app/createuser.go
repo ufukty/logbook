@@ -27,7 +27,7 @@ var ErrEmailExists = fmt.Errorf("given email address used in already existing ac
 
 func (a *App) CreateUser(ctx context.Context, params RegistrationParameters) error {
 	_, err := a.queries.SelectLatestLoginByEmail(ctx, string(params.Email))
-	if err != nil {
+	if err == nil {
 		return ErrEmailExists
 	}
 
