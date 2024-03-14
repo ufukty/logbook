@@ -35,6 +35,7 @@ type Account struct {
 	Endpoints struct {
 		Create        Endpoint `yaml:"create"`
 		CreateSession Endpoint `yaml:"create_session"`
+		Whoami        Endpoint `yaml:"whoami"`
 	} `yaml:"endpoints"`
 	Path Path `yaml:"path"`
 }

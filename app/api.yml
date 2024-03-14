@@ -8,6 +8,7 @@ gateways:
         endpoints:
           create: { method: "POST", path: "/account" }
           create_session: { method: "POST", path: "/session" }
+          whoami: { method: "GET", path: "/whoami" }
       document:
         path: document
         endpoints:

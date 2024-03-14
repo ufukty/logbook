@@ -54,6 +54,7 @@ func Main() error {
 	router.StartServer(":"+cfg.RouterPrivate, false, cfg.RouterParameters, map[api.Endpoint]http.HandlerFunc{
 		eps.Create:        em.CreateUser,
 		eps.CreateSession: em.CreateSession,
+		eps.Whoami:        em.WhoAmI,
 	})
 
 	return nil
