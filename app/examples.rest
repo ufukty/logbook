@@ -1,4 +1,4 @@
-@apiUrl = 127.0.0.1:8080
+@apiUrl = 127.0.0.1:8082
 
 ### Create User
 
@@ -6,23 +6,27 @@ POST http://{{apiUrl}}/account HTTP/1.1
 Content-Type: application/json
 
 {
-    "name_surname": "Lightning McQueen",
-    "email_address": "ka-chow@test.balaasad.com",
-    "password": "sally-carrera"
+    "firstname": "Tiésto",
+    "lastname": "McSingleton",
+    "email": "test@test.balaasad.com",
+    "password": "123456789"
 }
+
+?? status == 200
 
 ### Authentication & Authorization
 
-POST http://{{apiUrl}}/auth HTTP/1.1
+POST http://{{apiUrl}}/session HTTP/1.1
 Content-Type: application/json
-Cache-Control: no-store
-Pragma: no-cache
+
 {
-    "email_address": "ka-chow@test.balaasad.com",
-    "password": "sally-carrera"
+    "email": "test@test.balaasad.com",
+    "password": "123456789"
 }
 
-// should return authorization token
+?? status == 200
+?? header contains session_token
+
 
 ### List bookmarks
 
