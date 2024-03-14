@@ -60,19 +60,30 @@ LIMIT 1;
 
 ;
 
+-- name: SelectProfileByUid :one
+SELECT
+    *
+FROM
+    "profile"
+WHERE
+    "uid" = $1
+LIMIT 1;
+
+;
+
 -- name: InsertSession :one
 INSERT INTO "session_standard"("uid", "token")
     VALUES ($1, $2)
 RETURNING
     *;
 
--- name: SelectSessionBySid :one
+-- name: SelectSessionByToken :one
 SELECT
     *
 FROM
     "session_standard"
 WHERE
-    "sid" = $1;
+    "token" = $1;
 
 -- name: SelectActiveSessionsByUid :many
 SELECT

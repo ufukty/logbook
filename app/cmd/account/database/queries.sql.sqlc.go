@@ -334,6 +334,28 @@ func (q *Queries) SelectLoginsByUid(ctx context.Context, uid UserId) ([]Login, e
 	return items, nil
 }
 
+const selectProfileByUid = `-- name: SelectProfileByUid :one
+SELECT
+    uid, firstname, lastname, created_at
+FROM
+    "profile"
+WHERE
+    "uid" = $1
+LIMIT 1
+`
+
+func (q *Queries) SelectProfileByUid(ctx context.Context, uid UserId) (Profile, error) {
+	row := q.db.QueryRow(ctx, selectProfileByUid, uid)
+	var i Profile
+	err := row.Scan(
+		&i.Uid,
+		&i.Firstname,
+		&i.Lastname,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const selectSessionAccountRead = `-- name: SelectSessionAccountRead :one
 SELECT
     sid, uid, token, deleted, created_at
@@ -378,17 +400,17 @@ func (q *Queries) SelectSessionAccountWrite(ctx context.Context, sid SessionId) 
 	return i, err
 }
 
-const selectSessionBySid = `-- name: SelectSessionBySid :one
+const selectSessionByToken = `-- name: SelectSessionByToken :one
 SELECT
     sid, uid, token, deleted, created_at
 FROM
     "session_standard"
 WHERE
-    "sid" = $1
+    "token" = $1
 `
 
-func (q *Queries) SelectSessionBySid(ctx context.Context, sid SessionId) (SessionStandard, error) {
-	row := q.db.QueryRow(ctx, selectSessionBySid, sid)
+func (q *Queries) SelectSessionByToken(ctx context.Context, token string) (SessionStandard, error) {
+	row := q.db.QueryRow(ctx, selectSessionByToken, token)
 	var i SessionStandard
 	err := row.Scan(
 		&i.Sid,
