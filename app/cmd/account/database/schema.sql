@@ -39,10 +39,13 @@ CREATE TABLE "access"(
 
 CREATE DOMAIN "SessionId" AS uuid;
 
+-- base64 encoded
+CREATE DOMAIN "SessionToken" AS text;
+
 CREATE TABLE "session_standard"(
     "sid" "SessionId" NOT NULL DEFAULT gen_random_uuid(),
     "uid" "UserId" NOT NULL,
-    "token" text NOT NULL,
+    "token" "SessionToken" NOT NULL,
     "deleted" boolean NOT NULL DEFAULT FALSE,
     "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

@@ -24,3 +24,6 @@ sql:
           - db_type: SessionId
             go_type:
               type: SessionId
+          - db_type: SessionToken
+            go_type:
+              type: SessionToken

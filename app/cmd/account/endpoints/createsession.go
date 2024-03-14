@@ -48,7 +48,7 @@ func (e Endpoints) CreateSession(w http.ResponseWriter, r *http.Request) {
 
 	http.SetCookie(w, &http.Cookie{
 		Name:    "session_token",
-		Value:   session.Token,
+		Value:   string(session.Token),
 		Expires: session.CreatedAt.Time.Add(average.Week),
 	})
 	w.WriteHeader(http.StatusOK)

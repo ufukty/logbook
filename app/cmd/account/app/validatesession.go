@@ -14,7 +14,7 @@ func hasSessionExpired(session database.SessionStandard) bool {
 	return time.Now().Sub(session.CreatedAt.Time) > average.Week
 }
 
-func (a *App) ValidateSession(ctx context.Context, token string) error {
+func (a *App) ValidateSession(ctx context.Context, token database.SessionToken) error {
 	session, err := a.queries.SelectSessionByToken(ctx, token)
 	if err != nil {
 		return fmt.Errorf("checking database: %w", err)

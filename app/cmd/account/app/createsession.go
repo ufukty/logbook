@@ -20,12 +20,12 @@ type CreateSessionParameters struct {
 
 var ErrHashMismatch = fmt.Errorf("given password's hash doesn't match with stored hash")
 
-func generateToken(length int) (string, error) {
+func generateToken(length int) (database.SessionToken, error) {
 	bytes := make([]byte, length)
 	if _, err := rand.Read(bytes); err != nil {
 		return "", err
 	}
-	return base64.URLEncoding.EncodeToString(bytes), nil
+	return database.SessionToken(base64.URLEncoding.EncodeToString(bytes)), nil
 }
 
 func renewHash(q *database.Queries, ctx context.Context, login database.Login, params CreateSessionParameters) error {

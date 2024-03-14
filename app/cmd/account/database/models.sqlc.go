@@ -53,7 +53,7 @@ type SessionAccountWrite struct {
 type SessionStandard struct {
 	Sid       SessionId
 	Uid       UserId
-	Token     string
+	Token     SessionToken
 	Deleted   bool
 	CreatedAt pgtype.Timestamp
 }

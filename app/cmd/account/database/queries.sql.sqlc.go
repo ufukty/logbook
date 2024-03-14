@@ -116,7 +116,7 @@ RETURNING
 
 type InsertSessionParams struct {
 	Uid   UserId
-	Token string
+	Token SessionToken
 }
 
 func (q *Queries) InsertSession(ctx context.Context, arg InsertSessionParams) (SessionStandard, error) {
@@ -409,7 +409,7 @@ WHERE
     "token" = $1
 `
 
-func (q *Queries) SelectSessionByToken(ctx context.Context, token string) (SessionStandard, error) {
+func (q *Queries) SelectSessionByToken(ctx context.Context, token SessionToken) (SessionStandard, error) {
 	row := q.db.QueryRow(ctx, selectSessionByToken, token)
 	var i SessionStandard
 	err := row.Scan(
