@@ -1,4 +1,6 @@
 all: config/api/schema.go
+	$(MAKE) -C cmd/account
+	$(MAKE) -C cmd/objectives
 
 config/api/schema.go: api.yml
 	gonfique \
