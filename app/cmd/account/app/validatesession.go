@@ -10,14 +10,16 @@ import (
 
 var ErrExpiredSession = fmt.Errorf("session is expired")
 
+func hasSessionExpired(session database.SessionStandard) bool {
+	return time.Now().Sub(session.CreatedAt.Time) > average.Week
+}
+
+func (a *App) ValidateSession(ctx context.Context, token string) error {
 	session, err := a.queries.SelectSessionByToken(ctx, token)
 	if err != nil {
 		return fmt.Errorf("checking database: %w", err)
 	}
-	if session.Deleted {
-		return ErrExpiredSession
-	}
-	if time.Now().Sub(session.CreatedAt.Time) > average.Week {
+	if session.Deleted || hasSessionExpired(session) {
 		return ErrExpiredSession
 	}
 	return nil
