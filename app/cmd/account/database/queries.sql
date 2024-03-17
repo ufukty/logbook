@@ -73,6 +73,8 @@ FROM
     "profile"
 WHERE
     "uid" = $1
+ORDER BY
+    "created_at" DESC
 LIMIT 1;
 
 ;
