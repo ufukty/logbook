@@ -9,7 +9,7 @@ import (
 )
 
 func TestMain(m *testing.M) {
-	godotenv.Load("../.test.local.env")
+	godotenv.Load("../.testing.env")
 	os.Exit(m.Run())
 }
 
