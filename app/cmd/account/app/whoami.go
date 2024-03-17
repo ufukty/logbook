@@ -42,7 +42,7 @@ func (a App) WhoAmI(ctx context.Context, token database.SessionToken) (*database
 		return nil, ErrUserNotFound
 	}
 
-	profile, err := a.queries.SelectProfileByUid(ctx, session.Uid)
+	profile, err := a.queries.SelectLatestProfileByUid(ctx, session.Uid)
 	if err != nil {
 		return nil, ErrProfileNotFound
 	}

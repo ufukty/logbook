@@ -284,6 +284,30 @@ func (q *Queries) SelectLatestLoginByEmail(ctx context.Context, email string) (L
 	return i, err
 }
 
+const selectLatestProfileByUid = `-- name: SelectLatestProfileByUid :one
+SELECT
+    uid, firstname, lastname, created_at
+FROM
+    "profile"
+WHERE
+    "uid" = $1
+ORDER BY
+    "created_at" DESC
+LIMIT 1
+`
+
+func (q *Queries) SelectLatestProfileByUid(ctx context.Context, uid UserId) (Profile, error) {
+	row := q.db.QueryRow(ctx, selectLatestProfileByUid, uid)
+	var i Profile
+	err := row.Scan(
+		&i.Uid,
+		&i.Firstname,
+		&i.Lastname,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const selectLatestTwentyAccessesByUid = `-- name: SelectLatestTwentyAccessesByUid :many
 SELECT
     aid, uid, useragent, ipaddress, created_at
@@ -357,28 +381,6 @@ func (q *Queries) SelectLoginsByUid(ctx context.Context, uid UserId) ([]Login, e
 		return nil, err
 	}
 	return items, nil
-}
-
-const selectProfileByUid = `-- name: SelectProfileByUid :one
-SELECT
-    uid, firstname, lastname, created_at
-FROM
-    "profile"
-WHERE
-    "uid" = $1
-LIMIT 1
-`
-
-func (q *Queries) SelectProfileByUid(ctx context.Context, uid UserId) (Profile, error) {
-	row := q.db.QueryRow(ctx, selectProfileByUid, uid)
-	var i Profile
-	err := row.Scan(
-		&i.Uid,
-		&i.Firstname,
-		&i.Lastname,
-		&i.CreatedAt,
-	)
-	return i, err
 }
 
 const selectSessionAccountRead = `-- name: SelectSessionAccountRead :one
