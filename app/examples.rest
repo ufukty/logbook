@@ -29,6 +29,17 @@ Content-Type: application/json
 
 ### Filling profile information
 
+POST http://{{apiUrl}}/profile HTTP/1.1
+Content-Type: application/json
+
+{
+    "uid": "14aec60a-5ce9-4415-bbf9-0f7b5620e576",
+    "firstname": "Fiesta",
+    "lastname": "McMonoton"
+}
+
+?? status == 200
+
 ### WhoAmI
 
 GET http://{{apiUrl}}/whoami HTTP/1.1
