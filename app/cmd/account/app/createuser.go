@@ -50,5 +50,14 @@ func (a *App) CreateUser(ctx context.Context, params RegistrationParameters) err
 		return fmt.Errorf("inserting login information into database: %w", err)
 	}
 
+	_, err = a.queries.InsertProfileInformation(ctx, database.InsertProfileInformationParams{
+		Uid:       user.Uid,
+		Firstname: string(params.Firstname),
+		Lastname:  string(params.Lastname),
+	})
+	if err != nil {
+		return fmt.Errorf("inserting profile information into database: %w", err)
+	}
+
 	return nil
 }

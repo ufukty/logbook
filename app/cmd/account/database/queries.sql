@@ -60,6 +60,12 @@ LIMIT 1;
 
 ;
 
+-- name: InsertProfileInformation :one
+INSERT INTO "profile"("uid", "firstname", "lastname")
+    VALUES ($1, $2, $3)
+RETURNING
+    *;
+
 -- name: SelectProfileByUid :one
 SELECT
     *

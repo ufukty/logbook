@@ -107,6 +107,31 @@ func (q *Queries) InsertLogin(ctx context.Context, arg InsertLoginParams) (Login
 	return i, err
 }
 
+const insertProfileInformation = `-- name: InsertProfileInformation :one
+INSERT INTO "profile"("uid", "firstname", "lastname")
+    VALUES ($1, $2, $3)
+RETURNING
+    uid, firstname, lastname, created_at
+`
+
+type InsertProfileInformationParams struct {
+	Uid       UserId
+	Firstname string
+	Lastname  string
+}
+
+func (q *Queries) InsertProfileInformation(ctx context.Context, arg InsertProfileInformationParams) (Profile, error) {
+	row := q.db.QueryRow(ctx, insertProfileInformation, arg.Uid, arg.Firstname, arg.Lastname)
+	var i Profile
+	err := row.Scan(
+		&i.Uid,
+		&i.Firstname,
+		&i.Lastname,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const insertSession = `-- name: InsertSession :one
 INSERT INTO "session_standard"("uid", "token")
     VALUES ($1, $2)
