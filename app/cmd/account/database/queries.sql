@@ -66,7 +66,7 @@ INSERT INTO "profile"("uid", "firstname", "lastname")
 RETURNING
     *;
 
--- name: SelectProfileByUid :one
+-- name: SelectLatestProfileByUid :one
 SELECT
     *
 FROM
