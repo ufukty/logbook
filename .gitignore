@@ -137,8 +137,6 @@ _.so
 bin/
 bower_components
 buck-out/
-build/
-build/Release
 captures/
 coverage
 DerivedData/
