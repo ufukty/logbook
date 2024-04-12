@@ -1,24 +1,40 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Launch Package",
-            "type": "go",
-            "request": "launch",
-            "mode": "auto",
-            "program": "."
-        },
-        {
-            "name": "Account",
-            "type": "go",
-            "request": "launch",
-            "mode": "debug",
-            "program": "app/cmd/account",
-            "cwd": "${workspaceFolder}/app/cmd/account",
-            "args": ["-config=../../../platform/testing/config.yml"],
-        },
-    ]
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Account",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "app/cmd/account",
+      "cwd": "${workspaceFolder}/app",
+      "args": [
+        "-a",
+        "api.yml",
+        "-d",
+        "../platform/testing.yml",
+        "-s",
+        "cmd/account/testing.yml"
+      ]
+    },
+    {
+      "name": "Objectives",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "app/cmd/objectives",
+      "cwd": "${workspaceFolder}/app",
+      "args": [
+        "-a",
+        "api.yml",
+        "-d",
+        "../platform/testing.yml",
+        "-s",
+        "cmd/objectives/testing.yml"
+      ]
+    }
+  ]
 }
