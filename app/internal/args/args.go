@@ -7,22 +7,27 @@ import (
 )
 
 type Args struct {
-	Config      string
-	Environment string
+	Api        string // config file path
+	Deployment string // config file path
+	Service    string // config file path
 }
 
 func Parse() (Args, error) {
 	var args Args
-	flag.StringVar(&args.Config, "c", "", "")
-	flag.StringVar(&args.Environment, "e", "", "")
+	flag.StringVar(&args.Api, "a", "", "-a <api config file>")
+	flag.StringVar(&args.Deployment, "d", "", "-d <deployment config file>")
+	flag.StringVar(&args.Service, "s", "", "-s <service config file>")
 	flag.Parse()
 
 	errs := []string{}
-	if args.Config == "" {
-		errs = append(errs, "-c config_file")
+	if args.Api == "" {
+		errs = append(errs, "-a <api config file>")
 	}
-	if args.Environment == "" {
-		errs = append(errs, "-e env_file")
+	if args.Deployment == "" {
+		errs = append(errs, "-d <deployment config file>")
+	}
+	if args.Service == "" {
+		errs = append(errs, "-s <service config file>")
 	}
 	if len(errs) > 0 {
 		return args, fmt.Errorf("flags are missing: %s", strings.Join(errs, ", "))

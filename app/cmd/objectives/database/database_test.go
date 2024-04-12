@@ -1,26 +1,40 @@
 package database
 
 import (
+	"fmt"
+	"logbook/cmd/objectives/service"
 	"logbook/internal/utilities/run"
-	"os"
 	"testing"
-
-	"github.com/joho/godotenv"
 )
 
-func TestMain(m *testing.M) {
-	godotenv.Load("../.test.local.env")
-	os.Exit(m.Run())
-}
-
-func runMigration() {
-	run.ExitAfterStderr("psql", "-U", os.Getenv("DBUSER"), "-d", os.Getenv("DBNAME_DEFAULT"),
-		"-c", "DROP DATABASE IF EXISTS "+os.Getenv("DBNAME")+";",
-		"-c", "CREATE DATABASE "+os.Getenv("DBNAME")+";")
-	run.ExitAfterStderr("psql", "-U", os.Getenv("DBUSER"), "-d", os.Getenv("DBNAME"),
-		"-f", "schema.sql")
+func runMigration(cfg service.Config) error {
+	output := run.ExitAfterStderr("psql",
+		"-U", cfg.Database.User,
+		"-d", cfg.Database.Default,
+		"-c", "DROP DATABASE IF EXISTS "+cfg.Database.Name+";",
+		"-c", "CREATE DATABASE "+cfg.Database.Name+";",
+	)
+	if output != "" {
+		return fmt.Errorf("dropping and recreating the application database: %s", output)
+	}
+	output = run.ExitAfterStderr("psql",
+		"-U", cfg.Database.User,
+		"-d", cfg.Database.Name,
+		"-f", "schema.sql",
+	)
+	if output != "" {
+		return fmt.Errorf("building the application database: %s", output)
+	}
+	return nil
 }
 
 func TestMigration(t *testing.T) {
-	runMigration()
+	cfg, err := service.ReadConfig("../testing.yml")
+	if err != nil {
+		fmt.Println(fmt.Errorf("reading service config: %w", err))
+	}
+	err = runMigration(cfg)
+	if err != nil {
+		t.Fatal(fmt.Errorf("running migration: %w", err))
+	}
 }

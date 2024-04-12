@@ -1,0 +1,13 @@
+router:
+  request-timeout: 1s
+  write-timeout: 5s
+  read-timeout: 5s
+  idle-timeout: 12s
+  grace-period: 100ms
+
+service-discovery:
+  update-period: 30s
+
+ports:
+  accounts: :8081
+  objectives: :8082

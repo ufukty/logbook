@@ -2,10 +2,31 @@ package api
 
 import (
 	"fmt"
-	"os"
 	"gopkg.in/yaml.v3"
+	"os"
 )
+// IMPORTANT:
+// Types are defined only for internal purposes.
+// Do not refer auto generated type names from outside.
+// Because they will change as config schema changes.
+type autoGenA struct {
+	Public Public `yaml:"public"`
+}
 
+func (a autoGenA) Range() map[string]Public {
+	return map[string]Public{"public": a.Public}
+}
+
+type Objectives struct {
+	Endpoints struct {
+		Attach    Endpoint `yaml:"attach"`
+		Create    Endpoint `yaml:"create"`
+		Delete    Endpoint `yaml:"delete"`
+		Mark      Endpoint `yaml:"mark"`
+		Placement Endpoint `yaml:"placement"`
+	} `yaml:"endpoints"`
+	Path Path `yaml:"path"`
+}
 type Endpoint struct {
 	Method string `yaml:"method"`
 	Path   Path   `yaml:"path"`
@@ -34,33 +55,12 @@ type Public struct {
 type Account struct {
 	Endpoints struct {
 		Create        Endpoint `yaml:"create"`
+		CreateProfile Endpoint `yaml:"create_profile"`
 		CreateSession Endpoint `yaml:"create_session"`
 		Whoami        Endpoint `yaml:"whoami"`
 	} `yaml:"endpoints"`
 	Path Path `yaml:"path"`
 }
-type Objectives struct {
-	Endpoints struct {
-		Attach    Endpoint `yaml:"attach"`
-		Create    Endpoint `yaml:"create"`
-		Delete    Endpoint `yaml:"delete"`
-		Mark      Endpoint `yaml:"mark"`
-		Placement Endpoint `yaml:"placement"`
-	} `yaml:"endpoints"`
-	Path Path `yaml:"path"`
-}
-// IMPORTANT:
-// Types are defined only for internal purposes.
-// Do not refer auto generated type names from outside.
-// Because they will change as config schema changes.
-type autoGenA struct {
-	Public Public `yaml:"public"`
-}
-
-func (a autoGenA) Range() map[string]Public {
-	return map[string]Public{"public": a.Public}
-}
-
 type Config struct {
 	Domain   string   `yaml:"domain"`
 	Gateways autoGenA `yaml:"gateways"`

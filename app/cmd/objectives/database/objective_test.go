@@ -4,14 +4,18 @@ import (
 	"context"
 	"fmt"
 	"logbook/cmd/account/database"
-	"os"
+	"logbook/cmd/objectives/service"
 	"testing"
 )
 
 func Test_Objectives(t *testing.T) {
-	runMigration()
+	srvcnf, err := service.ReadConfig("../testing.yml")
+	if err != nil {
+		t.Fatal(fmt.Errorf("reading service config: %w", err))
+	}
+	runMigration(srvcnf)
 
-	q, err := New(os.Getenv("DSN"))
+	q, err := New(srvcnf.Database.Dsn)
 	if err != nil {
 		t.Fatal(fmt.Errorf("prep, db connect: %w", err))
 	}

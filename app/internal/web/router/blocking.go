@@ -3,7 +3,6 @@ package router
 import (
 	"fmt"
 	"logbook/config/api"
-	config "logbook/config/deployment"
 	"logbook/internal/web/logger"
 	"net/http"
 	"time"
@@ -13,7 +12,13 @@ import (
 	"golang.org/x/exp/maps"
 )
 
-func StartServer(baseURL string, tls bool, cfg config.RouterParameters, handlers map[api.Endpoint]http.HandlerFunc) {
+type ServerParameters struct {
+	BaseUrl        string
+	Tls            bool
+	RequestTimeout time.Duration
+}
+
+func StartServer(params ServerParameters, handlers map[api.Endpoint]http.HandlerFunc) {
 	l := logger.NewLogger("Router")
 	r := mux.NewRouter()
 
@@ -32,14 +37,14 @@ func StartServer(baseURL string, tls bool, cfg config.RouterParameters, handlers
 	}
 
 	r.Use(middleware.RequestID)
-	r.Use(middleware.Timeout(cfg.RequestTimeout))
+	r.Use(middleware.Timeout(params.RequestTimeout))
 	r.Use(middleware.Logger)
 	// r.Use(middleware.MWAuthorization)
 	r.Use(mux.CORSMethodMiddleware(r))
 	r.Use(middleware.Recoverer)
 
 	server := &http.Server{
-		Addr: baseURL,
+		Addr: params.BaseUrl,
 		// Set timeouts against Slowloris attacks
 		WriteTimeout: time.Second * 15,
 		ReadTimeout:  time.Second * 15,
@@ -47,13 +52,13 @@ func StartServer(baseURL string, tls bool, cfg config.RouterParameters, handlers
 		Handler:      r,
 	}
 
-	if tls {
-		l.Printf("calling ListenAndServeTLS on %q\n", baseURL)
+	if params.Tls {
+		l.Printf("calling ListenAndServeTLS on %q\n", params.BaseUrl)
 		if err := server.ListenAndServeTLS(publicCertPath, privateCertPath); err != nil {
 			l.Println(fmt.Errorf("http.Server returned an error from ListenAndServeTLS call: %w", err))
 		}
 	} else {
-		l.Printf("calling ListenAndServe on %q\n", baseURL)
+		l.Printf("calling ListenAndServe on %q\n", params.BaseUrl)
 		if err := server.ListenAndServe(); err != nil {
 			l.Println(fmt.Errorf("http.Server returned an error from ListendAndServe call: %w", err))
 		}
