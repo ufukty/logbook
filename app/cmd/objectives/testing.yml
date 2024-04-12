@@ -1,5 +1,5 @@
 database:
-  dsn: postgres://ufuktan:@localhost:5432/logbook?pool_max_conns=10
+  dsn: postgres://ufuktan:@localhost:5432/logbook_objectives?pool_max_conns=10
   user: ufuktan
   name: logbook_objectives
   default: postgres
