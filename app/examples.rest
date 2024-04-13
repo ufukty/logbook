@@ -25,7 +25,7 @@ Content-Type: application/json
 }
 
 ?? status == 200
-?? header set-cookie contains session_token
+?? header set-cookie includes session_token
 
 ### Filling profile information
 
@@ -45,7 +45,7 @@ Content-Type: application/json
 GET http://{{apiUrl}}/whoami HTTP/1.1
 
 ?? status == 200
-?? body contains firstname
+?? body includes firstname
 
 ### List bookmarks
 
