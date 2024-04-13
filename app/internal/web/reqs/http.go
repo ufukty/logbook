@@ -106,8 +106,8 @@ func ParseRequest[Request any](rq *http.Request) (bq *Request, err error) {
 }
 
 func WriteJsonResponse(bs any, rsw http.ResponseWriter) error {
+	rsw.Header().Set("Content-Type", mime.TypeByExtension(".json"))
 	rsw.WriteHeader(http.StatusOK)
-	rsw.Header().Set("Content-Type", mime.TypeByExtension("json"))
 	err := json.NewEncoder(rsw).Encode(bs)
 	if err != nil {
 		return fmt.Errorf("serializing the body: %w", err)
