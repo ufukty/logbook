@@ -14,32 +14,29 @@ func TestCreateObjective(t *testing.T) {
 		t.Fatal(fmt.Errorf("prep, creating Endpoints: %w", err))
 	}
 
-	b := strings.NewReader(`
-	{
+	r, err := http.NewRequest("POST", "", strings.NewReader(`{
 		"parent": {
 			"oid": "00000000-0000-0000-0000-000000000000",
 			"vid": "00000000-0000-0000-0000-000000000000"
 		},
 		"content": "Lorem ipsum dolor sit amet consectetur adipscing elit"
-	}
-	`)
-	req, err := http.NewRequest("POST", "", b)
+	}`))
 	if err != nil {
 		t.Fatal(fmt.Errorf("prep, creating http request: %w", err))
 	}
 	// req.Header.Set("Authentication", ")"
 
-	rr := httptest.NewRecorder()
+	w := httptest.NewRecorder()
 
-	ep.CreateTask(rr, req)
+	ep.CreateTask(w, r)
 
-	if status := rr.Code; status != http.StatusOK {
-		t.Fatal(fmt.Sprintf("got http error code %v", status))
+	if w.Code != http.StatusOK {
+		t.Fatal(fmt.Sprintf("got http error code %v", w.Code))
 	}
 
 	// Check the response body
 	expected := "SessionId: mock-session-id, Content: test content"
-	if rr.Body.String() != expected {
-		t.Fatal(fmt.Sprintf("handler returned unexpected body: got %v want %v", rr.Body.String(), expected))
+	if w.Body.String() != expected {
+		t.Fatal(fmt.Sprintf("handler returned unexpected body: got %v want %v", w.Body.String(), expected))
 	}
 }

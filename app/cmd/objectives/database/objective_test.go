@@ -13,7 +13,10 @@ func Test_Objectives(t *testing.T) {
 	if err != nil {
 		t.Fatal(fmt.Errorf("reading service config: %w", err))
 	}
-	runMigration(srvcnf)
+	err = RunMigration(srvcnf)
+	if err != nil {
+		t.Fatal(fmt.Errorf("running migration: %w", err))
+	}
 
 	q, err := New(srvcnf.Database.Dsn)
 	if err != nil {

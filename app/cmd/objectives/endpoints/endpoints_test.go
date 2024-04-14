@@ -4,37 +4,23 @@ import (
 	"fmt"
 	"logbook/cmd/objectives/app"
 	"logbook/cmd/objectives/database"
-	"logbook/internal/utilities/run"
-	"os"
-	"testing"
-
-	"github.com/joho/godotenv"
+	"logbook/cmd/objectives/service"
 )
 
-func TestMain(m *testing.M) {
-	godotenv.Load("../.test.local.env")
-	os.Exit(m.Run())
-}
-
 func getTestDependencies() (*Endpoints, error) {
-	run.ExitAfterStderr("psql", "-U", os.Getenv("DBUSER"), "-d", os.Getenv("DBNAME_DEFAULT"),
-		"-c", "DROP DATABASE IF EXISTS "+os.Getenv("DBNAME")+";",
-		"-c", "CREATE DATABASE "+os.Getenv("DBNAME")+";")
-	run.ExitAfterStderr("psql", "-U", os.Getenv("DBUSER"), "-d", os.Getenv("DBNAME"),
-		"-f", "../database/schema.sql")
+	srvcnf, err := service.ReadConfig("../testing.yml")
+	if err != nil {
+		return nil, fmt.Errorf("reading service config: %w", err)
+	}
+	err = database.RunMigration(srvcnf)
+	if err != nil {
+		return nil, fmt.Errorf("running migration: %w", err)
+	}
 
-	q, err := database.New(os.Getenv("DSN"))
+	q, err := database.New(srvcnf.Database.Dsn)
 	if err != nil {
 		return nil, fmt.Errorf("connecting database: %w", err)
 	}
 	app := app.New(q)
 	return NewManager(app), nil
-}
-
-func TestGetTestDependencies(t *testing.T) {
-	_, err := getTestDependencies()
-	if err != nil {
-		t.Fatal(err)
-	}
-
 }
