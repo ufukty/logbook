@@ -73,6 +73,7 @@ func Main() error {
 		eps.CreateProfile: em.CreateProfile,
 		eps.CreateSession: em.CreateSession,
 		eps.Whoami:        em.WhoAmI,
+		eps.Logout:        em.Logout,
 	})
 
 	return nil

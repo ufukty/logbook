@@ -72,7 +72,7 @@ func (a *App) CreateSession(ctx context.Context, params CreateSessionParameters)
 		}
 	}
 
-	tok, err := generateToken(32)
+	tok, err := generateToken(256)
 	if err != nil {
 		return database.SessionStandard{}, fmt.Errorf("generating session token: %w", err)
 	}

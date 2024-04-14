@@ -40,7 +40,7 @@ var (
 	min_length_human_name    = 6
 	min_length_username      = 6
 	min_length_uuid          = len("00000000-0000-0000-0000-000000000000")
-	min_length_session_token = 64
+	min_length_session_token = 256
 )
 
 func (v Username) Validate() error {

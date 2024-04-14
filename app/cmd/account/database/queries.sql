@@ -112,6 +112,16 @@ WHERE
 
 ;
 
+-- name: DeleteSessionByToken :exec
+UPDATE
+    "session_standard"
+SET
+    "deleted" = TRUE
+WHERE
+    "token" = $1;
+
+;
+
 -- name: InsertSessionAccountRead :one
 INSERT INTO "session_account_read"("uid", "token")
     VALUES ($1, $2)

@@ -10,6 +10,7 @@ gateways:
           create_profile: { method: "POST", path: "/profile" }
           create_session: { method: "POST", path: "/session" }
           whoami: { method: "GET", path: "/whoami" }
+          logout: { method: "POST", path: "/logout" }
       document:
         path: document
         endpoints:

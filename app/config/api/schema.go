@@ -57,6 +57,7 @@ type Account struct {
 		Create        Endpoint `yaml:"create"`
 		CreateProfile Endpoint `yaml:"create_profile"`
 		CreateSession Endpoint `yaml:"create_session"`
+		Logout        Endpoint `yaml:"logout"`
 		Whoami        Endpoint `yaml:"whoami"`
 	} `yaml:"endpoints"`
 	Path Path `yaml:"path"`

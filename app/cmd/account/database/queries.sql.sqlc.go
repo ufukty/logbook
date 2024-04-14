@@ -40,6 +40,20 @@ func (q *Queries) DeleteSessionBySid(ctx context.Context, sid SessionId) error {
 	return err
 }
 
+const deleteSessionByToken = `-- name: DeleteSessionByToken :exec
+UPDATE
+    "session_standard"
+SET
+    "deleted" = TRUE
+WHERE
+    "token" = $1
+`
+
+func (q *Queries) DeleteSessionByToken(ctx context.Context, token SessionToken) error {
+	_, err := q.db.Exec(ctx, deleteSessionByToken, token)
+	return err
+}
+
 const deleteUserByUid = `-- name: DeleteUserByUid :exec
 UPDATE
     "user"
