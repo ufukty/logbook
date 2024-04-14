@@ -2,7 +2,6 @@ package endpoints
 
 import (
 	"fmt"
-	"log"
 	"logbook/cmd/account/database"
 	"net/http"
 )
@@ -12,14 +11,14 @@ func (e Endpoints) Logout(w http.ResponseWriter, r *http.Request) {
 	st := database.SessionToken(r.Header.Get("session_token"))
 
 	if err := st.Validate(); err != nil {
-		log.Println(fmt.Errorf("invalid session_token: %w", err))
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		e.l.Println(fmt.Errorf("invalid session_token: %w", err))
+		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 		return
 	}
 
 	err := e.app.Logout(r.Context(), st)
 	if err != nil {
-		log.Println(fmt.Errorf("saving session deletion to database: %w", err))
+		e.l.Println(fmt.Errorf("saving session deletion to database: %w", err))
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}

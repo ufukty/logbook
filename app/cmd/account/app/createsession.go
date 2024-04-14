@@ -25,7 +25,9 @@ func generateToken(length int) (database.SessionToken, error) {
 	if _, err := rand.Read(bytes); err != nil {
 		return "", err
 	}
-	return database.SessionToken(base64.URLEncoding.EncodeToString(bytes)), nil
+	b64 := base64.URLEncoding.EncodeToString(bytes)
+	cut := string([]byte(b64))[:256]
+	return database.SessionToken(cut), nil
 }
 
 func renewHash(q *database.Queries, ctx context.Context, login database.Login, params CreateSessionParameters) error {
