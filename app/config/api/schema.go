@@ -17,16 +17,6 @@ func (a autoGenA) Range() map[string]Public {
 	return map[string]Public{"public": a.Public}
 }
 
-type Objectives struct {
-	Endpoints struct {
-		Attach    Endpoint `yaml:"attach"`
-		Create    Endpoint `yaml:"create"`
-		Delete    Endpoint `yaml:"delete"`
-		Mark      Endpoint `yaml:"mark"`
-		Placement Endpoint `yaml:"placement"`
-	} `yaml:"endpoints"`
-	Path Path `yaml:"path"`
-}
 type Endpoint struct {
 	Method string `yaml:"method"`
 	Path   Path   `yaml:"path"`
@@ -56,9 +46,19 @@ type Account struct {
 	Endpoints struct {
 		Create        Endpoint `yaml:"create"`
 		CreateProfile Endpoint `yaml:"create_profile"`
-		CreateSession Endpoint `yaml:"create_session"`
+		Login         Endpoint `yaml:"login"`
 		Logout        Endpoint `yaml:"logout"`
 		Whoami        Endpoint `yaml:"whoami"`
+	} `yaml:"endpoints"`
+	Path Path `yaml:"path"`
+}
+type Objectives struct {
+	Endpoints struct {
+		Attach    Endpoint `yaml:"attach"`
+		Create    Endpoint `yaml:"create"`
+		Delete    Endpoint `yaml:"delete"`
+		Mark      Endpoint `yaml:"mark"`
+		Placement Endpoint `yaml:"placement"`
 	} `yaml:"endpoints"`
 	Path Path `yaml:"path"`
 }

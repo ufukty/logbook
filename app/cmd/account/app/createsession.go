@@ -53,7 +53,7 @@ func renewHash(q *database.Queries, ctx context.Context, login database.Login, p
 	return nil
 }
 
-func (a *App) CreateSession(ctx context.Context, params CreateSessionParameters) (database.SessionStandard, error) {
+func (a *App) Login(ctx context.Context, params CreateSessionParameters) (database.SessionStandard, error) {
 	login, err := a.queries.SelectLatestLoginByEmail(ctx, params.Email)
 	if err != nil {
 		return database.SessionStandard{}, fmt.Errorf("selecting latest hash from database: %w", err)

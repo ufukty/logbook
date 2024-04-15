@@ -6,11 +6,11 @@ gateways:
       account:
         path: account
         endpoints:
-          create: { method: "POST", path: "/account" }
           create_profile: { method: "POST", path: "/profile" }
-          create_session: { method: "POST", path: "/session" }
-          whoami: { method: "GET", path: "/whoami" }
+          create: { method: "POST", path: "/account" }
+          login: { method: "POST", path: "/session" }
           logout: { method: "POST", path: "/logout" }
+          whoami: { method: "GET", path: "/whoami" }
       document:
         path: document
         endpoints:

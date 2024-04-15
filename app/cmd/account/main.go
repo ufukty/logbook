@@ -71,9 +71,9 @@ func Main() error {
 	}, map[api.Endpoint]http.HandlerFunc{
 		eps.Create:        em.CreateUser,
 		eps.CreateProfile: em.CreateProfile,
-		eps.CreateSession: em.CreateSession,
-		eps.Whoami:        em.WhoAmI,
+		eps.Login:         em.Login,
 		eps.Logout:        em.Logout,
+		eps.Whoami:        em.WhoAmI,
 	})
 
 	return nil

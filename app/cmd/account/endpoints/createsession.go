@@ -22,7 +22,7 @@ func (bq CreateSessionRequest) validate() error {
 	})
 }
 
-func (e Endpoints) CreateSession(w http.ResponseWriter, r *http.Request) {
+func (e Endpoints) Login(w http.ResponseWriter, r *http.Request) {
 	bq, err := reqs.ParseRequest[CreateSessionRequest](r)
 	if err != nil {
 		e.l.Println(fmt.Errorf("binding: %w", err))
@@ -36,7 +36,7 @@ func (e Endpoints) CreateSession(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	session, err := e.app.CreateSession(r.Context(), app.CreateSessionParameters{
+	session, err := e.app.Login(r.Context(), app.CreateSessionParameters{
 		Email:    string(bq.Email),
 		Password: string(bq.Password),
 	})
