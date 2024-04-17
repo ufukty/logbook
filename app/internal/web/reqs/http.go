@@ -7,21 +7,14 @@ package reqs
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
-	"io"
 	"logbook/config/api"
 	"mime"
 	"net/http"
 	"path/filepath"
 	"reflect"
-	"strings"
 
 	"github.com/gorilla/mux"
-)
-
-var (
-	ErrMissingKeyInUrl = errors.New("url has one or more missing keys")
 )
 
 func separateParams(in any) (map[string]string, map[string]any) {
@@ -40,29 +33,6 @@ func separateParams(in any) (map[string]string, map[string]any) {
 		}
 	}
 	return url, body
-}
-
-func fillUrlParamaters(muxMap map[string]string, bq any) error {
-	var (
-		t       = reflect.TypeOf(bq).Elem()
-		v       = reflect.ValueOf(bq).Elem()
-		fields  = v.NumField()
-		value   string
-		missing = []string{}
-	)
-	for i := 0; i < fields; i++ {
-		if key, exists := t.Field(i).Tag.Lookup("url"); exists {
-			if value, exists = muxMap[key]; exists {
-				v.Field(i).Set(reflect.ValueOf(value))
-			} else {
-				missing = append(missing, key)
-			}
-		}
-	}
-	if len(missing) > 0 {
-		return fmt.Errorf("%s: %s", ErrMissingKeyInUrl, strings.Join(missing, ", "))
-	}
-	return nil
 }
 
 func newRequest(url, method string, params any) (*http.Request, error) {
@@ -88,21 +58,6 @@ func newRequest(url, method string, params any) (*http.Request, error) {
 		r = mux.SetURLVars(r, urlParams)
 	}
 	return r, nil
-}
-
-func ParseRequest[Request any](rq *http.Request) (bq *Request, err error) {
-	bq = new(Request)
-	err = json.NewDecoder(rq.Body).Decode(bq)
-	if err != nil && errors.Is(err, io.ErrUnexpectedEOF) {
-		err = fmt.Errorf("parsing the request body: %w", err)
-		return
-	}
-	var vars = mux.Vars(rq)
-	err = fillUrlParamaters(vars, bq)
-	if err != nil {
-		return bq, fmt.Errorf("checking url parameters: %w", err)
-	}
-	return
 }
 
 func WriteJsonResponse(bs any, rsw http.ResponseWriter) error {
