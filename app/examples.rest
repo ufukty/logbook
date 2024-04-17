@@ -14,9 +14,9 @@ Content-Type: application/json
 
 ?? status == 200
 
-### Authentication
+### Login
 
-POST http://127.0.0.1:8081/session HTTP/1.1
+POST http://127.0.0.1:8081/login HTTP/1.1
 Content-Type: application/json
 
 {
