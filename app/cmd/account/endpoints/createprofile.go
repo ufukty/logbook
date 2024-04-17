@@ -11,16 +11,18 @@ import (
 )
 
 type CreateProfileRequest struct {
-	Uid       database.UserId    `json:"uid"`
-	Firstname database.HumanName `json:"firstname"`
-	Lastname  database.HumanName `json:"lastname"`
+	SessionToken database.SessionToken `cookie:"session_token"`
+	Uid          database.UserId       `json:"uid"`
+	Firstname    database.HumanName    `json:"firstname"`
+	Lastname     database.HumanName    `json:"lastname"`
 }
 
 func (params CreateProfileRequest) Validate() error {
 	return validate.All(map[string]validate.Validator{
-		"uid":       params.Uid,
-		"firstname": params.Firstname,
-		"lastname":  params.Lastname,
+		"session_token": params.SessionToken,
+		"uid":           params.Uid,
+		"firstname":     params.Firstname,
+		"lastname":      params.Lastname,
 	})
 }
 

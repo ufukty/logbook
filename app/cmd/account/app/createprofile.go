@@ -7,13 +7,19 @@ import (
 )
 
 type CreateProfileParams struct {
-	Uid       database.UserId
-	Firstname database.HumanName
-	Lastname  database.HumanName
+	SessionToken database.SessionToken
+	Uid          database.UserId
+	Firstname    database.HumanName
+	Lastname     database.HumanName
 }
 
 func (a App) CreateProfile(ctx context.Context, params CreateProfileParams) error {
-	_, err := a.queries.InsertProfileInformation(ctx, database.InsertProfileInformationParams{
+	err := a.authz.AssertCanSetProfile(ctx, params.SessionToken, params.Uid)
+	if err != nil {
+		return fmt.Errorf("checking authorization: %w", err)
+	}
+
+	_, err = a.queries.InsertProfileInformation(ctx, database.InsertProfileInformationParams{
 		Uid:       params.Uid,
 		Firstname: string(params.Firstname),
 		Lastname:  string(params.Lastname),
