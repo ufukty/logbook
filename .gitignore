@@ -113,6 +113,7 @@ _.so
 *.sublime*
 *.test
 *.tgz
+*-untracked.sh
 *.tsbuildinfo
 *.vsix
 *.xccheckout
@@ -154,6 +155,7 @@ gen/
 go.work
 gradle-app.setting
 Icon
+ignored
 jspm_packages/
 lerna-debug.log*
 lib-cov

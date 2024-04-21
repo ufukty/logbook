@@ -16,39 +16,39 @@ import (
 	"net/http"
 )
 
-func readConfigs() (*service.Config, *deployment.Config, *api.Config, error) {
+func readConfigs() (*args.Args, *service.Config, *deployment.Config, *api.Config, error) {
 	flags, err := args.Parse()
 	if err != nil {
-		return nil, nil, nil, fmt.Errorf("parsing args: %w", err)
+		return nil, nil, nil, nil, fmt.Errorf("parsing args: %w", err)
 	}
 	l := logger.NewLogger("readConfigs")
 
 	srvcfg, err := service.ReadConfig(flags.Service)
 	if err != nil {
-		return nil, nil, nil, fmt.Errorf("reading service config: %w", err)
+		return nil, nil, nil, nil, fmt.Errorf("reading service config: %w", err)
 	}
 	l.Println("service config:")
 	reflux.Print(srvcfg)
 
 	deplcfg, err := deployment.ReadConfig(flags.Deployment)
 	if err != nil {
-		return nil, nil, nil, fmt.Errorf("reading deployment environment config: %w", err)
+		return nil, nil, nil, nil, fmt.Errorf("reading deployment environment config: %w", err)
 	}
 	l.Println("deployment config:")
 	reflux.Print(deplcfg)
 
 	apicfg, err := api.ReadConfig(flags.Api)
 	if err != nil {
-		return nil, nil, nil, fmt.Errorf("reading api config: %w", err)
+		return nil, nil, nil, nil, fmt.Errorf("reading api config: %w", err)
 	}
 	l.Println("api config:")
 	reflux.Print(apicfg)
 
-	return &srvcfg, &deplcfg, &apicfg, nil
+	return &flags, &srvcfg, &deplcfg, &apicfg, nil
 }
 
 func Main() error {
-	srvcfg, deplcfg, apicfg, err := readConfigs()
+	flags, srvcfg, deplcfg, apicfg, err := readConfigs()
 	if err != nil {
 		return fmt.Errorf("reading configs: %w", err)
 	}
@@ -66,7 +66,9 @@ func Main() error {
 	eps := apicfg.Gateways.Public.Services.Account.Endpoints
 	router.StartServer(router.ServerParameters{
 		BaseUrl:        deplcfg.Ports.Accounts,
-		Tls:            false,
+		Tls:            true,
+		TlsCrt:         flags.TlsCertificate,
+		TlsKey:         flags.TlsKey,
 		RequestTimeout: deplcfg.Router.RequestTimeout,
 	}, map[api.Endpoint]http.HandlerFunc{
 		eps.Create:        em.CreateUser,

@@ -15,6 +15,8 @@ import (
 type ServerParameters struct {
 	BaseUrl        string
 	Tls            bool
+	TlsCrt         string
+	TlsKey         string
 	RequestTimeout time.Duration
 }
 
@@ -54,7 +56,7 @@ func StartServer(params ServerParameters, handlers map[api.Endpoint]http.Handler
 
 	if params.Tls {
 		l.Printf("calling ListenAndServeTLS on %q\n", params.BaseUrl)
-		if err := server.ListenAndServeTLS(publicCertPath, privateCertPath); err != nil {
+		if err := server.ListenAndServeTLS(params.TlsCrt, params.TlsKey); err != nil {
 			l.Println(fmt.Errorf("http.Server returned an error from ListenAndServeTLS call: %w", err))
 		}
 	} else {

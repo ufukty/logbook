@@ -7,9 +7,11 @@ import (
 )
 
 type Args struct {
-	Api        string // config file path
-	Deployment string // config file path
-	Service    string // config file path
+	Api            string
+	Deployment     string
+	Service        string
+	TlsKey         string
+	TlsCertificate string
 }
 
 func Parse() (Args, error) {
@@ -17,6 +19,8 @@ func Parse() (Args, error) {
 	flag.StringVar(&args.Api, "a", "", "-a <api config file>")
 	flag.StringVar(&args.Deployment, "d", "", "-d <deployment config file>")
 	flag.StringVar(&args.Service, "s", "", "-s <service config file>")
+	flag.StringVar(&args.TlsCertificate, "cert", "", "(optional) path to tls certificate")
+	flag.StringVar(&args.TlsKey, "key", "", "(optional) path to tls key")
 	flag.Parse()
 
 	errs := []string{}

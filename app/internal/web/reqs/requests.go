@@ -43,7 +43,7 @@ func parseRequestByStructFields(r *http.Request, bq any) error {
 
 		if metakey, ok = sf.Tag.Lookup("cookie"); ok {
 			if cookievalue, ok = cookies[metakey]; ok {
-				if cookieType.AssignableTo(fv.Type()) {
+				if cookieType.ConvertibleTo(fv.Type()) {
 					fv.Set(reflect.ValueOf(cookievalue.Value))
 				} else {
 					mismatchCookies = append(mismatchCookies, fmt.Sprintf("%q (%q -> %q)", metakey, "string", sf.Type.String()))
@@ -53,7 +53,7 @@ func parseRequestByStructFields(r *http.Request, bq any) error {
 			}
 		} else if metakey, ok = sf.Tag.Lookup("url"); ok {
 			if urlvalue, ok = vars[metakey]; ok {
-				if cookieType.AssignableTo(fv.Type()) {
+				if cookieType.ConvertibleTo(fv.Type()) {
 					fv.Set(reflect.ValueOf(urlvalue))
 				} else {
 					mismatchUrlParameters = append(mismatchUrlParameters, fmt.Sprintf("%q (%q -> %q)", metakey, "string", sf.Type.String()))
