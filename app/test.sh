@@ -20,4 +20,4 @@ for s in cmd/*; do
 done
 
 sleep 4
-httpyac examples.rest --all --insecure
+httpyac api.http --all --insecure
