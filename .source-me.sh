@@ -1,4 +1,4 @@
-#!/usr/bin/env bash -i
+#!/usr/local/bin/bash
 
 export WORKSPACE="$(pwd -P)"
 PATH="${PATH}:${WORKSPACE}"
