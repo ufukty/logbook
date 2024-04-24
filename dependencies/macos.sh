@@ -2,6 +2,10 @@
 
 set -e # exit on error
 
+test -f "$HOME/venv/bin/activate" ||
+    python -m venv "$HOME/venv"
+source "$HOME/venv/bin/activate"
+
 type _autosource || (echo "copy assets/autosource.sh content into bash_profile" exit 1)
 test "$WORKSPACE" || exit 1
 
@@ -37,9 +41,6 @@ which easyrsa ||
 which jq ||
     brew install jq
 
-test -f "$HOME/venv/bin/activate" ||
-    python -m venv "$HOME/venv"
-source "$HOME/venv/bin/activate"
 (which ansible && which qr) ||
     pip install -r "$WORKSPACE/dependencies/requirements.txt"
 
