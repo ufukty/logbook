@@ -2,7 +2,7 @@
 
 set -e # exit on error
 
-type _autosource || (echo "copy autosource.sh content into bash_profile" exit 1)
+type _autosource || (echo "copy assets/autosource.sh content into bash_profile" exit 1)
 test "$WORKSPACE" || exit 1
 
 which make ||
