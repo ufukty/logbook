@@ -34,6 +34,8 @@ which openvpn ||
     brew install "openvpn"
 which easyrsa ||
     (open "https://github.com/OpenVPN/easy-rsa" && exit 1)
+which jq ||
+    brew install jq
 
 test -f "$HOME/venv/bin/activate" ||
     python -m venv "$HOME/venv"
