@@ -1,6 +1,7 @@
 #!/usr/local/bin/bash
 
-export WORKSPACE="$(pwd -P)"
+export WORKSPACE
+WORKSPACE="$(pwd -P)"
 PATH="${PATH}:${WORKSPACE}"
 
 with-echo() {
@@ -24,7 +25,50 @@ export -f error
 
 alias ssh="ssh -F $WORKSPACE/platform/stage/artifacts/ssh.conf"
 
-test -f .source-me-untracked.sh && . .source-me-untracked.sh
+check-ssh() {
+    SSH_KEY_NAME="mbp-ed"
+    ssh-add -l | grep ${SSH_KEY_NAME} >/dev/null
+}
+
+enable-ssh() {
+    note "Calling ssh-agent" && ssh-agent && ssh-add
+}
+
+check-virtual-env() {
+    which ansible >/dev/null
+}
+
+enable-virtual-env() {
+    PYTHON_VIRTUAL_ENV="$HOME/venv/bin/activate"
+    . ${PYTHON_VIRTUAL_ENV}
+}
+
+new-hash() {
+    read -rp "Enter password:" -s USER_INPUT
+    if test -n "$USER_INPUT"; then
+        SALT="$(cat /dev/urandom | LC_CTYPE=C tr -cd 'A-Za-z0-9' | fold -w 32 | head -n 1)"
+        echo
+        echo -n "$USER_INPUT" | argon2 "$SALT" -id -v 13 -k 32768 -t 4 -p 2 -e
+    fi
+}
+
+set-env-vars() {
+    TOKEN="dop_v1_8312e8e275211b3b828b0928bffcb64449db046de151f3979044d891451099ab"
+    export DIGITALOCEAN_TOKEN="$TOKEN"
+    export TF_VAR_DIGITALOCEAN_TOKEN="$TOKEN"
+    export TF_VAR_OVPN_USER="ufukty"
+    export TF_VAR_OVPN_HASH='$argon2id$v=19$m=32768,t=4,p=2$amNpdVBxeVhEMEpzVHBuMG9QSVd2M0djTVd5cVgxZUY$rozKuASyJssMocWSs5+7GDpvuAeC4LrxRZDccEeIi1c'
+}
+
+check-ssh || enable-ssh
+check-virtual-env || enable-virtual-env
+set-env-vars
+
+unset -f check-ssh
+unset -f enable-ssh
+unset -f check-virtual-env
+unset -f enable-virtual-env
+unset -f set-env-vars
 
 check-python-pkg() {
     CLI_NAME="$1" && shift
