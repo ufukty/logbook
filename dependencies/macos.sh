@@ -6,8 +6,13 @@ test -f "$HOME/venv/bin/activate" ||
     python -m venv "$HOME/venv"
 source "$HOME/venv/bin/activate"
 
-type _autosource || (echo "copy assets/autosource.sh content into bash_profile" exit 1)
-test "$WORKSPACE" || exit 1
+type _autosource ||
+    (echo "copy assets/autosource.sh content into bash_profile" && exit 1)
+type _commands_completion ||
+    (echo "copy assets/commands.sh content into bash_profile" && exit 1)
+
+test "$WORKSPACE" ||
+    exit 1
 
 which make ||
     xcode-select --install
@@ -28,6 +33,8 @@ test -f "/usr/local/bin/bash" ||
     brew install "bash"
 which psql ||
     (brew install "postgresql@15" && brew services start "postgresql@15")
+which doctl ||
+    brew install "doctl"
 (which terraform && which packer) ||
     brew tap "hashicorp/tap"
 which terraform ||
@@ -43,6 +50,9 @@ which jq ||
 
 (which ansible && which qr) ||
     pip install -r "$WORKSPACE/dependencies/requirements.txt"
+
+which argon2 ||
+    (open "https://github.com/P-H-C/phc-winner-argon2/releases/tag/20190702" && exit 1)
 
 which npm ||
     (open "https://nodejs.org/en/download" && exit 1)
