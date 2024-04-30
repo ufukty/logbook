@@ -1,27 +1,19 @@
 #!/usr/local/bin/bash
 
 function _autosource() {
-    local START_DIR="$(pwd -P)"
-    local ANCHOR="$(pwd -P)"
-    while true; do
-        if test -f "$ANCHOR/autosource.sh"; then
-            cd "$ANCHOR" && source "$ANCHOR/autosource.sh"
-        fi
-
-        if test "$ANCHOR" == "/"; then
-            break
-        else
-            ANCHOR="$(dirname "$ANCHOR")"
-        fi
-    done
-    cd "$START_DIR"
+    local PARENTDIR
+    PARENTDIR="$(dirname "$1")"
+    test "$PARENTDIR" && test "$PARENTDIR" != "/" && test -d "$PARENTDIR" && _autosource "$PARENTDIR"
+    builtin cd "$1" || return
+    test -f "$1/autosource.sh" && echo "+ source $PWD/autosource.sh" && source "autosource.sh"
 }
+_autosource "$PWD"
 
-_autosource
 _cd() {
-    local START_DIR="$(pwd -P)"
-    builtin cd "$@"
-    _autosource "$@"
+    local START_DIR
+    START_DIR="$(pwd -P)"
+    builtin cd "$@" || return
+    _autosource "$PWD"
     OLDPWD="$START_DIR"
 }
 alias cd="_cd"
