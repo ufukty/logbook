@@ -9,6 +9,8 @@ REGION="fra1"
 SIZE="s-1vcpu-1gb"
 SSH_KEY_IDs="41814107"
 
+TRANSFER_REGIONS=("nyc3" "ams3")
+
 FOLDER="$(basename "$PWD")"
 DROPLET_NAME="builder-${FOLDER:?}-$(date +%y-%m-%d-%H-%M-%S)"
 SNAPSHOT_NAME="build_${FOLDER:?}_$(date +%y_%m_%d_%H_%M_%S)"
@@ -50,5 +52,10 @@ doctl compute droplet-action snapshot "${ID:?}" \
     --wait \
     --verbose
 
-echo "$PWD"
+SNAPSHOT_ID="$(doctl compute snapshot list | grep "$ID" | awk '{ print $1 }')" # do not use the action id from previous output
 
+for TRANSFER_REGION in "${TRANSFER_REGIONS[@]}"; do
+    doctl compute image-action transfer "$SNAPSHOT_ID" --region "$TRANSFER_REGION" --wait
+done
+
+doctl compute snapshot list | grep -e "$SNAPSHOT_ID" -e "Created at"
