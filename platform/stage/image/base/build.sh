@@ -2,8 +2,7 @@
 
 test "$1" != "-B" && is_up_to_date .completion.timestamp && echo "up to date" && exit 0
 
-PS4="\033[36m$(grealpath --relative-to="$(dirname "$WORKSPACE")" "$(pwd -P)")\033[32m/\$(basename \"\${BASH_SOURCE}\"):\${LINENO}\033[0m\033[33m\${FUNCNAME[0]:+/\${FUNCNAME[0]}():}\033[0m "
-set -x
+set -v
 set -e
 
 BASE="ubuntu-22-04-x64"
@@ -48,6 +47,8 @@ ansible-playbook -i "${IP:?}," -u root ansible/playbook.yml
 
 # VPS_USERNAME="olwgtzjzhnvexhpr"
 # VPS_HOME="/home/${VPS_USERNAME:?}"
+
+ssh "olwgtzjzhnvexhpr@$IP" sudo shutdown -h now
 
 doctl compute droplet-action snapshot "${ID:?}" \
     --snapshot-name "${SNAPSHOT_NAME:?}" \
