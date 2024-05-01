@@ -136,6 +136,7 @@ _.so
 *.tfvars
 *.tfvars.json
 *.tgz
+*.timestamp
 *.tsbuildinfo
 *.vsix
 *.xccheckout
