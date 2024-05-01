@@ -16,17 +16,7 @@ FOLDER="$(basename "$PWD")"
 DROPLET_NAME="builder-${FOLDER:?}-$(date +%y-%m-%d-%H-%M-%S)"
 SNAPSHOT_NAME="build_${FOLDER:?}_$(date +%y_%m_%d_%H_%M_%S)"
 
-DROPLET="$(
-    doctl compute droplet create "${DROPLET_NAME:?}" \
-        --image "${BASE:?}" \
-        --region "${REGION:?}" \
-        --size "${SIZE:?}" \
-        --ssh-keys "${SSH_KEY_IDs:?}" \
-        --tag-name "${FOLDER:?}" \
-        --wait \
-        --verbose \
-        --no-header
-)"
+DROPLET="$(doctl compute droplet create "${DROPLET_NAME:?}" --image "${BASE:?}" --region "${REGION:?}" --size "${SIZE:?}" --ssh-keys "${SSH_KEY_IDs:?}" --tag-name "${FOLDER:?}" --wait --verbose --no-header)"
 ID="$(echo "$DROPLET" | tail -n 1 | awk '{ print  $1 }')"
 IP="$(echo "$DROPLET" | tail -n 1 | awk '{ print  $3 }')"
 
@@ -50,10 +40,7 @@ ansible-playbook -i "${IP:?}," -u root ansible/playbook.yml
 
 ssh "olwgtzjzhnvexhpr@$IP" sudo shutdown -h now
 
-doctl compute droplet-action snapshot "${ID:?}" \
-    --snapshot-name "${SNAPSHOT_NAME:?}" \
-    --wait \
-    --verbose
+doctl compute droplet-action snapshot "${ID:?}" --snapshot-name "${SNAPSHOT_NAME:?}" --wait --verbose
 
 SNAPSHOT_ID="$(doctl compute snapshot list | grep "$ID" | awk '{ print $1 }')" # do not use the action id from previous output
 
