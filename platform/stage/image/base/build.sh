@@ -23,6 +23,7 @@ IP="$(echo "$DROPLET" | tail -n 1 | awk '{ print  $3 }')"
 cleanup() {
     EC=$?
     test $EC -eq 0 && test "$ID" && doctl compute droplet delete "$ID" --force
+    tput bel
     exit $EC
 }
 
