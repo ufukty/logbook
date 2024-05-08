@@ -135,7 +135,6 @@ _.so
 *.tfstate.*
 *.tfvars
 *.tfvars.json
-*.tgz
 *.timestamp
 *.tsbuildinfo
 *.vsix
@@ -160,7 +159,6 @@ _.so
 \*.out
 \*.pid.lock
 \*.test
-\*.tgz
 \*.tsbuildinfo
 benchmark
 bin/

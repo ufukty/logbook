@@ -22,9 +22,9 @@ FOLDER="$(basename "$PWD")"
 DROPLET_NAME="builder-${FOLDER:?}-$(date +%y-%m-%d-%H-%M-%S)"
 SNAPSHOT_NAME="build_${FOLDER:?}_$(date +%y_%m_%d_%H_%M_%S)"
 
-DROPLET="$(doctl compute droplet create "${DROPLET_NAME:?}" --image "${BASE_IMAGE_ID:?}" --region "${REGION:?}" --size "${SIZE:?}" --ssh-keys "${SSH_KEY_IDs:?}" --tag-name "${FOLDER:?}" --enable-private-networking --wait --verbose --no-header)"
+DROPLET="$(doctl compute droplet create "${DROPLET_NAME:?}" --image "${BASE_IMAGE_ID:?}" --region "${REGION:?}" --size "${SIZE:?}" --ssh-keys "${SSH_KEY_IDs:?}" --tag-name "${FOLDER:?}" --enable-private-networking --wait --verbose --no-header --format ID,PublicIPv4)"
 ID="$(echo "$DROPLET" | tail -n 1 | awk '{ print  $1 }')"
-IP="$(echo "$DROPLET" | tail -n 1 | awk '{ print  $3 }')"
+IP="$(echo "$DROPLET" | tail -n 1 | awk '{ print  $2 }')"
 
 cleanup() {
     EC=$?
@@ -38,7 +38,7 @@ trap cleanup EXIT
 ping -o "${IP:?}" && until ssh "${VPS_SUDO_USER:?}@${IP:?}" exit; do sleep 5; done # wait
 
 rsync --verbose --recursive -e ssh "./files" "${VPS_SUDO_USER:?}@${IP:?}:${VPS_HOME:?}/"
-ssh "${VPS_SUDO_USER:?}@$IP" "cd ${VPS_HOME:?}/files && sudo --preserve-env bash golden-image.sh; sudo shutdown -h now"
+ssh "${VPS_SUDO_USER:?}@$IP" "cd ${VPS_HOME:?}/files && sudo --preserve-env bash golden-image.sh && cd ${VPS_HOME:?} && rm -rf ${VPS_HOME:?}/files && sudo shutdown -h now"
 
 doctl compute droplet-action snapshot "${ID:?}" --snapshot-name "${SNAPSHOT_NAME:?}" --wait --verbose
 SNAPSHOT_ID="$(doctl compute snapshot list | grep "$ID" | awk '{ print $1 }')" # do not use the action id from previous output
