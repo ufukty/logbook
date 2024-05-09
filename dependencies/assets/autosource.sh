@@ -13,6 +13,8 @@ _cd() {
     local START_DIR
     START_DIR="$(pwd -P)"
     builtin cd "$@" || return
+    set +E
+    set +e
     _autosource "$PWD"
     OLDPWD="$START_DIR"
 }
