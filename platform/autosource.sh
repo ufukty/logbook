@@ -22,7 +22,7 @@ _check_env_vars() {
 }
 _check_env_vars
 
-. "$HOME/venv/bin/activate"
+test "$VIRTUAL_ENV" || . "$HOME/venv/bin/activate"
 
 _ssh_completion() {
     local cur prev opts
