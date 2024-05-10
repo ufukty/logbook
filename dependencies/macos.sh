@@ -6,11 +6,6 @@ test -f "$HOME/venv/bin/activate" ||
     python -m venv "$HOME/venv"
 source "$HOME/venv/bin/activate"
 
-type _autosource ||
-    (echo "copy assets/autosource.sh content into bash_profile" && exit 1)
-type _commands_completion ||
-    (echo "copy assets/commands.sh content into bash_profile" && exit 1)
-
 test "$WORKSPACE" ||
     exit 1
 
