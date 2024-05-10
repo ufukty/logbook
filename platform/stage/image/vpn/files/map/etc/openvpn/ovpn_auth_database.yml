@@ -1,0 +1,3 @@
+- username: <<OVPN_AUTH_USERNAME>>
+  hash: <<OVPN_AUTH_HASH>>
+  totp-secret: <<OVPN_AUTH_TOTP>>
