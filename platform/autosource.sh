@@ -14,11 +14,11 @@ _enable_ssh() {
 _check_ssh || _enable_ssh
 
 _check_env_vars() {
-    DIGITALOCEAN_TOKEN="${DIGITALOCEAN_TOKEN:?}"
-    DIGITALOCEAN_ACCESS_TOKEN="${DIGITALOCEAN_ACCESS_TOKEN:?}"
-    TF_VAR_DIGITALOCEAN_TOKEN="${TF_VAR_DIGITALOCEAN_TOKEN:?}"
-    TF_VAR_OVPN_USER="${TF_VAR_OVPN_USER:?}"
-    TF_VAR_OVPN_HASH="${TF_VAR_OVPN_HASH:?}"
+    : "${DIGITALOCEAN_ACCESS_TOKEN:?}"
+    : "${TF_VAR_DIGITALOCEAN_TOKEN:?}"
+    : "${TF_VAR_OVPN_AUTH_USERNAME:?}"
+    : "${TF_VAR_OVPN_AUTH_HASH:?}"
+    : "${TF_VAR_OVPN_AUTH_TOTP:?}"
 }
 _check_env_vars
 
