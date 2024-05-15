@@ -1,5 +1,30 @@
 #!/usr/local/bin/bash
 
+# MARK: SSH overload
+
+alias ssh="ssh -F $WORKSPACE/platform/stage/artifacts/ssh.conf"
+alias scp="scp -F $WORKSPACE/platform/stage/artifacts/ssh.conf"
+_check_env_vars() {
+    : "${DIGITALOCEAN_ACCESS_TOKEN:?}"
+    : "${TF_VAR_DIGITALOCEAN_TOKEN:?}"
+    : "${TF_VAR_OVPN_AUTH_USERNAME:?}"
+    : "${TF_VAR_OVPN_AUTH_HASH:?}"
+    : "${TF_VAR_OVPN_AUTH_TOTP:?}"
+}
+_check_env_vars
+
+_ssh_completion() {
+    local cur prev opts
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD - 1]}"
+    opts=$(grep '^Host' $WORKSPACE/platform/stage/artifacts/ssh.conf 2>/dev/null | grep -v '[?*]' | cut -d ' ' -f 2-)
+
+    COMPREPLY=($(compgen -W "$opts" -- ${cur}))
+    return 0
+}
+complete -F _ssh_completion ssh
+
 # MARK: Utilities
 
 PING_URL="stage.logbook.balaasad.com:8080/api/v1.0.0/ping"
