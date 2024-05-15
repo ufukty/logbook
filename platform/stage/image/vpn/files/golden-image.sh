@@ -58,8 +58,8 @@ function install_easy_rsa() (
 )
 
 function ovpn_auth() {
-    chmod 755 /etc/openvpn/ovpn-auth-v1.0.4-linux-x64
-    chown root:root /etc/openvpn/ovpn-auth-v1.0.4-linux-x64
+    chmod 755 /etc/openvpn/ovpn-auth-v1.0.7-linux-x64
+    chown root:root /etc/openvpn/ovpn-auth-v1.0.7-linux-x64
 
     chmod 744 /etc/openvpn/ovpn_auth_database.yml
     chown root:root /etc/openvpn/ovpn_auth_database.yml
