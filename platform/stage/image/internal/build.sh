@@ -38,7 +38,7 @@ IP="$(echo "$DROPLET" | tail -n 1 | awk '{ print  $2 }')"
 
 cleanup() {
     EC=$?
-    test "$ID" && ! { test $EC -ne 0 || test "$1" != "-d"; } && doctl compute droplet delete "$ID" --force
+    test "$ID" && test "$1" != "-d" && doctl compute droplet delete "$ID" --force
     test $EC -eq 0 && touch .completion.timestamp
     tput bel
     exit $EC
@@ -62,7 +62,7 @@ ssh "${VPS_SUDO_USER:?}@$IP" bash <<EOF
         bash golden-image.sh
     cd "${VPS_HOME:?}"
     rm -rf "${VPS_HOME:?}/files"
-    # sudo shutdown -h now
+    sudo shutdown -h now
 EOF
 
 # ---------------------------------------------------------------------------- #
