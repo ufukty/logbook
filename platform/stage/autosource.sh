@@ -61,7 +61,7 @@ vpc-up() (
 
 vpn-up() (
     cd "${WORKSPACE:?}/platform/stage/provisioning/vpn"
-    terraform apply "$@" --var-file="${WORKSPACE:?}/platform/stage/provisioning/vars.tfvars"
+    terraform apply --auto-approve --var-file="${WORKSPACE:?}/platform/stage/provisioning/vars.tfvars"
     artifacts-update-ssh-aggregation
     vpn-totp
     read -p "$(note "Connect vpn in separate tab [Enter]")"
