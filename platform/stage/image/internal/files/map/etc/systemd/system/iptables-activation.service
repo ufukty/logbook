@@ -1,0 +1,12 @@
+[Unit]
+Description=iptables rules for internal server image
+Before=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/iptables-restore -v /etc/iptables/iptables-rules.v4
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
