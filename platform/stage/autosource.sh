@@ -170,45 +170,23 @@ generate-keys() (
 # MARK: Digitalocean
 
 image-clean() {
-    function print_outdated_images() {
-        set -e
-        set -x
-        LATEST_IMAGES="$(
-            echo "$1" |
-                sed -E 's/packer-(.*)-([0-9]{2}-[0-9]{2}-[0-9]{2})-T-([0-9]{2}-[0-9]{2}-[0-9]{2})-UTC[^0-9]*([0-9]*)/\2-\3 \4 \1/g' |
-                uniq -f 2 | cut -d ' ' -f 2
-        )"
-        OUTDATED_IMAGES="$(echo "$1" | grep -v "$LATEST_IMAGES" | sed -E "s/(.*)\ +(.*)/\2/g")"
-        echo "$OUTDATED_IMAGES"
-    }
-    function pretty_print() {
-        set -e
-        set -x
-        OUTDATED_LINES="$(echo "$1" | grep "$2")"
-        echo -e "Records highlighted with red will be deleted:"
-        echo "$1" | grep -E --color "$OUTDATED_LINES"
-    }
-
-    echo "Downloading data from API..."
-    IMAGES="$(doctl compute image list-user --format='Name,ID' --no-header | grep -v packer-base | sort -r)"
-    OUTDATED_IMAGES="$(print_outdated_images "$IMAGES")"
-    test -z "$OUTDATED_IMAGES" && echo "All up-to-date." && exit 0
-    pretty_print "$IMAGES" "$OUTDATED_IMAGES"
-    while true; do
-        read -p "Do you want to delete? Options: (D)elete, (A)bort: " -n 1 USER_INPUT
-        case $USER_INPUT in
-        [Dd]*)
-            echo "Delete."
-            doctl compute image delete -f "$OUTDATED_IMAGES"
-            exit
-            ;;
-        [Aa]*)
-            echo "Aborted."
-            exit
-            ;;
-        *) echo "Invalid entry. Try again." ;;
-        esac
-    done
+    set -E
+    local ALL
+    local TOKEEP
+    local OUTDATED
+    local OUTDATED_NAMEs
+    local OUTDATED_IDs
+    ALL="$(doctl compute snapshot list --format Name,ID --no-header | grep build | grep -v base | sort -r | gsed -E 's/[ ]+/ /g')"
+    TOKEEP="$(echo "$ALL" | gsed -E 's/(build_([^_]+)_([0-9_]{17}).*)/\1 \2/g' | sort -r | uniq -f 2 | cut -d ' ' -f 1)"
+    OUTDATED="$(echo "$ALL" | grep -v "$TOKEEP")"
+    OUTDATED_NAMEs="$(echo "$OUTDATED" | cut -d ' ' -f 1)"
+    OUTDATED_IDs="$(echo "$OUTDATED" | cut -d ' ' -f 2)"
+    test -z "$OUTDATED_IDs" && echo "nothing to clean" && return 0
+    echo "keep:" | green
+    echo "$TOKEEP" | green
+    echo "delete:" | red
+    echo "$OUTDATED_NAMEs" | red
+    confirm "$ALL" "$OUTDATED_IDs" && echo "$OUTDATED_IDs" | xargs --verbose -n 1 doctl compute image delete -f
 }
 
 image-tree() {
