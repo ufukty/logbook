@@ -25,7 +25,7 @@ FOLDER="$(basename "$PWD")"
 DROPLET_NAME="builder-${FOLDER:?}-$(date +%y-%m-%d-%H-%M-%S)"
 SNAPSHOT_NAME="build_${FOLDER:?}_$(date +%y_%m_%d_%H_%M_%S)"
 
-DROPLET="$(doctl compute droplet create "${DROPLET_NAME:?}" --image "${BASE_IMAGE_ID:?}" --region "${REGION:?}" --size "${SIZE:?}" --ssh-keys "${SSH_KEY_IDs:?}" --tag-name "${FOLDER:?}" --vpc-uuid "${VPC_UUID:?}" --enable-private-networking --wait --verbose --no-header --format ID,PublicIPv4)"
+DROPLET="$(doctl compute droplet create "${DROPLET_NAME:?}" --image "${BASE_IMAGE_ID:?}" --region "${REGION:?}" --size "${SIZE:?}" --ssh-keys "${SSH_KEY_IDs:?}" --tag-name "${FOLDER:?}" --vpc-uuid "${VPC_UUID:?}" --enable-private-networking --wait --verbose --no-header --format ID,PrivatePv4)"
 ID="$(echo "$DROPLET" | tail -n 1 | awk '{ print  $1 }')"
 IP="$(echo "$DROPLET" | tail -n 1 | awk '{ print  $2 }')"
 
