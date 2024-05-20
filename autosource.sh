@@ -35,17 +35,3 @@ function confirm() {
 }
 
 export -f confirm
-
-    fi
-}
-export -f with-echo
-
-note() {
-    echo -e "\033[30m\033[43m\033[1m $* \033[0m"
-}
-export -f note
-
-error() {
-    echo -e "\033[38m\033[41m\033[1m $* \033[0m"
-}
-export -f error
