@@ -133,8 +133,6 @@ _.so
 *.test
 *.tfstate
 *.tfstate.*
-*.tfvars
-*.tfvars.json
 *.timestamp
 *.tsbuildinfo
 *.vsix

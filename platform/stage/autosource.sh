@@ -60,6 +60,7 @@ vpc-up() (
 )
 
 vpn-up() (
+    set -e
     cd "${WORKSPACE:?}/platform/stage/provisioning/vpn"
     terraform apply --auto-approve --var-file="${WORKSPACE:?}/platform/stage/provisioning/vars.tfvars"
     artifacts-update-ssh-aggregation

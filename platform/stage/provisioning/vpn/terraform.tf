@@ -7,11 +7,7 @@ terraform {
   }
 }
 
-# MARK: Variables
-
 variable "project_prefix" { type = string }
-variable "sudo_user" { type = string }
-variable "ssh_fingerprints" { type = list(string) }
 variable "digitalocean" {
   type = object({
     activated_regions = object({
@@ -46,19 +42,19 @@ variable "digitalocean" {
     })
   })
 }
+variable "SSH_KEY_FINGERPRINT" { type = string }
 variable "OVPN_AUTH_USERNAME" { type = string }
 variable "OVPN_AUTH_HASH" { type = string }
 variable "OVPN_AUTH_TOTP" { type = string }
-variable "openvpn_client_name" { type = string }
 
 locals {
-  public_ethernet_interface  = "eth0"
-  private_ethernet_interface = "eth1"
+  sudo_user           = "olwgtzjzhnvexhpr"
+  openvpn_client_name = "provisioner"
 }
 
 # MARK: Data gathering
 
-data "digitalocean_droplet_snapshot" "vpn_image" {
+data "digitalocean_droplet_snapshot" "vpn" {
   for_each = var.digitalocean.activated_regions.vpn
 
   name_regex  = "^build_vpn_.*"
@@ -80,18 +76,18 @@ resource "digitalocean_droplet" "vpn-server" {
   ipv6        = true
   name        = "${each.value}-vpn"
   size        = "s-1vcpu-1gb"
-  image       = data.digitalocean_droplet_snapshot.vpn_image[each.value].id
+  image       = data.digitalocean_droplet_snapshot.vpn[each.value].id
   region      = each.value
   backups     = false
   monitoring  = true
   resize_disk = false
-  ssh_keys    = var.ssh_fingerprints
+  ssh_keys    = [var.SSH_KEY_FINGERPRINT]
   vpc_uuid    = data.digitalocean_vpc.vpc[each.value].id
   tags        = ["vpn"]
 
   connection {
     host    = self.ipv4_address
-    user    = var.sudo_user
+    user    = local.sudo_user
     type    = "ssh"
     agent   = true
     timeout = "2m"
@@ -99,30 +95,30 @@ resource "digitalocean_droplet" "vpn-server" {
 
   provisioner "file" {
     source      = "${path.module}/provisioner-files"
-    destination = "/home/${var.sudo_user}"
+    destination = "/home/${local.sudo_user}"
   }
 
   provisioner "remote-exec" {
     inline = [
       <<EOF
         cd ~/provisioner-files && \
-                     USER_ACCOUNT_NAME='${var.sudo_user}' \
+                     USER_ACCOUNT_NAME='${local.sudo_user}' \
                            SERVER_NAME='${var.project_prefix}-do-${each.value}-vpn' \
                              PUBLIC_IP='${self.ipv4_address}' \
                             PRIVATE_IP='${self.ipv4_address_private}' \
-                OPENVPN_SUBNET_ADDRESS='${var.digitalocean.config.vpn[each.value].subnet_address}' \
+                OPENVPN_SUBNET_ADDRESS='${var.digitalocean.config.vpn[each.value]}' \
                    OPENVPN_SUBNET_MASK='255.255.255.0' \
-             PUBLIC_ETHERNET_INTERFACE='${local.public_ethernet_interface}' \
-            PRIVATE_ETHERNET_INTERFACE='${local.private_ethernet_interface}' \
+             PUBLIC_ETHERNET_INTERFACE='eth0' \
+            PRIVATE_ETHERNET_INTERFACE='eth1' \
                     OVPN_AUTH_USERNAME='${var.OVPN_AUTH_USERNAME}' \
                         OVPN_AUTH_HASH='${var.OVPN_AUTH_HASH}' \
                         OVPN_AUTH_TOTP='${var.OVPN_AUTH_TOTP}' \
             sudo --preserve-env bash deployment.sh 
 
         cd ~/provisioner-files && \
-            USER_ACCOUNT_NAME="${var.sudo_user}" \
+            USER_ACCOUNT_NAME="${local.sudo_user}" \
                     PUBLIC_IP="${self.ipv4_address}" \
-                  CLIENT_NAME="${var.openvpn_client_name}" \
+                  CLIENT_NAME="${local.openvpn_client_name}" \
             sudo --preserve-env bash new_client.sh
       EOF   
     ]
@@ -134,8 +130,8 @@ resource "digitalocean_droplet" "vpn-server" {
       ssh-keyscan ${self.ipv4_address_private} >> ~/.ssh/known_hosts
 
       mkdir -p ../../artifacts/vpn
-      scp ${var.sudo_user}@${self.ipv4_address}:~/artifacts/${var.openvpn_client_name}.ovpn \
-          ${path.module}/../../artifacts/vpn/${var.project_prefix}-do-${each.value}-${var.openvpn_client_name}.ovpn
+      scp ${local.sudo_user}@${self.ipv4_address}:~/artifacts/${local.openvpn_client_name}.ovpn \
+          ${path.module}/../../artifacts/vpn/${var.project_prefix}-do-${each.value}-${local.openvpn_client_name}.ovpn
     EOF
   }
 
@@ -147,7 +143,7 @@ resource "digitalocean_droplet" "vpn-server" {
         sudo bash -c "\
             systemctl restart systemd-journald;\
             systemctl restart iptables-activation;\
-            sed -E -in-place \"s;${var.sudo_user}(.*)NOPASSWD:(.*);${var.sudo_user} \1 \2;\" /etc/sudoers;\
+            sed -E -in-place \"s;${local.sudo_user}(.*)NOPASSWD:(.*);${local.sudo_user} \1 \2;\" /etc/sudoers;\
         "
     EOF
     ]
