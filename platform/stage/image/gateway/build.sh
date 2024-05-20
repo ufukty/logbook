@@ -7,7 +7,8 @@ set -v -x -e
 
 # ---------------------------------------------------------------------------- #
 # Values
-# ---
+# ---------------------------------------------------------------------------- #
+
 VPS_SUDO_USER="olwgtzjzhnvexhpr"
 VPS_HOME="/home/${VPS_SUDO_USER:?}"
 IPTABLES_PUBLIC_ETHERNET_INTERFACE="eth0"
