@@ -106,7 +106,7 @@ resource "digitalocean_droplet" "vpn-server" {
                            SERVER_NAME='${var.project_prefix}-do-${each.value}-vpn' \
                              PUBLIC_IP='${self.ipv4_address}' \
                             PRIVATE_IP='${self.ipv4_address_private}' \
-                OPENVPN_SUBNET_ADDRESS='${var.digitalocean.config.vpn[each.value]}' \
+                OPENVPN_SUBNET_ADDRESS='${var.digitalocean.config.vpn[each.value].subnet_address}' \
                    OPENVPN_SUBNET_MASK='255.255.255.0' \
              PUBLIC_ETHERNET_INTERFACE='eth0' \
             PRIVATE_ETHERNET_INTERFACE='eth1' \
