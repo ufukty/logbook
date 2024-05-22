@@ -29,7 +29,7 @@ complete -F _ssh_completion ssh
 
 PING_URL="stage.logbook.balaasad.com:8080/api/v1.0.0/ping"
 
-artifacts-update-ssh-aggregation() {
+aggregate-ssh-conf() {
     cat "$WORKSPACE/platform/stage/artifacts/ssh.conf.d/"* >"$WORKSPACE/platform/stage/artifacts/ssh.conf"
 }
 
@@ -62,9 +62,9 @@ vpn-up() (
     set -e
     cd "${WORKSPACE:?}/platform/stage/provisioning/vpn"
     terraform apply --auto-approve --var-file="${WORKSPACE:?}/platform/stage/provisioning/vars.tfvars"
-    artifacts-update-ssh-aggregation
+    aggregate-ssh-conf
     note "Connect vpn in separate tab [Enter]"
-    read -p
+    read # wait
     ssh-key-update
     update-dns-records
 )
@@ -72,13 +72,13 @@ vpn-up() (
 vpn-down() (
     cd "${WORKSPACE:?}/platform/stage/provisioning/vpn"
     terraform destroy "$@" --var-file="${WORKSPACE:?}/platform/stage/provisioning/vars.tfvars"
-    artifacts-update-ssh-aggregation
+    aggregate-ssh-conf
 )
 
 app-up() (
     cd "${WORKSPACE:?}/platform/stage/provisioning/application"
     terraform apply "$@" --var-file="${WORKSPACE:?}/platform/stage/provisioning/vars.tfvars"
-    artifacts-update-ssh-aggregation
+    aggregate-ssh-conf
     ssh-key-update
     update-dns-records
 )
@@ -86,7 +86,7 @@ app-up() (
 app-down() (
     cd "${WORKSPACE:?}/platform/stage/provisioning/application"
     terraform destroy "$@" --var-file="${WORKSPACE:?}/platform/stage/provisioning/vars.tfvars"
-    artifacts-update-ssh-aggregation
+    aggregate-ssh-conf
 )
 
 # MARK: Deployment
