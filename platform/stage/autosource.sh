@@ -30,8 +30,7 @@ complete -F _ssh_completion ssh
 PING_URL="stage.logbook.balaasad.com:8080/api/v1.0.0/ping"
 
 artifacts-update-ssh-aggregation() {
-    cd "$WORKSPACE/platform/stage/artifacts"
-    cat ssh.conf.d/* >ssh.conf
+    cat "$WORKSPACE/platform/stage/artifacts/ssh.conf.d/"* >"$WORKSPACE/platform/stage/artifacts/ssh.conf"
 }
 
 ssh-key-update() {
@@ -64,8 +63,8 @@ vpn-up() (
     cd "${WORKSPACE:?}/platform/stage/provisioning/vpn"
     terraform apply --auto-approve --var-file="${WORKSPACE:?}/platform/stage/provisioning/vars.tfvars"
     artifacts-update-ssh-aggregation
-    vpn-totp
-    read -p "$(note "Connect vpn in separate tab [Enter]")"
+    note "Connect vpn in separate tab [Enter]"
+    read -p
     ssh-key-update
     update-dns-records
 )
@@ -118,15 +117,6 @@ all() {
 }
 
 # MARK: VPN
-
-vpn-totp() (
-    cd "${WORKSPACE:?}/platform/stage"
-    if test -n "$(find artifacts/vpn -name '*totp*')"; then
-        cd "${WORKSPACE:?}/platform/stage/artifacts/vpn"
-        find . -name '*totp*' | xargs -n 1 cat | qr
-        find . -name '*totp*' -delete
-    fi
-)
 
 vpn-connect() {
     REGION_SLUG="$1" && shift
