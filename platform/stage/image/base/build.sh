@@ -9,6 +9,8 @@ set -v -x -e
 # Values
 # ---------------------------------------------------------------------------- #
 
+VPS_SUDO_USER="olwgtzjzhnvexhpr"
+
 BASE="ubuntu-22-04-x64"
 REGION="fra1"
 SIZE="s-1vcpu-1gb"
@@ -48,7 +50,7 @@ rsync --verbose --recursive -e ssh "./map" "root@${IP:?}:/root/"
 
 export ANSIBLE_CONFIG="ansible/ansible.cfg"
 ansible-playbook -i "${IP:?}," -u root ansible/playbook.yml
-ssh "olwgtzjzhnvexhpr@$IP" sudo shutdown -h now
+ssh "${VPS_SUDO_USER:?}@${IP:?}" sudo shutdown -h now
 
 # ---------------------------------------------------------------------------- #
 # Snapshot
