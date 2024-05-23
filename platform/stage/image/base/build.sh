@@ -63,5 +63,3 @@ for TRANSFER_REGION in "${TRANSFER_REGIONS[@]}"; do
 done
 
 doctl compute snapshot list | grep -e "$SNAPSHOT_ID" -e "Created at"
-
-touch .completion.timestamp
