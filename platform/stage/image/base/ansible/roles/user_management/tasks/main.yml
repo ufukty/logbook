@@ -6,7 +6,7 @@
     state: absent
 
 - name: change root user's password via chpasswd
-  shell: echo 'root:{{ root_password }}' | sudo chpasswd -e
+  shell: echo 'root:{{ lookup('env', 'ANSIBLE_SUDO_USER_PASSWD_HASH') }}' | sudo chpasswd -e
 
 - name: creating the sudo user
   remote_user: root
@@ -22,7 +22,7 @@
     state: present
   loop:
     - name: "{{ user_name }}"
-      password: "{{ user_password }}"
+      password: "{{ lookup('env', 'ANSIBLE_SUDO_USER_PASSWD_HASH') }}"
 
 - name: Inserting ssh keys -> authorized_keys (for sudo user)
   become: true
