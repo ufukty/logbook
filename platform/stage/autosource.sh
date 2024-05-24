@@ -10,6 +10,7 @@ _check_env_vars() {
     : "${TF_VAR_OVPN_AUTH_USERNAME:?}"
     : "${TF_VAR_OVPN_AUTH_HASH:?}"
     : "${TF_VAR_OVPN_AUTH_TOTP:?}"
+    : "${ANSIBLE_SUDO_USER_PASSWD_HASH:?}"
 }
 _check_env_vars
 
