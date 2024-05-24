@@ -129,34 +129,41 @@ vpn-connect() {
 
 # MARK: Secrets
 
-generate-ca() (
-    cd "${WORKSPACE:?}/platform/stage/secrets"
-    easyrsa init-pki soft
-    easyrsa --batch --req-cn="logbook-CA" build-ca nopass
-)
-
-generate-keys() (
-    ssh-app-db() (
-        set -e
-        set -x
-        mkdir -p "image/ssh-app-db" && cd "image/ssh-app-db"
-        ssh-keygen -a 1000 -b 4096 -C "ssh-app-db" -o -t rsa -f app-db -N '' >/dev/null
-    )
-    tls-application() (
-        set -e
-        set -x
-        easyrsa --batch build-server-full logbook-application nopass
-    )
-    tls-non-specific() (
-        set -e
-        set -x
-        easyrsa --batch build-server-full logbook-non-specific nopass
-    )
+recreate-certificate-authority() (
+    PS4="\n> "
+    set -x -T -v -e -E
     mkdir -p "$WORKSPACE/platform/stage/secrets"
     cd "$WORKSPACE/platform/stage/secrets"
-    ssh-app-db
-    tls-application
-    tls-non-specific
+    test -d pki && rm -rfv pki
+    easyrsa init-pki soft
+    easyrsa --batch --req-cn="Logbook Stage Environment CA" build-ca nopass
+    security add-trusted-cert -d -r trustRoot -k ~/Library/Keychains/login.keychain-db "${WORKSPACE:?}/platform/stage/secrets/pki/ca.crt" # macos keychain
+)
+
+rotate-cryptographic-keys() (
+    PS4="\n> "
+    set -x -T -v -e -E
+    mkdir -p "$WORKSPACE/platform/stage/secrets"
+    cd "$WORKSPACE/platform/stage/secrets"
+    # mkdir -p "image/ssh-app-db" && cd "image/ssh-app-db"
+    # ssh-keygen -a 1000 -b 4096 -C "ssh-app-db" -o -t rsa -f app-db -N '' >/dev/null
+
+    local KINDS
+    KINDS=("Application" "Generic")
+    for KIND in "${KINDS[@]}"; do
+        local COMMON_NAME
+        COMMON_NAME="Logbook ${KIND} Server"
+        # https://github.com/OpenVPN/easy-rsa/blob/master/doc/EasyRSA-Renew-and-Revoke.md
+        if test -f "${WORKSPACE:?}/platform/stage/secrets/pki/issued/${COMMON_NAME:?}.crt"; then
+            if test -f "${WORKSPACE:?}/platform/stage/secrets/pki/expired/${COMMON_NAME:?}.crt"; then
+                easyrsa --batch revoke-expired "${COMMON_NAME:?}" unspecified
+            fi
+            easyrsa --batch expire "${COMMON_NAME:?}"
+            easyrsa --batch sign-req server "${COMMON_NAME:?}"
+        else
+            easyrsa --batch build-server-full "${COMMON_NAME:?}" nopass
+        fi
+    done
 )
 
 # MARK: Digitalocean
