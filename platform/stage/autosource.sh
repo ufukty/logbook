@@ -1,9 +1,12 @@
 #!/usr/local/bin/bash
 
+STAGE="${WORKSPACE:?}/platform/stage"
+export STAGE
+
 # MARK: SSH overload
 
-alias ssh="ssh -F $WORKSPACE/platform/stage/artifacts/ssh.conf"
-alias scp="scp -F $WORKSPACE/platform/stage/artifacts/ssh.conf"
+alias ssh="ssh -F ${STAGE:?}/artifacts/ssh.conf"
+alias scp="scp -F ${STAGE:?}/artifacts/ssh.conf"
 _check_env_vars() {
     : "${DIGITALOCEAN_ACCESS_TOKEN:?}"
     : "${TF_VAR_DIGITALOCEAN_TOKEN:?}"
@@ -19,7 +22,7 @@ _ssh_completion() {
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD - 1]}"
-    opts=$(grep '^Host' $WORKSPACE/platform/stage/artifacts/ssh.conf 2>/dev/null | grep -v '[?*]' | cut -d ' ' -f 2-)
+    opts=$(grep '^Host' ${STAGE:?}/artifacts/ssh.conf 2>/dev/null | grep -v '[?*]' | cut -d ' ' -f 2-)
 
     COMPREPLY=($(compgen -W "$opts" -- ${cur}))
     return 0
@@ -31,12 +34,12 @@ complete -F _ssh_completion ssh
 PING_URL="stage.logbook.balaasad.com:8080/api/v1.0.0/ping"
 
 aggregate-ssh-conf() {
-    cat "$WORKSPACE/platform/stage/artifacts/ssh.conf.d/"* >"$WORKSPACE/platform/stage/artifacts/ssh.conf"
+    cat "${STAGE:?}/artifacts/ssh.conf.d/"* >"${STAGE:?}/artifacts/ssh.conf"
 }
 
 ssh-key-update() {
-    touch "${WORKSPACE:?}/platform/stage/artifacts/deployment/service_discovery.json"
-    ADDRESSES="$(cat "${WORKSPACE:?}/platform/stage/artifacts/deployment/service_discovery.json" | jq -r '.digitalocean.fra1.services[] | .[] | .ipv4_address_private')"
+    touch "${STAGE:?}/artifacts/deployment/service_discovery.json"
+    ADDRESSES="$(cat "${STAGE:?}/artifacts/deployment/service_discovery.json" | jq -r '.digitalocean.fra1.services[] | .[] | .ipv4_address_private')"
     echo "$ADDRESSES" | while read ADDRESS; do
         ssh-keygen -R "$ADDRESS" >/dev/null 2>&1
         # ssh-keyscan "$ADDRESS" >>~/.ssh/known_hosts 2>/dev/null
@@ -46,8 +49,8 @@ ssh-key-update() {
 update-dns-records() (
     TEMP_FILE="$(mktemp)"
     local GATEWAY_IP
-    GATEWAY_IP="$(cat "${WORKSPACE:?}/platform/stage/artifacts/deployment/service_discovery.json" | jq -r '.digitalocean.fra1.services["api-gateway"][0].ipv4_address')"
-    ssh -t -F "$WORKSPACE/platform/stage/artifacts/ssh.conf" \
+    GATEWAY_IP="$(cat "${STAGE:?}/artifacts/deployment/service_discovery.json" | jq -r '.digitalocean.fra1.services["api-gateway"][0].ipv4_address')"
+    ssh -t -F "${STAGE:?}/artifacts/ssh.conf" \
         fra1-vpn "sudo bash -c \"sed \\\"s;{{GATEWAY_IP}};${GATEWAY_IP:?};g\\\" /etc/unbound/unbound.conf.tmpl.d/custom.conf > /etc/unbound/unbound.conf.d/custom.conf && systemctl restart unbound && echo DONE.\""
     test "${OSTYPE:0:6}" = darwin && sudo killall mDNSResponder{,Helper}
 )
@@ -55,14 +58,14 @@ update-dns-records() (
 # MARK: Provision
 
 vpc-up() (
-    cd "${WORKSPACE:?}/platform/stage/provisioning/vpc"
-    terraform apply "$@" --var-file="${WORKSPACE:?}/platform/stage/provisioning/vars.tfvars"
+    cd "${STAGE:?}/provisioning/vpc"
+    terraform apply "$@" --var-file="${STAGE:?}/provisioning/vars.tfvars"
 )
 
 vpn-up() (
     set -e
-    cd "${WORKSPACE:?}/platform/stage/provisioning/vpn"
-    terraform apply --auto-approve --var-file="${WORKSPACE:?}/platform/stage/provisioning/vars.tfvars"
+    cd "${STAGE:?}/provisioning/vpn"
+    terraform apply --auto-approve --var-file="${STAGE:?}/provisioning/vars.tfvars"
     aggregate-ssh-conf
     note "Connect vpn in separate tab [Enter]"
     read # wait
@@ -71,22 +74,22 @@ vpn-up() (
 )
 
 vpn-down() (
-    cd "${WORKSPACE:?}/platform/stage/provisioning/vpn"
-    terraform destroy "$@" --var-file="${WORKSPACE:?}/platform/stage/provisioning/vars.tfvars"
+    cd "${STAGE:?}/provisioning/vpn"
+    terraform destroy "$@" --var-file="${STAGE:?}/provisioning/vars.tfvars"
     aggregate-ssh-conf
 )
 
 app-up() (
-    cd "${WORKSPACE:?}/platform/stage/provisioning/application"
-    terraform apply "$@" --var-file="${WORKSPACE:?}/platform/stage/provisioning/vars.tfvars"
+    cd "${STAGE:?}/provisioning/application"
+    terraform apply "$@" --var-file="${STAGE:?}/provisioning/vars.tfvars"
     aggregate-ssh-conf
     ssh-key-update
     update-dns-records
 )
 
 app-down() (
-    cd "${WORKSPACE:?}/platform/stage/provisioning/application"
-    terraform destroy "$@" --var-file="${WORKSPACE:?}/platform/stage/provisioning/vars.tfvars"
+    cd "${STAGE:?}/provisioning/application"
+    terraform destroy "$@" --var-file="${STAGE:?}/provisioning/vars.tfvars"
     aggregate-ssh-conf
 )
 
@@ -94,7 +97,7 @@ app-down() (
 
 deploy() (
     export PROGRAM_NAME="$1" && shift
-    cd "${WORKSPACE:?}/platform/stage/deployment"
+    cd "${STAGE:?}/deployment"
     if test -z "$PROGRAM_NAME"; then
         ansible-playbook --forks="20" playbook.yml
     else
@@ -122,7 +125,7 @@ all() {
 vpn-connect() {
     REGION_SLUG="$1" && shift
     sudo -v
-    sudo openvpn "${WORKSPACE:?}/platform/stage/artifacts/vpn/dth-do-${REGION_SLUG:?}-provisioner.ovpn"
+    sudo openvpn "${STAGE:?}/artifacts/vpn/dth-do-${REGION_SLUG:?}-provisioner.ovpn"
     # sleep 1 && sudo killall mDNSResponder{,Helper}
     sudo -k
 }
@@ -132,19 +135,19 @@ vpn-connect() {
 recreate-certificate-authority() (
     PS4="\n> "
     set -x -T -v -e -E
-    mkdir -p "$WORKSPACE/platform/stage/secrets"
-    cd "$WORKSPACE/platform/stage/secrets"
+    mkdir -p "${STAGE:?}/secrets"
+    cd "${STAGE:?}/secrets"
     test -d pki && rm -rfv pki
     easyrsa init-pki soft
     easyrsa --batch --req-cn="Logbook Stage Environment CA" build-ca nopass
-    security add-trusted-cert -d -r trustRoot -k ~/Library/Keychains/login.keychain-db "${WORKSPACE:?}/platform/stage/secrets/pki/ca.crt" # macos keychain
+    security add-trusted-cert -d -r trustRoot -k ~/Library/Keychains/login.keychain-db "${STAGE:?}/secrets/pki/ca.crt" # macos keychain
 )
 
 rotate-cryptographic-keys() (
     PS4="\n> "
     set -x -T -v -e -E
-    mkdir -p "$WORKSPACE/platform/stage/secrets"
-    cd "$WORKSPACE/platform/stage/secrets"
+    mkdir -p "${STAGE:?}/secrets"
+    cd "${STAGE:?}/secrets"
     # mkdir -p "image/ssh-app-db" && cd "image/ssh-app-db"
     # ssh-keygen -a 1000 -b 4096 -C "ssh-app-db" -o -t rsa -f app-db -N '' >/dev/null
 
@@ -154,8 +157,8 @@ rotate-cryptographic-keys() (
         local COMMON_NAME
         COMMON_NAME="Logbook ${KIND} Server"
         # https://github.com/OpenVPN/easy-rsa/blob/master/doc/EasyRSA-Renew-and-Revoke.md
-        if test -f "${WORKSPACE:?}/platform/stage/secrets/pki/issued/${COMMON_NAME:?}.crt"; then
-            if test -f "${WORKSPACE:?}/platform/stage/secrets/pki/expired/${COMMON_NAME:?}.crt"; then
+        if test -f "${STAGE:?}/secrets/pki/issued/${COMMON_NAME:?}.crt"; then
+            if test -f "${STAGE:?}/secrets/pki/expired/${COMMON_NAME:?}.crt"; then
                 easyrsa --batch revoke-expired "${COMMON_NAME:?}" unspecified
             fi
             easyrsa --batch expire "${COMMON_NAME:?}"
