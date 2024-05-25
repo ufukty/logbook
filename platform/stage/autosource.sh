@@ -148,25 +148,39 @@ rotate-cryptographic-keys() (
     set -x -T -v -e -E
     mkdir -p "${STAGE:?}/secrets"
     cd "${STAGE:?}/secrets"
-    # mkdir -p "image/ssh-app-db" && cd "image/ssh-app-db"
-    # ssh-keygen -a 1000 -b 4096 -C "ssh-app-db" -o -t rsa -f app-db -N '' >/dev/null
 
-    local KINDS
-    KINDS=("Application" "Generic")
-    for KIND in "${KINDS[@]}"; do
-        local COMMON_NAME
-        COMMON_NAME="Logbook ${KIND} Server"
-        # https://github.com/OpenVPN/easy-rsa/blob/master/doc/EasyRSA-Renew-and-Revoke.md
-        if test -f "${STAGE:?}/secrets/pki/issued/${COMMON_NAME:?}.crt"; then
-            if test -f "${STAGE:?}/secrets/pki/expired/${COMMON_NAME:?}.crt"; then
-                easyrsa --batch revoke-expired "${COMMON_NAME:?}" unspecified
+    ssh-keys() {
+        mkdir -p "${STAGE:?}/secrets/ssh"
+        test -f "${STAGE:?}/secrets/ssh/application-server" && rm -rfv "${STAGE:?}/secrets/ssh/application-server"
+        ssh-keygen -a 1000 -b 4096 -C "application-server" -o -t rsa -f "${STAGE:?}/secrets/ssh/application-server" -N ''
+        cp "${STAGE:?}/secrets/ssh/application-server" "${STAGE:?}/image/application/provisioner-files/map/home/.ssh/application-server"
+        cp "${STAGE:?}/secrets/ssh/application-server.pub" "${STAGE:?}/image/database/provisioner-files/map/home/.ssh/authorized_keys"
+    }
+    ssh-keys
+
+    pki() {
+        local PKI
+        PKI="${STAGE:?}/secrets/pki"
+
+        local KINDS
+        KINDS=("Application" "Generic")
+        for KIND in "${KINDS[@]}"; do
+            local COMMON_NAME
+            COMMON_NAME="Logbook ${KIND} Server"
+            # https://github.com/OpenVPN/easy-rsa/blob/master/doc/EasyRSA-Renew-and-Revoke.md
+            if test -f "${PKI:?}/issued/${COMMON_NAME:?}.crt"; then
+                if test -f "${PKI:?}/expired/${COMMON_NAME:?}.crt"; then
+                    easyrsa --batch revoke-expired "${COMMON_NAME:?}" unspecified
+                fi
+                easyrsa --batch expire "${COMMON_NAME:?}"
+                easyrsa --batch sign-req server "${COMMON_NAME:?}"
+            else
+                easyrsa --batch build-server-full "${COMMON_NAME:?}" nopass
             fi
-            easyrsa --batch expire "${COMMON_NAME:?}"
-            easyrsa --batch sign-req server "${COMMON_NAME:?}"
-        else
-            easyrsa --batch build-server-full "${COMMON_NAME:?}" nopass
-        fi
-    done
+        done
+
+    }
+    pki
 )
 
 # MARK: Digitalocean
