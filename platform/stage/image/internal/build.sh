@@ -52,16 +52,16 @@ trap cleanup EXIT
 
 ping -o "${IP:?}" && until ssh "${VPS_SUDO_USER:?}@${IP:?}" exit; do sleep 5; done # wait
 
-rsync --verbose --recursive -e ssh "./files" "${VPS_SUDO_USER:?}@${IP:?}:${VPS_HOME:?}/"
+rsync --verbose --recursive -e ssh "./upload" "${VPS_SUDO_USER:?}@${IP:?}:${VPS_HOME:?}/"
 ssh "${VPS_SUDO_USER:?}@$IP" bash <<EOF
     set -e -v
-    cd "${VPS_HOME:?}/files"
+    cd "${VPS_HOME:?}/upload"
     sudo --preserve-env \
         APP_USER="${APP_USER:?}" \
         IPTABLES_PRIVATE_ETHERNET_INTERFACE="${IPTABLES_PRIVATE_ETHERNET_INTERFACE:?}" \
-        bash golden-image.sh
+        bash image.sh
     cd "${VPS_HOME:?}"
-    rm -rf "${VPS_HOME:?}/files"
+    rm -rf "${VPS_HOME:?}/upload"
     sudo shutdown -h now
 EOF
 

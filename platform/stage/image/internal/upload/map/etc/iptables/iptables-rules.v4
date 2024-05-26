@@ -19,11 +19,7 @@
 # keep state
 -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 # ssh
--A INPUT -p tcp -i {{PRIVATE_ETHERNET_INTERFACE}} --dport 22 -m conntrack --ctstate NEW -j ACCEPT
-# http - accept requests coming from api-gateway
--A INPUT -i {{PRIVATE_ETHERNET_INTERFACE}} -p tcp --dport 8081 -m conntrack --ctstate NEW -j ACCEPT 
-# https - accept TLS requests coming from api-gateway
-# -A INPUT -i {{PRIVATE_ETHERNET_INTERFACE}} -p tcp --dport 443 -m conntrack --ctstate NEW -j ACCEPT 
+-A INPUT -i {{PRIVATE_ETHERNET_INTERFACE}} -p tcp --dport 22 -m conntrack --ctstate NEW -j ACCEPT
 # ping reply (originated from the server)
 -A INPUT -p icmp --icmp-type echo-reply -j ACCEPT
 
