@@ -57,6 +57,12 @@ function iptables_configure() {
     systemctl restart iptables-activation
 }
 
+function tls-certificates() {
+    chmod 755 "/etc/ssl/certs/stage.logbook.balaasad.com.crt"
+    chmod 755 "/etc/ssl/private/stage.logbook.balaasad.com.key"
+    chown root:root "/etc/ssl/certs/stage.logbook.balaasad.com.crt"
+    chown root:root "/etc/ssl/private/stage.logbook.balaasad.com.key"
+}
 # ---------------------------------------------------------------------------- #
 # Main
 # ---------------------------------------------------------------------------- #
@@ -69,3 +75,4 @@ wait_cloud_init
 deploy_provisioner_files
 
 iptables_configure
+tls-certificates

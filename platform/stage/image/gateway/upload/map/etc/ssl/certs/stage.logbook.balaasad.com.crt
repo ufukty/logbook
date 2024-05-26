@@ -1,0 +1,88 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            f7:67:15:55:68:b4:eb:93:70:2e:ac:f4:1e:f5:93:18
+        Signature Algorithm: sha256WithRSAEncryption
+        Issuer: CN=Logbook Stage Environment CA
+        Validity
+            Not Before: May 26 14:55:49 2024 GMT
+            Not After : Aug 29 14:55:49 2026 GMT
+        Subject: CN=stage.logbook.balaasad.com
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                Public-Key: (2048 bit)
+                Modulus:
+                    00:c0:5a:d2:26:52:15:57:1d:bd:28:f7:9b:68:3a:
+                    ed:14:1f:d3:67:60:22:de:d3:57:3e:8a:f3:43:4a:
+                    48:50:b0:bc:c9:fb:bb:45:95:d0:86:55:e5:7c:f5:
+                    05:e5:20:7d:83:9c:5b:98:6b:3a:e8:a4:fd:dd:36:
+                    7e:60:dd:f6:d3:b4:5b:9f:34:d8:18:0d:66:d8:42:
+                    72:f9:c7:b3:42:7b:b5:c3:38:05:55:d5:6d:63:93:
+                    6e:71:30:bf:10:00:0d:59:cc:ff:03:5a:4d:fb:19:
+                    25:b0:48:d6:20:a1:4e:a1:84:2d:ff:03:59:d7:d7:
+                    49:1a:eb:c5:06:80:f0:27:85:18:22:41:c2:83:2f:
+                    39:62:e8:5d:a0:e8:94:59:60:80:24:5a:78:82:ba:
+                    dd:4a:64:53:ed:74:c9:f4:d3:d4:70:4f:0e:88:c2:
+                    5c:72:1e:38:40:3c:ed:55:21:78:18:1a:60:89:96:
+                    a5:7f:70:52:31:f7:81:a5:34:72:c3:b2:86:b0:70:
+                    1f:a5:2f:d9:36:be:f1:f3:e4:cc:bb:29:ae:26:7c:
+                    c6:be:d7:11:83:2e:cd:f3:fc:1f:24:e1:af:fd:f9:
+                    38:bc:e3:6e:d6:4a:16:c7:81:7d:b8:e0:3d:56:00:
+                    56:38:23:fd:6c:de:ad:1b:a6:5e:86:cb:d1:b8:4d:
+                    18:91
+                Exponent: 65537 (0x10001)
+        X509v3 extensions:
+            X509v3 Basic Constraints: 
+                CA:FALSE
+            X509v3 Subject Key Identifier: 
+                FF:33:0E:75:BA:F4:4A:B1:5B:AE:D0:57:64:F7:DD:15:C9:25:60:45
+            X509v3 Authority Key Identifier: 
+                keyid:D9:BF:1C:90:7F:EF:D7:38:0F:B6:B1:ED:F5:9A:4C:1D:42:3F:3D:93
+                DirName:/CN=Logbook Stage Environment CA
+                serial:55:44:D8:C2:76:F6:F6:2C:BD:FA:9F:CD:D4:78:89:D2:2F:49:7F:49
+            X509v3 Key Usage: 
+                Digital Signature, Key Encipherment
+            X509v3 Extended Key Usage: 
+                TLS Web Server Authentication
+            X509v3 Subject Alternative Name: 
+                DNS:stage.logbook.balaasad.com
+    Signature Algorithm: sha256WithRSAEncryption
+    Signature Value:
+        5c:99:95:95:9e:11:52:da:39:3a:00:d8:3b:ff:af:a4:5c:2d:
+        a4:bb:9a:ca:6d:67:27:ef:03:20:7b:ad:fe:41:d0:67:ff:1f:
+        a6:a5:b4:7b:fb:06:65:9a:32:32:a0:95:7d:c4:bb:d6:5e:e9:
+        b7:25:90:31:46:f4:d9:61:47:9f:94:4c:88:52:50:aa:6e:43:
+        bd:6e:6a:00:89:d8:e7:f9:b1:08:b9:fa:c9:b3:68:b1:28:ba:
+        da:5b:8a:b0:61:d5:59:d5:c4:a7:66:dd:52:96:dc:fc:4e:ac:
+        1d:6f:34:47:56:10:41:0a:9a:2c:5d:5e:2f:00:b6:5d:25:7a:
+        75:76:2e:c1:1b:c5:d5:e4:67:be:3a:7b:f8:24:75:30:b5:72:
+        29:5f:97:ad:ab:77:9c:fc:01:f8:ea:b2:6e:dd:b7:22:81:d8:
+        6c:35:d5:4b:9c:e3:98:1c:91:6a:bb:75:39:b4:d9:f9:8a:62:
+        b0:1c:2a:a0:13:80:f4:7a:c4:0e:cb:53:f7:70:4d:31:84:62:
+        8b:e7:d5:f2:d3:98:59:75:63:cd:53:57:17:e7:6c:75:26:5d:
+        ab:4f:cf:31:30:37:ea:25:9c:62:40:da:0f:71:07:73:7c:6d:
+        13:44:c2:74:9d:f4:b8:7d:ff:6d:03:67:79:b1:7c:21:c2:76:
+        71:b5:a9:c6
+-----BEGIN CERTIFICATE-----
+MIIDsjCCApqgAwIBAgIRAPdnFVVotOuTcC6s9B71kxgwDQYJKoZIhvcNAQELBQAw
+JzElMCMGA1UEAwwcTG9nYm9vayBTdGFnZSBFbnZpcm9ubWVudCBDQTAeFw0yNDA1
+MjYxNDU1NDlaFw0yNjA4MjkxNDU1NDlaMCUxIzAhBgNVBAMMGnN0YWdlLmxvZ2Jv
+b2suYmFsYWFzYWQuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA
+wFrSJlIVVx29KPebaDrtFB/TZ2Ai3tNXPorzQ0pIULC8yfu7RZXQhlXlfPUF5SB9
+g5xbmGs66KT93TZ+YN3207RbnzTYGA1m2EJy+cezQnu1wzgFVdVtY5NucTC/EAAN
+Wcz/A1pN+xklsEjWIKFOoYQt/wNZ19dJGuvFBoDwJ4UYIkHCgy85YuhdoOiUWWCA
+JFp4grrdSmRT7XTJ9NPUcE8OiMJcch44QDztVSF4GBpgiZalf3BSMfeBpTRyw7KG
+sHAfpS/ZNr7x8+TMuymuJnzGvtcRgy7N8/wfJOGv/fk4vONu1koWx4F9uOA9VgBW
+OCP9bN6tG6ZehsvRuE0YkQIDAQABo4HaMIHXMAkGA1UdEwQCMAAwHQYDVR0OBBYE
+FP8zDnW69EqxW67QV2T33RXJJWBFMGIGA1UdIwRbMFmAFNm/HJB/79c4D7ax7fWa
+TB1CPz2ToSukKTAnMSUwIwYDVQQDDBxMb2dib29rIFN0YWdlIEVudmlyb25tZW50
+IENBghRVRNjCdvb2LL36n83UeInSL0l/STALBgNVHQ8EBAMCBaAwEwYDVR0lBAww
+CgYIKwYBBQUHAwEwJQYDVR0RBB4wHIIac3RhZ2UubG9nYm9vay5iYWxhYXNhZC5j
+b20wDQYJKoZIhvcNAQELBQADggEBAFyZlZWeEVLaOToA2Dv/r6RcLaS7msptZyfv
+AyB7rf5B0Gf/H6altHv7BmWaMjKglX3Eu9Ze6bclkDFG9NlhR5+UTIhSUKpuQ71u
+agCJ2Of5sQi5+smzaLEoutpbirBh1VnVxKdm3VKW3PxOrB1vNEdWEEEKmixdXi8A
+tl0lenV2LsEbxdXkZ746e/gkdTC1cilfl62rd5z8Afjqsm7dtyKB2Gw11Uuc45gc
+kWq7dTm02fmKYrAcKqATgPR6xA7LU/dwTTGEYovn1fLTmFl1Y81TVxfnbHUmXatP
+zzEwN+olnGJA2g9xB3N8bRNEwnSd9Lh9/20DZ3mxfCHCdnG1qcY=
+-----END CERTIFICATE-----

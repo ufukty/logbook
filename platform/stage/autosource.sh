@@ -153,20 +153,14 @@ rotate-cryptographic-keys() (
         mkdir -p "${STAGE:?}/secrets/ssh"
         test -f "${STAGE:?}/secrets/ssh/application-server" && rm -rfv "${STAGE:?}/secrets/ssh/application-server"
         ssh-keygen -a 1000 -b 4096 -C "application-server" -o -t rsa -f "${STAGE:?}/secrets/ssh/application-server" -N ''
-        cp "${STAGE:?}/secrets/ssh/application-server" "${STAGE:?}/image/application/provisioner-files/map/home/.ssh/application-server"
-        cp "${STAGE:?}/secrets/ssh/application-server.pub" "${STAGE:?}/image/database/provisioner-files/map/home/.ssh/authorized_keys"
+        cp "${STAGE:?}/secrets/ssh/application-server" "${STAGE:?}/image/application/upload/map/home/.ssh/application-server"
+        cp "${STAGE:?}/secrets/ssh/application-server.pub" "${STAGE:?}/image/database/upload/map/home/.ssh/authorized_keys"
     }
     ssh-keys
 
     pki() {
-        local PKI
-        PKI="${STAGE:?}/secrets/pki"
-
-        local KINDS
-        KINDS=("Application" "Generic")
-        for KIND in "${KINDS[@]}"; do
-            local COMMON_NAME
-            COMMON_NAME="Logbook ${KIND} Server"
+        rotate-server-cert() {
+            COMMON_NAME="${1:?}"
             # https://github.com/OpenVPN/easy-rsa/blob/master/doc/EasyRSA-Renew-and-Revoke.md
             if test -f "${PKI:?}/issued/${COMMON_NAME:?}.crt"; then
                 if test -f "${PKI:?}/expired/${COMMON_NAME:?}.crt"; then
@@ -175,10 +169,18 @@ rotate-cryptographic-keys() (
                 easyrsa --batch expire "${COMMON_NAME:?}"
                 easyrsa --batch sign-req server "${COMMON_NAME:?}"
             else
-                easyrsa --batch build-server-full "${COMMON_NAME:?}" nopass
+                easyrsa --subject-alt-name="DNS:${COMMON_NAME:?}" --batch build-server-full "${COMMON_NAME:?}" nopass
             fi
-        done
+        }
+        local PKI
+        PKI="${STAGE:?}/secrets/pki"
 
+        rotate-server-cert "stage.logbook.balaasad.com"
+
+        cp "${PKI:?}/issued/stage.logbook.balaasad.com.crt" \
+            "${STAGE:?}/image/gateway/upload/map/etc/ssl/certs/stage.logbook.balaasad.com.crt"
+        cp "${PKI:?}/private/stage.logbook.balaasad.com.key" \
+            "${STAGE:?}/image/gateway/upload/map/etc/ssl/private/stage.logbook.balaasad.com.key"
     }
     pki
 )
