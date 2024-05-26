@@ -51,7 +51,6 @@ export DEBIAN_FRONTEND=noninteractive
 function iptables_configure() {
     sed --in-place \
         -e "s/{{PRIVATE_ETHERNET_INTERFACE}}/${IPTABLES_PRIVATE_ETHERNET_INTERFACE:?}/g" \
-        -e "s/{{PUBLIC_ETHERNET_INTERFACE}}/${IPTABLES_PUBLIC_ETHERNET_INTERFACE:?}/g" \
         "/etc/iptables/iptables-rules.v4"
 
     systemctl daemon-reload
