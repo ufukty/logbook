@@ -5,8 +5,6 @@
 # ---------------------------------------------------------------------------- #
 
 : "${SUDO_USER:?}"
-: "${IPTABLES_PRIVATE_ETHERNET_INTERFACE:?}"
-
 # A Linux and Postgres user will be created with this name, in addition to a Postgres Database
 : "${POSTGRES_USER:?}"
 : "${POSTGRES_SERVER_PRIVATE_IP:?}"
@@ -16,10 +14,7 @@
 # ---------------------------------------------------------------------------- #
 
 PS4="\033[32m/\$(basename \"\${BASH_SOURCE}\"):\${LINENO}\033[0m\033[33m\${FUNCNAME[0]:+/\${FUNCNAME[0]}():}\033[0m "
-set -x
-set -v
-set -e
-set -E
+set -x -T -v -e -E
 
 PROVISIONER_FILES="$(pwd -P)"
 
@@ -54,9 +49,9 @@ export DEBIAN_FRONTEND=noninteractive
 
 function app-db-tunnel() {
     sed --in-place \
-        -e "s/{{SUDO_USER}}/$SUDO_USER/g" \
-        -e "s/{{POSTGRES_USER}}/$POSTGRES_USER/g" \
-        -e "s/{{POSTGRES_SERVER_PRIVATE_IP}}/$POSTGRES_SERVER_PRIVATE_IP/g" \
+        -e "s/{{SUDO_USER}}/${SUDO_USER:?}/g" \
+        -e "s/{{POSTGRES_USER}}/${POSTGRES_USER:?}/g" \
+        -e "s/{{POSTGRES_SERVER_PRIVATE_IP}}/${POSTGRES_SERVER_PRIVATE_IP:?}/g" \
         "/etc/systemd/system/app-db-tunnel.service"
 
     systemctl daemon-reload
@@ -65,39 +60,16 @@ function app-db-tunnel() {
 }
 
 function app-service() {
-    sed --in-place \
-        -e "s/<<SUDO_USER>>/${SUDO_USER:?}/g" \
-        -e "s/<<POSTGRES_USER>>/${POSTGRES_USER:?}/g" \
-        -e "s/<<POSTGRES_SERVER_PRIVATE_IP>>/${POSTGRES_SERVER_PRIVATE_IP:?}/g" \
-        "/etc/systemd/system/app-db-tunnel.service"
-
     systemctl daemon-reload
-
-    systemctl enable picarus-sync-postgres-tunnel
-    systemctl start picarus-sync-postgres-tunnel
-
-    systemctl enable picarus-sync-backend
-    systemctl start picarus-sync-backend
-}
-
-function configure-iptables() {
-    sed --in-place \
-        -e "s/{{PRIVATE_ETHERNET_INTERFACE}}/$IPTABLES_PRIVATE_ETHERNET_INTERFACE/g" \
-        "/etc/iptables/custom-rules.v4"
-
-    systemctl restart custom-rules
+    systemctl enable app
+    systemctl start app
 }
 
 function configure-ssh() {
-    # "add public key of Postgres server to .ssh/known_hosts"
-    ssh-keyscan $POSTGRES_SERVER_PRIVATE_IP >>"/home/$SUDO_USER/.ssh/known_hosts"
-    ssh-keyscan $POSTGRES_SERVER_PRIVATE_IP >>"/root/.ssh/known_hosts"
-
-    # "update .ssh directory with correct ownership and permissions"
-    chmod -R 700 "/home/$SUDO_USER/.ssh"
-    chown -R $SUDO_USER:$SUDO_USER "/home/$SUDO_USER/.ssh"
+    ssh-keyscan "${POSTGRES_SERVER_PRIVATE_IP:?}" >>"/home/${SUDO_USER:?}/.ssh/known_hosts"
+    ssh-keyscan "${POSTGRES_SERVER_PRIVATE_IP:?}" >>"/root/.ssh/known_hosts"
 }
 
 app-db-tunnel
-configure-iptables
+app-servicea
 configure-ssh

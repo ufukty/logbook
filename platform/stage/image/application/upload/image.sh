@@ -59,6 +59,11 @@ function configure-logging() {
     # TODO: "managing logrotate"
 }
 
+function ssh-dir() {
+    chmod -R 700 "/home/${SUDO_USER:?}/.ssh"
+    chown -R "${SUDO_USER:?}:${SUDO_USER:?}" "/home/${SUDO_USER:?}/.ssh"
+}
+
 # ---------------------------------------------------------------------------- #
 # Main
 # ---------------------------------------------------------------------------- #
@@ -74,3 +79,4 @@ deploy_provisioner_files
 
 iptables-configure
 configure-logging
+ssh-dir
