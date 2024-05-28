@@ -5,8 +5,8 @@ export STAGE
 
 # MARK: SSH overload
 
-alias ssh="ssh -F ${STAGE:?}/artifacts/ssh.conf"
-alias scp="scp -F ${STAGE:?}/artifacts/ssh.conf"
+alias ssh="ssh -F '${STAGE:?}/artifacts/ssh.conf'"
+alias scp="scp -F '${STAGE:?}/artifacts/ssh.conf'"
 _check_env_vars() {
     : "${DIGITALOCEAN_ACCESS_TOKEN:?}"
     : "${TF_VAR_DIGITALOCEAN_TOKEN:?}"
@@ -18,13 +18,12 @@ _check_env_vars() {
 _check_env_vars
 
 _ssh_completion() {
-    local cur prev opts
+    local cur opts
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
-    prev="${COMP_WORDS[COMP_CWORD - 1]}"
-    opts=$(grep '^Host' ${STAGE:?}/artifacts/ssh.conf 2>/dev/null | grep -v '[?*]' | cut -d ' ' -f 2-)
-
-    COMPREPLY=($(compgen -W "$opts" -- ${cur}))
+    # prev="${COMP_WORDS[COMP_CWORD - 1]}"
+    opts=$(grep '^Host' "${STAGE:?}/artifacts/ssh.conf" 2>/dev/null | grep -v '[?*]' | cut -d ' ' -f 2-)
+    COMPREPLY=($(compgen -W "$opts" -- "${cur}"))
     return 0
 }
 complete -F _ssh_completion ssh
@@ -203,11 +202,7 @@ do-up-to-date-images() {
 
 do-clean-outdated-images() {
     set -E
-    local ALL
-    local TOKEEP
-    local OUTDATED
-    local OUTDATED_NAMEs
-    local OUTDATED_IDs
+    local ALL TOKEEP OUTDATED OUTDATED_NAMEs OUTDATED_IDs
     ALL="$(doctl compute snapshot list --format Name,ID --no-header | grep build | grep -v base | sort -r | gsed -E 's/[ ]+/ /g')"
     TOKEEP="$(echo "$ALL" | gsed -E 's/(build_([^_]+)_([0-9_]{17}).*)/\1 \2/g' | sort -r | uniq -f 2 | cut -d ' ' -f 1)"
     OUTDATED="$(echo "$ALL" | grep -v "$TOKEEP")"
