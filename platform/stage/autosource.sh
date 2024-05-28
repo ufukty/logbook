@@ -47,12 +47,12 @@ ssh-key-update() {
 }
 
 update-dns-records() (
-    TEMP_FILE="$(mktemp)"
+    set -x -T -v -e -E
+    set -o pipefail
     local GATEWAY_IP
-    GATEWAY_IP="$(cat "${STAGE:?}/artifacts/deployment/service_discovery.json" | jq -r '.digitalocean.fra1.services["api-gateway"][0].ipv4_address')"
-    ssh -t -F "${STAGE:?}/artifacts/ssh.conf" \
-        fra1-vpn "sudo bash -c \"sed \\\"s;{{GATEWAY_IP}};${GATEWAY_IP:?};g\\\" /etc/unbound/unbound.conf.tmpl.d/custom.conf > /etc/unbound/unbound.conf.d/custom.conf && systemctl restart unbound && echo DONE.\""
-    test "${OSTYPE:0:6}" = darwin && sudo killall mDNSResponder{,Helper}
+    GATEWAY_IP="$(jq -r '.digitalocean.fra1.services["api-gateway"][0].ipv4_address' <"${STAGE:?}/artifacts/deployment/service_discovery.json")"
+    ssh -t fra1-vpn "sudo bash -c 'sed \"s;{{GATEWAY_IP}};${GATEWAY_IP:?};g\" /etc/unbound/unbound.conf.tmpl.d/custom.conf > /etc/unbound/unbound.conf.d/custom.conf && systemctl restart unbound'"
+    sudo killall mDNSResponder{,Helper}
 )
 
 # MARK: Provision
