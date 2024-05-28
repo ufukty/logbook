@@ -41,7 +41,7 @@ ssh-key-update() {
     ADDRESSES="$(jq -r '.digitalocean.fra1.services[] | .[] | .ipv4_address_private' <"${STAGE:?}/artifacts/deployment/service_discovery.json")"
     echo "$ADDRESSES" | while read ADDRESS; do
         ssh-keygen -R "$ADDRESS" >/dev/null 2>&1
-        # ssh-keyscan "$ADDRESS" >>~/.ssh/known_hosts 2>/dev/null
+        ssh-keyscan "$ADDRESS" >>~/.ssh/known_hosts 2>/dev/null
     done
 }
 
@@ -49,7 +49,7 @@ update-dns-records() (
     set -x -T -v -e -E
     set -o pipefail
     local GATEWAY_IP
-    GATEWAY_IP="$(jq -r '.digitalocean.fra1.services["api-gateway"][0].ipv4_address' <"${STAGE:?}/artifacts/deployment/service_discovery.json")"
+    GATEWAY_IP="$(jq -r '.digitalocean.fra1.services["gateway"][0].ipv4_address' <"${STAGE:?}/artifacts/deployment/service_discovery.json")"
     ssh -t fra1-vpn "sudo bash -c 'sed \"s;{{GATEWAY_IP}};${GATEWAY_IP:?};g\" /etc/unbound/unbound.conf.tmpl.d/custom.conf > /etc/unbound/unbound.conf.d/custom.conf && systemctl restart unbound'"
     sudo killall mDNSResponder{,Helper}
 )
@@ -79,6 +79,7 @@ vpn-down() (
 )
 
 app-up() (
+    set -x -v -e -E
     cd "${STAGE:?}/provisioning/application"
     terraform apply "$@" --var-file="${STAGE:?}/provisioning/vars.tfvars"
     aggregate-ssh-conf
