@@ -49,7 +49,7 @@ update-dns-records() (
     set -x -T -v -e -E
     set -o pipefail
     local GATEWAY_IP
-    GATEWAY_IP="$(jq -r '.digitalocean.fra1.services["gateway"][0].ipv4_address' <"${STAGE:?}/artifacts/deployment/service_discovery.json")"
+    GATEWAY_IP="$(jq -r '.digitalocean.fra1.services["gateway"][0].ipv4_address_private' <"${STAGE:?}/artifacts/deployment/service_discovery.json")"
     ssh -t fra1-vpn "sudo bash -c 'sed \"s;{{GATEWAY_IP}};${GATEWAY_IP:?};g\" /etc/unbound/unbound.conf.tmpl.d/custom.conf > /etc/unbound/unbound.conf.d/custom.conf && systemctl restart unbound'"
     sudo killall mDNSResponder{,Helper}
 )
