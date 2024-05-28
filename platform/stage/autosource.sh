@@ -39,7 +39,7 @@ aggregate-ssh-conf() {
 
 ssh-key-update() {
     touch "${STAGE:?}/artifacts/deployment/service_discovery.json"
-    ADDRESSES="$(cat "${STAGE:?}/artifacts/deployment/service_discovery.json" | jq -r '.digitalocean.fra1.services[] | .[] | .ipv4_address_private')"
+    ADDRESSES="$(jq -r '.digitalocean.fra1.services[] | .[] | .ipv4_address_private' <"${STAGE:?}/artifacts/deployment/service_discovery.json")"
     echo "$ADDRESSES" | while read ADDRESS; do
         ssh-keygen -R "$ADDRESS" >/dev/null 2>&1
         # ssh-keyscan "$ADDRESS" >>~/.ssh/known_hosts 2>/dev/null
