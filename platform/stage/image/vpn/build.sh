@@ -38,7 +38,14 @@ trap cleanup EXIT
 ping -o "${IP:?}" && until ssh "${VPS_SUDO_USER:?}@${IP:?}" exit; do sleep 5; done # wait
 
 rsync --verbose --recursive -e ssh "./upload" "${VPS_SUDO_USER:?}@${IP:?}:${VPS_HOME:?}/"
-ssh "${VPS_SUDO_USER:?}@$IP" "cd ${VPS_HOME:?}/upload && sudo --preserve-env bash image.sh && cd ${VPS_HOME:?} && rm -rf ${VPS_HOME:?}/upload && sudo shutdown -h now"
+ssh "${VPS_SUDO_USER:?}@$IP" bash <<EOF
+    set -v -e
+    cd ${VPS_HOME:?}/upload
+    sudo --preserve-env bash image.sh
+    cd ${VPS_HOME:?}
+    rm -rf ${VPS_HOME:?}/upload
+    sudo shutdown -h now
+EOF
 
 doctl compute droplet-action snapshot "${ID:?}" --snapshot-name "${SNAPSHOT_NAME:?}" --wait --verbose
 SNAPSHOT_ID="$(doctl compute snapshot list | grep "$ID" | awk '{ print $1 }')" # do not use the action id from previous output
