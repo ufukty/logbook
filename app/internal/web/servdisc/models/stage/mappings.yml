@@ -1,0 +1,6 @@
+digitalocean: DigitalOcean
+digitalocean.fra1: Fra1
+digitalocean.fra1.services.account: Account
+digitalocean.fra1.services.gateway: Gateway
+digitalocean.fra1.services.objectives: Objectives
+digitalocean.fra1.services.*.[]: Droplet
