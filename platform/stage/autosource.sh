@@ -36,20 +36,22 @@ aggregate-ssh-conf() {
     cat "${STAGE:?}/artifacts/ssh.conf.d/"* >"${STAGE:?}/artifacts/ssh.conf"
 }
 
-ssh-key-update() {
+ssh-key-update() (
     touch "${STAGE:?}/artifacts/deployment/service_discovery.json"
     ADDRESSES="$(jq -r '.digitalocean.fra1.services[] | .[] | .ipv4_address_private' <"${STAGE:?}/artifacts/deployment/service_discovery.json")"
+    test -z "$ADDRESSES" && return
     echo "$ADDRESSES" | while read ADDRESS; do
         ssh-keygen -R "$ADDRESS" >/dev/null 2>&1
         ssh-keyscan "$ADDRESS" >>~/.ssh/known_hosts 2>/dev/null
     done
-}
+)
 
 update-dns-records() (
-    set -x -T -v -e -E
+    set -e -E
     set -o pipefail
     local GATEWAY_IP
     GATEWAY_IP="$(jq -r '.digitalocean.fra1.services["gateway"][0].ipv4_address_private' <"${STAGE:?}/artifacts/deployment/service_discovery.json")"
+    test -z "$GATEWAY_IP" && return
     ssh -t fra1-vpn "sudo bash -c 'sed \"s;{{GATEWAY_IP}};${GATEWAY_IP:?};g\" /etc/unbound/unbound.conf.tmpl.d/custom.conf > /etc/unbound/unbound.conf.d/custom.conf && systemctl restart unbound'"
     sudo killall mDNSResponder{,Helper}
 )
