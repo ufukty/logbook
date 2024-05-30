@@ -1,8 +1,8 @@
-package servdisc
+package discovery
 
 import (
 	"fmt"
-	"logbook/internal/web/servdisc/models/stage"
+	"logbook/internal/web/discovery/models/stage"
 	"sync"
 	"time"
 )
