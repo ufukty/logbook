@@ -12,61 +12,61 @@ func (a Config) Range() map[string]DigitalOcean {
 
 type Account []Droplet
 type DigitalOcean struct {
-	Fra1 Fra1 `yaml:"fra1"`
+	Fra1 Fra1 `json:"fra1"`
 }
 type Droplet struct {
-	Backups            bool     `yaml:"backups"`
-	CreatedAt          string   `yaml:"created_at"`
-	Disk               float64  `yaml:"disk"`
-	DropletAgent       any      `yaml:"droplet_agent"`
-	GracefulShutdown   bool     `yaml:"graceful_shutdown"`
-	Id                 string   `yaml:"id"`
-	Image              string   `yaml:"image"`
-	Ipv4Address        string   `yaml:"ipv4_address"`
-	Ipv4AddressPrivate string   `yaml:"ipv4_address_private"`
-	Ipv6               bool     `yaml:"ipv6"`
-	Ipv6Address        string   `yaml:"ipv6_address"`
-	Locked             bool     `yaml:"locked"`
-	Memory             float64  `yaml:"memory"`
-	Monitoring         bool     `yaml:"monitoring"`
-	Name               string   `yaml:"name"`
-	PriceHourly        float64  `yaml:"price_hourly"`
-	PriceMonthly       float64  `yaml:"price_monthly"`
-	PrivateNetworking  bool     `yaml:"private_networking"`
-	Region             string   `yaml:"region"`
-	ResizeDisk         bool     `yaml:"resize_disk"`
-	Size               string   `yaml:"size"`
-	SshKeys            []string `yaml:"ssh_keys"`
-	Status             string   `yaml:"status"`
-	Tags               []string `yaml:"tags"`
-	Timeouts           any      `yaml:"timeouts"`
-	Urn                string   `yaml:"urn"`
-	UserData           any      `yaml:"user_data"`
-	Vcpus              float64  `yaml:"vcpus"`
-	VolumeIds          []any    `yaml:"volume_ids"`
-	VpcUuid            string   `yaml:"vpc_uuid"`
+	Backups            bool     `json:"backups"`
+	CreatedAt          string   `json:"created_at"`
+	Disk               float64  `json:"disk"`
+	DropletAgent       any      `json:"droplet_agent"`
+	GracefulShutdown   bool     `json:"graceful_shutdown"`
+	Id                 string   `json:"id"`
+	Image              string   `json:"image"`
+	Ipv4Address        string   `json:"ipv4_address"`
+	Ipv4AddressPrivate string   `json:"ipv4_address_private"`
+	Ipv6               bool     `json:"ipv6"`
+	Ipv6Address        string   `json:"ipv6_address"`
+	Locked             bool     `json:"locked"`
+	Memory             float64  `json:"memory"`
+	Monitoring         bool     `json:"monitoring"`
+	Name               string   `json:"name"`
+	PriceHourly        float64  `json:"price_hourly"`
+	PriceMonthly       float64  `json:"price_monthly"`
+	PrivateNetworking  bool     `json:"private_networking"`
+	Region             string   `json:"region"`
+	ResizeDisk         bool     `json:"resize_disk"`
+	Size               string   `json:"size"`
+	SshKeys            []string `json:"ssh_keys"`
+	Status             string   `json:"status"`
+	Tags               []string `json:"tags"`
+	Timeouts           any      `json:"timeouts"`
+	Urn                string   `json:"urn"`
+	UserData           any      `json:"user_data"`
+	Vcpus              float64  `json:"vcpus"`
+	VolumeIds          []any    `json:"volume_ids"`
+	VpcUuid            string   `json:"vpc_uuid"`
 }
 type Fra1 struct {
 	Services struct {
-		Account    Account    `yaml:"account"`
-		Gateway    Gateway    `yaml:"gateway"`
-		Objectives Objectives `yaml:"objectives"`
-	} `yaml:"services"`
+		Account    Account    `json:"account"`
+		Gateway    Gateway    `json:"gateway"`
+		Objectives Objectives `json:"objectives"`
+	} `json:"services"`
 	Vpc struct {
-		CreatedAt   string `yaml:"created_at"`
-		Default     bool   `yaml:"default"`
-		Description string `yaml:"description"`
-		Id          string `yaml:"id"`
-		IpRange     string `yaml:"ip_range"`
-		Name        string `yaml:"name"`
-		Region      string `yaml:"region"`
-		Urn         string `yaml:"urn"`
-	} `yaml:"vpc"`
+		CreatedAt   string `json:"created_at"`
+		Default     bool   `json:"default"`
+		Description string `json:"description"`
+		Id          string `json:"id"`
+		IpRange     string `json:"ip_range"`
+		Name        string `json:"name"`
+		Region      string `json:"region"`
+		Urn         string `json:"urn"`
+	} `json:"vpc"`
 }
 type Gateway []Droplet
 type Objectives []Droplet
 type Config struct {
-	Digitalocean DigitalOcean `yaml:"digitalocean"`
+	Digitalocean DigitalOcean `json:"digitalocean"`
 }
 
 func ReadConfig(path string) (Config, error) {

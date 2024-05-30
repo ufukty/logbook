@@ -8,12 +8,12 @@ import (
 )
 
 func TestServiceDiscoveryStage(t *testing.T) {
-	var tcs = []string{
-		"service_discovery_local.json",
-		"service_discovery_stage.json",
+	var tcs = map[string]string{
+		"local": "service_discovery_local.json",
+		"stage": "service_discovery_stage.json",
 	}
-	for _, tc := range tcs {
-		t.Run(tc, func(t *testing.T) {
+	for tn, tc := range tcs {
+		t.Run(tn, func(t *testing.T) {
 			sd := New(filepath.Join("testdata", tc), time.Second*5)
 			ips, err := sd.ServicePool("objectives")
 			if err != nil {
