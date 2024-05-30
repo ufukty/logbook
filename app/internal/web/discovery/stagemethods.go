@@ -1,6 +1,10 @@
-package stage
+package discovery
 
-import "fmt"
+import (
+	"fmt"
+	"logbook/models"
+	"slices"
+)
 
 func (service Account) ListPrivateIPs() []string {
 	var ips = []string{}
@@ -26,14 +30,20 @@ func (service Gateway) ListPrivateIPs() []string {
 	return ips
 }
 
-func (config Config) ServicePool(service string) ([]string, error) {
+func (s Stage) ServicePool(service models.Service) ([]string, error) {
 	switch service {
 	case "gateway":
-		return config.Digitalocean.Fra1.Services.Gateway.ListPrivateIPs(), nil
+		return slices.Concat(
+			s.Digitalocean.Fra1.Services.Gateway.ListPrivateIPs(),
+		), nil
 	case "objectives":
-		return config.Digitalocean.Fra1.Services.Objectives.ListPrivateIPs(), nil
+		return slices.Concat(
+			s.Digitalocean.Fra1.Services.Objectives.ListPrivateIPs(),
+		), nil
 	case "account":
-		return config.Digitalocean.Fra1.Services.Account.ListPrivateIPs(), nil
+		return slices.Concat(
+			s.Digitalocean.Fra1.Services.Account.ListPrivateIPs(),
+		), nil
 	default:
 		return nil, fmt.Errorf("unrecognized service name %q", service)
 	}

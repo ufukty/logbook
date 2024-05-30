@@ -1,14 +1,10 @@
-package stage
+package discovery
 
 import (
 	"encoding/json"
 	"fmt"
 	"os"
 )
-
-func (a Config) Range() map[string]DigitalOcean {
-	return map[string]DigitalOcean{"digitalocean": a.Digitalocean}
-}
 
 type Account []Droplet
 type DigitalOcean struct {
@@ -65,19 +61,20 @@ type Fra1 struct {
 }
 type Gateway []Droplet
 type Objectives []Droplet
-type Config struct {
+type Stage struct {
 	Digitalocean DigitalOcean `json:"digitalocean"`
 }
 
-func ReadConfig(path string) (Config, error) {
-	f, err := os.Open(path)
+func ReadStage(path string) (Stage, error) {
+	file, err := os.Open(path)
 	if err != nil {
-		return Config{}, fmt.Errorf("opening config file: %w", err)
+		return Stage{}, fmt.Errorf("opening config file: %w", err)
 	}
-	cfg := Config{}
-	err = json.NewDecoder(f).Decode(&cfg)
+	defer file.Close()
+	s := Stage{}
+	err = json.NewDecoder(file).Decode(&s)
 	if err != nil {
-		return Config{}, fmt.Errorf("decoding config file: %w", err)
+		return Stage{}, fmt.Errorf("decoding config file: %w", err)
 	}
-	return cfg, nil
+	return s, nil
 }

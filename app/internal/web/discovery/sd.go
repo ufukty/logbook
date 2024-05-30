@@ -2,13 +2,13 @@ package discovery
 
 import (
 	"fmt"
-	"logbook/internal/web/discovery/models/stage"
+	"logbook/models"
 	"sync"
 	"time"
 )
 
 type Config interface {
-	ServicePool(service string) ([]string, error)
+	ServicePool(s models.Service) ([]string, error)
 }
 
 type ServiceDiscovery struct {
@@ -33,7 +33,7 @@ func (sd *ServiceDiscovery) readConfig() {
 		return
 	}
 	var err error
-	sd.config, err = stage.ReadConfig(sd.configPath)
+	sd.config, err = ReadStage(sd.configPath)
 	if err != nil {
 		panic(fmt.Errorf("reading service discovery config file: %w", err))
 	}
@@ -46,6 +46,6 @@ func (sd *ServiceDiscovery) tick() {
 	}
 }
 
-func (sd *ServiceDiscovery) ServicePool(service string) ([]string, error) {
+func (sd *ServiceDiscovery) ServicePool(service models.Service) ([]string, error) {
 	return sd.config.ServicePool(service)
 }
