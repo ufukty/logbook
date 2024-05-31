@@ -3,6 +3,7 @@ package models
 type Service string
 
 var (
-	Objectives = Service("objectives")
 	Account    = Service("account")
+	Gateway    = Service("gateway")
+	Objectives = Service("objectives")
 )
