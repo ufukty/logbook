@@ -32,17 +32,17 @@ func (service Gateway) ListPrivateIPs() []string {
 
 func (s Stage) ServicePool(service models.Service) ([]string, error) {
 	switch service {
-	case "gateway":
+	case models.Account:
+		return slices.Concat(
+			s.Digitalocean.Fra1.Services.Account.ListPrivateIPs(),
+		), nil
+	case models.Gateway:
 		return slices.Concat(
 			s.Digitalocean.Fra1.Services.Gateway.ListPrivateIPs(),
 		), nil
-	case "objectives":
+	case models.Objectives:
 		return slices.Concat(
 			s.Digitalocean.Fra1.Services.Objectives.ListPrivateIPs(),
-		), nil
-	case "account":
-		return slices.Concat(
-			s.Digitalocean.Fra1.Services.Account.ListPrivateIPs(),
 		), nil
 	default:
 		return nil, fmt.Errorf("unrecognized service name %q", service)
