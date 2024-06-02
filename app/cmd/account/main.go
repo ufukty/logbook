@@ -63,7 +63,6 @@ func Main() error {
 	app := app.New(db)
 	em := endpoints.New(app)
 
-	eps := apicfg.Gateways.Public.Services.Account.Endpoints
 	router.StartServer(router.ServerParameters{
 		BaseUrl:        deplcfg.Ports.Accounts,
 		Tls:            true,
@@ -71,11 +70,11 @@ func Main() error {
 		TlsKey:         flags.TlsKey,
 		RequestTimeout: deplcfg.Router.RequestTimeout,
 	}, map[api.Endpoint]http.HandlerFunc{
-		eps.Create:        em.CreateUser,
-		eps.CreateProfile: em.CreateProfile,
-		eps.Login:         em.Login,
-		eps.Logout:        em.Logout,
-		eps.Whoami:        em.WhoAmI,
+		apicfg.Account.Router.Endpoints.Create:        em.CreateUser,
+		apicfg.Account.Router.Endpoints.CreateProfile: em.CreateProfile,
+		apicfg.Account.Router.Endpoints.Login:         em.Login,
+		apicfg.Account.Router.Endpoints.Logout:        em.Logout,
+		apicfg.Account.Router.Endpoints.Whoami:        em.WhoAmI,
 	})
 
 	return nil

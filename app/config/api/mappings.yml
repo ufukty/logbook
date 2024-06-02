@@ -1,5 +1,10 @@
-"**.endpoints.*": Endpoint
 "**.path": Path
-gateways.public: Public
-gateways.public.services.account: Account
-gateways.public.services.objectives: Objectives
+"**.port": Port
+"*.endpoints.*": Endpoint
+
+gateway: Gateway
+
+account: Account
+objectives: Objectives
+document: Document
+tags: Tags

@@ -2,20 +2,10 @@ package api
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v3"
 	"os"
-)
-// IMPORTANT:
-// Types are defined only for internal purposes.
-// Do not refer auto generated type names from outside.
-// Because they will change as config schema changes.
-type autoGenA struct {
-	Public Public `yaml:"public"`
-}
 
-func (a autoGenA) Range() map[string]Public {
-	return map[string]Public{"public": a.Public}
-}
+	"gopkg.in/yaml.v3"
+)
 
 type Account struct {
 	Endpoints struct {
@@ -26,10 +16,22 @@ type Account struct {
 		Whoami        Endpoint `yaml:"whoami"`
 	} `yaml:"endpoints"`
 	Path Path `yaml:"path"`
+	Port Port `yaml:"port"`
+}
+type Document struct {
+	Endpoints struct {
+		List Endpoint `yaml:"list"`
+	} `yaml:"endpoints"`
+	Path Path `yaml:"path"`
+	Port Port `yaml:"port"`
 }
 type Endpoint struct {
 	Method string `yaml:"method"`
 	Path   Path   `yaml:"path"`
+}
+type Gateway struct {
+	Path Path `yaml:"path"`
+	Port Port `yaml:"port"`
 }
 type Objectives struct {
 	Endpoints struct {
@@ -40,42 +42,36 @@ type Objectives struct {
 		Placement Endpoint `yaml:"placement"`
 	} `yaml:"endpoints"`
 	Path Path `yaml:"path"`
+	Port Port `yaml:"port"`
 }
 type Path string
-type Public struct {
-	Path     Path `yaml:"path"`
-	Services struct {
-		Account  Account `yaml:"account"`
-		Document struct {
-			Endpoints struct {
-				List Endpoint `yaml:"list"`
-			} `yaml:"endpoints"`
-			Path Path `yaml:"path"`
-		} `yaml:"document"`
-		Objectives Objectives `yaml:"objectives"`
-		Tags       struct {
-			Endpoints struct {
-				Assign   Endpoint `yaml:"assign"`
-				Creation Endpoint `yaml:"creation"`
-			} `yaml:"endpoints"`
-			Path Path `yaml:"path"`
-		} `yaml:"tags"`
-	} `yaml:"services"`
+type Port int
+type Tags struct {
+	Endpoints struct {
+		Assign   Endpoint `yaml:"assign"`
+		Creation Endpoint `yaml:"creation"`
+	} `yaml:"endpoints"`
+	Path Path `yaml:"path"`
+	Port Port `yaml:"port"`
 }
 type Config struct {
-	Domain   string   `yaml:"domain"`
-	Gateways autoGenA `yaml:"gateways"`
+	Account    Account    `yaml:"account"`
+	Document   Document   `yaml:"document"`
+	Gateway    Gateway    `yaml:"gateway"`
+	Objectives Objectives `yaml:"objectives"`
+	Tags       Tags       `yaml:"tags"`
 }
 
 func ReadConfig(path string) (Config, error) {
-	f, err := os.Open(path)
+	file, err := os.Open(path)
 	if err != nil {
 		return Config{}, fmt.Errorf("opening config file: %w", err)
 	}
-	cfg := Config{}
-	err = yaml.NewDecoder(f).Decode(&cfg)
+	defer file.Close()
+	c := Config{}
+	err = yaml.NewDecoder(file).Decode(&c)
 	if err != nil {
 		return Config{}, fmt.Errorf("decoding config file: %w", err)
 	}
-	return cfg, nil
+	return c, nil
 }

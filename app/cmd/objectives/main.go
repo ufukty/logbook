@@ -45,6 +45,7 @@ func readConfigs() (*service.Config, *deployment.Config, *api.Config, error) {
 
 	return &srvcfg, &deplcfg, &apicfg, nil
 }
+
 func Main() error {
 	srvcfg, deplcfg, apicfg, err := readConfigs()
 	if err != nil {
@@ -61,16 +62,15 @@ func Main() error {
 	app := app.New(db)
 	em := endpoints.NewManager(app)
 
-	eps := apicfg.Gateways.Public.Services.Objectives.Endpoints
 	router.StartServer(router.ServerParameters{
 		BaseUrl:        deplcfg.Ports.Objectives,
 		Tls:            false,
 		RequestTimeout: deplcfg.Router.RequestTimeout,
 	}, map[api.Endpoint]http.HandlerFunc{
-		eps.Attach:    em.ReattachObjective,
-		eps.Create:    em.CreateTask,
-		eps.Mark:      em.MarkComplete,
-		eps.Placement: em.GetPlacementArray,
+		apicfg.Objectives.Router.Endpoints.Attach:    em.ReattachObjective,
+		apicfg.Objectives.Router.Endpoints.Create:    em.CreateTask,
+		apicfg.Objectives.Router.Endpoints.Mark:      em.MarkComplete,
+		apicfg.Objectives.Router.Endpoints.Placement: em.GetPlacementArray,
 	})
 
 	return nil
