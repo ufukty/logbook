@@ -4,21 +4,20 @@ import (
 	"logbook/cmd/objectives/endpoints"
 	"logbook/config/api"
 	"logbook/internal/web/reqs"
-	"path/filepath"
 )
 
 type Client struct {
-	path   string
+	path   api.Path
 	config api.Objectives
 }
 
-func NewClient(config api.Config) *Client {
+func NewClient(apicfg api.Config) *Client {
 	return &Client{
-		path:   filepath.Join(string(config.Gateways.Public.Path), string(config.Gateways.Public.Services.Objectives.Path)),
-		config: config.Gateways.Public.Services.Objectives,
+		path:   apicfg.Gateway.Path.Join(apicfg.Objectives.Path),
+		config: apicfg.Objectives,
 	}
 }
 
 func (c Client) CreateObjective(bq *endpoints.CreateTaskRequest) (*endpoints.CreateTaskResponse, error) {
-	return reqs.SendTo[endpoints.CreateTaskRequest, endpoints.CreateTaskResponse](c.path, c.config.Endpoints.Create, bq)
+	return reqs.SendTo[endpoints.CreateTaskRequest, endpoints.CreateTaskResponse](string(c.path), c.config.Endpoints.Create, bq)
 }

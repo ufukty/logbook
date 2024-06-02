@@ -67,10 +67,10 @@ func Main() error {
 		Tls:            false,
 		RequestTimeout: deplcfg.Router.RequestTimeout,
 	}, map[api.Endpoint]http.HandlerFunc{
-		apicfg.Objectives.Router.Endpoints.Attach:    em.ReattachObjective,
-		apicfg.Objectives.Router.Endpoints.Create:    em.CreateTask,
-		apicfg.Objectives.Router.Endpoints.Mark:      em.MarkComplete,
-		apicfg.Objectives.Router.Endpoints.Placement: em.GetPlacementArray,
+		apicfg.Objectives.Endpoints.Attach:    em.ReattachObjective,
+		apicfg.Objectives.Endpoints.Create:    em.CreateTask,
+		apicfg.Objectives.Endpoints.Mark:      em.MarkComplete,
+		apicfg.Objectives.Endpoints.Placement: em.GetPlacementArray,
 	})
 
 	return nil

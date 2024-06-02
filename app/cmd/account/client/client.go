@@ -2,18 +2,17 @@ package account
 
 import (
 	"logbook/config/api"
-	"path/filepath"
 )
 
 type Client struct {
-	path   string
+	path   api.Path
 	config api.Account
 }
 
-func NewClient(config api.Config) *Client {
+func NewClient(apicfg api.Config) *Client {
 	return &Client{
-		path:   filepath.Join(string(config.Gateways.Public.Path), string(config.Gateways.Public.Services.Objectives.Path)),
-		config: config.Gateways.Public.Services.Account,
+		path:   apicfg.Gateway.Path.Join(apicfg.Account.Path),
+		config: apicfg.Account,
 	}
 }
 
