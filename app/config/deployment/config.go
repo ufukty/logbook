@@ -7,32 +7,36 @@ import (
 	"time"
 )
 
+type Ports struct {
+	Accounts   string `yaml:"accounts"`
+	Objectives string `yaml:"objectives"`
+}
+type Router struct {
+	GracePeriod    time.Duration `yaml:"grace-period"`
+	IdleTimeout    time.Duration `yaml:"idle-timeout"`
+	ReadTimeout    time.Duration `yaml:"read-timeout"`
+	RequestTimeout time.Duration `yaml:"request-timeout"`
+	WriteTimeout   time.Duration `yaml:"write-timeout"`
+}
+type ServiceDiscovery struct {
+	UpdatePeriod time.Duration `yaml:"update-period"`
+}
 type Config struct {
-	Ports struct {
-		Accounts   string `yaml:"accounts"`
-		Objectives string `yaml:"objectives"`
-	} `yaml:"ports"`
-	Router struct {
-		GracePeriod    time.Duration `yaml:"grace-period"`
-		IdleTimeout    time.Duration `yaml:"idle-timeout"`
-		ReadTimeout    time.Duration `yaml:"read-timeout"`
-		RequestTimeout time.Duration `yaml:"request-timeout"`
-		WriteTimeout   time.Duration `yaml:"write-timeout"`
-	} `yaml:"router"`
-	ServiceDiscovery struct {
-		UpdatePeriod time.Duration `yaml:"update-period"`
-	} `yaml:"service-discovery"`
+	Ports            Ports            `yaml:"ports"`
+	Router           Router           `yaml:"router"`
+	ServiceDiscovery ServiceDiscovery `yaml:"service-discovery"`
 }
 
 func ReadConfig(path string) (Config, error) {
-	f, err := os.Open(path)
+	file, err := os.Open(path)
 	if err != nil {
 		return Config{}, fmt.Errorf("opening config file: %w", err)
 	}
-	cfg := Config{}
-	err = yaml.NewDecoder(f).Decode(&cfg)
+	defer file.Close()
+	c := Config{}
+	err = yaml.NewDecoder(file).Decode(&c)
 	if err != nil {
 		return Config{}, fmt.Errorf("decoding config file: %w", err)
 	}
-	return cfg, nil
+	return c, nil
 }

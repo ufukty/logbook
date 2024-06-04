@@ -1,4 +1,4 @@
-all: internal/web/discovery/stage.go config/api/schema.go 
+all: internal/web/discovery/stage.go config/api/schema.go config/deployment/config.go
 	$(MAKE) -C cmd/account
 	$(MAKE) -C cmd/objectives
 
@@ -16,3 +16,10 @@ internal/web/discovery/stage.go: internal/web/discovery/testdata/service_discove
 		-type-name "Stage" \
 		-in internal/web/discovery/testdata/service_discovery_stage.json \
 		-out internal/web/discovery/stage.go
+
+config/deployment/config.go: ../platform/testing.yml config/deployment/mappings.yml
+	gonfique \
+		-pkg deployment \
+		-mappings config/deployment/mappings.yml \
+		-in ../platform/testing.yml \
+		-out config/deployment/config.go

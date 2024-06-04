@@ -1,0 +1,3 @@
+router: Router
+service-discovery: ServiceDiscovery
+ports: Ports
