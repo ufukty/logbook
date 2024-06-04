@@ -1,3 +1,4 @@
+# Good practice to set timeouts to avoid Slowloris attacks.
 router:
   request-timeout: 2s
   write-timeout: 100ms

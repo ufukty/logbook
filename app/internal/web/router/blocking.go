@@ -1,12 +1,15 @@
 package router
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"logbook/config/api"
+	"logbook/config/deployment"
 	"logbook/internal/web/logger"
 	"net/http"
-	"time"
+	"os"
+	"os/signal"
 
 	"github.com/go-chi/chi/middleware"
 	"github.com/gorilla/mux"
@@ -14,11 +17,10 @@ import (
 )
 
 type ServerParameters struct {
-	BaseUrl        string
-	Tls            bool
-	TlsCrt         string
-	TlsKey         string
-	RequestTimeout time.Duration
+	Router  deployment.Router
+	BaseUrl string
+	TlsCrt  string
+	TlsKey  string
 }
 
 func StartServer(params ServerParameters, endpointRegisterer func(r *mux.Router)) {
@@ -30,7 +32,7 @@ func StartServer(params ServerParameters, endpointRegisterer func(r *mux.Router)
 	r.PathPrefix("/").HandlerFunc(lastMatchBuilder(l))
 
 	r.Use(middleware.RequestID)
-	r.Use(middleware.Timeout(params.RequestTimeout))
+	r.Use(middleware.Timeout(params.Router.RequestTimeout))
 	r.Use(middleware.Logger)
 	// r.Use(middleware.MWAuthorization)
 	r.Use(mux.CORSMethodMiddleware(r))
@@ -39,23 +41,47 @@ func StartServer(params ServerParameters, endpointRegisterer func(r *mux.Router)
 	server := &http.Server{
 		Addr: params.BaseUrl,
 		// Good practice to set timeouts to avoid Slowloris attacks.
-		WriteTimeout: time.Second * 15,
-		ReadTimeout:  time.Second * 15,
-		IdleTimeout:  time.Second * 60,
+		WriteTimeout: params.Router.WriteTimeout,
+		ReadTimeout:  params.Router.ReadTimeout,
+		IdleTimeout:  params.Router.IdleTimeout,
 		Handler:      r, // Pass our instance of gorilla/mux in.
 	}
 
-	if params.Tls {
-		l.Printf("calling ListenAndServeTLS on %q\n", params.BaseUrl)
-		if err := server.ListenAndServeTLS(params.TlsCrt, params.TlsKey); err != nil {
-			l.Println(fmt.Errorf("http.Server returned an error from ListenAndServeTLS call: %w", err))
+	go func() {
+		if params.TlsKey != "" && params.TlsCrt != "" {
+			l.Printf("calling ListenAndServeTLS on %q\n", params.BaseUrl)
+			if err := server.ListenAndServeTLS(params.TlsCrt, params.TlsKey); err != nil {
+				l.Println(fmt.Errorf("http.Server returned an error from ListenAndServeTLS call: %w", err))
+			}
+		} else {
+			l.Printf("calling ListenAndServe on %q\n", params.BaseUrl)
+			if err := server.ListenAndServe(); err != nil {
+				l.Println(fmt.Errorf("http.Server returned an error from ListendAndServe call: %w", err))
+			}
 		}
-	} else {
-		l.Printf("calling ListenAndServe on %q\n", params.BaseUrl)
-		if err := server.ListenAndServe(); err != nil {
-			l.Println(fmt.Errorf("http.Server returned an error from ListendAndServe call: %w", err))
-		}
-	}
+	}()
+
+	sigInterruptChannel := make(chan os.Signal, 1)
+	// We'll accept graceful shutdowns when quit via SIGINT (Ctrl+C)
+	// SIGKILL, SIGQUIT or SIGTERM (Ctrl+/) will not be caught.
+	signal.Notify(sigInterruptChannel, os.Interrupt)
+	// Block until we receive our signal.
+	<-sigInterruptChannel
+
+	// Create a deadline to wait for.
+	ctx, cancel := context.WithTimeout(context.Background(), params.Router.GracePeriod)
+	defer cancel()
+
+	// Doesn't block if no connections, but will otherwise wait
+	// until the timeout deadline.
+	log.Printf("Sending shutdown signal to one of the servers, grace period is '%s'\n", params.Router.GracePeriod.String())
+	go server.Shutdown(ctx)
+
+	// Optionally, you could run srv.Shutdown in a goroutine and block on
+	// <-ctx.Done() if your application should wait for other services
+	// to finalize based on context cancellation.
+	<-ctx.Done()
+	log.Println("Server is down")
 }
 
 func StartServerWithEndpoints(params ServerParameters, handlers map[api.Endpoint]http.HandlerFunc) {
@@ -77,7 +103,7 @@ func StartServerWithEndpoints(params ServerParameters, handlers map[api.Endpoint
 	}
 
 	r.Use(middleware.RequestID)
-	r.Use(middleware.Timeout(params.RequestTimeout))
+	r.Use(middleware.Timeout(params.Router.RequestTimeout))
 	r.Use(middleware.Logger)
 	// r.Use(middleware.MWAuthorization)
 	r.Use(mux.CORSMethodMiddleware(r))
@@ -86,21 +112,45 @@ func StartServerWithEndpoints(params ServerParameters, handlers map[api.Endpoint
 	server := &http.Server{
 		Addr: params.BaseUrl,
 		// Set timeouts against Slowloris attacks
-		WriteTimeout: time.Second * 15,
-		ReadTimeout:  time.Second * 15,
-		IdleTimeout:  time.Second * 60,
+		WriteTimeout: params.Router.WriteTimeout,
+		ReadTimeout:  params.Router.ReadTimeout,
+		IdleTimeout:  params.Router.IdleTimeout,
 		Handler:      r,
 	}
 
-	if params.Tls {
-		l.Printf("calling ListenAndServeTLS on %q\n", params.BaseUrl)
-		if err := server.ListenAndServeTLS(params.TlsCrt, params.TlsKey); err != nil {
-			l.Println(fmt.Errorf("http.Server returned an error from ListenAndServeTLS call: %w", err))
+	go func() {
+		if params.TlsKey != "" && params.TlsCrt != "" {
+			l.Printf("calling ListenAndServeTLS on %q\n", params.BaseUrl)
+			if err := server.ListenAndServeTLS(params.TlsCrt, params.TlsKey); err != nil {
+				l.Println(fmt.Errorf("http.Server returned an error from ListenAndServeTLS call: %w", err))
+			}
+		} else {
+			l.Printf("calling ListenAndServe on %q\n", params.BaseUrl)
+			if err := server.ListenAndServe(); err != nil {
+				l.Println(fmt.Errorf("http.Server returned an error from ListendAndServe call: %w", err))
+			}
 		}
-	} else {
-		l.Printf("calling ListenAndServe on %q\n", params.BaseUrl)
-		if err := server.ListenAndServe(); err != nil {
-			l.Println(fmt.Errorf("http.Server returned an error from ListendAndServe call: %w", err))
-		}
-	}
+	}()
+
+	sigInterruptChannel := make(chan os.Signal, 1)
+	// We'll accept graceful shutdowns when quit via SIGINT (Ctrl+C)
+	// SIGKILL, SIGQUIT or SIGTERM (Ctrl+/) will not be caught.
+	signal.Notify(sigInterruptChannel, os.Interrupt)
+	// Block until we receive our signal.
+	<-sigInterruptChannel
+
+	// Create a deadline to wait for.
+	ctx, cancel := context.WithTimeout(context.Background(), params.Router.GracePeriod)
+	defer cancel()
+
+	// Doesn't block if no connections, but will otherwise wait
+	// until the timeout deadline.
+	log.Printf("Sending shutdown signal to one of the servers, grace period is '%s'\n", params.Router.GracePeriod.String())
+	go server.Shutdown(ctx)
+
+	// Optionally, you could run srv.Shutdown in a goroutine and block on
+	// <-ctx.Done() if your application should wait for other services
+	// to finalize based on context cancellation.
+	<-ctx.Done()
+	log.Println("Server is down")
 }

@@ -64,11 +64,10 @@ func Main() error {
 	em := endpoints.New(app)
 
 	router.StartServerWithEndpoints(router.ServerParameters{
-		BaseUrl:        deplcfg.Ports.Accounts,
-		Tls:            true,
-		TlsCrt:         flags.TlsCertificate,
-		TlsKey:         flags.TlsKey,
-		RequestTimeout: deplcfg.Router.RequestTimeout,
+		Router:  deplcfg.Router,
+		BaseUrl: deplcfg.Ports.Accounts,
+		TlsCrt:  flags.TlsCertificate,
+		TlsKey:  flags.TlsKey,
 	}, map[api.Endpoint]http.HandlerFunc{
 		apicfg.Account.Endpoints.Create:        em.CreateUser,
 		apicfg.Account.Endpoints.CreateProfile: em.CreateProfile,

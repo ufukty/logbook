@@ -63,9 +63,8 @@ func Main() error {
 	em := endpoints.NewManager(app)
 
 	router.StartServerWithEndpoints(router.ServerParameters{
-		BaseUrl:        deplcfg.Ports.Objectives,
-		Tls:            false,
-		RequestTimeout: deplcfg.Router.RequestTimeout,
+		Router:  deplcfg.Router,
+		BaseUrl: deplcfg.Ports.Objectives,
 	}, map[api.Endpoint]http.HandlerFunc{
 		apicfg.Objectives.Endpoints.Attach:    em.ReattachObjective,
 		apicfg.Objectives.Endpoints.Create:    em.CreateTask,
