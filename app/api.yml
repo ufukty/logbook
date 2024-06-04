@@ -1,10 +1,8 @@
 gateway:
   path: /api/v1.0.0
-  port: 8081
 
 account:
   path: /account
-  port: 8081
   endpoints:
     create_profile: { method: "POST", path: "/profile" }
     create: { method: "POST", path: "/account" }
@@ -14,13 +12,11 @@ account:
 
 document:
   path: /document
-  port: 8081
   endpoints:
     list: { method: "GET", path: "/list/{root}" }
 
 objectives:
   path: /tasks
-  port: 8081
   endpoints:
     attach: { method: "POST", path: "/task/attach" }
     create: { method: "POST", path: "/task" }
@@ -30,7 +26,6 @@ objectives:
 
 tags:
   path: /tags
-  port: 8081
   endpoints:
     creation: { method: "POST", path: "/" }
     assign: { method: "POST", path: "/assign" }

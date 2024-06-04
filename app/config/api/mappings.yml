@@ -1,5 +1,4 @@
 "**.path": Path
-"**.port": Port
 "*.endpoints.*": Endpoint
 
 gateway: Gateway

@@ -16,14 +16,12 @@ type Account struct {
 		Whoami        Endpoint `yaml:"whoami"`
 	} `yaml:"endpoints"`
 	Path Path `yaml:"path"`
-	Port Port `yaml:"port"`
 }
 type Document struct {
 	Endpoints struct {
 		List Endpoint `yaml:"list"`
 	} `yaml:"endpoints"`
 	Path Path `yaml:"path"`
-	Port Port `yaml:"port"`
 }
 type Endpoint struct {
 	Method string `yaml:"method"`
@@ -31,7 +29,6 @@ type Endpoint struct {
 }
 type Gateway struct {
 	Path Path `yaml:"path"`
-	Port Port `yaml:"port"`
 }
 type Objectives struct {
 	Endpoints struct {
@@ -42,17 +39,14 @@ type Objectives struct {
 		Placement Endpoint `yaml:"placement"`
 	} `yaml:"endpoints"`
 	Path Path `yaml:"path"`
-	Port Port `yaml:"port"`
 }
 type Path string
-type Port int
 type Tags struct {
 	Endpoints struct {
 		Assign   Endpoint `yaml:"assign"`
 		Creation Endpoint `yaml:"creation"`
 	} `yaml:"endpoints"`
 	Path Path `yaml:"path"`
-	Port Port `yaml:"port"`
 }
 type Config struct {
 	Account    Account    `yaml:"account"`
