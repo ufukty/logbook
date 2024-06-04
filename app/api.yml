@@ -3,7 +3,7 @@ gateway:
   port: 8081
 
 account:
-  path: account
+  path: /account
   port: 8081
   endpoints:
     create_profile: { method: "POST", path: "/profile" }
@@ -13,24 +13,24 @@ account:
     whoami: { method: "GET", path: "/whoami" }
 
 document:
-  path: document
+  path: /document
   port: 8081
   endpoints:
-    list: { method: "GET", path: "list/{root}" }
+    list: { method: "GET", path: "/list/{root}" }
 
 objectives:
-  path: tasks
+  path: /tasks
   port: 8081
   endpoints:
-    attach: { method: "POST", path: "task/attach" }
-    create: { method: "POST", path: "task" }
-    delete: { method: "POST", path: "task/delete" }
-    placement: { method: "GET", path: "task/{root}/placement" }
-    mark: { method: "POST", path: "task/mark" }
+    attach: { method: "POST", path: "/task/attach" }
+    create: { method: "POST", path: "/task" }
+    delete: { method: "POST", path: "/task/delete" }
+    placement: { method: "GET", path: "/task/{root}/placement" }
+    mark: { method: "POST", path: "/task/mark" }
 
 tags:
-  path: tags
+  path: /tags
   port: 8081
   endpoints:
-    creation: { method: "POST", path: "" }
-    assign: { method: "POST", path: "assign" }
+    creation: { method: "POST", path: "/" }
+    assign: { method: "POST", path: "/assign" }
