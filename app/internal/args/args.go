@@ -7,11 +7,11 @@ import (
 )
 
 type Args struct {
-	Api            string
-	Deployment     string
-	Service        string
-	TlsKey         string
-	TlsCertificate string
+	Api            string // config file path
+	Deployment     string // config file path
+	Service        string // config file path
+	TlsKey         string // file path
+	TlsCertificate string // file path
 }
 
 func Parse() (Args, error) {
