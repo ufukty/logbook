@@ -45,13 +45,6 @@ func StartServer(params ServerParameters, endpointRegisterer func(r *mux.Router)
 		Handler:      r, // Pass our instance of gorilla/mux in.
 	}
 
-	// Run our server in a goroutine so that it doesn't block.
-
-	log.Printf("Calling ListenAndServe on '%s'\n", params.BaseUrl)
-	if err := server.ListenAndServe(); err != nil {
-		log.Println(fmt.Errorf("http.Server returned an error from ListendAndServe call: %w", err))
-	}
-
 	if params.Tls {
 		l.Printf("calling ListenAndServeTLS on %q\n", params.BaseUrl)
 		if err := server.ListenAndServeTLS(params.TlsCrt, params.TlsKey); err != nil {
