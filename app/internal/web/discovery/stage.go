@@ -6,11 +6,21 @@ import (
 	"os"
 )
 
-type Account []Droplet
+type Account []DigitaloceanVps
 type DigitalOcean struct {
 	Fra1 Fra1 `json:"fra1"`
 }
-type Droplet struct {
+type DigitaloceanVpc struct {
+	CreatedAt   string `json:"created_at"`
+	Default     bool   `json:"default"`
+	Description string `json:"description"`
+	Id          string `json:"id"`
+	IpRange     string `json:"ip_range"`
+	Name        string `json:"name"`
+	Region      string `json:"region"`
+	Urn         string `json:"urn"`
+}
+type DigitaloceanVps struct {
 	Backups            bool     `json:"backups"`
 	CreatedAt          string   `json:"created_at"`
 	Disk               float64  `json:"disk"`
@@ -48,19 +58,10 @@ type Fra1 struct {
 		Gateway    Gateway    `json:"gateway"`
 		Objectives Objectives `json:"objectives"`
 	} `json:"services"`
-	Vpc struct {
-		CreatedAt   string `json:"created_at"`
-		Default     bool   `json:"default"`
-		Description string `json:"description"`
-		Id          string `json:"id"`
-		IpRange     string `json:"ip_range"`
-		Name        string `json:"name"`
-		Region      string `json:"region"`
-		Urn         string `json:"urn"`
-	} `json:"vpc"`
+	Vpc DigitaloceanVpc `json:"vpc"`
 }
-type Gateway []Droplet
-type Objectives []Droplet
+type Gateway []DigitaloceanVps
+type Objectives []DigitaloceanVps
 type Stage struct {
 	Digitalocean DigitalOcean `json:"digitalocean"`
 }
