@@ -9,10 +9,10 @@ config/api/schema.go: api.yml config/api/mappings.yml
 		-in api.yml \
 		-out config/api/schema.go
 
-internal/web/discovery/stage.go: ../platform/stage/artifacts/deployment/service_discovery.json internal/web/discovery/stage-mapping.yml
+internal/web/discovery/stage.go: internal/web/discovery/testdata/service_discovery_stage.json internal/web/discovery/stage-mapping.yml
 	gonfique \
 		-pkg discovery \
 		-mappings internal/web/discovery/stage-mapping.yml \
 		-type-name "Stage" \
-		-in ../platform/stage/artifacts/deployment/service_discovery.json \
+		-in internal/web/discovery/testdata/service_discovery_stage.json \
 		-out internal/web/discovery/stage.go
