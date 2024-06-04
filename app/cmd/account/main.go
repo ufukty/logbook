@@ -63,7 +63,7 @@ func Main() error {
 	app := app.New(db)
 	em := endpoints.New(app)
 
-	router.StartServer(router.ServerParameters{
+	router.StartServerWithEndpoints(router.ServerParameters{
 		BaseUrl:        deplcfg.Ports.Accounts,
 		Tls:            true,
 		TlsCrt:         flags.TlsCertificate,

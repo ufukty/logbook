@@ -62,7 +62,7 @@ func Main() error {
 	app := app.New(db)
 	em := endpoints.NewManager(app)
 
-	router.StartServer(router.ServerParameters{
+	router.StartServerWithEndpoints(router.ServerParameters{
 		BaseUrl:        deplcfg.Ports.Objectives,
 		Tls:            false,
 		RequestTimeout: deplcfg.Router.RequestTimeout,

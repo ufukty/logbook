@@ -20,7 +20,7 @@ type ServerParameters struct {
 	RequestTimeout time.Duration
 }
 
-func StartServer(params ServerParameters, handlers map[api.Endpoint]http.HandlerFunc) {
+func StartServerWithEndpoints(params ServerParameters, handlers map[api.Endpoint]http.HandlerFunc) {
 	l := logger.NewLogger("Router")
 	r := mux.NewRouter()
 
