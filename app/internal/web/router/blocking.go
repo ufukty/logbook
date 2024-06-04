@@ -2,6 +2,7 @@ package router
 
 import (
 	"fmt"
+	"log"
 	"logbook/config/api"
 	"logbook/internal/web/logger"
 	"net/http"
@@ -18,6 +19,50 @@ type ServerParameters struct {
 	TlsCrt         string
 	TlsKey         string
 	RequestTimeout time.Duration
+}
+
+func StartServer(params ServerParameters, endpointRegisterer func(r *mux.Router)) {
+	l := logger.NewLogger("Router")
+
+	r := mux.NewRouter()
+	endpointRegisterer(r)
+	r.HandleFunc("/ping", pongBuilder(l))
+	r.PathPrefix("/").HandlerFunc(lastMatchBuilder(l))
+
+	r.Use(middleware.RequestID)
+	r.Use(middleware.Timeout(params.RequestTimeout))
+	r.Use(middleware.Logger)
+	// r.Use(middleware.MWAuthorization)
+	r.Use(mux.CORSMethodMiddleware(r))
+	r.Use(middleware.Recoverer)
+
+	server := &http.Server{
+		Addr: params.BaseUrl,
+		// Good practice to set timeouts to avoid Slowloris attacks.
+		WriteTimeout: time.Second * 15,
+		ReadTimeout:  time.Second * 15,
+		IdleTimeout:  time.Second * 60,
+		Handler:      r, // Pass our instance of gorilla/mux in.
+	}
+
+	// Run our server in a goroutine so that it doesn't block.
+
+	log.Printf("Calling ListenAndServe on '%s'\n", params.BaseUrl)
+	if err := server.ListenAndServe(); err != nil {
+		log.Println(fmt.Errorf("http.Server returned an error from ListendAndServe call: %w", err))
+	}
+
+	if params.Tls {
+		l.Printf("calling ListenAndServeTLS on %q\n", params.BaseUrl)
+		if err := server.ListenAndServeTLS(params.TlsCrt, params.TlsKey); err != nil {
+			l.Println(fmt.Errorf("http.Server returned an error from ListenAndServeTLS call: %w", err))
+		}
+	} else {
+		l.Printf("calling ListenAndServe on %q\n", params.BaseUrl)
+		if err := server.ListenAndServe(); err != nil {
+			l.Println(fmt.Errorf("http.Server returned an error from ListendAndServe call: %w", err))
+		}
+	}
 }
 
 func StartServerWithEndpoints(params ServerParameters, handlers map[api.Endpoint]http.HandlerFunc) {
@@ -65,5 +110,4 @@ func StartServerWithEndpoints(params ServerParameters, handlers map[api.Endpoint
 			l.Println(fmt.Errorf("http.Server returned an error from ListendAndServe call: %w", err))
 		}
 	}
-
 }
