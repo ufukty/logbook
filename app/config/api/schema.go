@@ -137,7 +137,7 @@ type Config struct {
 	Public Public `yaml:"public"`
 }
 
-func parentRefAssignments(c Config) {
+func parentRefAssignments(c *Config) {
 	c.Public.Services.Parent = &c.Public
 	c.Public.Services.Account.Parent = &c.Public.Services
 	c.Public.Services.Account.Endpoints.Parent = &c.Public.Services.Account
@@ -161,16 +161,16 @@ func parentRefAssignments(c Config) {
 	c.Public.Services.Tags.Endpoints.Assign.Parent = &c.Public.Services.Tags.Endpoints
 	c.Public.Services.Tags.Endpoints.Creation.Parent = &c.Public.Services.Tags.Endpoints
 }
-func ReadConfig(path string) (Config, error) {
+func ReadConfig(path string) (*Config, error) {
 	file, err := os.Open(path)
 	if err != nil {
-		return Config{}, fmt.Errorf("opening config file: %w", err)
+		return nil, fmt.Errorf("opening config file: %w", err)
 	}
 	defer file.Close()
-	c := Config{}
-	err = yaml.NewDecoder(file).Decode(&c)
+	c := &Config{}
+	err = yaml.NewDecoder(file).Decode(c)
 	if err != nil {
-		return Config{}, fmt.Errorf("decoding config file: %w", err)
+		return nil, fmt.Errorf("decoding config file: %w", err)
 	}
 	parentRefAssignments(c)
 	return c, nil

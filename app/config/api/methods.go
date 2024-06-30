@@ -2,6 +2,7 @@ package api
 
 import (
 	"path/filepath"
+	"slices"
 )
 
 type Addressable interface {
@@ -23,18 +24,19 @@ type Child interface {
 // endpoint/../.. = service
 // service/../.. = gateway
 func twoup(a Addressable) Addressable {
-	var u Addressable = a
-	for i := 0; i < 2; i++ {
-		c1, ok := u.(Child)
-		if !ok {
-			return nil
-		}
-		p1 := c1.GetParent()
-		u1, ok := p1.(Addressable)
-		if !ok {
-			return nil
-		}
-		u = u1
+	c1, ok := a.(Child)
+	if !ok {
+		return nil
+	}
+	p1 := c1.GetParent()
+	c2, ok := p1.(Child)
+	if !ok {
+		return nil
+	}
+	p2 := c2.GetParent()
+	u, ok := p2.(Addressable)
+	if !ok {
+		return nil
 	}
 	return u
 }
@@ -48,5 +50,6 @@ func PathFromInternet(a Addressable) string {
 		}
 		addressables = append(addressables, up)
 	}
+	slices.Reverse(addressables)
 	return Join(addressables...)
 }
