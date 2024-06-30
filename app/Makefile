@@ -2,10 +2,10 @@ all: internal/web/discovery/stage.go config/api/schema.go config/deployment/conf
 	$(MAKE) -C cmd/account
 	$(MAKE) -C cmd/objectives
 
-config/api/schema.go: api.yml config/api/mappings.yml
-	gonfique \
+config/api/schema.go: api.yml config/api/directives.yml
+	gonfique generate \
 		-pkg api \
-		-mappings config/api/mappings.yml \
+		-directives config/api/directives.yml \
 		-in api.yml \
 		-out config/api/schema.go
 

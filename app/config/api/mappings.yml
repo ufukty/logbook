@@ -1,9 +1,0 @@
-"**.path": Path
-"*.endpoints.*": Endpoint
-
-gateway: Gateway
-
-account: Account
-objectives: Objectives
-document: Document
-tags: Tags

@@ -1,0 +1,18 @@
+public:
+  accessors: [path]
+  export: true
+
+"public.services":
+  parent: Parent
+
+"public.services.*":
+  accessors: [path]
+  export: true
+  parent: Parent
+
+"public.services.*.endpoints":
+  parent: Parent
+
+"public.services.*.endpoints.*":
+  accessors: [path, method]
+  parent: Parent
