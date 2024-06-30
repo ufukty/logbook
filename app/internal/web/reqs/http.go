@@ -8,10 +8,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"logbook/config/api"
 	"mime"
 	"net/http"
-	"path/filepath"
 	"reflect"
 
 	"github.com/gorilla/mux"
@@ -100,8 +98,4 @@ func Send[Request any, Response any](url, method string, bq *Request) (*Response
 		return nil, fmt.Errorf("binding response: %w", err)
 	}
 	return bs, nil
-}
-
-func SendTo[Request any, Response any](path string, dst api.Endpoint, bq *Request) (*Response, error) {
-	return Send[Request, Response](filepath.Join(path, string(dst.Method)), dst.Method, bq)
 }

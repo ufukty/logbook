@@ -7,17 +7,19 @@ import (
 )
 
 type Client struct {
-	path   api.Path
-	config api.Objectives
+	servicepath string
+	servicecfg  api.Objectives
 }
 
 func NewClient(apicfg api.Config) *Client {
 	return &Client{
-		path:   apicfg.Gateway.Path.Join(apicfg.Objectives.Path),
-		config: apicfg.Objectives,
+		servicepath: api.PathFromInternet(apicfg.Public.Services.Objectives),
+		servicecfg:  apicfg.Public.Services.Objectives,
 	}
 }
 
 func (c Client) CreateObjective(bq *endpoints.CreateTaskRequest) (*endpoints.CreateTaskResponse, error) {
-	return reqs.SendTo[endpoints.CreateTaskRequest, endpoints.CreateTaskResponse](string(c.path), c.config.Endpoints.Create, bq)
+	return reqs.Send[endpoints.CreateTaskRequest, endpoints.CreateTaskResponse](
+		api.PathFromInternet(c.servicecfg.Endpoints.Create), c.servicecfg.Endpoints.Create.Method, bq,
+	)
 }

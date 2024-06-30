@@ -43,7 +43,7 @@ func readConfigs() (*service.Config, *deployment.Config, *api.Config, error) {
 	l.Println("api config:")
 	reflux.Print(apicfg)
 
-	return &srvcfg, &deplcfg, &apicfg, nil
+	return &srvcfg, &deplcfg, apicfg, nil
 }
 
 func Main() error {
@@ -62,14 +62,15 @@ func Main() error {
 	app := app.New(db)
 	em := endpoints.NewManager(app)
 
+	s := apicfg.Public.Services.Objectives
 	router.StartServerWithEndpoints(router.ServerParameters{
 		Router:  deplcfg.Router,
 		BaseUrl: deplcfg.Ports.Objectives,
 	}, map[api.Endpoint]http.HandlerFunc{
-		apicfg.Objectives.Endpoints.Attach:    em.ReattachObjective,
-		apicfg.Objectives.Endpoints.Create:    em.CreateTask,
-		apicfg.Objectives.Endpoints.Mark:      em.MarkComplete,
-		apicfg.Objectives.Endpoints.Placement: em.GetPlacementArray,
+		s.Endpoints.Attach:    em.ReattachObjective,
+		s.Endpoints.Create:    em.CreateTask,
+		s.Endpoints.Mark:      em.MarkComplete,
+		s.Endpoints.Placement: em.GetPlacementArray,
 	})
 
 	return nil

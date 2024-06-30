@@ -24,10 +24,10 @@ type Handler func(d RequestDetails, w http.ResponseWriter, r *http.Request)
 
 func sortEndpoints(eps []api.Endpoint) []api.Endpoint {
 	sort.Slice(eps, func(i, j int) bool {
-		return eps[i].Path > eps[j].Path
+		return eps[i].GetPath() > eps[j].GetPath()
 	})
 	sort.Slice(eps, func(i, j int) bool {
-		return strings.HasPrefix(string(eps[i].Path), string(eps[j].Path))
+		return strings.HasPrefix(string(eps[i].GetPath()), string(eps[j].GetPath()))
 	})
 	return eps
 }

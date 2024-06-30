@@ -92,10 +92,10 @@ func StartServerWithEndpoints(params ServerParameters, handlers map[api.Endpoint
 		l.Println("registering routes in the order:")
 		r := r.UseEncodedPath()
 		for _, ep := range sortEndpoints(maps.Keys(handlers)) {
-			str := fmt.Sprintf("%s %s", ep.Method, ep.Path)
+			str := fmt.Sprintf("%s %s", ep.GetMethod(), ep.GetPath())
 			handler := handlers[ep]
 			// r.HandleFunc(str, handler)
-			r.HandleFunc(string(ep.Path), handler).Methods(ep.Method)
+			r.HandleFunc(string(ep.GetPath()), handler).Methods(ep.GetMethod())
 			l.Printf("%q -> %p\n", str, handler)
 		}
 		r.HandleFunc("/ping", pongBuilder(l))

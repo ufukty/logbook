@@ -44,7 +44,7 @@ func readConfigs() (*args.Args, *service.Config, *deployment.Config, *api.Config
 	l.Println("api config:")
 	reflux.Print(apicfg)
 
-	return &flags, &srvcfg, &deplcfg, &apicfg, nil
+	return &flags, &srvcfg, &deplcfg, apicfg, nil
 }
 
 func Main() error {
@@ -62,6 +62,7 @@ func Main() error {
 	// sd := serviced.New(cfg.ServiceDiscoveryConfig, cfg.ServiceDiscoveryUpdatePeriod)
 	app := app.New(db)
 	em := endpoints.New(app)
+	s := apicfg.Public.Services.Account
 
 	router.StartServerWithEndpoints(router.ServerParameters{
 		Router:  deplcfg.Router,
@@ -69,11 +70,11 @@ func Main() error {
 		TlsCrt:  flags.TlsCertificate,
 		TlsKey:  flags.TlsKey,
 	}, map[api.Endpoint]http.HandlerFunc{
-		apicfg.Account.Endpoints.Create:        em.CreateUser,
-		apicfg.Account.Endpoints.CreateProfile: em.CreateProfile,
-		apicfg.Account.Endpoints.Login:         em.Login,
-		apicfg.Account.Endpoints.Logout:        em.Logout,
-		apicfg.Account.Endpoints.Whoami:        em.WhoAmI,
+		s.Endpoints.Create:        em.CreateUser,
+		s.Endpoints.CreateProfile: em.CreateProfile,
+		s.Endpoints.Login:         em.Login,
+		s.Endpoints.Logout:        em.Logout,
+		s.Endpoints.Whoami:        em.WhoAmI,
 	})
 
 	return nil
