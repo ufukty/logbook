@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"time"
 
 	"github.com/go-chi/chi/middleware"
 	"github.com/gorilla/mux"
@@ -32,7 +33,7 @@ func StartServer(params ServerParameters, endpointRegisterer func(r *mux.Router)
 	r.PathPrefix("/").HandlerFunc(lastMatchBuilder(l))
 
 	r.Use(middleware.RequestID)
-	r.Use(middleware.Timeout(params.Router.RequestTimeout))
+	r.Use(middleware.Timeout(time.Duration(params.Router.RequestTimeout)))
 	r.Use(middleware.Logger)
 	// r.Use(middleware.MWAuthorization)
 	r.Use(mux.CORSMethodMiddleware(r))
@@ -41,9 +42,9 @@ func StartServer(params ServerParameters, endpointRegisterer func(r *mux.Router)
 	server := &http.Server{
 		Addr: params.BaseUrl,
 		// Good practice to set timeouts to avoid Slowloris attacks.
-		WriteTimeout: params.Router.WriteTimeout,
-		ReadTimeout:  params.Router.ReadTimeout,
-		IdleTimeout:  params.Router.IdleTimeout,
+		WriteTimeout: time.Duration(params.Router.WriteTimeout),
+		ReadTimeout:  time.Duration(params.Router.ReadTimeout),
+		IdleTimeout:  time.Duration(params.Router.IdleTimeout),
 		Handler:      r, // Pass our instance of gorilla/mux in.
 	}
 
@@ -69,12 +70,12 @@ func StartServer(params ServerParameters, endpointRegisterer func(r *mux.Router)
 	<-sigInterruptChannel
 
 	// Create a deadline to wait for.
-	ctx, cancel := context.WithTimeout(context.Background(), params.Router.GracePeriod)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(params.Router.GracePeriod))
 	defer cancel()
 
 	// Doesn't block if no connections, but will otherwise wait
 	// until the timeout deadline.
-	log.Printf("Sending shutdown signal to one of the servers, grace period is '%s'\n", params.Router.GracePeriod.String())
+	log.Printf("Sending shutdown signal to one of the servers, grace period is '%s'\n", time.Duration(params.Router.GracePeriod).String())
 	go server.Shutdown(ctx)
 
 	// Optionally, you could run srv.Shutdown in a goroutine and block on
@@ -103,7 +104,7 @@ func StartServerWithEndpoints(params ServerParameters, handlers map[api.Endpoint
 	}
 
 	r.Use(middleware.RequestID)
-	r.Use(middleware.Timeout(params.Router.RequestTimeout))
+	r.Use(middleware.Timeout(time.Duration(params.Router.RequestTimeout)))
 	r.Use(middleware.Logger)
 	// r.Use(middleware.MWAuthorization)
 	r.Use(mux.CORSMethodMiddleware(r))
@@ -112,9 +113,9 @@ func StartServerWithEndpoints(params ServerParameters, handlers map[api.Endpoint
 	server := &http.Server{
 		Addr: params.BaseUrl,
 		// Set timeouts against Slowloris attacks
-		WriteTimeout: params.Router.WriteTimeout,
-		ReadTimeout:  params.Router.ReadTimeout,
-		IdleTimeout:  params.Router.IdleTimeout,
+		WriteTimeout: time.Duration(params.Router.WriteTimeout),
+		ReadTimeout:  time.Duration(params.Router.ReadTimeout),
+		IdleTimeout:  time.Duration(params.Router.IdleTimeout),
 		Handler:      r,
 	}
 
@@ -140,12 +141,12 @@ func StartServerWithEndpoints(params ServerParameters, handlers map[api.Endpoint
 	<-sigInterruptChannel
 
 	// Create a deadline to wait for.
-	ctx, cancel := context.WithTimeout(context.Background(), params.Router.GracePeriod)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(params.Router.GracePeriod))
 	defer cancel()
 
 	// Doesn't block if no connections, but will otherwise wait
 	// until the timeout deadline.
-	log.Printf("Sending shutdown signal to one of the servers, grace period is '%s'\n", params.Router.GracePeriod.String())
+	log.Printf("Sending shutdown signal to one of the servers, grace period is '%s'\n", time.Duration(params.Router.GracePeriod).String())
 	go server.Shutdown(ctx)
 
 	// Optionally, you could run srv.Shutdown in a goroutine and block on

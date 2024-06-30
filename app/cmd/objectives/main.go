@@ -43,7 +43,7 @@ func readConfigs() (*service.Config, *deployment.Config, *api.Config, error) {
 	l.Println("api config:")
 	reflux.Print(apicfg)
 
-	return &srvcfg, &deplcfg, apicfg, nil
+	return &srvcfg, deplcfg, apicfg, nil
 }
 
 func Main() error {

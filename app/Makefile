@@ -17,9 +17,9 @@ internal/web/discovery/stage.go: internal/web/discovery/testdata/service_discove
 		-in internal/web/discovery/testdata/service_discovery_stage.json \
 		-out internal/web/discovery/stage.go
 
-config/deployment/config.go: ../platform/testing.yml config/deployment/mappings.yml
-	gonfique \
+config/deployment/config.go: ../platform/testing.yml config/deployment/directives.yml
+	gonfique generate \
 		-pkg deployment \
-		-mappings config/deployment/mappings.yml \
+		-directives config/deployment/directives.yml \
 		-in ../platform/testing.yml \
 		-out config/deployment/config.go
