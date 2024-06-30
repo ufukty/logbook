@@ -1,0 +1,14 @@
+"*":
+  export: true
+
+digitalocean.*:
+  export: true
+
+digitalocean.*.services.*:
+  export: true
+
+digitalocean.*.services.*.[]:
+  declare: DigitaloceanVps
+
+digitalocean.*.vpc:
+  declare: DigitaloceanVpc
