@@ -1,5 +1,0 @@
-database:
-  dsn: postgres://ufuktan:@localhost:5432/logbook_account?pool_max_conns=10
-  user: ufuktan
-  name: logbook_account
-  default: postgres
