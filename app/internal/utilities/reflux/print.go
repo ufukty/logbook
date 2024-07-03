@@ -16,7 +16,10 @@ func print(dst io.Writer, v reflect.Value, paths []string) {
 	case reflect.Struct:
 		var nFields = v.Type().NumField()
 		for i := 0; i < nFields; i++ {
-			print(dst, v.Field(i), append(paths, v.Type().Field(i).Name))
+			ft := t.Field(i)
+			if ft.Type.Kind() != reflect.Pointer {
+				print(dst, v.Field(i), append(paths, v.Type().Field(i).Name))
+			}
 		}
 	default:
 		fmt.Fprintf(dst, "    %s = %s\n", strings.Join(paths, "."), v)
