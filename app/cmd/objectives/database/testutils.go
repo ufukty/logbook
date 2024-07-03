@@ -7,7 +7,7 @@ import (
 	"logbook/internal/utilities/run"
 )
 
-func RunMigration(cfg service.Config) error {
+func RunMigration(cfg *service.Config) error {
 	output := run.ExitAfterStderr("psql",
 		"-U", cfg.Database.User,
 		"-d", cfg.Database.Default,

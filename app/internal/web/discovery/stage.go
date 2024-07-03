@@ -3,9 +3,9 @@
 package discovery
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
+	"encoding/json"
 )
 
 func (d Digitalocean) Range() map[string]Fra1 {

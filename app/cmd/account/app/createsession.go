@@ -53,6 +53,7 @@ func renewHash(q *database.Queries, ctx context.Context, login database.Login, p
 	return nil
 }
 
+// TODO: send email
 func (a *App) Login(ctx context.Context, params CreateSessionParameters) (database.SessionStandard, error) {
 	login, err := a.queries.SelectLatestLoginByEmail(ctx, params.Email)
 	if err != nil {

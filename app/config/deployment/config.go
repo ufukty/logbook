@@ -3,10 +3,10 @@
 package deployment
 
 import (
-	"fmt"
-	"gopkg.in/yaml.v3"
 	"os"
 	"time"
+	"fmt"
+	"gopkg.in/yaml.v3"
 )
 
 type Router struct {

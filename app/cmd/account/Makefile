@@ -6,4 +6,4 @@ database/dbtx.sqlc.go: database/sqlc.yml database/queries.sql database/schema.sq
 	cd database && mv dbtx.sqlc.go dbtx.sqlc.go.bak && sqlc generate . ; mv dbtx.sqlc.go.bak dbtx.sqlc.go
 
 service/config.go: testing.yml
-	gonfique -in testing.yml  -pkg service -out service/config.go 
+	gonfique generate -in testing.yml -pkg service -out service/config.go 

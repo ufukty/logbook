@@ -7,7 +7,7 @@ import (
 	"logbook/internal/utilities/run"
 )
 
-func RunMigration(srvcfg service.Config) error {
+func RunMigration(srvcfg *service.Config) error {
 	output := run.ExitAfterStderr("psql",
 		"-U", srvcfg.Database.User,
 		"-d", srvcfg.Database.Default,
