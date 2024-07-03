@@ -5,6 +5,15 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Gateway",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "app/cmd/gateway",
+      "cwd": "${workspaceFolder}/app",
+      "args": ["-a", "api.yml", "-d", "../platform/local.yml"]
+    },
+    {
       "name": "Account",
       "type": "go",
       "request": "launch",
@@ -15,7 +24,7 @@
         "-a",
         "api.yml",
         "-d",
-        "../platform/testing.yml",
+        "../platform/local.yml",
         "-s",
         "cmd/account/testing.yml"
       ]
@@ -31,7 +40,7 @@
         "-a",
         "api.yml",
         "-d",
-        "../platform/testing.yml",
+        "../platform/local.yml",
         "-s",
         "cmd/objectives/testing.yml"
       ]
