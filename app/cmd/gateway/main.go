@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
-	"logbook/cmd/gateway/args"
+	"logbook/cmd/gateway/cfgs"
 	"logbook/config/api"
 	"logbook/config/deployment"
 	"logbook/internal/web/discovery"
@@ -30,7 +30,7 @@ func registerForwarders(sd *discovery.ServiceDiscovery, deplcfg *deployment.Conf
 }
 
 func perform() error {
-	flags, deplcfg, apicfg, err := args.Read()
+	flags, deplcfg, apicfg, err := cfgs.Read()
 	if err != nil {
 		return fmt.Errorf("reading configs: %w", err)
 	}

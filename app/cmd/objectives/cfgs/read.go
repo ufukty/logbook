@@ -1,4 +1,4 @@
-package args
+package cfgs
 
 import (
 	"fmt"

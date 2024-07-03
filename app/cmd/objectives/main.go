@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"logbook/cmd/objectives/app"
-	"logbook/cmd/objectives/args"
+	"logbook/cmd/objectives/cfgs"
 	"logbook/cmd/objectives/database"
 	"logbook/cmd/objectives/endpoints"
 	"logbook/config/api"
@@ -12,7 +12,7 @@ import (
 )
 
 func Main() error {
-	_, srvcfg, deplcfg, apicfg, err := args.Read()
+	_, srvcfg, deplcfg, apicfg, err := cfgs.Read()
 	if err != nil {
 		return fmt.Errorf("reading configs: %w", err)
 	}
