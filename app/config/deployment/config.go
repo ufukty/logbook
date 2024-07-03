@@ -9,37 +9,22 @@ import (
 	"time"
 )
 
-func (s ServiceDiscovery) Range() map[string]UpdatePeriod {
-	return map[string]UpdatePeriod{"update-period": s.UpdatePeriod}
-}
-func (p Ports) Range() map[string]string {
-	return map[string]string{"accounts": p.Accounts, "objectives": p.Objectives}
-}
-
-type GracePeriod time.Duration
-type IdleTimeout time.Duration
-type Ports struct {
-	Accounts   string `yaml:"accounts"`
-	Objectives string `yaml:"objectives"`
-}
-type ReadTimeout time.Duration
-type RequestTimeout time.Duration
 type Router struct {
-	GracePeriod    GracePeriod    `yaml:"grace-period"`
-	IdleTimeout    IdleTimeout    `yaml:"idle-timeout"`
-	ReadTimeout    ReadTimeout    `yaml:"read-timeout"`
-	RequestTimeout RequestTimeout `yaml:"request-timeout"`
-	WriteTimeout   WriteTimeout   `yaml:"write-timeout"`
+	GracePeriod    time.Duration `yaml:"grace-period"`
+	IdleTimeout    time.Duration `yaml:"idle-timeout"`
+	ReadTimeout    time.Duration `yaml:"read-timeout"`
+	RequestTimeout time.Duration `yaml:"request-timeout"`
+	WriteTimeout   time.Duration `yaml:"write-timeout"`
 }
-type ServiceDiscovery struct {
-	UpdatePeriod UpdatePeriod `yaml:"update-period"`
-}
-type UpdatePeriod time.Duration
-type WriteTimeout time.Duration
 type Config struct {
-	Ports            Ports            `yaml:"ports"`
-	Router           Router           `yaml:"router"`
-	ServiceDiscovery ServiceDiscovery `yaml:"service-discovery"`
+	Ports struct {
+		Accounts   string `yaml:"accounts"`
+		Objectives string `yaml:"objectives"`
+	} `yaml:"ports"`
+	Router           Router `yaml:"router"`
+	ServiceDiscovery struct {
+		UpdatePeriod time.Duration `yaml:"update-period"`
+	} `yaml:"service-discovery"`
 }
 
 func ReadConfig(path string) (*Config, error) {
