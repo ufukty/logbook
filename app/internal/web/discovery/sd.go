@@ -41,7 +41,7 @@ func (sd *ServiceDiscovery) readConfig() {
 	case models.Local:
 		sd.pool, err = local.ReadLocal(sd.configPath)
 		if err != nil {
-			panic(fmt.Errorf("reading service discovery file for stage environment: %w", err))
+			panic(fmt.Errorf("reading service discovery file for local environment: %w", err))
 		}
 	case models.Stage:
 		sd.pool, err = stage.ReadStage(sd.configPath)
