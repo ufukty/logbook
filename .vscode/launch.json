@@ -11,7 +11,12 @@
       "mode": "debug",
       "program": "app/cmd/gateway",
       "cwd": "${workspaceFolder}/app",
-      "args": ["-a", "api.yml", "-d", "../platform/local.yml"]
+      "args": [
+        "-e", "local",
+        "-api", "api.yml",
+        "-deployment", "../platform/local.yml",
+        "-discovery", "internal/web/discovery/models/local/service_discovery.yml"
+      ]
     },
     {
       "name": "Account",
@@ -21,12 +26,10 @@
       "program": "app/cmd/account",
       "cwd": "${workspaceFolder}/app",
       "args": [
-        "-a",
-        "api.yml",
-        "-d",
-        "../platform/local.yml",
-        "-s",
-        "cmd/account/testing.yml"
+        "-m", "local",
+        "-api", "api.yml",
+        "-deployment", "../platform/local.yml",
+        "-service", "cmd/account/testing.yml"
       ]
     },
     {
@@ -37,12 +40,10 @@
       "program": "app/cmd/objectives",
       "cwd": "${workspaceFolder}/app",
       "args": [
-        "-a",
-        "api.yml",
-        "-d",
-        "../platform/local.yml",
-        "-s",
-        "cmd/objectives/testing.yml"
+        "-m", "local",
+        "-api", "api.yml",
+        "-deployment", "../platform/local.yml",
+        "-service", "cmd/objectives/testing.yml"
       ]
     }
   ]

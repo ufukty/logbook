@@ -9,8 +9,8 @@ import (
 	"logbook/internal/web/logger"
 )
 
-func Read() (*args.Args, *deployment.Config, *api.Config, error) {
-	flags, err := args.Read()
+func Read() (*args.GatewayArgs, *deployment.Config, *api.Config, error) {
+	flags, err := args.Gateway()
 	if err != nil {
 		return nil, nil, nil, fmt.Errorf("parsing args: %w", err)
 	}

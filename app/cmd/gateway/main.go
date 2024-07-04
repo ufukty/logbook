@@ -35,7 +35,7 @@ func perform() error {
 		return fmt.Errorf("reading configs: %w", err)
 	}
 
-	sd := discovery.New(flags.Service, time.Duration(deplcfg.ServiceDiscovery.UpdatePeriod))
+	sd := discovery.New(models.Environment(flags.EnvMode), flags.Discovery, time.Duration(deplcfg.ServiceDiscovery.UpdatePeriod))
 
 	router.StartServer(router.ServerParameters{
 		Router:  deplcfg.Router,

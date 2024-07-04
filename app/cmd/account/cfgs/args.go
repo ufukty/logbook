@@ -10,8 +10,8 @@ import (
 	"logbook/internal/web/logger"
 )
 
-func Read() (*args.Args, *service.Config, *deployment.Config, *api.Config, error) {
-	flags, err := args.WithServiceConfig()
+func Read() (*args.ServiceArgs, *service.Config, *deployment.Config, *api.Config, error) {
+	flags, err := args.Service()
 	if err != nil {
 		return nil, nil, nil, nil, fmt.Errorf("parsing args: %w", err)
 	}

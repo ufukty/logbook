@@ -2,60 +2,89 @@ package args
 
 import (
 	"flag"
-	"fmt"
-	"strings"
 )
 
-type Args struct {
+type ServiceArgs struct {
 	Api            string // config file path
 	Deployment     string // config file path
 	Service        string // config file path
+	EnvMode        string // local, stage, production
 	TlsKey         string // file path
 	TlsCertificate string // file path
 }
 
-func WithServiceConfig() (Args, error) {
-	var args Args
-	flag.StringVar(&args.Api, "a", "", "-a <api config file>")
-	flag.StringVar(&args.Deployment, "d", "", "-d <deployment config file>")
-	flag.StringVar(&args.Service, "s", "", "-s <service config file>")
-	flag.StringVar(&args.TlsCertificate, "cert", "", "(optional) path to tls certificate")
-	flag.StringVar(&args.TlsKey, "key", "", "(optional) path to tls key")
+func Service() (ServiceArgs, error) {
+	var args ServiceArgs
+	flag.StringVar(&args.EnvMode,
+		"e", "", "either from [ local | stage | production ]")
+	flag.StringVar(&args.Api,
+		"api", "", "path to api config")
+	flag.StringVar(&args.Deployment,
+		"deployment", "", "path to deployment config")
+	flag.StringVar(&args.Service,
+		"service", "", "path to service config")
+	flag.StringVar(&args.TlsCertificate,
+		"cert", "", "(optional) path to tls certificate")
+	flag.StringVar(&args.TlsKey,
+		"key", "", "(optional) path to tls key")
 	flag.Parse()
 
-	errs := []string{}
-	if args.Api == "" {
-		errs = append(errs, "-a <api config file>")
-	}
-	if args.Deployment == "" {
-		errs = append(errs, "-d <deployment config file>")
-	}
-	if args.Service == "" {
-		errs = append(errs, "-s <service config file>")
-	}
-	if len(errs) > 0 {
-		return args, fmt.Errorf("flags are missing: %s", strings.Join(errs, ", "))
-	}
+	// errs := []string{}
+	// if args.EnvMode == "" {
+	// 	errs = append(errs, "-m [ local | stage | production ]")
+	// }
+	// if args.Api == "" {
+	// 	errs = append(errs, "api config file")
+	// }
+	// if args.Deployment == "" {
+	// 	errs = append(errs, "deployment environment config file")
+	// }
+	// if args.Service == "" {
+	// 	errs = append(errs, "-s <service config file>")
+	// }
+	// if len(errs) > 0 {
+	// 	return args, fmt.Errorf("flags are missing: %s", strings.Join(errs, ", "))
+	// }
 	return args, nil
 }
 
-func Read() (Args, error) {
-	var args Args
-	flag.StringVar(&args.Api, "a", "", "-a <api config file>")
-	flag.StringVar(&args.Deployment, "d", "", "-d <deployment config file>")
-	flag.StringVar(&args.TlsCertificate, "cert", "", "(optional) path to tls certificate")
-	flag.StringVar(&args.TlsKey, "key", "", "(optional) path to tls key")
+type GatewayArgs struct {
+	Api            string
+	Deployment     string
+	Discovery      string
+	EnvMode        string
+	TlsKey         string
+	TlsCertificate string
+}
+
+func Gateway() (GatewayArgs, error) {
+	var args GatewayArgs
+	flag.StringVar(&args.EnvMode,
+		"e", "", "either from [ local | stage | production ]")
+	flag.StringVar(&args.Api,
+		"api", "", "api config file")
+	flag.StringVar(&args.Deployment,
+		"deployment", "", "path to deployment config")
+	flag.StringVar(&args.Discovery,
+		"discovery", "", "path to service config")
+	flag.StringVar(&args.TlsCertificate,
+		"cert", "", "(optional) path to tls certificate")
+	flag.StringVar(&args.TlsKey,
+		"key", "", "(optional) path to tls key")
 	flag.Parse()
 
-	errs := []string{}
-	if args.Api == "" {
-		errs = append(errs, "-a <api config file>")
-	}
-	if args.Deployment == "" {
-		errs = append(errs, "-d <deployment config file>")
-	}
-	if len(errs) > 0 {
-		return args, fmt.Errorf("flags are missing: %s", strings.Join(errs, ", "))
-	}
+	// errs := []string{}
+	// if args.EnvMode == "" {
+	// 	errs = append(errs, "-m [ local | stage | production ]")
+	// }
+	// if args.Api == "" {
+	// 	errs = append(errs, "api config file")
+	// }
+	// if args.Deployment == "" {
+	// 	errs = append(errs, "deployment environment config file")
+	// }
+	// if len(errs) > 0 {
+	// 	return args, fmt.Errorf("flags are missing: %s", strings.Join(errs, ", "))
+	// }
 	return args, nil
 }
