@@ -2,24 +2,28 @@ package discovery
 
 import (
 	"fmt"
+	"logbook/internal/web/discovery/models/local"
+	"logbook/internal/web/discovery/models/stage"
 	"logbook/models"
 	"sync"
 	"time"
 )
 
-type Config interface {
+type Pool interface {
 	ServicePool(s models.Service) ([]string, error)
 }
 
 type ServiceDiscovery struct {
-	config       Config `yaml:",inline"`
+	e            models.Environment
+	pool         Pool
 	configPath   string
 	updateLock   sync.Mutex
 	updatePeriod time.Duration
 }
 
-func New(configPath string, updatePeriod time.Duration) *ServiceDiscovery {
+func New(e models.Environment, configPath string, updatePeriod time.Duration) *ServiceDiscovery {
 	sd := ServiceDiscovery{
+		e:            e,
 		configPath:   configPath,
 		updatePeriod: updatePeriod,
 	}
@@ -33,9 +37,17 @@ func (sd *ServiceDiscovery) readConfig() {
 		return
 	}
 	var err error
-	sd.config, err = ReadStage(sd.configPath)
-	if err != nil {
-		panic(fmt.Errorf("reading service discovery config file: %w", err))
+	switch sd.e {
+	case models.Local:
+		sd.pool, err = local.ReadLocal(sd.configPath)
+		if err != nil {
+			panic(fmt.Errorf("reading service discovery file for stage environment: %w", err))
+		}
+	case models.Stage:
+		sd.pool, err = stage.ReadStage(sd.configPath)
+		if err != nil {
+			panic(fmt.Errorf("reading service discovery file for stage environment: %w", err))
+		}
 	}
 	sd.updateLock.Unlock()
 }
@@ -47,5 +59,5 @@ func (sd *ServiceDiscovery) tick() {
 }
 
 func (sd *ServiceDiscovery) ServicePool(service models.Service) ([]string, error) {
-	return sd.config.ServicePool(service)
+	return sd.pool.ServicePool(service)
 }

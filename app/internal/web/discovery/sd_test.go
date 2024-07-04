@@ -2,19 +2,19 @@ package discovery
 
 import (
 	"fmt"
-	"path/filepath"
+	"logbook/models"
 	"testing"
 	"time"
 )
 
 func TestServiceDiscoveryStage(t *testing.T) {
-	var tcs = map[string]string{
-		"local": "service_discovery_local.json",
-		"stage": "service_discovery_stage.json",
+	var tcs = map[models.Environment]string{
+		"local": "models/local/service_discovery.yml",
+		"stage": "models/stage/service_discovery.json",
 	}
-	for tn, tc := range tcs {
-		t.Run(tn, func(t *testing.T) {
-			sd := New(filepath.Join("testdata", tc), time.Second*5)
+	for env, tc := range tcs {
+		t.Run(string(env), func(t *testing.T) {
+			sd := New(env, tc, time.Second*5)
 			ips, err := sd.ServicePool("objectives")
 			if err != nil {
 				t.Fatal(fmt.Errorf("act: %w", err))

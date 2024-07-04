@@ -1,4 +1,4 @@
-package discovery
+package stage
 
 import (
 	"fmt"
