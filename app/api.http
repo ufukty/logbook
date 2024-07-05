@@ -4,7 +4,7 @@
 
 ### Registration
 
-POST {{api}}/account HTTP/1.1
+POST {{api}}/account/account HTTP/1.1
 Content-Type: application/json
 
 {
@@ -18,7 +18,7 @@ Content-Type: application/json
 
 ### Login
 
-POST {{api}}/login HTTP/1.1
+POST {{api}}/account/login HTTP/1.1
 Content-Type: application/json
 
 {
@@ -31,7 +31,7 @@ Content-Type: application/json
 
 ### Filling profile information
 
-POST {{api}}/profile HTTP/1.1
+POST {{api}}/account/profile HTTP/1.1
 Content-Type: application/json
 
 {
@@ -44,7 +44,7 @@ Content-Type: application/json
 
 ### WhoAmI
 
-GET {{api}}/whoami HTTP/1.1
+GET {{api}}/account/whoami HTTP/1.1
 
 ?? status == 200
 ?? body includes firstname
@@ -52,7 +52,7 @@ GET {{api}}/whoami HTTP/1.1
 
 ### Logout
 
-POST {{api}}/logout
+POST {{api}}/account/logout
 
 ?? status == 200
 ?? header set-cookie includes session_token
@@ -67,7 +67,7 @@ GET {{api}}/user/rock HTTP/1.1
 
 ### Create Task
 
-POST {{api}}/task HTTP/1.1
+POST {{api}}/objectives/task HTTP/1.1
 Content-Type: application/json
 
 {
