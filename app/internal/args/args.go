@@ -28,23 +28,6 @@ func Service() (ServiceArgs, error) {
 	flag.StringVar(&args.TlsKey,
 		"key", "", "(optional) path to tls key")
 	flag.Parse()
-
-	// errs := []string{}
-	// if args.EnvMode == "" {
-	// 	errs = append(errs, "-m [ local | stage | production ]")
-	// }
-	// if args.Api == "" {
-	// 	errs = append(errs, "api config file")
-	// }
-	// if args.Deployment == "" {
-	// 	errs = append(errs, "deployment environment config file")
-	// }
-	// if args.Service == "" {
-	// 	errs = append(errs, "-s <service config file>")
-	// }
-	// if len(errs) > 0 {
-	// 	return args, fmt.Errorf("flags are missing: %s", strings.Join(errs, ", "))
-	// }
 	return args, nil
 }
 
@@ -72,19 +55,5 @@ func Gateway() (GatewayArgs, error) {
 	flag.StringVar(&args.TlsKey,
 		"key", "", "(optional) path to tls key")
 	flag.Parse()
-
-	// errs := []string{}
-	// if args.EnvMode == "" {
-	// 	errs = append(errs, "-m [ local | stage | production ]")
-	// }
-	// if args.Api == "" {
-	// 	errs = append(errs, "api config file")
-	// }
-	// if args.Deployment == "" {
-	// 	errs = append(errs, "deployment environment config file")
-	// }
-	// if len(errs) > 0 {
-	// 	return args, fmt.Errorf("flags are missing: %s", strings.Join(errs, ", "))
-	// }
 	return args, nil
 }
