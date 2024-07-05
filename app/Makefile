@@ -29,9 +29,9 @@ internal/web/discovery/models/local/local.go: internal/web/discovery/models/loca
 		-in internal/web/discovery/models/local/service_discovery.yml \
 		-out internal/web/discovery/models/local/local.go
 
-config/deployment/config.go: ../platform/testing.yml config/deployment/directives.yml
+config/deployment/config.go: ../platform/local.yml config/deployment/directives.yml
 	gonfique generate \
 		-pkg deployment \
 		-directives config/deployment/directives.yml \
-		-in ../platform/testing.yml \
+		-in ../platform/local.yml \
 		-out config/deployment/config.go

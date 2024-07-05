@@ -1,8 +1,11 @@
+api:
+  domain: 127.0.0.1
+
 router:
-  request-timeout: 1s
-  write-timeout: 5s
-  read-timeout: 5s
-  idle-timeout: 12s
+  request-timeout: 2s
+  write-timeout: 100ms
+  read-timeout: 100ms
+  idle-timeout: 100ms
   grace-period: 100ms
 
 service-discovery:

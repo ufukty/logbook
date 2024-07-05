@@ -1,0 +1,16 @@
+api:
+  domain: logbook.balaasad.com
+
+router:
+  request-timeout: 2s
+  write-timeout: 1s
+  read-timeout: 1s
+  idle-timeout: 1s
+  grace-period: 1s
+
+service-discovery:
+  update-period: 1s
+
+ports:
+  accounts: :8080
+  objectives: :8080

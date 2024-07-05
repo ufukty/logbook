@@ -39,12 +39,12 @@ func perform() error {
 
 	router.StartServer(router.ServerParameters{
 		Router:  deplcfg.Router,
-		BaseUrl: fmt.Sprintf("%s%s", apicfg.Public.Path, deplcfg.Ports.Accounts),
+		BaseUrl: deplcfg.Api.Domain,
 		TlsCrt:  flags.TlsCertificate,
 		TlsKey:  flags.TlsKey,
 	}, func(r *mux.Router) {
 		r = r.UseEncodedPath()
-		registerForwarders(sd, deplcfg, apicfg, r.PathPrefix("/api/v1.0.0").Subrouter())
+		registerForwarders(sd, deplcfg, apicfg, r.PathPrefix(apicfg.Public.Path).Subrouter())
 	})
 
 	return nil

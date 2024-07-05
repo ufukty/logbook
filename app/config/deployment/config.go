@@ -3,10 +3,10 @@
 package deployment
 
 import (
-	"fmt"
-	"gopkg.in/yaml.v3"
 	"os"
 	"time"
+	"fmt"
+	"gopkg.in/yaml.v3"
 )
 
 type Router struct {
@@ -17,6 +17,9 @@ type Router struct {
 	WriteTimeout   time.Duration `yaml:"write-timeout"`
 }
 type Config struct {
+	Api struct {
+		Domain string `yaml:"domain"`
+	} `yaml:"api"`
 	Ports struct {
 		Accounts   string `yaml:"accounts"`
 		Objectives string `yaml:"objectives"`
