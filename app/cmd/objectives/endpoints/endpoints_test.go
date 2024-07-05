@@ -8,7 +8,7 @@ import (
 )
 
 func getTestDependencies() (*Endpoints, error) {
-	srvcnf, err := service.ReadConfig("../testing.yml")
+	srvcnf, err := service.ReadConfig("../local.yml")
 	if err != nil {
 		return nil, fmt.Errorf("reading service config: %w", err)
 	}

@@ -9,7 +9,7 @@ import (
 )
 
 func Test_Objectives(t *testing.T) {
-	srvcnf, err := service.ReadConfig("../testing.yml")
+	srvcnf, err := service.ReadConfig("../local.yml")
 	if err != nil {
 		t.Fatal(fmt.Errorf("reading service config: %w", err))
 	}

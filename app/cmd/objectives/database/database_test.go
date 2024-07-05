@@ -7,7 +7,7 @@ import (
 )
 
 func TestMigration(t *testing.T) {
-	srvcfg, err := service.ReadConfig("../testing.yml")
+	srvcfg, err := service.ReadConfig("../local.yml")
 	if err != nil {
 		fmt.Println(fmt.Errorf("reading service config: %w", err))
 	}

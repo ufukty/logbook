@@ -18,7 +18,7 @@ func TestCreateUser(t *testing.T) {
 	if err != nil {
 		t.Fatal(fmt.Errorf("reading api config: %w", err))
 	}
-	srvcfg, err := service.ReadConfig("../testing.yml")
+	srvcfg, err := service.ReadConfig("../local.yml")
 	if err != nil {
 		t.Fatal(fmt.Errorf("reading service config: %w", err))
 	}
