@@ -3,10 +3,10 @@
 package deployment
 
 import (
-	"os"
-	"time"
 	"fmt"
 	"gopkg.in/yaml.v3"
+	"os"
+	"time"
 )
 
 type Router struct {
@@ -22,6 +22,7 @@ type Config struct {
 	} `yaml:"api"`
 	Ports struct {
 		Accounts   string `yaml:"accounts"`
+		Gateway    string `yaml:"gateway"`
 		Objectives string `yaml:"objectives"`
 	} `yaml:"ports"`
 	Router           Router `yaml:"router"`
