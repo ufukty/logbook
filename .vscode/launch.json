@@ -29,7 +29,7 @@
         "-e", "local",
         "-api", "api.yml",
         "-deployment", "../platform/local.yml",
-        "-service", "cmd/account/testing.yml"
+        "-service", "cmd/account/local.yml",
       ]
     },
     {
@@ -43,7 +43,7 @@
         "-e", "local",
         "-api", "api.yml",
         "-deployment", "../platform/local.yml",
-        "-service", "cmd/objectives/testing.yml"
+        "-service", "cmd/objectives/local.yml",
       ]
     }
   ]
