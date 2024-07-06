@@ -2,6 +2,8 @@
 set -x
 set -m
 
+# unbuffer is because logger only prints in color for TTY
+
 function cleanup() {
   set +x
   jobs -p | xargs -I {} kill -INT -{} || echo
@@ -12,7 +14,7 @@ trap cleanup EXIT
 function service() {
   SERVICENAME="${1:?}"
   /usr/local/go/bin/go test -timeout 10s -run '^TestMigration$' "logbook/cmd/${SERVICENAME}/database" -v -count=1
-  go run "logbook/cmd/${SERVICENAME}" \
+  unbuffer go run "logbook/cmd/${SERVICENAME}" \
     -e local \
     -api api.yml \
     -deployment ../platform/local.yml \
@@ -22,7 +24,7 @@ function service() {
 }
 
 function gateway() {
-  go run "logbook/cmd/gateway" \
+  unbuffer go run "logbook/cmd/gateway" \
     -e local \
     -api api.yml \
     -deployment ../platform/local.yml \

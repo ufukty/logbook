@@ -42,6 +42,8 @@ which easyrsa ||
     (open "https://github.com/OpenVPN/easy-rsa" && exit 1)
 which jq ||
     brew install jq
+which unbuffer ||
+    brew install expect
 
 (which ansible && which qr) ||
     pip install -r "$WORKSPACE/dependencies/requirements.txt"
