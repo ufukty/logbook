@@ -23,10 +23,6 @@ func Service() (ServiceArgs, error) {
 		"deployment", "", "path to deployment config")
 	flag.StringVar(&args.Service,
 		"service", "", "path to service config")
-	flag.StringVar(&args.TlsCertificate,
-		"cert", "", "(optional) path to tls certificate")
-	flag.StringVar(&args.TlsKey,
-		"key", "", "(optional) path to tls key")
 	flag.Parse()
 	return args, nil
 }

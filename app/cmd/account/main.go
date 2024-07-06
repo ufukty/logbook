@@ -29,11 +29,10 @@ func Main() error {
 	em := endpoints.New(app)
 	s := apicfg.Public.Services.Account
 
+	// TODO: tls between services. needs certs per host(name), to remove rewriting schema
 	router.StartServerWithEndpoints(router.ServerParameters{
 		Router:  deplcfg.Router,
-		BaseUrl: deplcfg.Ports.Accounts,
-		TlsCrt:  flags.TlsCertificate,
-		TlsKey:  flags.TlsKey,
+		BaseUrl: fmt.Sprintf("%s%s", deplcfg.Api.Domain, deplcfg.Ports.Accounts),
 	}, map[api.Endpoint]http.HandlerFunc{
 		s.Endpoints.Create:        em.CreateUser,
 		s.Endpoints.CreateProfile: em.CreateProfile,
