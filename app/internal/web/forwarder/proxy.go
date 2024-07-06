@@ -36,9 +36,9 @@ func (rpp *reverseProxyPool) Get() (*httputil.ReverseProxy, error) {
 	return rpp.pool[next], nil
 }
 
-func newReverseProxyGenerator(pathByGateway, port string) func(host string) *httputil.ReverseProxy {
+func newReverseProxyGenerator(servicepath, port string) func(host string) *httputil.ReverseProxy {
 	return func(host string) *httputil.ReverseProxy {
-		var target = host + ":" + fmt.Sprint(port)
+		target := fmt.Sprintf("%s%s", host, port)
 		// see link to understand usage of rewrite
 		// https://www.ory.sh/hop-by-hop-header-vulnerability-go-standard-library-reverse-proxy/
 		return &httputil.ReverseProxy{
@@ -47,8 +47,8 @@ func newReverseProxyGenerator(pathByGateway, port string) func(host string) *htt
 
 				pr.Out.URL.Scheme = "http"
 				pr.Out.URL.Host = target
-				pr.Out.URL.Path = strings.TrimPrefix(pr.In.URL.Path, string(pathByGateway))
-				pr.Out.URL.RawPath = strings.TrimPrefix(pr.In.URL.RawPath, string(pathByGateway))
+				pr.Out.URL.Path = strings.TrimPrefix(pr.In.URL.Path, servicepath)
+				pr.Out.URL.RawPath = strings.TrimPrefix(pr.In.URL.RawPath, servicepath)
 			},
 		}
 	}
@@ -65,11 +65,11 @@ func generateLoadBalancedProxyHandler(pool *reverseProxyPool) func(w http.Respon
 	}
 }
 
-func NewLoadBalancedProxy(sd *discovery.ServiceDiscovery, service models.Service, port, pathByGateway string) (http.HandlerFunc, error) {
+func NewLoadBalancedProxy(sd *discovery.ServiceDiscovery, service models.Service, port, servicepath string) (http.HandlerFunc, error) {
 	var lb = balancer.New(sd, service)
 	if _, err := lb.Next(); err == balancer.ErrNoHostAvailable {
 		return nil, err
 	}
-	var pool = newPool(lb, newReverseProxyGenerator(pathByGateway, port))
+	var pool = newPool(lb, newReverseProxyGenerator(servicepath, port))
 	return generateLoadBalancedProxyHandler(pool), nil
 }
