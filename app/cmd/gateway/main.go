@@ -5,37 +5,30 @@ import (
 	"log"
 	"logbook/cmd/gateway/cfgs"
 	"logbook/config/api"
-	"logbook/config/deployment"
 	"logbook/internal/web/discovery"
 	"logbook/internal/web/forwarder"
 	"logbook/internal/web/router"
 	"logbook/models"
-	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/pkg/errors"
 )
 
-func registerForwarders(sd *discovery.ServiceDiscovery, deplcfg *deployment.Config, apicfg *api.Config, sub *mux.Router) {
-	objectives, err := forwarder.NewLoadBalancedProxy(sd, models.Objectives, deplcfg.Ports.Objectives, apicfg.Public.Services.Objectives.Path)
-	if err != nil {
-		log.Fatalln(errors.Wrap(err, "Creating forwarder for Objectives"))
-	}
-	account, err := forwarder.NewLoadBalancedProxy(sd, models.Account, deplcfg.Ports.Accounts, apicfg.Public.Services.Account.Path)
-	if err != nil {
-		log.Fatalln(errors.Wrap(err, "Creating forwarder for Account"))
-	}
-	sub.PathPrefix(apicfg.Public.Services.Objectives.Path).HandlerFunc(objectives)
-	sub.PathPrefix("/account").HandlerFunc(account)
-}
-
-func perform() error {
+func mainerr() error {
 	flags, deplcfg, apicfg, err := cfgs.Read()
 	if err != nil {
 		return fmt.Errorf("reading configs: %w", err)
 	}
 
-	sd := discovery.New(models.Environment(flags.EnvMode), flags.Discovery, time.Duration(deplcfg.ServiceDiscovery.UpdatePeriod))
+	sd := discovery.New(models.Environment(flags.EnvMode), flags.Discovery, deplcfg.ServiceDiscovery.UpdatePeriod)
+
+	objectives, err := forwarder.NewLoadBalancedProxy(sd, models.Objectives, deplcfg.Ports.Objectives, api.PathFromInternet(apicfg.Public.Services.Objectives))
+	if err != nil {
+		return fmt.Errorf("creating forwarder for objectives: %w", err)
+	}
+	account, err := forwarder.NewLoadBalancedProxy(sd, models.Account, deplcfg.Ports.Accounts, api.PathFromInternet(apicfg.Public.Services.Account))
+	if err != nil {
+		return fmt.Errorf("creating forwarder for account: %w", err)
+	}
 
 	router.StartServer(router.ServerParameters{
 		Router:  deplcfg.Router,
@@ -44,14 +37,16 @@ func perform() error {
 		TlsKey:  flags.TlsKey,
 	}, func(r *mux.Router) {
 		r = r.UseEncodedPath()
-		registerForwarders(sd, deplcfg, apicfg, r.PathPrefix(apicfg.Public.Path).Subrouter())
+		sub := r.PathPrefix(apicfg.Public.Path).Subrouter()
+		sub.PathPrefix(apicfg.Public.Services.Objectives.Path).HandlerFunc(objectives)
+		sub.PathPrefix(apicfg.Public.Services.Account.Path).HandlerFunc(account)
 	})
 
 	return nil
 }
 
 func main() {
-	if err := perform(); err != nil {
+	if err := mainerr(); err != nil {
 		log.Fatalln(err)
 	}
 }
