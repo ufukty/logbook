@@ -3,10 +3,10 @@ api:
 
 router:
   request-timeout: 2s
-  write-timeout: 100ms
-  read-timeout: 100ms
-  idle-timeout: 100ms
-  grace-period: 100ms
+  write-timeout: 1s
+  read-timeout: 1s
+  idle-timeout: 1s
+  grace-period: 1s
 
 service-discovery:
   update-period: 30s
