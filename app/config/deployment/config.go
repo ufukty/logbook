@@ -18,7 +18,7 @@ type Router struct {
 }
 type Config struct {
 	Api struct {
-		Domain string `yaml:"domain"`
+		Domain any `yaml:"domain"`
 	} `yaml:"api"`
 	Ports struct {
 		Accounts   string `yaml:"accounts"`

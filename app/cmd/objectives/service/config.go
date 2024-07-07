@@ -3,9 +3,9 @@
 package service
 
 import (
-	"os"
 	"fmt"
 	"gopkg.in/yaml.v3"
+	"os"
 )
 
 type Config struct {
