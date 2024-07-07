@@ -5,48 +5,75 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Gateway",
+      "name": "gateway",
       "type": "go",
       "request": "launch",
       "mode": "debug",
       "program": "app/cmd/gateway",
       "cwd": "${workspaceFolder}/app",
       "args": [
-        "-e", "local",
-        "-api", "api.yml",
-        "-deployment", "../platform/local.yml",
-        "-discovery", "internal/web/discovery/models/local/service_discovery.yml",
-        "-cert", "../platform/local/tls/localhost.crt",
-        "-key", "../platform/local/tls/localhost.key"
-      ]
+        "-e",
+        "local",
+        "-api",
+        "api.yml",
+        "-deployment",
+        "../platform/local.yml",
+        "-discovery",
+        "internal/web/discovery/models/local/service_discovery.yml",
+        "-cert",
+        "../platform/local/tls/localhost.crt",
+        "-key",
+        "../platform/local/tls/localhost.key"
+      ],
     },
     {
-      "name": "Account",
+      "name": "account",
       "type": "go",
       "request": "launch",
       "mode": "debug",
       "program": "app/cmd/account",
       "cwd": "${workspaceFolder}/app",
       "args": [
-        "-e", "local",
-        "-api", "api.yml",
-        "-deployment", "../platform/local.yml",
-        "-service", "cmd/account/local.yml",
-      ]
+        "-e",
+        "local",
+        "-api",
+        "api.yml",
+        "-deployment",
+        "../platform/local.yml",
+        "-service",
+        "cmd/account/local.yml",
+      ],
+      "preLaunchTask": "accounts-service-migration",
     },
     {
-      "name": "Objectives",
+      "name": "objectives",
       "type": "go",
       "request": "launch",
       "mode": "debug",
       "program": "app/cmd/objectives",
       "cwd": "${workspaceFolder}/app",
       "args": [
-        "-e", "local",
-        "-api", "api.yml",
-        "-deployment", "../platform/local.yml",
-        "-service", "cmd/objectives/local.yml",
-      ]
+        "-e",
+        "local",
+        "-api",
+        "api.yml",
+        "-deployment",
+        "../platform/local.yml",
+        "-service",
+        "cmd/objectives/local.yml",
+      ],
+      "preLaunchTask": "objectives-service-migration",
+    }
+  ],
+  "compounds": [
+    {
+      "name": "local",
+      "configurations": [
+        "account",
+        "objectives",
+        "gateway"
+      ],
+      "stopAll": true,
     }
   ]
 }

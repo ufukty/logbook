@@ -1,0 +1,43 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "accounts-service-migration",
+      "command": "/usr/local/go/bin/go",
+      "type": "shell",
+      "args": [
+        "test",
+        "-timeout",
+        "10s",
+        "-run",
+        "^TestMigration$",
+        "logbook/cmd/account/database",
+        "-v",
+        "-count",
+        "1",
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/app",
+      },
+    },
+    {
+      "label": "objectives-service-migration",
+      "command": "/usr/local/go/bin/go",
+      "type": "shell",
+      "args": [
+        "test",
+        "-timeout",
+        "10s",
+        "-run",
+        "^TestMigration$",
+        "logbook/cmd/objectives/database",
+        "-v",
+        "-count",
+        "1",
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/app",
+      },
+    }
+  ]
+}
