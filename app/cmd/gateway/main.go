@@ -21,11 +21,11 @@ func mainerr() error {
 
 	sd := discovery.New(models.Environment(flags.EnvMode), flags.Discovery, deplcfg.ServiceDiscovery.UpdatePeriod)
 
-	objectives, err := forwarder.NewLoadBalancedProxy(sd, models.Objectives, deplcfg.Ports.Objectives, api.PathFromInternet(apicfg.Public.Services.Objectives))
+	objectives, err := forwarder.New(sd, models.Objectives, deplcfg.Ports.Objectives, api.PathFromInternet(apicfg.Public.Services.Objectives))
 	if err != nil {
 		return fmt.Errorf("creating forwarder for objectives: %w", err)
 	}
-	account, err := forwarder.NewLoadBalancedProxy(sd, models.Account, deplcfg.Ports.Accounts, api.PathFromInternet(apicfg.Public.Services.Account))
+	account, err := forwarder.New(sd, models.Account, deplcfg.Ports.Accounts, api.PathFromInternet(apicfg.Public.Services.Account))
 	if err != nil {
 		return fmt.Errorf("creating forwarder for account: %w", err)
 	}
@@ -38,8 +38,8 @@ func mainerr() error {
 	}, func(r *mux.Router) {
 		r = r.UseEncodedPath()
 		sub := r.PathPrefix(apicfg.Public.Path).Subrouter()
-		sub.PathPrefix(apicfg.Public.Services.Objectives.Path).HandlerFunc(objectives)
-		sub.PathPrefix(apicfg.Public.Services.Account.Path).HandlerFunc(account)
+		sub.PathPrefix(apicfg.Public.Services.Objectives.Path).HandlerFunc(objectives.Handler)
+		sub.PathPrefix(apicfg.Public.Services.Account.Path).HandlerFunc(account.Handler)
 	})
 
 	return nil
