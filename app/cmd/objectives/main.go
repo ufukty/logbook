@@ -12,7 +12,7 @@ import (
 )
 
 func Main() error {
-	_, srvcfg, deplcfg, apicfg, err := cfgs.Read()
+	flags, srvcfg, deplcfg, apicfg, err := cfgs.Read()
 	if err != nil {
 		return fmt.Errorf("reading configs: %w", err)
 	}
@@ -31,6 +31,8 @@ func Main() error {
 	router.StartServerWithEndpoints(router.ServerParameters{
 		Router:  deplcfg.Router,
 		BaseUrl: deplcfg.Ports.Objectives,
+		TlsCrt:  flags.TlsCertificate,
+		TlsKey:  flags.TlsKey,
 	}, map[api.Endpoint]http.HandlerFunc{
 		s.Endpoints.Attach:    em.ReattachObjective,
 		s.Endpoints.Create:    em.CreateTask,

@@ -10,7 +10,9 @@ function service() {
     -e local \
     -api api.yml \
     -deployment ../platform/local.yml \
-    -service "cmd/${SERVICENAME}/local.yml"
+    -service "cmd/${SERVICENAME}/local.yml" \
+    -cert "../platform/local/tls/localhost.crt" \
+    -key "../platform/local/tls/localhost.key"
 }
 
 function gateway() {
@@ -18,7 +20,7 @@ function gateway() {
     -e local \
     -api api.yml \
     -deployment ../platform/local.yml \
-    -discovery "internal/web/discovery/models/local/service_discovery.yml" \
+    -discovery "../platform/local/files/discovery.yml" \
     -cert "../platform/local/tls/localhost.crt" \
     -key "../platform/local/tls/localhost.key"
 }

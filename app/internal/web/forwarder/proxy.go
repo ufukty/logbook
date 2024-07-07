@@ -34,7 +34,7 @@ func (lbrp *LoadBalancedReverseProxy) next() (*httputil.ReverseProxy, error) {
 			Rewrite: func(pr *httputil.ProxyRequest) {
 				pr.SetXForwarded()
 
-				pr.Out.URL.Scheme = "http"
+				pr.Out.URL.Scheme = "https"
 				pr.Out.URL.Host = host
 				pr.Out.URL.Path = strings.TrimPrefix(pr.In.URL.Path, lbrp.servicepath)
 				pr.Out.URL.RawPath = strings.TrimPrefix(pr.In.URL.RawPath, lbrp.servicepath)

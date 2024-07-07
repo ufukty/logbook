@@ -13,7 +13,7 @@ import (
 )
 
 func Main() error {
-	_, srvcfg, deplcfg, apicfg, err := cfgs.Read()
+	flags, srvcfg, deplcfg, apicfg, err := cfgs.Read()
 	if err != nil {
 		return fmt.Errorf("reading configs: %w", err)
 	}
@@ -29,10 +29,12 @@ func Main() error {
 	em := endpoints.New(app)
 	s := apicfg.Public.Services.Account
 
-	// TODO: tls between services. needs certs per host(name), to remove rewriting schema
+	// TODO: tls between services needs certs per host(name)
 	router.StartServerWithEndpoints(router.ServerParameters{
 		Router:  deplcfg.Router,
 		BaseUrl: fmt.Sprintf("%s%s", deplcfg.Api.Domain, deplcfg.Ports.Accounts),
+		TlsCrt:  flags.TlsCertificate,
+		TlsKey:  flags.TlsKey,
 	}, map[api.Endpoint]http.HandlerFunc{
 		s.Endpoints.Create:        em.CreateUser,
 		s.Endpoints.CreateProfile: em.CreateProfile,
