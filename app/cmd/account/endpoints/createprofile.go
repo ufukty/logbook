@@ -31,13 +31,13 @@ func (ep Endpoints) CreateProfile(w http.ResponseWriter, r *http.Request) {
 	bq, err := reqs.ParseRequest[CreateProfileRequest](r)
 	if err != nil {
 		log.Println(fmt.Errorf("binding request: %w", err))
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		http.Error(w, redact(err), http.StatusInternalServerError)
 		return
 	}
 
 	if err := bq.Validate(); err != nil {
 		log.Println(fmt.Errorf("validating the request parameters: %w", err))
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, redact(err), http.StatusBadRequest)
 		return
 	}
 
@@ -48,7 +48,7 @@ func (ep Endpoints) CreateProfile(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		log.Println(fmt.Errorf("app: %w", err))
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		http.Error(w, redact(err), http.StatusInternalServerError)
 		return
 	}
 }

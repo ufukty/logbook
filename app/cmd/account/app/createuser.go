@@ -23,7 +23,7 @@ type RegistrationParameters struct {
 	Password  string
 }
 
-var ErrEmailExists = fmt.Errorf("given email address used in already existing account")
+var ErrEmailExists = fmt.Errorf("email in use")
 
 func (a *App) CreateUser(ctx context.Context, params RegistrationParameters) error {
 	_, err := a.queries.SelectLatestLoginByEmail(ctx, string(params.Email))

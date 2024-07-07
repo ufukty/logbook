@@ -31,14 +31,13 @@ func (e Endpoints) WhoAmI(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(fmt.Errorf("app.WhoAmI: %w", err))
 		switch err {
-		case app.ErrSessionNotFound:
-			http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 		case
 			app.ErrProfileNotFound,
-			app.ErrUserNotFound:
-			http.Error(w, err.Error(), http.StatusNotFound)
+			app.ErrUserNotFound,
+			app.ErrSessionNotFound:
+			http.Error(w, redact(err), http.StatusUnauthorized)
 		default:
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			http.Error(w, redact(err), http.StatusInternalServerError)
 		}
 		return
 	}

@@ -26,13 +26,13 @@ func (e Endpoints) Login(w http.ResponseWriter, r *http.Request) {
 	bq, err := reqs.ParseRequest[CreateSessionRequest](r)
 	if err != nil {
 		e.l.Println(fmt.Errorf("binding: %w", err))
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		http.Error(w, redact(err), http.StatusBadRequest)
 		return
 	}
 
 	if err := bq.validate(); err != nil {
 		e.l.Println(fmt.Errorf("validation: %w", err))
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, redact(err), http.StatusBadRequest)
 		return
 	}
 
@@ -42,7 +42,7 @@ func (e Endpoints) Login(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		log.Println(fmt.Errorf("app.CreateSession: %w", err))
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		http.Error(w, redact(err), http.StatusInternalServerError)
 		return
 	}
 
