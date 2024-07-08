@@ -18,7 +18,9 @@ function service() {
     -e local \
     -api api.yml \
     -deployment ../platform/local.yml \
-    -service "cmd/${SERVICENAME}/local.yml"
+    -service "cmd/${SERVICENAME}/local.yml" \
+    -cert "../platform/local/tls/localhost.crt" \
+    -key "../platform/local/tls/localhost.key"
 }
 
 function gateway() {
