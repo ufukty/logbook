@@ -17,7 +17,7 @@ function service() {
   unbuffer go run "logbook/cmd/${SERVICENAME}" \
     -e local \
     -api api.yml \
-    -deployment ../platform/local.yml \
+    -deployment ../platform/local/deployment.yml \
     -service "cmd/${SERVICENAME}/local.yml" \
     -cert "../platform/local/tls/localhost.crt" \
     -key "../platform/local/tls/localhost.key"
@@ -27,7 +27,7 @@ function gateway() {
   unbuffer go run "logbook/cmd/gateway" \
     -e local \
     -api api.yml \
-    -deployment ../platform/local.yml \
+    -deployment ../platform/local/deployment.yml \
     -discovery "internal/web/discovery/models/local/service_discovery.yml" \
     -cert "../platform/local/tls/localhost.crt" \
     -key "../platform/local/tls/localhost.key"

@@ -9,7 +9,7 @@ function service() {
   unbuffer go run "logbook/cmd/${SERVICENAME}" \
     -e local \
     -api api.yml \
-    -deployment ../platform/local.yml \
+    -deployment ../platform/local/deployment.yml \
     -service "cmd/${SERVICENAME}/local.yml" \
     -cert "../platform/local/tls/localhost.crt" \
     -key "../platform/local/tls/localhost.key"
