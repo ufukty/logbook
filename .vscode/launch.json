@@ -42,6 +42,10 @@
         "../platform/local/deployment.yml",
         "-service",
         "cmd/account/local.yml",
+        "-cert",
+        "../platform/local/tls/localhost.crt",
+        "-key",
+        "../platform/local/tls/localhost.key"
       ],
       "preLaunchTask": "accounts-service-migration",
     },
@@ -61,6 +65,10 @@
         "../platform/local/deployment.yml",
         "-service",
         "cmd/objectives/local.yml",
+        "-cert",
+        "../platform/local/tls/localhost.crt",
+        "-key",
+        "../platform/local/tls/localhost.key"
       ],
       "preLaunchTask": "objectives-service-migration",
     }
