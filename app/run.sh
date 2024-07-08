@@ -19,7 +19,7 @@ function gateway() {
   unbuffer go run "logbook/cmd/gateway" \
     -e local \
     -api api.yml \
-    -deployment ../platform/local.yml \
+    -deployment ../platform/local/deployment.yml \
     -discovery "../platform/local/files/discovery.yml" \
     -cert "../platform/local/tls/localhost.crt" \
     -key "../platform/local/tls/localhost.key"
