@@ -29,3 +29,14 @@ public:
       endpoints:
         creation: { method: POST, path: "/" }
         assign: { method: POST, path: "/assign" }
+
+internal:
+  path: /internal
+  services:
+    discovery:
+      path: /discovery
+      endpoints:
+        register-instance: { path: "/register", method: POST }
+        list-instances: { path: "/{service}", method: GET }
+        recheck-instance: { path: "/recheck", method: POST } # service, iid
+        

@@ -3,16 +3,17 @@
 package api
 
 import (
-	"fmt"
 	"gopkg.in/yaml.v3"
 	"os"
+	"fmt"
 )
 
-func (c Config) Range() map[string]Public {
-	return map[string]Public{"public": c.Public}
-}
-
 type Account struct {
+	Endpoints accountEndpoints `yaml:"endpoints"`
+	Path      string           `yaml:"path"`
+	Parent    *publicServices  `yaml:"-"`
+}
+type Discovery struct {
 	Endpoints endpoints `yaml:"endpoints"`
 	Path      string    `yaml:"path"`
 	Parent    *services `yaml:"-"`
@@ -20,21 +21,33 @@ type Account struct {
 type Document struct {
 	Endpoints documentEndpoints `yaml:"endpoints"`
 	Path      string            `yaml:"path"`
-	Parent    *services         `yaml:"-"`
+	Parent    *publicServices   `yaml:"-"`
+}
+type Internal struct {
+	Path     string   `yaml:"path"`
+	Services services `yaml:"services"`
 }
 type Objectives struct {
 	Endpoints objectivesEndpoints `yaml:"endpoints"`
 	Path      string              `yaml:"path"`
-	Parent    *services           `yaml:"-"`
+	Parent    *publicServices     `yaml:"-"`
 }
 type Public struct {
-	Path     string   `yaml:"path"`
-	Services services `yaml:"services"`
+	Path     string         `yaml:"path"`
+	Services publicServices `yaml:"services"`
 }
 type Tags struct {
-	Endpoints tagsEndpoints `yaml:"endpoints"`
-	Path      string        `yaml:"path"`
-	Parent    *services     `yaml:"-"`
+	Endpoints tagsEndpoints   `yaml:"endpoints"`
+	Path      string          `yaml:"path"`
+	Parent    *publicServices `yaml:"-"`
+}
+type accountEndpoints struct {
+	Create        create        `yaml:"create"`
+	CreateProfile createProfile `yaml:"create_profile"`
+	Login         login         `yaml:"login"`
+	Logout        logout        `yaml:"logout"`
+	Whoami        whoami        `yaml:"whoami"`
+	Parent        *Account      `yaml:"-"`
 }
 type assign struct {
 	Method string         `yaml:"method"`
@@ -47,14 +60,14 @@ type attach struct {
 	Parent *objectivesEndpoints `yaml:"-"`
 }
 type create struct {
-	Method string     `yaml:"method"`
-	Path   string     `yaml:"path"`
-	Parent *endpoints `yaml:"-"`
+	Method string            `yaml:"method"`
+	Path   string            `yaml:"path"`
+	Parent *accountEndpoints `yaml:"-"`
 }
 type createProfile struct {
-	Method string     `yaml:"method"`
-	Path   string     `yaml:"path"`
-	Parent *endpoints `yaml:"-"`
+	Method string            `yaml:"method"`
+	Path   string            `yaml:"path"`
+	Parent *accountEndpoints `yaml:"-"`
 }
 type creation struct {
 	Method string         `yaml:"method"`
@@ -67,36 +80,38 @@ type delete struct {
 	Parent *objectivesEndpoints `yaml:"-"`
 }
 type documentEndpoints struct {
-	List   list      `yaml:"list"`
-	Parent *Document `yaml:"-"`
+	List   endpointsList `yaml:"list"`
+	Parent *Document     `yaml:"-"`
 }
 type endpoints struct {
-	Create        create        `yaml:"create"`
-	CreateProfile createProfile `yaml:"create_profile"`
-	Login         login         `yaml:"login"`
-	Logout        logout        `yaml:"logout"`
-	Whoami        whoami        `yaml:"whoami"`
-	Parent        *Account      `yaml:"-"`
+	List     list       `yaml:"list"`
+	Register register   `yaml:"register"`
+	Parent   *Discovery `yaml:"-"`
 }
 type endpointsCreate struct {
 	Method string               `yaml:"method"`
 	Path   string               `yaml:"path"`
 	Parent *objectivesEndpoints `yaml:"-"`
 }
-type list struct {
+type endpointsList struct {
 	Method string             `yaml:"method"`
 	Path   string             `yaml:"path"`
 	Parent *documentEndpoints `yaml:"-"`
 }
-type login struct {
+type list struct {
 	Method string     `yaml:"method"`
 	Path   string     `yaml:"path"`
 	Parent *endpoints `yaml:"-"`
 }
+type login struct {
+	Method string            `yaml:"method"`
+	Path   string            `yaml:"path"`
+	Parent *accountEndpoints `yaml:"-"`
+}
 type logout struct {
-	Method string     `yaml:"method"`
-	Path   string     `yaml:"path"`
-	Parent *endpoints `yaml:"-"`
+	Method string            `yaml:"method"`
+	Path   string            `yaml:"path"`
+	Parent *accountEndpoints `yaml:"-"`
 }
 type mark struct {
 	Method string               `yaml:"method"`
@@ -116,12 +131,21 @@ type placement struct {
 	Path   string               `yaml:"path"`
 	Parent *objectivesEndpoints `yaml:"-"`
 }
-type services struct {
+type publicServices struct {
 	Account    Account    `yaml:"account"`
 	Document   Document   `yaml:"document"`
 	Objectives Objectives `yaml:"objectives"`
 	Tags       Tags       `yaml:"tags"`
 	Parent     *Public    `yaml:"-"`
+}
+type register struct {
+	Method string     `yaml:"method"`
+	Path   string     `yaml:"path"`
+	Parent *endpoints `yaml:"-"`
+}
+type services struct {
+	Discovery Discovery `yaml:"discovery"`
+	Parent    *Internal `yaml:"-"`
 }
 type tagsEndpoints struct {
 	Assign   assign   `yaml:"assign"`
@@ -129,15 +153,21 @@ type tagsEndpoints struct {
 	Parent   *Tags    `yaml:"-"`
 }
 type whoami struct {
-	Method string     `yaml:"method"`
-	Path   string     `yaml:"path"`
-	Parent *endpoints `yaml:"-"`
+	Method string            `yaml:"method"`
+	Path   string            `yaml:"path"`
+	Parent *accountEndpoints `yaml:"-"`
 }
 type Config struct {
-	Public Public `yaml:"public"`
+	Internal Internal `yaml:"internal"`
+	Public   Public   `yaml:"public"`
 }
 
 func parentRefAssignments(c *Config) {
+	c.Internal.Services.Parent = &c.Internal
+	c.Internal.Services.Discovery.Parent = &c.Internal.Services
+	c.Internal.Services.Discovery.Endpoints.Parent = &c.Internal.Services.Discovery
+	c.Internal.Services.Discovery.Endpoints.List.Parent = &c.Internal.Services.Discovery.Endpoints
+	c.Internal.Services.Discovery.Endpoints.Register.Parent = &c.Internal.Services.Discovery.Endpoints
 	c.Public.Services.Parent = &c.Public
 	c.Public.Services.Account.Parent = &c.Public.Services
 	c.Public.Services.Account.Endpoints.Parent = &c.Public.Services.Account
@@ -184,6 +214,15 @@ func (a Account) GetPath() string {
 func (a *Account) SetPath(v string) {
 	a.Path = v
 }
+func (d Discovery) GetParent() any {
+	return d.Parent
+}
+func (d Discovery) GetPath() string {
+	return d.Path
+}
+func (d *Discovery) SetPath(v string) {
+	d.Path = v
+}
 func (d Document) GetParent() any {
 	return d.Parent
 }
@@ -192,6 +231,12 @@ func (d Document) GetPath() string {
 }
 func (d *Document) SetPath(v string) {
 	d.Path = v
+}
+func (i Internal) GetPath() string {
+	return i.Path
+}
+func (i *Internal) SetPath(v string) {
+	i.Path = v
 }
 func (o Objectives) GetParent() any {
 	return o.Parent
@@ -216,6 +261,9 @@ func (t Tags) GetPath() string {
 }
 func (t *Tags) SetPath(v string) {
 	t.Path = v
+}
+func (a accountEndpoints) GetParent() any {
+	return a.Parent
 }
 func (a assign) GetMethod() string {
 	return a.Method
@@ -328,6 +376,21 @@ func (e *endpointsCreate) SetMethod(v string) {
 func (e *endpointsCreate) SetPath(v string) {
 	e.Path = v
 }
+func (e endpointsList) GetMethod() string {
+	return e.Method
+}
+func (e endpointsList) GetParent() any {
+	return e.Parent
+}
+func (e endpointsList) GetPath() string {
+	return e.Path
+}
+func (e *endpointsList) SetMethod(v string) {
+	e.Method = v
+}
+func (e *endpointsList) SetPath(v string) {
+	e.Path = v
+}
 func (l list) GetMethod() string {
 	return l.Method
 }
@@ -405,6 +468,24 @@ func (p *placement) SetMethod(v string) {
 }
 func (p *placement) SetPath(v string) {
 	p.Path = v
+}
+func (p publicServices) GetParent() any {
+	return p.Parent
+}
+func (r register) GetMethod() string {
+	return r.Method
+}
+func (r register) GetParent() any {
+	return r.Parent
+}
+func (r register) GetPath() string {
+	return r.Path
+}
+func (r *register) SetMethod(v string) {
+	r.Method = v
+}
+func (r *register) SetPath(v string) {
+	r.Path = v
 }
 func (s services) GetParent() any {
 	return s.Parent

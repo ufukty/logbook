@@ -1,18 +1,18 @@
-public:
+"*":
   accessors: [path]
   export: true
 
-"public.services":
+"*.services":
   parent: Parent
 
-"public.services.*":
+"*.services.*":
   accessors: [path]
   export: true
   parent: Parent
 
-"public.services.*.endpoints":
+"*.services.*.endpoints":
   parent: Parent
 
-"public.services.*.endpoints.*":
+"*.services.*.endpoints.*":
   accessors: [path, method]
   parent: Parent
