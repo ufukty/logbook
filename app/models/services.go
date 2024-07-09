@@ -4,6 +4,7 @@ type Service string
 
 var (
 	Account    = Service("account")
-	Gateway    = Service("gateway")
+	Discovery  = Service("discovery")
+	Internal   = Service("internal")
 	Objectives = Service("objectives")
 )

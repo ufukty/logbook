@@ -8,13 +8,11 @@ import (
 	"os"
 )
 
-type Accounts []string
-type Discovery []string
-type Objectives []string
 type Local struct {
-	Accounts   Accounts   `yaml:"accounts"`
-	Discovery  Discovery  `yaml:"discovery"`
-	Objectives Objectives `yaml:"objectives"`
+	Accounts   []string `yaml:"accounts"`
+	Discovery  []string `yaml:"discovery"`
+	Internal   []string `yaml:"internal"`
+	Objectives []string `yaml:"objectives"`
 }
 
 func ReadLocal(path string) (*Local, error) {

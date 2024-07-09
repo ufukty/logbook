@@ -21,10 +21,9 @@ internal/web/discovery/models/stage/stage.go: internal/web/discovery/models/stag
 		-in internal/web/discovery/models/stage/service_discovery.json \
 		-out internal/web/discovery/models/stage/stage.go
 
-internal/web/discovery/models/local/local.go: ../platform/local/discovery.yml internal/web/discovery/models/local/directives.yml
+internal/web/discovery/models/local/local.go: ../platform/local/discovery.yml
 	gonfique generate \
 		-pkg local \
-		-directives internal/web/discovery/models/local/directives.yml \
 		-type-name "Local" \
 		-in ../platform/local/discovery.yml \
 		-out internal/web/discovery/models/local/local.go

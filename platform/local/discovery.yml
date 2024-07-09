@@ -4,3 +4,5 @@ accounts:
   - localhost
 discovery:
   - localhost
+internal:
+  - localhost

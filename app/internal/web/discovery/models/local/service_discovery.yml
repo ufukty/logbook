@@ -1,6 +1,8 @@
-objectives: 
-  - 127.0.0.1
+objectives:
+  - ""
 accounts:
-  - 127.0.0.1
-api-gateway: 
-  - 127.0.0.1
+  - ""
+internal:
+  - ""
+discovery:
+  - ""

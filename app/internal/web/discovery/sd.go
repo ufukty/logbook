@@ -13,7 +13,7 @@ type Pool interface {
 	ServicePool(s models.Service) ([]string, error)
 }
 
-type ServiceDiscovery struct {
+type ConfigBasedServiceDiscovery struct {
 	e            models.Environment
 	pool         Pool
 	configPath   string
@@ -21,8 +21,8 @@ type ServiceDiscovery struct {
 	updatePeriod time.Duration
 }
 
-func New(e models.Environment, configPath string, updatePeriod time.Duration) *ServiceDiscovery {
-	sd := ServiceDiscovery{
+func New(e models.Environment, configPath string, updatePeriod time.Duration) *ConfigBasedServiceDiscovery {
+	sd := ConfigBasedServiceDiscovery{
 		e:            e,
 		configPath:   configPath,
 		updatePeriod: updatePeriod,
@@ -32,7 +32,7 @@ func New(e models.Environment, configPath string, updatePeriod time.Duration) *S
 	return &sd
 }
 
-func (sd *ServiceDiscovery) readConfig() {
+func (sd *ConfigBasedServiceDiscovery) readConfig() {
 	if !sd.updateLock.TryLock() {
 		return
 	}
@@ -52,12 +52,12 @@ func (sd *ServiceDiscovery) readConfig() {
 	sd.updateLock.Unlock()
 }
 
-func (sd *ServiceDiscovery) tick() {
+func (sd *ConfigBasedServiceDiscovery) tick() {
 	for range time.Tick(sd.updatePeriod) {
 		sd.readConfig()
 	}
 }
 
-func (sd *ServiceDiscovery) ServicePool(service models.Service) ([]string, error) {
+func (sd *ConfigBasedServiceDiscovery) ServicePool(service models.Service) ([]string, error) {
 	return sd.pool.ServicePool(service)
 }

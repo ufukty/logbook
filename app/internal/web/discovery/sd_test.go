@@ -15,7 +15,7 @@ func TestServiceDiscoveryStage(t *testing.T) {
 	for env, tc := range tcs {
 		t.Run(string(env), func(t *testing.T) {
 			sd := New(env, tc, time.Second*5)
-			ips, err := sd.ServicePool(models.Gateway)
+			ips, err := sd.ServicePool(models.Objectives)
 			if err != nil {
 				t.Fatal(fmt.Errorf("act: %w", err))
 			}

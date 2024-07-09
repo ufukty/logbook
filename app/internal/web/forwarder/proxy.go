@@ -62,7 +62,7 @@ func (lbrp LoadBalancedReverseProxy) Handler(w http.ResponseWriter, r *http.Requ
 	forwarder.ServeHTTP(w, r)
 }
 
-func New(sd *discovery.ServiceDiscovery, service models.Service, port, servicepath string) (*LoadBalancedReverseProxy, error) {
+func New(sd *discovery.ConfigBasedServiceDiscovery, service models.Service, port, servicepath string) (*LoadBalancedReverseProxy, error) {
 	var lb = balancer.New(sd, service)
 	if _, err := lb.Next(); err == balancer.ErrNoHostAvailable {
 		return nil, err

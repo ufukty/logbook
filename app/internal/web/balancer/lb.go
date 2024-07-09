@@ -15,7 +15,7 @@ var (
 )
 
 type LoadBalancer struct {
-	sd            *discovery.ServiceDiscovery
+	sd            *discovery.ConfigBasedServiceDiscovery
 	index         int
 	targetService models.Service
 }
@@ -25,7 +25,7 @@ var log = logger.NewLogger("LoadBalancer")
 // service: ip address and host
 // hosts: ip addresses of available hosts
 // port: port which will be used as forwarded target
-func New(sd *discovery.ServiceDiscovery, targetService models.Service) *LoadBalancer {
+func New(sd *discovery.ConfigBasedServiceDiscovery, targetService models.Service) *LoadBalancer {
 	return &LoadBalancer{
 		sd:            sd,
 		index:         0,
