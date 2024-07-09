@@ -19,7 +19,7 @@
         "-deployment",
         "../platform/local/deployment.yml",
         "-discovery",
-        "../platform/local/files/discovery.yml",
+        "../platform/local/discovery.yml",
         "-cert",
         "../platform/local/tls/localhost.crt",
         "-key",
