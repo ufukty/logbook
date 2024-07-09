@@ -3,21 +3,13 @@ package endpoints
 import (
 	"fmt"
 	"log"
+	"logbook/cmd/discovery/app"
 	"logbook/internal/web/reqs"
 	"net/http"
 )
 
 type RecheckInstanceRequest struct {
-	// TODO:
-}
-
-func (bq RecheckInstanceRequest) validate() error {
-	panic("to implement") // TODO:
-	return nil
-}
-
-type RecheckInstanceResponse struct {
-	// TODO:
+	InstanceId app.InstanceId `json:"instance-id"`
 }
 
 func (e *Endpoints) RecheckInstance(w http.ResponseWriter, r *http.Request) {
@@ -28,20 +20,13 @@ func (e *Endpoints) RecheckInstance(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := bq.validate(); err != nil {
-		log.Println(fmt.Errorf("validating request parameters: %w", err))
+	if err = e.a.RecheckInstance(bq.InstanceId); err != nil {
+		log.Println(fmt.Errorf("performing request: %w", err))
 		http.Error(w, redact(err), http.StatusBadRequest)
 		return
 	}
 
-	panic("to implement") // TODO:
-
-	bs := RecheckInstanceResponse{} // TODO:
-	if err := reqs.WriteJsonResponse(bs, w); err != nil {
-		log.Println(fmt.Errorf("writing json response: %w", err))
-		http.Error(w, redact(err), http.StatusInternalServerError)
-		return
-	}
+	w.WriteHeader(http.StatusOK)
 }
 
 // func (bq *RecheckInstanceRequest) Send() (*RecheckInstanceResponse, error) {
