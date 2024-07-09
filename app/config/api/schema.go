@@ -3,9 +3,9 @@
 package api
 
 import (
+	"fmt"
 	"gopkg.in/yaml.v3"
 	"os"
-	"fmt"
 )
 
 type Account struct {
@@ -80,25 +80,26 @@ type delete struct {
 	Parent *objectivesEndpoints `yaml:"-"`
 }
 type documentEndpoints struct {
-	List   endpointsList `yaml:"list"`
-	Parent *Document     `yaml:"-"`
+	List   list      `yaml:"list"`
+	Parent *Document `yaml:"-"`
 }
 type endpoints struct {
-	List     list       `yaml:"list"`
-	Register register   `yaml:"register"`
-	Parent   *Discovery `yaml:"-"`
+	ListInstances    listInstances    `yaml:"list-instances"`
+	RecheckInstance  recheckInstance  `yaml:"recheck-instance"`
+	RegisterInstance registerInstance `yaml:"register-instance"`
+	Parent           *Discovery       `yaml:"-"`
 }
 type endpointsCreate struct {
 	Method string               `yaml:"method"`
 	Path   string               `yaml:"path"`
 	Parent *objectivesEndpoints `yaml:"-"`
 }
-type endpointsList struct {
+type list struct {
 	Method string             `yaml:"method"`
 	Path   string             `yaml:"path"`
 	Parent *documentEndpoints `yaml:"-"`
 }
-type list struct {
+type listInstances struct {
 	Method string     `yaml:"method"`
 	Path   string     `yaml:"path"`
 	Parent *endpoints `yaml:"-"`
@@ -138,7 +139,12 @@ type publicServices struct {
 	Tags       Tags       `yaml:"tags"`
 	Parent     *Public    `yaml:"-"`
 }
-type register struct {
+type recheckInstance struct {
+	Method string     `yaml:"method"`
+	Path   string     `yaml:"path"`
+	Parent *endpoints `yaml:"-"`
+}
+type registerInstance struct {
 	Method string     `yaml:"method"`
 	Path   string     `yaml:"path"`
 	Parent *endpoints `yaml:"-"`
@@ -166,8 +172,9 @@ func parentRefAssignments(c *Config) {
 	c.Internal.Services.Parent = &c.Internal
 	c.Internal.Services.Discovery.Parent = &c.Internal.Services
 	c.Internal.Services.Discovery.Endpoints.Parent = &c.Internal.Services.Discovery
-	c.Internal.Services.Discovery.Endpoints.List.Parent = &c.Internal.Services.Discovery.Endpoints
-	c.Internal.Services.Discovery.Endpoints.Register.Parent = &c.Internal.Services.Discovery.Endpoints
+	c.Internal.Services.Discovery.Endpoints.ListInstances.Parent = &c.Internal.Services.Discovery.Endpoints
+	c.Internal.Services.Discovery.Endpoints.RecheckInstance.Parent = &c.Internal.Services.Discovery.Endpoints
+	c.Internal.Services.Discovery.Endpoints.RegisterInstance.Parent = &c.Internal.Services.Discovery.Endpoints
 	c.Public.Services.Parent = &c.Public
 	c.Public.Services.Account.Parent = &c.Public.Services
 	c.Public.Services.Account.Endpoints.Parent = &c.Public.Services.Account
@@ -376,21 +383,6 @@ func (e *endpointsCreate) SetMethod(v string) {
 func (e *endpointsCreate) SetPath(v string) {
 	e.Path = v
 }
-func (e endpointsList) GetMethod() string {
-	return e.Method
-}
-func (e endpointsList) GetParent() any {
-	return e.Parent
-}
-func (e endpointsList) GetPath() string {
-	return e.Path
-}
-func (e *endpointsList) SetMethod(v string) {
-	e.Method = v
-}
-func (e *endpointsList) SetPath(v string) {
-	e.Path = v
-}
 func (l list) GetMethod() string {
 	return l.Method
 }
@@ -404,6 +396,21 @@ func (l *list) SetMethod(v string) {
 	l.Method = v
 }
 func (l *list) SetPath(v string) {
+	l.Path = v
+}
+func (l listInstances) GetMethod() string {
+	return l.Method
+}
+func (l listInstances) GetParent() any {
+	return l.Parent
+}
+func (l listInstances) GetPath() string {
+	return l.Path
+}
+func (l *listInstances) SetMethod(v string) {
+	l.Method = v
+}
+func (l *listInstances) SetPath(v string) {
 	l.Path = v
 }
 func (l login) GetMethod() string {
@@ -472,19 +479,34 @@ func (p *placement) SetPath(v string) {
 func (p publicServices) GetParent() any {
 	return p.Parent
 }
-func (r register) GetMethod() string {
+func (r recheckInstance) GetMethod() string {
 	return r.Method
 }
-func (r register) GetParent() any {
+func (r recheckInstance) GetParent() any {
 	return r.Parent
 }
-func (r register) GetPath() string {
+func (r recheckInstance) GetPath() string {
 	return r.Path
 }
-func (r *register) SetMethod(v string) {
+func (r *recheckInstance) SetMethod(v string) {
 	r.Method = v
 }
-func (r *register) SetPath(v string) {
+func (r *recheckInstance) SetPath(v string) {
+	r.Path = v
+}
+func (r registerInstance) GetMethod() string {
+	return r.Method
+}
+func (r registerInstance) GetParent() any {
+	return r.Parent
+}
+func (r registerInstance) GetPath() string {
+	return r.Path
+}
+func (r *registerInstance) SetMethod(v string) {
+	r.Method = v
+}
+func (r *registerInstance) SetPath(v string) {
 	r.Path = v
 }
 func (s services) GetParent() any {

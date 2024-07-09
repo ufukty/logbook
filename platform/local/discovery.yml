@@ -2,3 +2,5 @@ objectives:
   - localhost
 accounts:
   - localhost
+discovery:
+  - localhost

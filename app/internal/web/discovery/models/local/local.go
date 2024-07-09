@@ -9,11 +9,11 @@ import (
 )
 
 type Accounts []string
-type ApiGateway []string
+type Discovery []string
 type Objectives []string
 type Local struct {
 	Accounts   Accounts   `yaml:"accounts"`
-	ApiGateway ApiGateway `yaml:"api-gateway"`
+	Discovery  Discovery  `yaml:"discovery"`
 	Objectives Objectives `yaml:"objectives"`
 }
 

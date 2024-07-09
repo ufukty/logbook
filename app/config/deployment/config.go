@@ -18,11 +18,13 @@ type Router struct {
 }
 type Config struct {
 	Api struct {
-		Domain any `yaml:"domain"`
+		Domain string `yaml:"domain"`
 	} `yaml:"api"`
 	Ports struct {
 		Accounts   string `yaml:"accounts"`
+		Discovery  string `yaml:"discovery"`
 		Gateway    string `yaml:"gateway"`
+		Internal   string `yaml:"internal"`
 		Objectives string `yaml:"objectives"`
 	} `yaml:"ports"`
 	Router           Router `yaml:"router"`
