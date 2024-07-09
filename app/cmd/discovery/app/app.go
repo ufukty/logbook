@@ -10,6 +10,7 @@ import (
 )
 
 type Instance struct {
+	TLS     bool
 	Address string
 	Port    string
 }
@@ -76,7 +77,7 @@ func (a *App) clearOutdated(s models.Service) {
 	}
 	toClear := []InstanceId{}
 	for iid := range *a.instances[s] {
-		if t.Sub(a.checks[iid]) < time.Minute { // 
+		if t.Sub(a.checks[iid]) < time.Minute { //
 			toClear = append(toClear, iid)
 		}
 	}

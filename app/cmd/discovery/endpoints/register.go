@@ -12,12 +12,17 @@ import (
 
 type RegisterInstanceRequest struct {
 	Service models.Service `json:"service"`
+	TLS     bool           `json:"tls"`
 	Address string         `json:"address"`
 	Port    string         `json:"port"`
 }
 
 func (bq RegisterInstanceRequest) validate() error {
-	u := fmt.Sprintf("%s:%s", bq.Address, bq.Port)
+	proto := "http"
+	if bq.TLS {
+		proto = "https"
+	}
+	u := fmt.Sprintf("%s://%s:%s", proto, bq.Address, bq.Port)
 	_, err := url.Parse(u)
 	if err != nil {
 		return fmt.Errorf("declared address and port %q is invalid", u)
