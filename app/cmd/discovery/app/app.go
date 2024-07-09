@@ -15,7 +15,7 @@ type Instance struct {
 	Port    string
 }
 
-type InstanceId [16]byte
+type InstanceId string
 
 type App struct {
 	instances        map[models.Service]*Set[InstanceId]
@@ -42,9 +42,9 @@ func (a *App) RegisterInstance(s models.Service, i Instance) (InstanceId, error)
 	t := time.Now()
 	uuid, err := uuid.NewRandom()
 	if err != nil {
-		return InstanceId{}, fmt.Errorf("generating uuid: %w", err)
+		return "", fmt.Errorf("generating uuid: %w", err)
 	}
-	iid := InstanceId(uuid)
+	iid := InstanceId(uuid.String())
 	if _, ok := a.instances[s]; !ok {
 		a.instances[s] = &Set[InstanceId]{}
 	}
