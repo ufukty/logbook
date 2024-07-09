@@ -32,7 +32,7 @@ func Main() error {
 	// TODO: tls between services needs certs per host(name)
 	router.StartServerWithEndpoints(router.ServerParameters{
 		Router:  deplcfg.Router,
-		BaseUrl: fmt.Sprintf("%s%s", deplcfg.Api.Domain, deplcfg.Ports.Accounts),
+		BaseUrl: deplcfg.Ports.Accounts,
 		TlsCrt:  flags.TlsCertificate,
 		TlsKey:  flags.TlsKey,
 	}, map[api.Endpoint]http.HandlerFunc{

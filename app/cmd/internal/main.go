@@ -24,14 +24,10 @@ func mainerr() error {
 	if err != nil {
 		return fmt.Errorf("creating forwarder for objectives: %w", err)
 	}
-	account, err := forwarder.New(sd, models.Account, deplcfg.Ports.Accounts, api.PathFromInternet(apicfg.Public.Services.Account))
-	if err != nil {
-		return fmt.Errorf("creating forwarder for account: %w", err)
-	}
 
 	router.StartServer(router.ServerParameters{
 		Router:  deplcfg.Router,
-		BaseUrl: fmt.Sprintf("%s%s", deplcfg.Api.Domain, deplcfg.Ports.Gateway),
+		BaseUrl: deplcfg.Ports.Internal,
 		TlsCrt:  flags.TlsCertificate,
 		TlsKey:  flags.TlsKey,
 	}, func(r *mux.Router) {

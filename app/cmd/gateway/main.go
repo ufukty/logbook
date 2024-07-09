@@ -32,7 +32,7 @@ func mainerr() error {
 
 	router.StartServer(router.ServerParameters{
 		Router:  deplcfg.Router,
-		BaseUrl: fmt.Sprintf("%s%s", deplcfg.Api.Domain, deplcfg.Ports.Gateway),
+		BaseUrl: deplcfg.Ports.Gateway,
 		TlsCrt:  flags.TlsCertificate,
 		TlsKey:  flags.TlsKey,
 	}, func(r *mux.Router) {
