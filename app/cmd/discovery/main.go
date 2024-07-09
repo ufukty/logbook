@@ -28,8 +28,9 @@ func mainerr() error {
 		TlsCrt:  args.TlsCertificate,
 		TlsKey:  args.TlsKey,
 	}, map[api.Endpoint]http.HandlerFunc{
-		eps.List:     ep.ListInstances,
-		eps.Register: ep.RegisterInstance,
+		eps.ListInstances:    ep.ListInstances,
+		eps.RecheckInstance:  ep.RecheckInstance,
+		eps.RegisterInstance: ep.RegisterInstance,
 	})
 
 	return nil
