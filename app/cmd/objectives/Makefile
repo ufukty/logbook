@@ -3,7 +3,7 @@ all: \
 	service/config.go
 
 database/dbtx.sqlc.go: database/sqlc.yml database/queries.sql database/schema.sql
-	cd database && mv dbtx.sqlc.go dbtx.sqlc.go.bak && sqlc generate . ; mv dbtx.sqlc.go.bak dbtx.sqlc.go
+	cd database && sqlc generate . ; rm dbtx.sqlc.go
 
 service/config.go: local.yml
 	gonfique generate -in local.yml -pkg service -out service/config.go 
