@@ -17,9 +17,6 @@ type Router struct {
 	WriteTimeout   time.Duration `yaml:"write-timeout"`
 }
 type Config struct {
-	Api struct {
-		Domain string `yaml:"domain"`
-	} `yaml:"api"`
 	Ports struct {
 		Accounts   string `yaml:"accounts"`
 		Discovery  string `yaml:"discovery"`

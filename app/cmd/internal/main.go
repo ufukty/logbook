@@ -5,6 +5,7 @@ import (
 	"log"
 	"logbook/cmd/gateway/cfgs"
 	"logbook/config/api"
+	"logbook/internal/web/discovery"
 	"logbook/internal/web/forwarder"
 	"logbook/internal/web/router"
 	"logbook/models"
@@ -18,9 +19,9 @@ func mainerr() error {
 		return fmt.Errorf("reading configs: %w", err)
 	}
 
-	// sd := discovery.New(models.Environment(flags.EnvMode), flags.Discovery, deplcfg.ServiceDiscovery.UpdatePeriod)
+	sd := discovery.New(models.Environment(flags.EnvMode), flags.Discovery, deplcfg.ServiceDiscovery.UpdatePeriod)
 
-	objectives, err := forwarder.New(sd, models.Objectives, deplcfg.Ports.Objectives, api.PathFromInternet(apicfg.Public.Services.Objectives))
+	discovery, err := forwarder.New(sd, models.Discovery, deplcfg.Ports.Discovery, api.PathFromInternet(apicfg.Internal.Services.Discovery))
 	if err != nil {
 		return fmt.Errorf("creating forwarder for objectives: %w", err)
 	}
@@ -33,8 +34,7 @@ func mainerr() error {
 	}, func(r *mux.Router) {
 		r = r.UseEncodedPath()
 		sub := r.PathPrefix(apicfg.Public.Path).Subrouter()
-		sub.PathPrefix(apicfg.Public.Services.Objectives.Path).HandlerFunc(objectives.Handler)
-		sub.PathPrefix(apicfg.Public.Services.Account.Path).HandlerFunc(account.Handler)
+		sub.PathPrefix(apicfg.Internal.Services.Discovery.Path).HandlerFunc(discovery.Handler)
 	})
 
 	return nil
