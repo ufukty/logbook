@@ -11,10 +11,10 @@ import (
 )
 
 type CreateProfileRequest struct {
-	SessionToken database.SessionToken `cookie:"session_token"`
-	Uid          database.UserId       `json:"uid"`
-	Firstname    database.HumanName    `json:"firstname"`
-	Lastname     database.HumanName    `json:"lastname"`
+	SessionToken reqs.Cookie[database.SessionToken] `cookie:"session_token"`
+	Uid          database.UserId                    `json:"uid"`
+	Firstname    database.HumanName                 `json:"firstname"`
+	Lastname     database.HumanName                 `json:"lastname"`
 }
 
 func (params CreateProfileRequest) Validate() error {
@@ -42,9 +42,10 @@ func (ep Endpoints) CreateProfile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = ep.app.CreateProfile(r.Context(), app.CreateProfileParams{
-		Uid:       bq.Uid,
-		Firstname: bq.Firstname,
-		Lastname:  bq.Lastname,
+		SessionToken: bq.SessionToken.Value,
+		Uid:          bq.Uid,
+		Firstname:    bq.Firstname,
+		Lastname:     bq.Lastname,
 	})
 	if err != nil {
 		log.Println(fmt.Errorf("app: %w", err))
