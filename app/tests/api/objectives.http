@@ -1,0 +1,20 @@
+@api = https://localhost:8080/api/v1.0.0
+
+### Get rock
+
+GET {{api}}/user/rock HTTP/1.1
+
+?? status == 200
+?? body id exists
+?? body id exists
+
+### Create Task
+
+POST {{api}}/objectives/task HTTP/1.1
+Content-Type: application/json
+
+{
+    "super": "My Test Document" 
+}
+
+?? status == 200
