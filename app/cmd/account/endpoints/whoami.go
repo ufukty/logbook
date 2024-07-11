@@ -5,7 +5,7 @@ import (
 	"log"
 	"logbook/cmd/account/app"
 	"logbook/cmd/account/database"
-	"logbook/internal/web/reqs"
+	"logbook/internal/web/requests"
 	"net/http"
 
 	"github.com/jackc/pgx/v5/pgtype"
@@ -49,5 +49,5 @@ func (e Endpoints) WhoAmI(w http.ResponseWriter, r *http.Request) {
 		CreatedAt: profile.CreatedAt,
 	}
 
-	reqs.WriteJsonResponse(bs, w)
+	requests.WriteJsonResponse(bs, w)
 }

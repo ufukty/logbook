@@ -2,7 +2,7 @@
 // rs -> http.Response
 // bq -> Request
 // bs -> Response
-package reqs
+package requests
 
 import (
 	"bytes"

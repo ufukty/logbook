@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 	"logbook/cmd/discovery/app"
-	"logbook/internal/web/reqs"
+	"logbook/internal/web/requests"
 	"net/http"
 )
 
@@ -13,7 +13,7 @@ type RecheckInstanceRequest struct {
 }
 
 func (e *Endpoints) RecheckInstance(w http.ResponseWriter, r *http.Request) {
-	bq, err := reqs.ParseRequest[RecheckInstanceRequest](r)
+	bq, err := requests.ParseRequest[RecheckInstanceRequest](r)
 	if err != nil {
 		log.Println(fmt.Errorf("parsing request: %w", err))
 		http.Error(w, redact(err), http.StatusBadRequest)

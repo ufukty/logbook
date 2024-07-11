@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 	"logbook/cmd/discovery/app"
-	"logbook/internal/web/reqs"
+	"logbook/internal/web/requests"
 	"logbook/models"
 	"net/http"
 	"net/url"
@@ -35,7 +35,7 @@ type RegisterInstanceResponse struct {
 }
 
 func (e *Endpoints) RegisterInstance(w http.ResponseWriter, r *http.Request) {
-	bq, err := reqs.ParseRequest[RegisterInstanceRequest](r)
+	bq, err := requests.ParseRequest[RegisterInstanceRequest](r)
 	if err != nil {
 		log.Println(fmt.Errorf("parsing request: %w", err))
 		http.Error(w, redact(err), http.StatusBadRequest)
@@ -61,7 +61,7 @@ func (e *Endpoints) RegisterInstance(w http.ResponseWriter, r *http.Request) {
 	bs := RegisterInstanceResponse{
 		InstanceId: iid,
 	}
-	if err := reqs.WriteJsonResponse(bs, w); err != nil {
+	if err := requests.WriteJsonResponse(bs, w); err != nil {
 		log.Println(fmt.Errorf("writing json response: %w", err))
 		http.Error(w, redact(err), http.StatusInternalServerError)
 		return

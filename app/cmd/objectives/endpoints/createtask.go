@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 	"logbook/cmd/objectives/app"
-	"logbook/internal/web/reqs"
+	"logbook/internal/web/requests"
 	"logbook/internal/web/validate"
 	"net/http"
 )
@@ -24,7 +24,7 @@ type CreateTaskResponse struct {
 
 // TODO: Check user input for script tags in order to prevent XSS attempts
 func (e *Endpoints) CreateTask(w http.ResponseWriter, r *http.Request) {
-	bq, err := reqs.ParseRequest[CreateTaskRequest](r)
+	bq, err := requests.ParseRequest[CreateTaskRequest](r)
 	if err != nil {
 		log.Println(fmt.Errorf("parsing request: %w", err))
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
@@ -51,7 +51,7 @@ func (e *Endpoints) CreateTask(w http.ResponseWriter, r *http.Request) {
 	bs := CreateTaskResponse{
 		Update: o,
 	}
-	if err := reqs.WriteJsonResponse(bs, w); err != nil {
+	if err := requests.WriteJsonResponse(bs, w); err != nil {
 		log.Println(fmt.Errorf("writing json response: %w", err))
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return

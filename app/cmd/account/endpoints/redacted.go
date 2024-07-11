@@ -3,6 +3,7 @@ package endpoints
 import (
 	"errors"
 	"logbook/cmd/account/app"
+	"logbook/cmd/account/app/authz"
 )
 
 var generic = "Unable to process your request at the moment"
@@ -12,6 +13,8 @@ var redacted = map[error]string{
 	app.ErrExpiredSession:  "Session has expired",
 	app.ErrEmailExists:     "Unable to process your request",
 	app.ErrHashMismatch:    "Either the account doesn't exist or the credentials don't match",
+	authz.UnderAuthorized:  "Under authorized",
+	authz.NoAuthorization:  "Login is required",
 }
 
 func redact(err error) string {

@@ -6,7 +6,7 @@ import (
 	"logbook/cmd/account/app"
 	"logbook/cmd/account/app/average"
 	"logbook/cmd/account/database"
-	"logbook/internal/web/reqs"
+	"logbook/internal/web/requests"
 	"logbook/internal/web/validate"
 	"net/http"
 )
@@ -23,7 +23,7 @@ func (bq CreateSessionRequest) validate() error {
 }
 
 func (e Endpoints) Login(w http.ResponseWriter, r *http.Request) {
-	bq, err := reqs.ParseRequest[CreateSessionRequest](r)
+	bq, err := requests.ParseRequest[CreateSessionRequest](r)
 	if err != nil {
 		e.l.Println(fmt.Errorf("binding: %w", err))
 		http.Error(w, redact(err), http.StatusBadRequest)

@@ -5,16 +5,16 @@ import (
 	"log"
 	"logbook/cmd/account/app"
 	"logbook/cmd/account/database"
-	"logbook/internal/web/reqs"
+	"logbook/internal/web/requests"
 	"logbook/internal/web/validate"
 	"net/http"
 )
 
 type CreateProfileRequest struct {
-	SessionToken reqs.Cookie[database.SessionToken] `cookie:"session_token"`
-	Uid          database.UserId                    `json:"uid"`
-	Firstname    database.HumanName                 `json:"firstname"`
-	Lastname     database.HumanName                 `json:"lastname"`
+	SessionToken requests.Cookie[database.SessionToken] `cookie:"session_token"`
+	Uid          database.UserId                        `json:"uid"`
+	Firstname    database.HumanName                     `json:"firstname"`
+	Lastname     database.HumanName                     `json:"lastname"`
 }
 
 func (params CreateProfileRequest) Validate() error {
@@ -28,7 +28,7 @@ func (params CreateProfileRequest) Validate() error {
 
 // TODO: Authorization
 func (ep Endpoints) CreateProfile(w http.ResponseWriter, r *http.Request) {
-	bq, err := reqs.ParseRequest[CreateProfileRequest](r)
+	bq, err := requests.ParseRequest[CreateProfileRequest](r)
 	if err != nil {
 		log.Println(fmt.Errorf("binding request: %w", err))
 		http.Error(w, redact(err), http.StatusInternalServerError)

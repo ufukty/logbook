@@ -3,7 +3,7 @@ package objectives
 import (
 	"logbook/cmd/objectives/endpoints"
 	"logbook/config/api"
-	"logbook/internal/web/reqs"
+	"logbook/internal/web/requests"
 )
 
 type Client struct {
@@ -19,7 +19,7 @@ func NewClient(apicfg api.Config) *Client {
 }
 
 func (c Client) CreateObjective(bq *endpoints.CreateTaskRequest) (*endpoints.CreateTaskResponse, error) {
-	return reqs.Send[endpoints.CreateTaskRequest, endpoints.CreateTaskResponse](
+	return requests.Send[endpoints.CreateTaskRequest, endpoints.CreateTaskResponse](
 		api.PathFromInternet(c.servicecfg.Endpoints.Create), c.servicecfg.Endpoints.Create.Method, bq,
 	)
 }

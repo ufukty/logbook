@@ -3,7 +3,7 @@ package endpoints
 import (
 	"fmt"
 	"log"
-	"logbook/internal/web/reqs"
+	"logbook/internal/web/requests"
 	"net/http"
 )
 
@@ -21,7 +21,7 @@ type TagAssignResponse struct {
 }
 
 func (e *Endpoints) TagAssign(w http.ResponseWriter, r *http.Request) {
-	bq, err := reqs.ParseRequest[TagAssignRequest](r)
+	bq, err := requests.ParseRequest[TagAssignRequest](r)
 	if err != nil {
 		log.Println(fmt.Errorf("parsing request: %w", err))
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
@@ -37,7 +37,7 @@ func (e *Endpoints) TagAssign(w http.ResponseWriter, r *http.Request) {
 	panic("to implement") // TODO:
 
 	bs := TagAssignResponse{} // TODO:
-	if err := reqs.WriteJsonResponse(bs, w); err != nil {
+	if err := requests.WriteJsonResponse(bs, w); err != nil {
 		log.Println(fmt.Errorf("writing json response: %w", err))
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return

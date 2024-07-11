@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"logbook/cmd/account/app"
 	"logbook/cmd/account/database"
-	"logbook/internal/web/reqs"
+	"logbook/internal/web/requests"
 	"logbook/internal/web/validate"
 	"net/http"
 )
@@ -38,7 +38,7 @@ func (bq CreateUserRequest) validate() error {
  * TODO: Wrap creation of user-task-bookmark with transaction, rollback on failure to not-lock person to re-register with same email
  */
 func (e *Endpoints) CreateUser(w http.ResponseWriter, r *http.Request) {
-	bq, err := reqs.ParseRequest[CreateUserRequest](r)
+	bq, err := requests.ParseRequest[CreateUserRequest](r)
 	if err != nil {
 		e.l.Println(fmt.Errorf("binding: %w", err))
 		http.Error(w, redact(err), http.StatusBadRequest)
