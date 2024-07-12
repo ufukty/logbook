@@ -97,16 +97,15 @@ func parseCookies[T any](src *http.Request, dst T) error {
 	return nil
 }
 
-func ParseRequest[Request any](rq *http.Request) (bq *Request, err error) {
-	bq = new(Request)
-	if err := json.NewDecoder(rq.Body).Decode(bq); err != nil && errors.Is(err, io.ErrUnexpectedEOF) {
-		return bq, fmt.Errorf("parsing the request body: %w", err)
+func ParseRequest[Request any](src *http.Request, dst *Request) error {
+	if err := json.NewDecoder(src.Body).Decode(dst); err != nil && errors.Is(err, io.ErrUnexpectedEOF) {
+		return fmt.Errorf("parsing the request body: %w", err)
 	}
-	// if err := parseUrlFragments(rq, bq); err != nil {
-	// 	return bq, fmt.Errorf("parsing url fragments: %w", err)
+	// if err := parseUrlFragments(src, dst); err != nil {
+	// 	return fmt.Errorf("parsing url fragments: %w", err)
 	// }
-	if err := parseCookies(rq, bq); err != nil {
-		return bq, fmt.Errorf("parsing cookies: %w", err)
+	if err := parseCookies(src, dst); err != nil {
+		return fmt.Errorf("parsing cookies: %w", err)
 	}
-	return
+	return nil
 }

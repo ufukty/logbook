@@ -10,20 +10,26 @@ import (
 )
 
 type ListInstancesRequest struct {
-	Service models.Service `url:"service"`
+	Service models.Service `url:"service"` // TODO: add the support for binding url fragments into 'url' marked fields in 'requests' package
 }
 
 type ListInstancesResponse []app.Instance
 
 func (e *Endpoints) ListInstances(w http.ResponseWriter, r *http.Request) {
-	bq, err := requests.ParseRequest[ListInstancesRequest](r)
-	if err != nil {
+	bq := &ListInstancesRequest{}
+
+	if err := requests.ParseRequest(r, bq); err != nil {
 		log.Println(fmt.Errorf("parsing request: %w", err))
 		http.Error(w, redact(err), http.StatusBadRequest)
 		return
 	}
 
 	instances, err := e.a.ListInstances(bq.Service)
+	if err != nil {
+		log.Println(fmt.Errorf("performing request: %w", err))
+		http.Error(w, redact(err), http.StatusInternalServerError)
+		return
+	}
 	bs := ListInstancesResponse(instances)
 
 	if err := requests.WriteJsonResponse(bs, w); err != nil {

@@ -38,8 +38,9 @@ func (bq CreateUserRequest) validate() error {
  * TODO: Wrap creation of user-task-bookmark with transaction, rollback on failure to not-lock person to re-register with same email
  */
 func (e *Endpoints) CreateUser(w http.ResponseWriter, r *http.Request) {
-	bq, err := requests.ParseRequest[CreateUserRequest](r)
-	if err != nil {
+	bq := &CreateUserRequest{}
+	
+	if err := requests.ParseRequest(r, bq); err != nil {
 		e.l.Println(fmt.Errorf("binding: %w", err))
 		http.Error(w, redact(err), http.StatusBadRequest)
 		return
@@ -51,7 +52,7 @@ func (e *Endpoints) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = e.app.CreateUser(r.Context(), app.RegistrationParameters{
+	err := e.app.CreateUser(r.Context(), app.RegistrationParameters{
 		Firstname: bq.Firstname,
 		Lastname:  bq.Lastname,
 		Email:     bq.Email,

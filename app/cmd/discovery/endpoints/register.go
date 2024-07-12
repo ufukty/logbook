@@ -35,8 +35,9 @@ type RegisterInstanceResponse struct {
 }
 
 func (e *Endpoints) RegisterInstance(w http.ResponseWriter, r *http.Request) {
-	bq, err := requests.ParseRequest[RegisterInstanceRequest](r)
-	if err != nil {
+	bq := &RegisterInstanceRequest{}
+	
+	if err := requests.ParseRequest(r, bq); err != nil {
 		log.Println(fmt.Errorf("parsing request: %w", err))
 		http.Error(w, redact(err), http.StatusBadRequest)
 		return

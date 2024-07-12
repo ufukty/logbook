@@ -21,8 +21,9 @@ type MarkCompleteResponse struct {
 }
 
 func (e *Endpoints) MarkComplete(w http.ResponseWriter, r *http.Request) {
-	bq, err := requests.ParseRequest[MarkCompleteRequest](r)
-	if err != nil {
+	bq := &MarkCompleteRequest{}
+	
+	if err := requests.ParseRequest(r, bq); err != nil {
 		log.Println(fmt.Errorf("parsing request: %w", err))
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return

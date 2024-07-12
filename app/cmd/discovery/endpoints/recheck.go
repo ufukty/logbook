@@ -13,14 +13,15 @@ type RecheckInstanceRequest struct {
 }
 
 func (e *Endpoints) RecheckInstance(w http.ResponseWriter, r *http.Request) {
-	bq, err := requests.ParseRequest[RecheckInstanceRequest](r)
-	if err != nil {
+	bq := &RecheckInstanceRequest{}
+	
+	if err := requests.ParseRequest(r, bq); err != nil {
 		log.Println(fmt.Errorf("parsing request: %w", err))
 		http.Error(w, redact(err), http.StatusBadRequest)
 		return
 	}
 
-	if err = e.a.RecheckInstance(bq.InstanceId); err != nil {
+	if err := e.a.RecheckInstance(bq.InstanceId); err != nil {
 		log.Println(fmt.Errorf("performing request: %w", err))
 		http.Error(w, redact(err), http.StatusBadRequest)
 		return

@@ -21,8 +21,9 @@ type ReattachObjectiveResponse struct {
 }
 
 func (e *Endpoints) ReattachObjective(w http.ResponseWriter, r *http.Request) {
-	bq, err := requests.ParseRequest[ReattachObjectiveRequest](r)
-	if err != nil {
+	bq := &ReattachObjectiveRequest{}
+	
+	if err := requests.ParseRequest(r, bq); err != nil {
 		log.Println(fmt.Errorf("parsing request: %w", err))
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return

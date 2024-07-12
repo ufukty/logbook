@@ -28,8 +28,9 @@ func (params CreateProfileRequest) Validate() error {
 
 // TODO: Authorization
 func (ep Endpoints) CreateProfile(w http.ResponseWriter, r *http.Request) {
-	bq, err := requests.ParseRequest[CreateProfileRequest](r)
-	if err != nil {
+	bq := &CreateProfileRequest{}
+	
+	if err := requests.ParseRequest(r, bq); err != nil {
 		log.Println(fmt.Errorf("binding request: %w", err))
 		http.Error(w, redact(err), http.StatusInternalServerError)
 		return
@@ -41,7 +42,7 @@ func (ep Endpoints) CreateProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = ep.app.CreateProfile(r.Context(), app.CreateProfileParams{
+	err := ep.app.CreateProfile(r.Context(), app.CreateProfileParams{
 		SessionToken: bq.SessionToken.Value,
 		Uid:          bq.Uid,
 		Firstname:    bq.Firstname,
