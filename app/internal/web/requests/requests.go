@@ -8,7 +8,12 @@ import (
 	"logbook/internal/utilities/slicew/lines"
 	"net/http"
 	"reflect"
+	"strings"
 )
+
+type StringAssignable interface {
+	Set(string) error
+}
 
 // func parseUrlFragments[T any](src *http.Request, dst T) error {
 // 	t := reflect.TypeOf(dst).Elem()
@@ -53,42 +58,61 @@ import (
 // 	return nil
 // }
 
-func parseCookies[T any](src *http.Request, dst T) error {
+func parseCookies[Request any](src *http.Request, dst *Request) error {
 	t := reflect.TypeOf(dst).Elem()
 	v := reflect.ValueOf(dst).Elem()
 	fields := v.NumField()
 
 	errs := []string{}
 	for i := 0; i < fields; i++ {
-		v := v.Field(i)
-		field := t.Field(i)
+		fv := v.Field(i)
+		ft := t.Field(i)
 
-		cookiename, ok := field.Tag.Lookup("cookie")
+		cookiename, ok := ft.Tag.Lookup("cookie")
 		if !ok {
 			continue
 		}
-
 		cookievalue, err := src.Cookie(cookiename)
 		if err != nil {
-			errs = append(errs, fmt.Sprintf("checking cookies for %q for %T.%s: %s", cookiename, dst, field.Name, err.Error()))
+			errs = append(errs, fmt.Sprintf("checking cookies for %q for %T.%s: %s", cookiename, dst, ft.Name, err.Error()))
 			continue
 		}
 
-		if v.Kind() == reflect.Ptr && v.IsNil() {
-			v.Set(reflect.New(v.Type().Elem())) // init
+		if fv.Kind() == reflect.Ptr && fv.IsNil() {
+			fv.Set(reflect.New(fv.Type().Elem())) // init
 		}
 
-		ch, ok := v.Addr().Interface().(cookieholder)
-		if !ok {
-			errs = append(errs, fmt.Sprintf("asserting %T.%s is value assignable from string", dst, field.Name))
-			continue
-		}
+		ct := ft.Type
+		if ct.Kind() == reflect.Struct && strings.HasPrefix(ct.Name(), "Cookie") { // Cookie type is used
+			_, okV := ct.FieldByName("Value")  // StringAssignable
+			_, okD := ct.FieldByName("Cookie") // http.Cookie
+			if !(okV && okD) {
+				errs = append(errs, fmt.Sprintf("'Cookie' named struct type doesn't contain either or both 'Value' and '*http.Cookie', used for %T.%s", dst, ft.Name))
+				continue
+			}
 
-		if err := ch.setCookieValue(cookievalue.Value); err != nil {
-			errs = append(errs, fmt.Sprintf("assigning cookie value to %T.%s: %s", dst, field.Name, err.Error()))
-			continue
+			valueField := fv.FieldByName("Value")
+			detailField := fv.FieldByName("Cookie")
+
+			sa, ok := valueField.Addr().Interface().(StringAssignable)
+			if !ok {
+				errs = append(errs, fmt.Sprintf("checking if %T.%s.Value is StringAssignable", dst, ft.Name))
+				continue
+			}
+			if err := sa.Set(cookievalue.Value); err != nil {
+				errs = append(errs, fmt.Sprintf("assigning cookie value to %T.%s.Value: %s", dst, ft.Name, err.Error()))
+				continue
+			}
+
+			httpcookie, ok := detailField.Addr().Interface().(**http.Cookie)
+			if !ok {
+				errs = append(errs, fmt.Sprintf("checking if the type of %T.%s is *http.Cookie", dst, ft.Name))
+				continue
+			}
+			*httpcookie = cookievalue
+		} else {
+			errs = append(errs, fmt.Sprintf("unsupported type %s for %T.%s", ct.Kind(), dst, ft.Name))
 		}
-		ch.setCookieDetails(cookievalue)
 	}
 
 	if len(errs) > 0 {
