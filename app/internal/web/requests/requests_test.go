@@ -90,7 +90,7 @@ func TestMissingURLFragment(t *testing.T) {
 }
 
 func TestInvalidBody(t *testing.T) {
-	body := "invalid json"
+	body := "invalid body"
 	cookies := map[string]string{
 		"session_token": "123",
 	}

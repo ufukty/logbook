@@ -2,61 +2,60 @@ package requests
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
-	"io"
 	"logbook/internal/utilities/slicew/lines"
 	"net/http"
 	"reflect"
 	"strings"
+
+	"github.com/gorilla/mux"
 )
 
 type StringAssignable interface {
 	Set(string) error
 }
 
-// func parseUrlFragments[T any](src *http.Request, dst T) error {
-// 	t := reflect.TypeOf(dst).Elem()
-// 	v := reflect.ValueOf(dst).Elem()
-// 	fields := v.NumField()
-// 	vars := mux.Vars(src)
-// 	errs := []string{}
+func parseUrlFragments[T any](src *http.Request, dst T) error {
+	t := reflect.TypeOf(dst).Elem()
+	v := reflect.ValueOf(dst).Elem()
+	fields := v.NumField()
+	vars := mux.Vars(src)
+	errs := []string{}
 
-// 	for i := 0; i < fields; i++ {
-// 		field := t.Field(i)
-// 		v := v.Field(i)
+	for i := 0; i < fields; i++ {
+		ft := t.Field(i)
+		fv := v.Field(i)
 
-// 		fragmentkey, ok := field.Tag.Lookup("url")
-// 		if !ok {
-// 			continue
-// 		}
+		fragmentkey, ok := ft.Tag.Lookup("url")
+		if !ok {
+			continue
+		}
+		fragmentvalue, ok := vars[fragmentkey]
+		if !ok {
+			errs = append(errs, fmt.Sprintf("url doesn't contain url fragment %q for %T.%s", fragmentkey, dst, ft.Name))
+			continue
+		}
 
-// 		fragmentvalue, ok := vars[fragmentkey]
-// 		if !ok {
-// 			errs = append(errs, fmt.Sprintf("url doesn't contain url fragment %q for %T.%s", fragmentkey, dst, field.Name))
-// 			continue
-// 		}
+		if fv.Kind() == reflect.Ptr && fv.IsNil() {
+			fv.Set(reflect.New(fv.Type().Elem())) // init
+		}
 
-// 		if v.Kind() == reflect.Ptr && v.IsNil() {
-// 			v.Set(reflect.New(v.Type().Elem())) // init
-// 		}
+		sa, ok := fv.Addr().Interface().(StringAssignable)
+		if !ok {
+			errs = append(errs, fmt.Sprintf("checking if %T.%s.Value is StringAssignable", dst, ft.Name))
+			continue
+		}
 
-// 		c, ok := v.Addr().Interface().(urlholder)
-// 		if !ok {
-// 			errs = append(errs, fmt.Sprintf("asserting %T.%s is value assignable from string", dst, field.Name))
-// 			continue
-// 		}
+		if err := sa.Set(fragmentvalue); err != nil {
+			errs = append(errs, fmt.Sprintf("%T.%s.Set(): %s", dst, ft.Name, err.Error()))
+		}
+	}
 
-// 		if err := c.cookievalue(fragmentvalue); err != nil {
-// 			errs = append(errs, fmt.Sprintf("assigning url fragment value (%s: %s) to %T.%s: %s", fragmentkey, fragmentvalue, dst, field.Name, err.Error()))
-// 		}
-// 	}
-
-// 	if len(errs) > 0 {
-// 		return fmt.Errorf("%d errors found:\n%s", len(errs), lines.Join(errs, "+ "))
-// 	}
-// 	return nil
-// }
+	if len(errs) > 0 {
+		return fmt.Errorf("%d errors found:\n%s", len(errs), lines.Join(errs, "+ "))
+	}
+	return nil
+}
 
 func parseCookies[Request any](src *http.Request, dst *Request) error {
 	t := reflect.TypeOf(dst).Elem()
@@ -100,7 +99,7 @@ func parseCookies[Request any](src *http.Request, dst *Request) error {
 				continue
 			}
 			if err := sa.Set(cookievalue.Value); err != nil {
-				errs = append(errs, fmt.Sprintf("assigning cookie value to %T.%s.Value: %s", dst, ft.Name, err.Error()))
+				errs = append(errs, fmt.Sprintf("%T.%s.Value.Set(): %s", dst, ft.Name, err.Error()))
 				continue
 			}
 
@@ -122,12 +121,12 @@ func parseCookies[Request any](src *http.Request, dst *Request) error {
 }
 
 func ParseRequest[Request any](src *http.Request, dst *Request) error {
-	if err := json.NewDecoder(src.Body).Decode(dst); err != nil && errors.Is(err, io.ErrUnexpectedEOF) {
+	if err := json.NewDecoder(src.Body).Decode(dst); err != nil {
 		return fmt.Errorf("parsing the request body: %w", err)
 	}
-	// if err := parseUrlFragments(src, dst); err != nil {
-	// 	return fmt.Errorf("parsing url fragments: %w", err)
-	// }
+	if err := parseUrlFragments(src, dst); err != nil {
+		return fmt.Errorf("parsing url fragments: %w", err)
+	}
 	if err := parseCookies(src, dst); err != nil {
 		return fmt.Errorf("parsing cookies: %w", err)
 	}
