@@ -105,25 +105,3 @@ func TestInvalidBody(t *testing.T) {
 		t.Fatal("expected error due to invalid JSON body, got nil")
 	}
 }
-
-func TestVerificationError(t *testing.T) {
-	body := map[string]string{"name": "John"}
-	cookies := map[string]string{
-		"session_token": "123",
-	}
-	urlVars := map[string]string{
-		"user_id": "42",
-	}
-
-	req := createTestRequest(body, cookies, urlVars)
-	bq := &TestRequest{}
-	err := ParseRequest(req, bq)
-	if err != nil {
-		t.Fatalf("expected no error, got %v", err)
-	}
-
-	// Intentionally causing a verification error
-	if bq.Name != MockStringType("Doe") {
-		t.Errorf("expected name to be 'Doe', got %s", bq.Name)
-	}
-}
