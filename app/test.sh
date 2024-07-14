@@ -74,6 +74,7 @@ prefix "$(nextcolor)" gateway gateway &
 prefix "$(nextcolor)" gateway internal &
 
 pings
+set +e
 
 prefix "$(nextcolor)" unbuffer httpyac tests/api/discovery.http --all --insecure
 prefix "$(nextcolor)" unbuffer httpyac tests/api/accounts.http --all --insecure
