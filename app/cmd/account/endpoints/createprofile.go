@@ -29,8 +29,8 @@ func (params CreateProfileRequest) Validate() error {
 // TODO: Authorization
 func (ep Endpoints) CreateProfile(w http.ResponseWriter, r *http.Request) {
 	bq := &CreateProfileRequest{}
-	
-	if err := requests.ParseRequest(r, bq); err != nil {
+
+	if err := requests.ParseRequest(w, r, bq); err != nil {
 		log.Println(fmt.Errorf("binding request: %w", err))
 		http.Error(w, redact(err), http.StatusInternalServerError)
 		return

@@ -1,8 +1,10 @@
 package requests
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"logbook/internal/utilities/slicew/lines"
 	"net/http"
 	"reflect"
@@ -10,6 +12,37 @@ import (
 
 	"github.com/gorilla/mux"
 )
+
+const bodyBufferLimit = 1 << 20 // 1 MB
+
+func isBodyNeeded[Request any](bq *Request) bool {
+	t := reflect.TypeOf(bq).Elem()
+	n := t.NumField()
+	for i := 0; i < n; i++ {
+		ft := t.Field(i)
+		if _, ok := ft.Tag.Lookup("json"); ok {
+			return true
+		}
+	}
+	return false
+}
+
+func parseBody[Request any](w http.ResponseWriter, r *http.Request, dst *Request) error {
+	r.Body = http.MaxBytesReader(w, r.Body, bodyBufferLimit)
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		return fmt.Errorf("request body too large")
+	}
+	defer r.Body.Close()
+	if len(body) == 0 {
+		return fmt.Errorf("empty body")
+	}
+	r.Body = io.NopCloser(bytes.NewReader(body))
+	if err := json.NewDecoder(r.Body).Decode(dst); err != nil {
+		return fmt.Errorf("invalid JSON")
+	}
+	return nil
+}
 
 type StringAssignable interface {
 	Set(string) error
@@ -120,14 +153,16 @@ func parseCookies[Request any](src *http.Request, dst *Request) error {
 	return nil
 }
 
-func ParseRequest[Request any](src *http.Request, dst *Request) error {
-	if err := json.NewDecoder(src.Body).Decode(dst); err != nil {
-		return fmt.Errorf("parsing the request body: %w", err)
+func ParseRequest[Request any](w http.ResponseWriter, r *http.Request, dst *Request) error {
+	if isBodyNeeded(dst) {
+		if err := parseBody(w, r, dst); err != nil {
+			return fmt.Errorf("parsing the request body: %w", err)
+		}
 	}
-	if err := parseUrlFragments(src, dst); err != nil {
+	if err := parseUrlFragments(r, dst); err != nil {
 		return fmt.Errorf("parsing url fragments: %w", err)
 	}
-	if err := parseCookies(src, dst); err != nil {
+	if err := parseCookies(r, dst); err != nil {
 		return fmt.Errorf("parsing cookies: %w", err)
 	}
 	return nil

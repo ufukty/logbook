@@ -36,9 +36,9 @@ func TestValidRequest(t *testing.T) {
 		"user_id": "42",
 	}
 
-	req := createTestRequest(body, cookies, urlVars)
+	r := createTestRequest(body, cookies, urlVars)
 	bq := &TestRequest{}
-	err := ParseRequest(req, bq)
+	err := ParseRequest(httptest.NewRecorder(), r, bq)
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
 	}
@@ -66,9 +66,9 @@ func TestMissingCookie(t *testing.T) {
 		"user_id": "42",
 	}
 
-	req := createTestRequest(body, nil, urlVars)
+	r := createTestRequest(body, nil, urlVars)
 	bq := &TestRequest{}
-	err := ParseRequest(req, bq)
+	err := ParseRequest(httptest.NewRecorder(), r, bq)
 	if err == nil {
 		t.Fatal("expected error due to missing cookie, got nil")
 	}
@@ -81,9 +81,9 @@ func TestMissingURLFragment(t *testing.T) {
 		"session_token": "123",
 	}
 
-	req := createTestRequest(body, cookies, nil)
+	r := createTestRequest(body, cookies, nil)
 	bq := &TestRequest{}
-	err := ParseRequest(req, bq)
+	err := ParseRequest(httptest.NewRecorder(), r, bq)
 	if err == nil {
 		t.Fatal("expected error due to missing URL fragment, got nil")
 	}
@@ -98,9 +98,9 @@ func TestInvalidBody(t *testing.T) {
 		"user_id": "42",
 	}
 
-	req := createTestRequest(body, cookies, urlVars)
+	r := createTestRequest(body, cookies, urlVars)
 	bq := &TestRequest{}
-	err := ParseRequest(req, bq)
+	err := ParseRequest(httptest.NewRecorder(), r, bq)
 	if err == nil {
 		t.Fatal("expected error due to invalid JSON body, got nil")
 	}

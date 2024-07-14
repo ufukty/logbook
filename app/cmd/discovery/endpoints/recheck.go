@@ -14,8 +14,8 @@ type RecheckInstanceRequest struct {
 
 func (e *Endpoints) RecheckInstance(w http.ResponseWriter, r *http.Request) {
 	bq := &RecheckInstanceRequest{}
-	
-	if err := requests.ParseRequest(r, bq); err != nil {
+
+	if err := requests.ParseRequest(w, r, bq); err != nil {
 		log.Println(fmt.Errorf("parsing request: %w", err))
 		http.Error(w, redact(err), http.StatusBadRequest)
 		return

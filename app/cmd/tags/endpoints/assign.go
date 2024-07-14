@@ -22,8 +22,8 @@ type TagAssignResponse struct {
 
 func (e *Endpoints) TagAssign(w http.ResponseWriter, r *http.Request) {
 	bq := &TagAssignRequest{}
-	
-	if err := requests.ParseRequest(r, bq); err != nil {
+
+	if err := requests.ParseRequest(w, r, bq); err != nil {
 		log.Println(fmt.Errorf("parsing request: %w", err))
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return

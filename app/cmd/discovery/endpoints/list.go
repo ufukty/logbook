@@ -18,7 +18,7 @@ type ListInstancesResponse []app.Instance
 func (e *Endpoints) ListInstances(w http.ResponseWriter, r *http.Request) {
 	bq := &ListInstancesRequest{}
 
-	if err := requests.ParseRequest(r, bq); err != nil {
+	if err := requests.ParseRequest(w, r, bq); err != nil {
 		log.Println(fmt.Errorf("parsing request: %w", err))
 		http.Error(w, redact(err), http.StatusBadRequest)
 		return

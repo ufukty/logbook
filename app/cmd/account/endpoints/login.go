@@ -24,8 +24,8 @@ func (bq CreateSessionRequest) validate() error {
 
 func (e Endpoints) Login(w http.ResponseWriter, r *http.Request) {
 	bq := &CreateSessionRequest{}
-	
-	if err := requests.ParseRequest(r, bq); err != nil {
+
+	if err := requests.ParseRequest(w, r, bq); err != nil {
 		e.l.Println(fmt.Errorf("binding: %w", err))
 		http.Error(w, redact(err), http.StatusBadRequest)
 		return
