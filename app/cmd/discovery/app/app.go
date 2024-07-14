@@ -1,9 +1,11 @@
 package app
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"logbook/models"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -18,43 +20,63 @@ type Instance struct {
 type InstanceId string
 
 type App struct {
-	instances        map[models.Service]*Set[InstanceId]
-	details          map[InstanceId]Instance
-	checks           map[InstanceId]time.Time
-	housekeepingtime map[models.Service]time.Time
-	housekeepinglock map[models.Service]bool
+	instanceTimeout time.Duration
+	clearancePeriod time.Duration
 
-	cache map[models.Service][]Instance
+	instances map[models.Service]*Set[InstanceId]
+	details   map[InstanceId]Instance
+	checks    map[InstanceId]time.Time
+	cache     map[models.Service][]Instance
+
+	mu     sync.RWMutex
+	ctx    context.Context
+	cancel context.CancelFunc
 }
 
-func New() *App {
-	return &App{
-		instances:        map[models.Service]*Set[InstanceId]{},
-		details:          map[InstanceId]Instance{},
-		checks:           map[InstanceId]time.Time{},
-		housekeepingtime: map[models.Service]time.Time{},
-		housekeepinglock: map[models.Service]bool{},
-		cache:            map[models.Service][]Instance{},
+func New(instanceTimeout, clearancePeriod time.Duration) *App {
+	ctx, cancel := context.WithCancel(context.Background())
+	a := &App{
+		instanceTimeout: instanceTimeout,
+		clearancePeriod: clearancePeriod,
+		instances:       map[models.Service]*Set[InstanceId]{},
+		details:         map[InstanceId]Instance{},
+		checks:          map[InstanceId]time.Time{},
+		cache:           map[models.Service][]Instance{},
+		ctx:             ctx,
+		cancel:          cancel,
 	}
+	go a.ticker()
+	return a
+}
+
+func (a *App) Stop() {
+	a.cancel()
 }
 
 func (a *App) RegisterInstance(s models.Service, i Instance) (InstanceId, error) {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+
 	t := time.Now()
 	uuid, err := uuid.NewRandom()
 	if err != nil {
-		return "", fmt.Errorf("generating uuid: %w", err)
+		return "", fmt.Errorf("failed to generate UUID: %w", err)
 	}
 	iid := InstanceId(uuid.String())
 	if _, ok := a.instances[s]; !ok {
-		a.instances[s] = &Set[InstanceId]{}
+		a.instances[s] = NewSet[InstanceId]()
 	}
 	a.instances[s].Add(iid)
 	a.checks[iid] = t
 	a.details[iid] = i
+	a.buildCache(s)
 	return iid, nil
 }
 
 func (a *App) RecheckInstance(iid InstanceId) error {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+
 	if _, ok := a.details[iid]; !ok {
 		return fmt.Errorf("instance is either deleted or never registered")
 	}
@@ -62,61 +84,64 @@ func (a *App) RecheckInstance(iid InstanceId) error {
 	return nil
 }
 
-func (a *App) clearOutdated(s models.Service) {
-	if _, ok := a.housekeepinglock[s]; ok {
-		return
+func (a *App) ListInstances(s models.Service) ([]Instance, error) {
+	a.mu.RLock()
+	defer a.mu.RUnlock()
+	if _, ok := a.instances[s]; !ok {
+		return []Instance{}, nil
 	}
-	defer delete(a.housekeepinglock, s)
+	if list, ok := a.cache[s]; ok {
+		return list, nil
+	}
+	return a.cache[s], nil
+}
+
+func (a *App) ticker() {
+	ticker := time.NewTicker(a.clearancePeriod)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ticker.C:
+			a.clearOutdated()
+		case <-a.ctx.Done():
+			return
+		}
+	}
+}
+
+func (a *App) clearOutdated() {
+	a.mu.Lock()
+	defer a.mu.Unlock()
 
 	t := time.Now()
-	if l, ok := a.housekeepingtime[s]; ok && l.Sub(t) < time.Minute { // house keeping period
-		return
-	}
-	if _, ok := a.instances[s]; !ok {
-		return
-	}
-	toClear := []InstanceId{}
-	for iid := range *a.instances[s] {
-		if t.Sub(a.checks[iid]) < time.Minute { //
-			toClear = append(toClear, iid)
+	for s, instanceSet := range a.instances {
+		toClear := []InstanceId{}
+		for _, iid := range instanceSet.Items() {
+			if t.Sub(a.checks[iid]) > a.instanceTimeout {
+				toClear = append(toClear, iid)
+			}
+		}
+		if len(toClear) > 0 {
+			for _, iid := range toClear {
+				log.Printf("deleted %q (%s:%s) for %q\n", iid, a.details[iid].Address, a.details[iid].Port, s)
+				delete(a.details, iid)
+				delete(a.checks, iid)
+				a.instances[s].Delete(iid)
+			}
+			a.buildCache(s)
 		}
 	}
-	if len(toClear) > 0 {
-		delete(a.cache, s)
-		for _, iid := range toClear {
-			log.Printf("deleted %q (%s:%s) for %q\n", iid, a.details[iid].Address, a.details[iid].Port, s)
-			delete(a.details, iid)
-			delete(a.checks, iid)
-			a.instances[s].Delete(iid)
-		}
-	}
-	a.housekeepingtime[s] = time.Now()
-
-	return
 }
 
 func (a *App) buildCache(s models.Service) {
 	cache := []Instance{}
-	if _, ok := a.instances[s]; !ok {
-		a.cache[s] = cache
-		return
-	}
-	for iid := range *a.instances[s] {
-		if i, ok := a.details[iid]; ok {
-			cache = append(cache, i)
+	if set, ok := a.instances[s]; ok {
+		for _, iid := range set.Items() {
+			if instance, ok := a.details[iid]; ok {
+				cache = append(cache, instance)
+			}
 		}
 	}
 	a.cache[s] = cache
-}
-
-func (a *App) ListInstances(s models.Service) ([]Instance, error) {
-	if _, ok := a.instances[s]; !ok {
-		return []Instance{}, nil
-	}
-	a.clearOutdated(s)
-	if list, ok := a.cache[s]; ok {
-		return list, nil
-	}
-	a.buildCache(s)
-	return a.cache[s], nil
 }

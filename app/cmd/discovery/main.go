@@ -9,6 +9,7 @@ import (
 	"logbook/internal/web/router"
 	"net/http"
 	"os"
+	"time"
 )
 
 func mainerr() error {
@@ -17,8 +18,9 @@ func mainerr() error {
 		return fmt.Errorf("reading config: %w", err)
 	}
 
-	// TODO: redis connection
-	a := app.New()
+	a := app.New(time.Minute, 2*time.Minute)
+	defer a.Stop()
+
 	ep := endpoints.New(a)
 
 	eps := apicfg.Internal.Services.Discovery.Endpoints
