@@ -1,19 +1,40 @@
 #!/bin/bash
-set -x
-set -m
+set -e -E
+set -o pipefail
 
-# unbuffer is because logger only prints in color for TTY
+# to clean before & after
+ports=({8080..8082} {8090..8091})
 
-function cleanup() {
-  set +x
-  jobs -p | xargs -I {} kill -INT -{} || echo
+function nextcolor() {
+  echo $(($(jobs -p | wc -l) % 6 + 31))
 }
 
-trap cleanup EXIT
+function prefix() {
+  COLOR="${1:?}"
+  shift 1
+  PREFIX="$(echo "$@" | tr -d ';')"
+  esc=$(printf '\033')
+  "$@" | gsed -E "s;^(.*)$;${esc}\[${COLOR}m$PREFIX:${esc}\[0m \1;g"
+}
+
+function cleanports() {
+  for port in "${ports[@]}"; do
+    lsof -i ":$port" >/dev/null 2>&1 && kill -9 "$(lsof -i ":$port" | tail -n 1 | cut -d ' ' -f 2)" >/dev/null 2>&1
+  done
+  return 0
+}
+
+function pings() {
+  for port in "${ports[@]}"; do
+    until curl --fail "https://localhost:${port}/ping" >/dev/null 2>&1; do sleep 1; done
+  done
+}
 
 function service() {
   SERVICENAME="${1:?}"
-  /usr/local/go/bin/go test -timeout 10s -run '^TestMigration$' "logbook/cmd/${SERVICENAME}/database" -v -count=1
+  if test -d "cmd/${SERVICENAME}/database"; then
+    /usr/local/go/bin/go test -timeout 10s -run '^TestMigration$' "logbook/cmd/${SERVICENAME}/database" -v -count=1
+  fi
   unbuffer go run "logbook/cmd/${SERVICENAME}" \
     -e local \
     -api api.yml \
@@ -23,8 +44,18 @@ function service() {
     -key "../platform/local/tls/localhost.key"
 }
 
+function discovery() {
+  unbuffer go run "logbook/cmd/discovery" \
+    -e local \
+    -api api.yml \
+    -deployment ../platform/local/deployment.yml \
+    -cert "../platform/local/tls/localhost.crt" \
+    -key "../platform/local/tls/localhost.key"
+}
+
 function gateway() {
-  unbuffer go run "logbook/cmd/gateway" \
+  GATEWAYNAME="${1:?}"
+  unbuffer go run "logbook/cmd/$GATEWAYNAME" \
     -e local \
     -api api.yml \
     -deployment ../platform/local/deployment.yml \
@@ -33,20 +64,17 @@ function gateway() {
     -key "../platform/local/tls/localhost.key"
 }
 
-function nextcolor() {
-  echo $(($(jobs -p | wc -l) % 6 + 31))
-}
+trap cleanports EXIT
+cleanports
 
-function prefix() {
-  PREFIX="${1:?}"
-  COLOR="${2:?}"
-  esc=$(printf '\033')
-  gsed -E "s/^(.*)$/${esc}\[${COLOR}m${PREFIX}:${esc}\[0m \1/g"
-}
+prefix "$(nextcolor)" discovery &
+prefix "$(nextcolor)" service account &
+prefix "$(nextcolor)" service objectives &
+prefix "$(nextcolor)" gateway gateway &
+prefix "$(nextcolor)" gateway internal &
 
-service account 2>&1 | prefix account "$(nextcolor)" &
-service objectives 2>&1 | prefix objectives "$(nextcolor)" &
-gateway 2>&1 | prefix gateway "$(nextcolor)" &
+pings
 
-sleep 4
-httpyac api.http --all --insecure
+prefix "$(nextcolor)" unbuffer httpyac tests/api/discovery.http --all --insecure
+prefix "$(nextcolor)" unbuffer httpyac tests/api/accounts.http --all --insecure
+prefix "$(nextcolor)" unbuffer httpyac tests/api/objectives.http --all --insecure
