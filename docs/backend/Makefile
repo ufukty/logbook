@@ -1,11 +1,11 @@
 all: \
-	diagram.png \
 	anti-csrf-token-generation.png \
+	service-discovery.png \
 	server-client.png \
 	placement-cache.png
 
-diagram.png: diagram.mmd
-	mmdc -f -e png -s 3 -i "diagram.mmd" -o "diagram.png"
+service-discovery.png: service-discovery.mmd
+	mmdc -f -e png -s 3 -i "service-discovery.mmd" -o "service-discovery.png"
 
 anti-csrf-token-generation.png: anti-csrf-token-generation.mmd
 	mmdc -f -e png -s 3 -i "anti-csrf-token-generation.mmd" -o "anti-csrf-token-generation.png"
