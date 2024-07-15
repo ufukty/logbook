@@ -35,6 +35,7 @@ Pros:
 Cons:
 
 - Every instance provision now also requires a file upload. (managable)
+- `internal gateway` and `discovery service` instances can listen only predefined ports, runtime selection is unallowed. Thus, only one process per address is possible for those.
 
 ![](service-discovery.png)
 

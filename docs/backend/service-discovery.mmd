@@ -17,6 +17,7 @@ create participant s1 as <Service A><br>Instance 1<br>IP: Y
 l->>s1: provisions + uploads discovery config
 
 rect rgba(128,128,128,0.1)
+  note over s1: checks discovery config<br>for address of internal
   s1->>+i: POST X/register Y for A
   note over i: checks discovery config<br>for address of discovery
   i->>+d: POST U/register Y for A
@@ -29,6 +30,7 @@ create participant s2 as <Service B><br>Instance 1<br>IP: Z
 l->>s2: provisions + uploads discovery config
 
 rect rgba(128,128,128,0.1)
+  note over s2: checks discovery config<br>for address of internal
   s2->>+i: POST X/register Z for B
   note over i: checks discovery config<br>for address of discovery
   i->>+d: POST U/register Z for B
