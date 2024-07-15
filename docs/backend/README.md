@@ -1,5 +1,9 @@
 # App
 
+![](diagram.png)
+
+![](anti-csrf-token-generation.png)
+
 ## Server-Client Communication
 
 ### Server-Client
