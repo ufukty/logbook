@@ -1,6 +1,4 @@
 all: \
-	internal/web/discovery/models/stage/stage.go \
-	internal/web/discovery/models/local/local.go \
 	config/api/schema.go \
 	config/deployment/config.go
 	$(MAKE) -C cmd/account
@@ -12,21 +10,6 @@ config/api/schema.go: api.yml config/api/directives.yml
 		-directives config/api/directives.yml \
 		-in api.yml \
 		-out config/api/schema.go
-
-internal/web/discovery/models/stage/stage.go: internal/web/discovery/models/stage/service_discovery.json internal/web/discovery/models/stage/directives.yml
-	gonfique generate \
-		-pkg stage \
-		-directives internal/web/discovery/models/stage/directives.yml \
-		-type-name "Stage" \
-		-in internal/web/discovery/models/stage/service_discovery.json \
-		-out internal/web/discovery/models/stage/stage.go
-
-internal/web/discovery/models/local/local.go: ../platform/local/discovery.yml
-	gonfique generate \
-		-pkg local \
-		-type-name "Local" \
-		-in ../platform/local/discovery.yml \
-		-out internal/web/discovery/models/local/local.go
 
 config/deployment/config.go: ../platform/local/deployment.yml config/deployment/directives.yml
 	gonfique generate \

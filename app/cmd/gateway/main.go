@@ -3,12 +3,15 @@ package main
 import (
 	"fmt"
 	"log"
+	discovery "logbook/cmd/discovery/client"
 	"logbook/cmd/gateway/cfgs"
 	"logbook/config/api"
-	"logbook/internal/web/discovery"
+	"logbook/internal/web/balancer"
+	"logbook/internal/web/discoveryfile"
 	"logbook/internal/web/forwarder"
 	"logbook/internal/web/router"
 	"logbook/models"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -19,20 +22,32 @@ func mainerr() error {
 		return fmt.Errorf("reading configs: %w", err)
 	}
 
-	sd := discovery.New(models.Environment(flags.EnvMode), flags.Discovery, deplcfg.ServiceDiscovery.UpdatePeriod)
-
-	objectives, err := forwarder.New(sd, models.Objectives, deplcfg.Ports.Objectives, api.PathFromInternet(apicfg.Public.Services.Objectives))
+	is := discoveryfile.NewFileReader(flags.Discovery, time.Second, discoveryfile.ServiceParams{
+		Port: deplcfg.Ports.Internal,
+		Tls:  true,
+	})
+	defer is.Stop()
+	lb := balancer.New(is)
+	dsctl := discovery.NewClient(lb)
+	
+	// FIXME:
+	dsctl.ListInstances()
+	
+	// FIXME:
+	objectives, err := forwarder.New(, models.Objectives, api.PathFromInternet(apicfg.Public.Services.Objectives))
 	if err != nil {
 		return fmt.Errorf("creating forwarder for objectives: %w", err)
 	}
-	account, err := forwarder.New(sd, models.Account, deplcfg.Ports.Accounts, api.PathFromInternet(apicfg.Public.Services.Account))
+	
+	// FIXME:
+	account, err := forwarder.New(, models.Account, api.PathFromInternet(apicfg.Public.Services.Account))
 	if err != nil {
 		return fmt.Errorf("creating forwarder for account: %w", err)
 	}
 
 	router.StartServer(router.ServerParameters{
 		Router:  deplcfg.Router,
-		BaseUrl: deplcfg.Ports.Gateway,
+		BaseUrl: fmt.Sprintf(":%d", deplcfg.Ports.Gateway),
 		TlsCrt:  flags.TlsCertificate,
 		TlsKey:  flags.TlsKey,
 	}, func(r *mux.Router) {

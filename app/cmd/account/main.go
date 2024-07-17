@@ -24,7 +24,6 @@ func Main() error {
 	}
 	defer db.Close()
 
-	// sd := serviced.New(cfg.ServiceDiscoveryConfig, cfg.ServiceDiscoveryUpdatePeriod)
 	app := app.New(db)
 	em := endpoints.New(app)
 	s := apicfg.Public.Services.Account
@@ -32,7 +31,7 @@ func Main() error {
 	// TODO: tls between services needs certs per host(name)
 	router.StartServerWithEndpoints(router.ServerParameters{
 		Router:  deplcfg.Router,
-		BaseUrl: deplcfg.Ports.Accounts,
+		BaseUrl: fmt.Sprintf(":%d", deplcfg.Ports.Accounts),
 		TlsCrt:  flags.TlsCertificate,
 		TlsKey:  flags.TlsKey,
 	}, map[api.Endpoint]http.HandlerFunc{

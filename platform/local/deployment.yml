@@ -9,8 +9,8 @@ service-discovery:
   update-period: 30s
 
 ports:
-  gateway: :8080
-  accounts: :8081
-  objectives: :8082
-  internal: :8090
-  discovery: :8091
+  gateway: 8080
+  accounts: 8081
+  objectives: 8082
+  internal: 8090
+  discovery: 8091

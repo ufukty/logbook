@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"logbook/internal/web/balancer"
-	"logbook/internal/web/discovery"
 	"logbook/internal/web/logger"
 	"logbook/models"
 	"net/http"
@@ -15,9 +14,8 @@ import (
 // TODO: load balancing between processes listen different ports but in same IP address
 type LoadBalancedReverseProxy struct {
 	lb          *balancer.LoadBalancer
-	pool        map[string]*httputil.ReverseProxy // host:handler
-	servicepath string                            // rewrite
-	port        string                            // rewrite
+	pool        map[*models.Instance]*httputil.ReverseProxy
+	servicepath string // rewrite
 	log         *logger.Logger
 }
 
@@ -27,7 +25,7 @@ func (lbrp *LoadBalancedReverseProxy) next() (*httputil.ReverseProxy, error) {
 		return nil, err
 	}
 	if _, ok := lbrp.pool[next]; !ok {
-		host := fmt.Sprintf("%s%s", next, lbrp.port)
+		host := fmt.Sprintf("%s:%d", next.Address, next.Port)
 		lbrp.pool[next] = &httputil.ReverseProxy{
 			// see link to understand usage of rewrite
 			// https://www.ory.sh/hop-by-hop-header-vulnerability-go-standard-library-reverse-proxy/
@@ -62,16 +60,15 @@ func (lbrp LoadBalancedReverseProxy) Handler(w http.ResponseWriter, r *http.Requ
 	forwarder.ServeHTTP(w, r)
 }
 
-func New(sd *discovery.ConfigBasedServiceDiscovery, service models.Service, port, servicepath string) (*LoadBalancedReverseProxy, error) {
-	var lb = balancer.New(sd, service)
+func New(is balancer.InstanceSource, service models.Service, servicepath string) (*LoadBalancedReverseProxy, error) {
+	lb := balancer.New(is)
 	if _, err := lb.Next(); err == balancer.ErrNoHostAvailable {
 		return nil, err
 	}
 	return &LoadBalancedReverseProxy{
 		log:         logger.NewLogger("reverse proxy"),
-		pool:        map[string]*httputil.ReverseProxy{},
+		pool:        map[*models.Instance]*httputil.ReverseProxy{},
 		lb:          lb,
 		servicepath: servicepath,
-		port:        port,
 	}, nil
 }

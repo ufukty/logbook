@@ -5,7 +5,7 @@ import (
 	"log"
 	"logbook/cmd/gateway/cfgs"
 	"logbook/config/api"
-	"logbook/internal/web/discovery"
+	"logbook/internal/web/discoveryfile"
 	"logbook/internal/web/forwarder"
 	"logbook/internal/web/router"
 	"logbook/models"
@@ -19,16 +19,20 @@ func mainerr() error {
 		return fmt.Errorf("reading configs: %w", err)
 	}
 
-	sd := discovery.New(models.Environment(flags.EnvMode), flags.Discovery, deplcfg.ServiceDiscovery.UpdatePeriod)
+	sd := discoveryfile.NewFileReader(flags.Discovery, deplcfg.ServiceDiscovery.UpdatePeriod, discoveryfile.ServiceParams{
+		Port: deplcfg.Ports.Discovery,
+		Tls:  false,
+	})
+	defer sd.Stop()
 
-	discovery, err := forwarder.New(sd, models.Discovery, deplcfg.Ports.Discovery, api.PathFromInternet(apicfg.Internal.Services.Discovery))
+	discovery, err := forwarder.New(sd, models.Discovery, api.PathFromInternet(apicfg.Internal.Services.Discovery))
 	if err != nil {
 		return fmt.Errorf("creating forwarder for objectives: %w", err)
 	}
 
 	router.StartServer(router.ServerParameters{
 		Router:  deplcfg.Router,
-		BaseUrl: deplcfg.Ports.Internal,
+		BaseUrl: fmt.Sprintf(":%d", deplcfg.Ports.Internal),
 		TlsCrt:  flags.TlsCertificate,
 		TlsKey:  flags.TlsKey,
 	}, func(r *mux.Router) {

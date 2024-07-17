@@ -30,7 +30,7 @@ func Main() error {
 	s := apicfg.Public.Services.Objectives
 	router.StartServerWithEndpoints(router.ServerParameters{
 		Router:  deplcfg.Router,
-		BaseUrl: deplcfg.Ports.Objectives,
+		BaseUrl: fmt.Sprintf(":%d", deplcfg.Ports.Objectives),
 		TlsCrt:  flags.TlsCertificate,
 		TlsKey:  flags.TlsKey,
 	}, map[api.Endpoint]http.HandlerFunc{
