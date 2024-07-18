@@ -1,25 +1,36 @@
 package objectives
 
 import (
+	"fmt"
 	"logbook/cmd/objectives/endpoints"
 	"logbook/config/api"
+	"logbook/internal/web/balancer"
 	"logbook/internal/web/requests"
+	"path/filepath"
 )
 
 type Client struct {
+	lb          *balancer.LoadBalancer
 	servicepath string
 	servicecfg  api.Objectives
 }
 
-func NewClient(apicfg api.Config) *Client {
+// servicepath => https://ip:port/(servicepath)/endpoint, which changes when gateway used
+func NewClient(apicfg *api.Config, lb *balancer.LoadBalancer, servicepath string) *Client {
 	return &Client{
-		servicepath: api.PathFromInternet(apicfg.Public.Services.Objectives),
+		servicepath: servicepath,
 		servicecfg:  apicfg.Public.Services.Objectives,
+		lb:          lb,
 	}
 }
 
-func (c Client) CreateObjective(bq *endpoints.CreateTaskRequest) (*endpoints.CreateTaskResponse, error) {
-	return requests.Send[endpoints.CreateTaskRequest, endpoints.CreateTaskResponse](
-		api.PathFromInternet(c.servicecfg.Endpoints.Create), c.servicecfg.Endpoints.Create.Method, bq,
-	)
+func (c *Client) CreateObjective(bq *endpoints.CreateTaskRequest) (*endpoints.CreateTaskResponse, error) {
+	bs := &endpoints.CreateTaskResponse{}
+	next, err := c.lb.Next()
+	url := filepath.Join(next.String(), c.servicepath, c.servicecfg.Endpoints.Create.Path)
+	err = requests.Send(url, c.servicecfg.Endpoints.Create.Method, bq, bs)
+	if err != nil {
+		return nil, fmt.Errorf(": %w", err)
+	}
+	return bs, nil
 }
