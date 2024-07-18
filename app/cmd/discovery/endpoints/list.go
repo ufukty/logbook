@@ -3,7 +3,6 @@ package endpoints
 import (
 	"fmt"
 	"log"
-	"logbook/cmd/discovery/app"
 	"logbook/internal/web/requests"
 	"logbook/models"
 	"net/http"
@@ -13,7 +12,7 @@ type ListInstancesRequest struct {
 	Service models.Service `url:"service"` // TODO: add the support for binding url fragments into 'url' marked fields in 'requests' package
 }
 
-type ListInstancesResponse []app.Instance
+type ListInstancesResponse []models.Instance
 
 func (e *Endpoints) ListInstances(w http.ResponseWriter, r *http.Request) {
 	bq := &ListInstancesRequest{}

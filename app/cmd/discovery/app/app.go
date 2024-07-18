@@ -11,12 +11,6 @@ import (
 	"github.com/google/uuid"
 )
 
-type Instance struct {
-	TLS     bool
-	Address string
-	Port    string
-}
-
 type InstanceId string
 
 type App struct {
@@ -24,9 +18,9 @@ type App struct {
 	clearancePeriod time.Duration
 
 	instances map[models.Service]*Set[InstanceId]
-	details   map[InstanceId]Instance
+	details   map[InstanceId]models.Instance
 	checks    map[InstanceId]time.Time
-	cache     map[models.Service][]Instance
+	cache     map[models.Service][]models.Instance
 
 	mu     sync.RWMutex
 	ctx    context.Context
@@ -39,9 +33,9 @@ func New(instanceTimeout, clearancePeriod time.Duration) *App {
 		instanceTimeout: instanceTimeout,
 		clearancePeriod: clearancePeriod,
 		instances:       map[models.Service]*Set[InstanceId]{},
-		details:         map[InstanceId]Instance{},
+		details:         map[InstanceId]models.Instance{},
 		checks:          map[InstanceId]time.Time{},
-		cache:           map[models.Service][]Instance{},
+		cache:           map[models.Service][]models.Instance{},
 		ctx:             ctx,
 		cancel:          cancel,
 	}
@@ -53,7 +47,7 @@ func (a *App) Stop() {
 	a.cancel()
 }
 
-func (a *App) RegisterInstance(s models.Service, i Instance) (InstanceId, error) {
+func (a *App) RegisterInstance(s models.Service, i models.Instance) (InstanceId, error) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 
@@ -84,11 +78,11 @@ func (a *App) RecheckInstance(iid InstanceId) error {
 	return nil
 }
 
-func (a *App) ListInstances(s models.Service) ([]Instance, error) {
+func (a *App) ListInstances(s models.Service) ([]models.Instance, error) {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
 	if _, ok := a.instances[s]; !ok {
-		return []Instance{}, nil
+		return []models.Instance{}, nil
 	}
 	if list, ok := a.cache[s]; ok {
 		return list, nil
@@ -135,7 +129,7 @@ func (a *App) clearOutdated() {
 }
 
 func (a *App) buildCache(s models.Service) {
-	cache := []Instance{}
+	cache := []models.Instance{}
 	if set, ok := a.instances[s]; ok {
 		for _, iid := range set.Items() {
 			if instance, ok := a.details[iid]; ok {
