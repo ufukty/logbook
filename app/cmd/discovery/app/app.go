@@ -118,7 +118,7 @@ func (a *App) clearOutdated() {
 		}
 		if len(toClear) > 0 {
 			for _, iid := range toClear {
-				log.Printf("deleted %q (%s:%s) for %q\n", iid, a.details[iid].Address, a.details[iid].Port, s)
+				log.Printf("deleted %q (%s:%d) for %q\n", iid, a.details[iid].Address, a.details[iid].Port, s)
 				delete(a.details, iid)
 				delete(a.checks, iid)
 				a.instances[s].Delete(iid)

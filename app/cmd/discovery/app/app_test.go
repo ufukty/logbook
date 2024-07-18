@@ -10,7 +10,7 @@ func TestRegisterInstance(t *testing.T) {
 	app := New(100*time.Millisecond, 200*time.Millisecond)
 	defer app.Stop()
 	service := models.Service("test-service")
-	instance := Instance{TLS: true, Address: "127.0.0.1", Port: "8080"}
+	instance := models.Instance{Tls: true, Address: "127.0.0.1", Port: 8080}
 
 	instanceID, err := app.RegisterInstance(service, instance)
 	if err != nil {
@@ -25,7 +25,7 @@ func TestRecheckInstance(t *testing.T) {
 	app := New(100*time.Millisecond, 200*time.Millisecond)
 	defer app.Stop()
 	service := models.Service("test-service")
-	instance := Instance{TLS: true, Address: "127.0.0.1", Port: "8080"}
+	instance := models.Instance{Tls: true, Address: "127.0.0.1", Port: 8080}
 
 	instanceID, err := app.RegisterInstance(service, instance)
 	if err != nil {
@@ -42,7 +42,7 @@ func TestClearOutdated(t *testing.T) {
 	app := New(100*time.Millisecond, 200*time.Millisecond)
 	defer app.Stop()
 	service := models.Service("test-service")
-	instance := Instance{TLS: true, Address: "127.0.0.1", Port: "8080"}
+	instance := models.Instance{Tls: true, Address: "127.0.0.1", Port: 8080}
 
 	// Register an instance and advance time to simulate expiration
 	instanceID, err := app.RegisterInstance(service, instance)
@@ -70,7 +70,7 @@ func TestBuildCache(t *testing.T) {
 	app := New(100*time.Millisecond, 200*time.Millisecond)
 	defer app.Stop()
 	service := models.Service("test-service")
-	instance := Instance{TLS: true, Address: "127.0.0.1", Port: "8080"}
+	instance := models.Instance{Tls: true, Address: "127.0.0.1", Port: 8080}
 
 	_, err := app.RegisterInstance(service, instance)
 	if err != nil {
@@ -97,7 +97,7 @@ func TestListInstances(t *testing.T) {
 	app := New(100*time.Millisecond, 200*time.Millisecond)
 	defer app.Stop()
 	service := models.Service("test-service")
-	instance := Instance{TLS: true, Address: "127.0.0.1", Port: "8080"}
+	instance := models.Instance{Tls: true, Address: "127.0.0.1", Port: 8080}
 
 	_, err := app.RegisterInstance(service, instance)
 	if err != nil {
@@ -120,7 +120,7 @@ func TestTickerClearOutdated(t *testing.T) {
 	app := New(100*time.Millisecond, 200*time.Millisecond)
 	defer app.Stop()
 	service := models.Service("test-service")
-	instance := Instance{TLS: true, Address: "127.0.0.1", Port: "8080"}
+	instance := models.Instance{Tls: true, Address: "127.0.0.1", Port: 8080}
 
 	_, err := app.RegisterInstance(service, instance)
 	if err != nil {

@@ -14,7 +14,7 @@ type RegisterInstanceRequest struct {
 	Service models.Service `json:"service"`
 	TLS     bool           `json:"tls"`
 	Address string         `json:"address"`
-	Port    string         `json:"port"`
+	Port    int            `json:"port"`
 }
 
 func (bq RegisterInstanceRequest) validate() error {
@@ -22,7 +22,7 @@ func (bq RegisterInstanceRequest) validate() error {
 	if bq.TLS {
 		proto = "https"
 	}
-	u := fmt.Sprintf("%s://%s:%s", proto, bq.Address, bq.Port)
+	u := fmt.Sprintf("%s://%s:%d", proto, bq.Address, bq.Port)
 	_, err := url.Parse(u)
 	if err != nil {
 		return fmt.Errorf("declared address and port %q is invalid", u)
@@ -49,7 +49,8 @@ func (e *Endpoints) RegisterInstance(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	iid, err := e.a.RegisterInstance(bq.Service, app.Instance{
+	iid, err := e.a.RegisterInstance(bq.Service, models.Instance{
+		Tls:     bq.TLS,
 		Address: bq.Address,
 		Port:    bq.Port,
 	})
