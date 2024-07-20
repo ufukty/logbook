@@ -37,6 +37,10 @@ Cons:
 - Every instance provision now also requires a file upload. (managable)
 - `internal gateway` and `discovery service` instances can listen only predefined ports, runtime selection is unallowed. Thus, only one process per address is possible for those.
 
+Improvement opportunities:
+
+- Enable the persistency among `discovery service` instances by a hash ring. To remove the need of `internal gateway` to duplicate & forward each registration and recheck request.
+
 ![](service-discovery.png)
 
 ## Anti-CSRF Token generation
