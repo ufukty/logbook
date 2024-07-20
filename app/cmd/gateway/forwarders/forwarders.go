@@ -2,7 +2,7 @@ package forwarders
 
 import (
 	"fmt"
-	servicereg "logbook/cmd/servicereg/client"
+	servicereg "logbook/cmd/registry/client"
 	"logbook/config/api"
 	"logbook/config/deployment"
 	"logbook/internal/args"

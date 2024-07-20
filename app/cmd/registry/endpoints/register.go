@@ -3,7 +3,7 @@ package endpoints
 import (
 	"fmt"
 	"log"
-	"logbook/cmd/servicereg/app"
+	"logbook/cmd/registry/app"
 	"logbook/internal/web/requests"
 	"logbook/models"
 	"net/http"

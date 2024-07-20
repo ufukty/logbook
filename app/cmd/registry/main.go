@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"logbook/cmd/servicereg/app"
-	"logbook/cmd/servicereg/cfgs"
-	"logbook/cmd/servicereg/endpoints"
+	"logbook/cmd/registry/app"
+	"logbook/cmd/registry/cfgs"
+	"logbook/cmd/registry/endpoints"
 	"logbook/config/api"
 	"logbook/internal/web/router"
 	"net/http"

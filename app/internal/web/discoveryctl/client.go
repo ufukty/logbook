@@ -3,8 +3,8 @@ package discoveryctl
 import (
 	"context"
 	"fmt"
-	servicereg "logbook/cmd/servicereg/client"
-	"logbook/cmd/servicereg/endpoints"
+	servicereg "logbook/cmd/registry/client"
+	"logbook/cmd/registry/endpoints"
 	"logbook/internal/web/balancer"
 	"logbook/internal/web/logger"
 	"logbook/models"

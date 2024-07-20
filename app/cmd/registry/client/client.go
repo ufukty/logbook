@@ -2,7 +2,7 @@ package servicereg
 
 import (
 	"fmt"
-	"logbook/cmd/servicereg/endpoints"
+	"logbook/cmd/registry/endpoints"
 	"logbook/config/api"
 	"logbook/internal/web/balancer"
 	"logbook/internal/web/requests"
