@@ -3,23 +3,23 @@ autonumber
 
 actor l as developer
 
-create participant d as Discovery Service<br>Instance 1<br>IP: U
+create participant d as Registry Service<br>Instance 1<br>IP: U
 l->>d: provisions
 
 create participant i as Internal Gateway<br>Instance 1<br>IP: X
 l->>i: provisions
 
-note over l: compose discovery config<br>with U, X
+note over l: compose discoveryfiles for U, X
 
-l->>i: uploads discovery config
+l->>i: uploads discoveryfile
 
 create participant s1 as <Service A><br>Instance 1<br>IP: Y
-l->>s1: provisions + uploads discovery config
+l->>s1: provisions + uploads discoveryfile
 
 rect rgba(128,128,128,0.1)
-  note over s1: checks discovery config<br>for address of internal
+  note over s1: checks discoveryfile<br>for address of internal
   s1->>+i: POST X/register Y for A
-  note over i: checks discovery config<br>for address of discovery
+  note over i: checks discoveryfile<br>for address of registry
   i->>+d: POST U/register Y for A
   note over d: stores Y for A in memory
   d->>-i: ok
@@ -27,12 +27,12 @@ rect rgba(128,128,128,0.1)
 end
 
 create participant s2 as <Service B><br>Instance 1<br>IP: Z
-l->>s2: provisions + uploads discovery config
+l->>s2: provisions + uploads discoveryfile
 
 rect rgba(128,128,128,0.1)
-  note over s2: checks discovery config<br>for address of internal
+  note over s2: checks discoveryfile<br>for address of internal
   s2->>+i: POST X/register Z for B
-  note over i: checks discovery config<br>for address of discovery
+  note over i: checks discoveryfile<br>for address of registry
   i->>+d: POST U/register Z for B
   note over d: stores Z for B in memory
   d->>-i: ok
