@@ -1,21 +1,24 @@
-package servicereg
+package discoveryctl
 
 import (
 	"context"
 	"fmt"
+	servicereg "logbook/cmd/servicereg/client"
 	"logbook/cmd/servicereg/endpoints"
+	"logbook/internal/web/balancer"
 	"logbook/internal/web/logger"
 	"logbook/models"
 	"sync"
 	"time"
 )
 
-// wrapper for the [Client] which
-//   - periodically queries the service-discovery service,
-//   - contains cache for the instances,
+// summary:
+//   - instantiate an instance of [Client] per-service to be reached
+//   - uses [servicereg.Client] to periodically query the service registry,
+//   - contains a cache for the instances,
 //   - complies the [balancer.InstanceSource] interface
-type Discovery struct {
-	ctl     *Client
+type Client struct {
+	ctl     *servicereg.Client
 	store   []models.Instance
 	service models.Service
 
@@ -26,9 +29,11 @@ type Discovery struct {
 	cancel context.CancelFunc
 }
 
-func NewDiscoveryStore(ctl *Client, service models.Service) *Discovery {
+var _ balancer.InstanceSource = &Client{}
+
+func New(ctl *servicereg.Client, service models.Service) *Client {
 	ctx, cancel := context.WithCancel(context.Background())
-	d := &Discovery{
+	d := &Client{
 		ctl:     ctl,
 		store:   []models.Instance{},
 		service: service,
@@ -42,11 +47,11 @@ func NewDiscoveryStore(ctl *Client, service models.Service) *Discovery {
 	return d
 }
 
-func (d *Discovery) Stop() {
+func (d *Client) Stop() {
 	d.cancel()
 }
 
-func (d *Discovery) queryserver() error {
+func (d *Client) queryserver() error {
 	bs, err := d.ctl.ListInstances(&endpoints.ListInstancesRequest{Service: d.service})
 	if err != nil {
 		return fmt.Errorf("sending listing request: %w", err)
@@ -55,7 +60,7 @@ func (d *Discovery) queryserver() error {
 	return nil
 }
 
-func (d *Discovery) tick() {
+func (d *Client) tick() {
 	t := time.NewTicker(d.reload)
 	defer t.Stop()
 	for {
@@ -72,7 +77,7 @@ func (d *Discovery) tick() {
 	}
 }
 
-func (d *Discovery) Instances() ([]models.Instance, error) {
+func (d *Client) Instances() ([]models.Instance, error) {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
 	return d.store, nil

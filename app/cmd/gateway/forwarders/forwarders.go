@@ -1,58 +1,68 @@
 package forwarders
 
 import (
+	"fmt"
 	servicereg "logbook/cmd/servicereg/client"
 	"logbook/config/api"
 	"logbook/config/deployment"
 	"logbook/internal/args"
 	"logbook/internal/web/balancer"
+	"logbook/internal/web/discoveryctl"
 	"logbook/internal/web/discoveryfile"
+	"logbook/internal/web/forwarder"
 	"logbook/models"
-	"net/http"
 	"path/filepath"
 	"time"
 )
 
-// Forwarder forwards requests to an instance of the target service
-// The service's address listed through discovery service
-// Discovery service is accessed through internal gateway.
-// Internal gateway might have multiple instances, addresses known by config-based service discovery
-type Forwarders struct {
-	// to stop tickers later
-	internalstore   *discoveryfile.FileReader // config-based service discovery
-	discoverystore  *servicereg.Discovery     // self-registration based service discovery client
-	objectivesstore *servicereg.Discovery
+type stoppable interface {
+	Stop()
 }
 
-// instances of services listed
-func New(flags *args.GatewayArgs, deplcfg *deployment.Config, apicfg *api.Config) *Forwarders {
-	internalstore := discoveryfile.NewFileReader(flags.Discovery, time.Second, discoveryfile.ServiceParams{
+// Forwarder forwards requests to an instance of the target service
+type Forwarders struct {
+	tostop            []stoppable
+	internaldiscovery *discoveryfile.FileReader // config-based service discovery
+
+	Accounts   *forwarder.LoadBalancedReverseProxy
+	Objectives *forwarder.LoadBalancedReverseProxy
+}
+
+func New(flags *args.GatewayArgs, deplcfg *deployment.Config, apicfg *api.Config) (*Forwarders, error) {
+	internaldiscovery := discoveryfile.NewFileReader(flags.Discovery, time.Second, discoveryfile.ServiceParams{
 		Port: deplcfg.Ports.Internal,
 		Tls:  true,
 	})
-	discoveryctl := servicereg.NewClient(
+	// NOTE: service registry is accesed over internal gateway
+	serviceregctl := servicereg.NewClient(
 		apicfg,
-		balancer.New(internalstore),
+		balancer.New(internaldiscovery),
 		filepath.Join(apicfg.Internal.Path, apicfg.Internal.Services.Discovery.Path),
 	)
 
-	return &Forwarders{
-		internalstore:   internalstore,
-		discoverystore:  servicereg.NewDiscoveryStore(discoveryctl, models.Discovery),
-		objectivesstore: servicereg.NewDiscoveryStore(discoveryctl, models.Objectives),
+	accountssd := discoveryctl.New(serviceregctl, models.Account)
+	accountsfwd, err := forwarder.New(accountssd, models.Account, api.PathFromInternet(apicfg.Internal.Services.Discovery))
+	if err != nil {
+		return nil, fmt.Errorf("creating forwarder for accounts service: %w", err)
 	}
+
+	objectivessd := discoveryctl.New(serviceregctl, models.Objectives)
+	objectivesfwd, err := forwarder.New(objectivessd, models.Objectives, api.PathFromInternet(apicfg.Public.Services.Objectives))
+	if err != nil {
+		return nil, fmt.Errorf("creating forwarder for objectives service: %w", err)
+	}
+
+	return &Forwarders{
+		tostop:            []stoppable{accountssd, objectivessd},
+		internaldiscovery: internaldiscovery,
+		Accounts:          accountsfwd,
+		Objectives:        objectivesfwd,
+	}, nil
 }
 
 func (f *Forwarders) Stop() {
-	f.internalstore.Stop()
-	f.discoverystore.Stop()
-	f.objectivesstore.Stop()
-}
-
-func (f *Forwarders) Objectives(w http.ResponseWriter, r *http.Request) {
-
-}
-
-func (f *Forwarders) Account(w http.ResponseWriter, r *http.Request) {
-
+	f.internaldiscovery.Stop()
+	for _, stoppable := range f.tostop {
+		stoppable.Stop()
+	}
 }

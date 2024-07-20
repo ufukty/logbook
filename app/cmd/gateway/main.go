@@ -16,7 +16,7 @@ func mainerr() error {
 		return fmt.Errorf("reading configs: %w", err)
 	}
 
-	fws := forwarders.New(flags, deplcfg, apicfg)
+	fws, err := forwarders.New(flags, deplcfg, apicfg)
 	defer fws.Stop()
 
 	router.StartServer(router.ServerParameters{
@@ -27,8 +27,8 @@ func mainerr() error {
 	}, func(r *mux.Router) {
 		r = r.UseEncodedPath()
 		sub := r.PathPrefix(apicfg.Public.Path).Subrouter()
-		sub.PathPrefix(apicfg.Public.Services.Account.Path).HandlerFunc(fws.Account)
-		sub.PathPrefix(apicfg.Public.Services.Objectives.Path).HandlerFunc(fws.Objectives)
+		sub.PathPrefix(apicfg.Public.Services.Account.Path).HandlerFunc(fws.Accounts.Handler)
+		sub.PathPrefix(apicfg.Public.Services.Objectives.Path).HandlerFunc(fws.Objectives.Handler)
 	})
 
 	return nil
