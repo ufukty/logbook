@@ -1,8 +1,8 @@
-package discovery
+package servicereg
 
 import (
 	"fmt"
-	"logbook/cmd/discovery/endpoints"
+	"logbook/cmd/servicereg/endpoints"
 	"logbook/config/api"
 	"logbook/internal/web/balancer"
 	"logbook/internal/web/requests"

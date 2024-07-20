@@ -1,7 +1,7 @@
 package endpoints
 
 import (
-	"logbook/cmd/discovery/app"
+	"logbook/cmd/servicereg/app"
 )
 
 type Endpoints struct {

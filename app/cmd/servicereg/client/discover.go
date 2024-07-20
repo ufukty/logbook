@@ -1,9 +1,9 @@
-package discovery
+package servicereg
 
 import (
 	"context"
 	"fmt"
-	"logbook/cmd/discovery/endpoints"
+	"logbook/cmd/servicereg/endpoints"
 	"logbook/internal/web/logger"
 	"logbook/models"
 	"sync"
@@ -14,7 +14,7 @@ import (
 //   - periodically queries the service-discovery service,
 //   - contains cache for the instances,
 //   - complies the [balancer.InstanceSource] interface
-type DiscoveryStore struct {
+type Discovery struct {
 	ctl     *Client
 	store   []models.Instance
 	service models.Service
@@ -26,9 +26,9 @@ type DiscoveryStore struct {
 	cancel context.CancelFunc
 }
 
-func NewDiscoveryStore(ctl *Client, service models.Service) *DiscoveryStore {
+func NewDiscoveryStore(ctl *Client, service models.Service) *Discovery {
 	ctx, cancel := context.WithCancel(context.Background())
-	d := &DiscoveryStore{
+	d := &Discovery{
 		ctl:     ctl,
 		store:   []models.Instance{},
 		service: service,
@@ -42,11 +42,11 @@ func NewDiscoveryStore(ctl *Client, service models.Service) *DiscoveryStore {
 	return d
 }
 
-func (d *DiscoveryStore) Stop() {
+func (d *Discovery) Stop() {
 	d.cancel()
 }
 
-func (d *DiscoveryStore) queryserver() error {
+func (d *Discovery) queryserver() error {
 	bs, err := d.ctl.ListInstances(&endpoints.ListInstancesRequest{Service: d.service})
 	if err != nil {
 		return fmt.Errorf("sending listing request: %w", err)
@@ -55,7 +55,7 @@ func (d *DiscoveryStore) queryserver() error {
 	return nil
 }
 
-func (d *DiscoveryStore) tick() {
+func (d *Discovery) tick() {
 	t := time.NewTicker(d.reload)
 	defer t.Stop()
 	for {
@@ -72,7 +72,7 @@ func (d *DiscoveryStore) tick() {
 	}
 }
 
-func (d *DiscoveryStore) Instances() ([]models.Instance, error) {
+func (d *Discovery) Instances() ([]models.Instance, error) {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
 	return d.store, nil

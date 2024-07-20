@@ -1,7 +1,7 @@
 package forwarders
 
 import (
-	discovery "logbook/cmd/discovery/client"
+	servicereg "logbook/cmd/servicereg/client"
 	"logbook/config/api"
 	"logbook/config/deployment"
 	"logbook/internal/args"
@@ -20,8 +20,8 @@ import (
 type Forwarders struct {
 	// to stop tickers later
 	internalstore   *discoveryfile.FileReader // config-based service discovery
-	discoverystore  *discovery.DiscoveryStore // self-registration based service discovery client
-	objectivesstore *discovery.DiscoveryStore
+	discoverystore  *servicereg.Discovery     // self-registration based service discovery client
+	objectivesstore *servicereg.Discovery
 }
 
 // instances of services listed
@@ -30,7 +30,7 @@ func New(flags *args.GatewayArgs, deplcfg *deployment.Config, apicfg *api.Config
 		Port: deplcfg.Ports.Internal,
 		Tls:  true,
 	})
-	discoveryctl := discovery.NewClient(
+	discoveryctl := servicereg.NewClient(
 		apicfg,
 		balancer.New(internalstore),
 		filepath.Join(apicfg.Internal.Path, apicfg.Internal.Services.Discovery.Path),
@@ -38,8 +38,8 @@ func New(flags *args.GatewayArgs, deplcfg *deployment.Config, apicfg *api.Config
 
 	return &Forwarders{
 		internalstore:   internalstore,
-		discoverystore:  discovery.NewDiscoveryStore(discoveryctl, models.Discovery),
-		objectivesstore: discovery.NewDiscoveryStore(discoveryctl, models.Objectives),
+		discoverystore:  servicereg.NewDiscoveryStore(discoveryctl, models.Discovery),
+		objectivesstore: servicereg.NewDiscoveryStore(discoveryctl, models.Objectives),
 	}
 }
 
@@ -50,7 +50,7 @@ func (f *Forwarders) Stop() {
 }
 
 func (f *Forwarders) Objectives(w http.ResponseWriter, r *http.Request) {
-	
+
 }
 
 func (f *Forwarders) Account(w http.ResponseWriter, r *http.Request) {
