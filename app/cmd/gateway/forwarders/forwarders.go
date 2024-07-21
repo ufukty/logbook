@@ -41,7 +41,7 @@ func New(flags *args.GatewayArgs, deplcfg *deployment.Config, apicfg *api.Config
 	)
 
 	accountssd := discoveryctl.New(serviceregctl, models.Account)
-	accountsfwd, err := forwarder.New(accountssd, models.Account, api.PathFromInternet(apicfg.Internal.Services.Discovery))
+	accountsfwd, err := forwarder.New(accountssd, models.Account, api.PathFromInternet(apicfg.Public.Services.Account))
 	if err != nil {
 		return nil, fmt.Errorf("creating forwarder for accounts service: %w", err)
 	}
