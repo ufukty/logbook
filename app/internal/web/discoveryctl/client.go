@@ -35,7 +35,7 @@ func New(ctl *servicereg.Client, services []models.Service) *Client {
 		store:    map[models.Service][]models.Instance{},
 		services: services,
 
-		l:      *logger.NewLogger("Discover"),
+		l:      *logger.NewLogger("Service Discovery Client"),
 		reload: time.Second,
 		ctx:    ctx,
 		cancel: cancel,
@@ -67,7 +67,7 @@ func (d *Client) tick() {
 		case <-t.C:
 			d.mu.Lock()
 			if err := d.queryserver(); err != nil {
-				d.l.Println(fmt.Errorf("error: querying service discovery service: %w", err))
+				d.l.Println(fmt.Errorf("error: querying registry service: %w", err))
 			}
 			d.mu.Unlock()
 		case <-d.ctx.Done():
