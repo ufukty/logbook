@@ -28,21 +28,21 @@ func New(flags *args.GatewayArgs, deplcfg *deployment.Config, apicfg *api.Config
 		Tls:  true,
 	})
 	// NOTE: service registry is accesed over internal gateway
-	serviceregctl := servicereg.NewClient(
+	discoveryctl := discoveryctl.New(servicereg.NewClient(
 		apicfg,
 		balancer.New(internaldiscovery),
 		filepath.Join(apicfg.Internal.Path, apicfg.Internal.Services.Discovery.Path),
-	)
-	discoveryctl := discoveryctl.New(serviceregctl, []models.Service{models.Account, models.Objectives})
+	), []models.Service{
+		models.Account,
+		models.Objectives,
+	})
 
-	accountssd := discoveryctl.InstanceSource(models.Account)
-	accountsfwd, err := forwarder.New(accountssd, models.Account, api.PathFromInternet(apicfg.Public.Services.Account))
+	accountsfwd, err := forwarder.New(discoveryctl.InstanceSource(models.Account), models.Account, api.PathFromInternet(apicfg.Public.Services.Account))
 	if err != nil {
 		return nil, fmt.Errorf("creating forwarder for accounts service: %w", err)
 	}
 
-	objectivessd := discoveryctl.InstanceSource(models.Objectives)
-	objectivesfwd, err := forwarder.New(objectivessd, models.Objectives, api.PathFromInternet(apicfg.Public.Services.Objectives))
+	objectivesfwd, err := forwarder.New(discoveryctl.InstanceSource(models.Objectives), models.Objectives, api.PathFromInternet(apicfg.Public.Services.Objectives))
 	if err != nil {
 		return nil, fmt.Errorf("creating forwarder for objectives service: %w", err)
 	}
