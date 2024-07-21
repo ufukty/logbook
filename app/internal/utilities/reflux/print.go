@@ -22,7 +22,7 @@ func print(dst io.Writer, v reflect.Value, paths []string) {
 			}
 		}
 	default:
-		fmt.Fprintf(dst, "    %s = %s\n", strings.Join(paths, "."), v)
+		fmt.Fprintf(dst, "    %s = %v\n", strings.Join(paths, "."), v)
 	}
 }
 
