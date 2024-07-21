@@ -11,7 +11,6 @@ import (
 	"logbook/internal/web/forwarder"
 	"logbook/models"
 	"path/filepath"
-	"time"
 )
 
 type Forwarders struct {
@@ -22,7 +21,7 @@ type Forwarders struct {
 }
 
 func New(flags *args.GatewayArgs, deplcfg *deployment.Config, apicfg *api.Config) (*Forwarders, error) {
-	internaldiscovery := discoveryfile.NewFileReader(flags.Discovery, time.Second, discoveryfile.ServiceParams{
+	internaldiscovery := discoveryfile.NewFileReader(flags.Discovery, deplcfg.ServiceDiscovery.UpdatePeriod, discoveryfile.ServiceParams{
 		Port: deplcfg.Ports.Internal,
 		Tls:  true,
 	})
