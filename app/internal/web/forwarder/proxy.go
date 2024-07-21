@@ -60,15 +60,11 @@ func (lbrp LoadBalancedReverseProxy) Handler(w http.ResponseWriter, r *http.Requ
 	forwarder.ServeHTTP(w, r)
 }
 
-func New(is balancer.InstanceSource, service models.Service, servicepath string) (*LoadBalancedReverseProxy, error) {
-	lb := balancer.New(is)
-	if _, err := lb.Next(); err == balancer.ErrNoHostAvailable {
-		return nil, err
-	}
+func New(is balancer.InstanceSource, service models.Service, servicepath string) *LoadBalancedReverseProxy {
 	return &LoadBalancedReverseProxy{
 		log:         logger.NewLogger("reverse proxy"),
 		pool:        map[*models.Instance]*httputil.ReverseProxy{},
-		lb:          lb,
+		lb:          balancer.New(is),
 		servicepath: servicepath,
-	}, nil
+	}
 }

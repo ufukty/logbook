@@ -1,7 +1,6 @@
 package forwarders
 
 import (
-	"fmt"
 	servicereg "logbook/cmd/registry/client"
 	"logbook/config/api"
 	"logbook/config/deployment"
@@ -28,7 +27,7 @@ func New(flags *args.GatewayArgs, deplcfg *deployment.Config, apicfg *api.Config
 		Tls:  true,
 	})
 	// NOTE: service registry is accesed over internal gateway
-	discoveryctl := discoveryctl.New(servicereg.NewClient(
+	discovery := discoveryctl.New(servicereg.NewClient(
 		apicfg,
 		balancer.New(internaldiscovery),
 		filepath.Join(apicfg.Internal.Path, apicfg.Internal.Services.Discovery.Path),
@@ -37,21 +36,12 @@ func New(flags *args.GatewayArgs, deplcfg *deployment.Config, apicfg *api.Config
 		models.Objectives,
 	})
 
-	accountsfwd, err := forwarder.New(discoveryctl.InstanceSource(models.Account), models.Account, api.PathFromInternet(apicfg.Public.Services.Account))
-	if err != nil {
-		return nil, fmt.Errorf("creating forwarder for accounts service: %w", err)
-	}
-
-	objectivesfwd, err := forwarder.New(discoveryctl.InstanceSource(models.Objectives), models.Objectives, api.PathFromInternet(apicfg.Public.Services.Objectives))
-	if err != nil {
-		return nil, fmt.Errorf("creating forwarder for objectives service: %w", err)
-	}
-
 	return &Forwarders{
-		discoveryctl:      discoveryctl,
+		discoveryctl:      discovery,
 		internaldiscovery: internaldiscovery,
-		Accounts:          accountsfwd,
-		Objectives:        objectivesfwd,
+
+		Accounts:   forwarder.New(discovery.InstanceSource(models.Account), models.Account, api.PathFromInternet(apicfg.Public.Services.Account)),
+		Objectives: forwarder.New(discovery.InstanceSource(models.Objectives), models.Objectives, api.PathFromInternet(apicfg.Public.Services.Objectives)),
 	}, nil
 }
 

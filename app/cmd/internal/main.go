@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"logbook/cmd/gateway/cfgs"
-	"logbook/config/api"
 	"logbook/internal/web/discoveryfile"
 	"logbook/internal/web/forwarder"
 	"logbook/internal/web/router"
@@ -25,10 +24,7 @@ func mainerr() error {
 	})
 	defer sd.Stop()
 
-	discovery, err := forwarder.New(sd, models.Discovery, api.PathFromInternet(apicfg.Internal.Services.Discovery))
-	if err != nil {
-		return fmt.Errorf("creating forwarder for objectives: %w", err)
-	}
+	discovery := forwarder.New(sd, models.Discovery, apicfg.Internal.Services.Discovery.Path)
 
 	router.StartServer(router.ServerParameters{
 		Router:  deplcfg.Router,
