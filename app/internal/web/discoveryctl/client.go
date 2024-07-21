@@ -5,7 +5,6 @@ import (
 	"fmt"
 	servicereg "logbook/cmd/registry/client"
 	"logbook/cmd/registry/endpoints"
-	"logbook/internal/web/balancer"
 	"logbook/internal/web/logger"
 	"logbook/models"
 	"sync"
@@ -18,9 +17,9 @@ import (
 //   - contains a cache for the instances,
 //   - complies the [balancer.InstanceSource] interface
 type Client struct {
-	ctl     *servicereg.Client
-	store   []models.Instance
-	service models.Service
+	ctl      *servicereg.Client
+	store    map[models.Service][]models.Instance
+	services []models.Service
 
 	l      logger.Logger
 	reload time.Duration
@@ -29,14 +28,12 @@ type Client struct {
 	cancel context.CancelFunc
 }
 
-var _ balancer.InstanceSource = &Client{}
-
-func New(ctl *servicereg.Client, service models.Service) *Client {
+func New(ctl *servicereg.Client, services []models.Service) *Client {
 	ctx, cancel := context.WithCancel(context.Background())
 	d := &Client{
-		ctl:     ctl,
-		store:   []models.Instance{},
-		service: service,
+		ctl:      ctl,
+		store:    map[models.Service][]models.Instance{},
+		services: services,
 
 		l:      *logger.NewLogger("Discover"),
 		reload: time.Second,
@@ -52,11 +49,13 @@ func (d *Client) Stop() {
 }
 
 func (d *Client) queryserver() error {
-	bs, err := d.ctl.ListInstances(&endpoints.ListInstancesRequest{Service: d.service})
-	if err != nil {
-		return fmt.Errorf("sending listing request: %w", err)
+	for _, service := range d.services {
+		bs, err := d.ctl.ListInstances(&endpoints.ListInstancesRequest{Service: service})
+		if err != nil {
+			return fmt.Errorf("sending listing request: %w", err)
+		}
+		d.store[service] = *bs
 	}
-	d.store = *bs
 	return nil
 }
 
@@ -77,8 +76,12 @@ func (d *Client) tick() {
 	}
 }
 
-func (d *Client) Instances() ([]models.Instance, error) {
+func (d *Client) instances(service models.Service) ([]models.Instance, error) {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
-	return d.store, nil
+	return d.store[service], nil
+}
+
+func (c *Client) InstanceSource(s models.Service) *source {
+	return newServiceStore(c, s)
 }

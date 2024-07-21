@@ -15,17 +15,11 @@ import (
 	"time"
 )
 
-type stoppable interface {
-	Stop()
-}
-
-// Forwarder forwards requests to an instance of the target service
 type Forwarders struct {
-	tostop            []stoppable
 	internaldiscovery *discoveryfile.FileReader // config-based service discovery
-
-	Accounts   *forwarder.LoadBalancedReverseProxy
-	Objectives *forwarder.LoadBalancedReverseProxy
+	discoveryctl      *discoveryctl.Client
+	Accounts          *forwarder.LoadBalancedReverseProxy
+	Objectives        *forwarder.LoadBalancedReverseProxy
 }
 
 func New(flags *args.GatewayArgs, deplcfg *deployment.Config, apicfg *api.Config) (*Forwarders, error) {
@@ -39,21 +33,22 @@ func New(flags *args.GatewayArgs, deplcfg *deployment.Config, apicfg *api.Config
 		balancer.New(internaldiscovery),
 		filepath.Join(apicfg.Internal.Path, apicfg.Internal.Services.Discovery.Path),
 	)
+	discoveryctl := discoveryctl.New(serviceregctl, []models.Service{models.Account, models.Objectives})
 
-	accountssd := discoveryctl.New(serviceregctl, models.Account)
+	accountssd := discoveryctl.InstanceSource(models.Account)
 	accountsfwd, err := forwarder.New(accountssd, models.Account, api.PathFromInternet(apicfg.Public.Services.Account))
 	if err != nil {
 		return nil, fmt.Errorf("creating forwarder for accounts service: %w", err)
 	}
 
-	objectivessd := discoveryctl.New(serviceregctl, models.Objectives)
+	objectivessd := discoveryctl.InstanceSource(models.Objectives)
 	objectivesfwd, err := forwarder.New(objectivessd, models.Objectives, api.PathFromInternet(apicfg.Public.Services.Objectives))
 	if err != nil {
 		return nil, fmt.Errorf("creating forwarder for objectives service: %w", err)
 	}
 
 	return &Forwarders{
-		tostop:            []stoppable{accountssd, objectivessd},
+		discoveryctl:      discoveryctl,
 		internaldiscovery: internaldiscovery,
 		Accounts:          accountsfwd,
 		Objectives:        objectivesfwd,
@@ -62,7 +57,5 @@ func New(flags *args.GatewayArgs, deplcfg *deployment.Config, apicfg *api.Config
 
 func (f *Forwarders) Stop() {
 	f.internaldiscovery.Stop()
-	for _, stoppable := range f.tostop {
-		stoppable.Stop()
-	}
+	f.discoveryctl.Stop()
 }
