@@ -30,7 +30,7 @@ func New(flags *args.GatewayArgs, deplcfg *deployment.Config, apicfg *api.Config
 		apicfg,
 		balancer.New(internaldiscovery),
 		filepath.Join(apicfg.Internal.Path, apicfg.Internal.Services.Discovery.Path),
-	), []models.Service{
+	), deplcfg.ServiceDiscovery.UpdatePeriod, []models.Service{
 		models.Account,
 		models.Objectives,
 	})

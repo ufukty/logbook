@@ -28,7 +28,7 @@ type Client struct {
 	cancel context.CancelFunc
 }
 
-func New(ctl *servicereg.Client, services []models.Service) *Client {
+func New(ctl *servicereg.Client, period time.Duration, services []models.Service) *Client {
 	ctx, cancel := context.WithCancel(context.Background())
 	d := &Client{
 		ctl:      ctl,
@@ -36,7 +36,7 @@ func New(ctl *servicereg.Client, services []models.Service) *Client {
 		services: services,
 
 		l:      *logger.NewLogger("Service Discovery Client"),
-		reload: time.Second,
+		reload: period,
 		ctx:    ctx,
 		cancel: cancel,
 	}
