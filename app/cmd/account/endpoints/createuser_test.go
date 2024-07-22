@@ -6,12 +6,19 @@ import (
 	"logbook/cmd/account/database"
 	"logbook/cmd/account/service"
 	"logbook/config/api"
+	"logbook/models"
 	"mime"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
 )
+
+type MockInstanceSource []models.Instance
+
+func (m *MockInstanceSource) Instances() ([]models.Instance, error) {
+	return *m, nil
+}
 
 func TestCreateUser(t *testing.T) {
 	apicfg, err := api.ReadConfig("../../../api.yml")
@@ -46,7 +53,8 @@ func TestCreateUser(t *testing.T) {
 	if err != nil {
 		t.Fatal(fmt.Errorf("opening database connection: %w", err))
 	}
-	a := app.New(q)
+
+	a := app.New(q, apicfg, &MockInstanceSource{models.Instance{}}) // FIXME:
 	ep := New(a)
 
 	ep.CreateUser(w, r)

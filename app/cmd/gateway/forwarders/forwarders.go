@@ -10,7 +10,6 @@ import (
 	"logbook/internal/web/discoveryfile"
 	"logbook/internal/web/forwarder"
 	"logbook/models"
-	"path/filepath"
 )
 
 type Forwarders struct {
@@ -25,15 +24,15 @@ func New(flags *args.GatewayArgs, deplcfg *deployment.Config, apicfg *api.Config
 		Port: deplcfg.Ports.Internal,
 		Tls:  true,
 	})
-	// NOTE: service registry is accesed over internal gateway
-	discovery := discoveryctl.New(servicereg.NewClient(
-		apicfg,
-		balancer.New(internaldiscovery),
-		filepath.Join(apicfg.Internal.Path, apicfg.Internal.Services.Discovery.Path),
-	), deplcfg.ServiceDiscovery.UpdatePeriod, []models.Service{
-		models.Account,
-		models.Objectives,
-	})
+	// NOTE: service registry is needs to be accessed through internal gateway
+	discovery := discoveryctl.New(
+		servicereg.NewClient(balancer.New(internaldiscovery), apicfg, true),
+		deplcfg.ServiceDiscovery.UpdatePeriod,
+		[]models.Service{
+			models.Account,
+			models.Objectives,
+		},
+	)
 
 	return &Forwarders{
 		discoveryctl:      discovery,

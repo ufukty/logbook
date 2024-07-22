@@ -8,6 +8,7 @@ import (
 	"logbook/cmd/account/database"
 	"logbook/cmd/account/endpoints"
 	"logbook/config/api"
+	"logbook/internal/web/discoveryfile"
 	"logbook/internal/web/router"
 	"net/http"
 )
@@ -24,7 +25,11 @@ func Main() error {
 	}
 	defer db.Close()
 
-	app := app.New(db)
+	internalsd := discoveryfile.NewFileReader("FIXME:", deplcfg.ServiceDiscovery.UpdatePeriod, discoveryfile.ServiceParams{
+		Port: 0,
+		Tls:  true,
+	})
+	app := app.New(db, apicfg, internalsd)
 	em := endpoints.New(app)
 	s := apicfg.Public.Services.Account
 

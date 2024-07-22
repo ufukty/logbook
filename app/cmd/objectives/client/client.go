@@ -15,10 +15,9 @@ type Client struct {
 	servicecfg  api.Objectives
 }
 
-// servicepath => https://ip:port/(servicepath)/endpoint, which changes when gateway used
-func NewClient(apicfg *api.Config, lb *balancer.LoadBalancer, servicepath string) *Client {
+func NewClient(lb *balancer.LoadBalancer, apicfg *api.Config) *Client {
 	return &Client{
-		servicepath: servicepath,
+		servicepath: apicfg.Public.Services.Objectives.Path,
 		servicecfg:  apicfg.Public.Services.Objectives,
 		lb:          lb,
 	}
