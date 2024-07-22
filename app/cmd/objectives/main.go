@@ -7,6 +7,7 @@ import (
 	"logbook/cmd/objectives/database"
 	"logbook/cmd/objectives/endpoints"
 	"logbook/config/api"
+	"logbook/internal/web/discoveryfile"
 	"logbook/internal/web/router"
 	"net/http"
 )
@@ -23,8 +24,13 @@ func Main() error {
 	}
 	defer db.Close()
 
-	// sd := serviced.New(cfg.ServiceDiscoveryConfig, cfg.ServiceDiscoveryUpdatePeriod)
-	app := app.New(db)
+	internalsd := discoveryfile.NewFileReader(flags.InternalGateway, deplcfg.ServiceDiscovery.UpdatePeriod, discoveryfile.ServiceParams{
+		Port: deplcfg.Ports.Registry,
+		Tls:  true,
+	})
+	defer internalsd.Stop()
+
+	app := app.New(db, internalsd)
 	em := endpoints.NewManager(app)
 
 	s := apicfg.Public.Services.Objectives
