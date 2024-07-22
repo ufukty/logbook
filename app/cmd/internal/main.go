@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
-	"logbook/cmd/gateway/cfgs"
+	"logbook/cmd/internal/cfgs"
 	"logbook/internal/web/discoveryfile"
 	"logbook/internal/web/forwarder"
 	"logbook/internal/web/router"
@@ -18,13 +18,13 @@ func mainerr() error {
 		return fmt.Errorf("reading configs: %w", err)
 	}
 
-	sd := discoveryfile.NewFileReader(flags.Discovery, deplcfg.ServiceDiscovery.UpdatePeriod, discoveryfile.ServiceParams{
+	registrysd := discoveryfile.NewFileReader(flags.RegistryService, deplcfg.ServiceDiscovery.UpdatePeriod, discoveryfile.ServiceParams{
 		Port: deplcfg.Ports.Registry,
 		Tls:  false,
 	})
-	defer sd.Stop()
+	defer registrysd.Stop()
 
-	discovery := forwarder.New(sd, models.Discovery, apicfg.Internal.Services.Registry.Path)
+	registryfwd := forwarder.New(registrysd, models.Discovery, apicfg.Internal.Services.Registry.Path)
 
 	router.StartServer(router.ServerParameters{
 		Router:  deplcfg.Router,
@@ -34,7 +34,7 @@ func mainerr() error {
 	}, func(r *mux.Router) {
 		r = r.UseEncodedPath()
 		sub := r.PathPrefix(apicfg.Public.Path).Subrouter()
-		sub.PathPrefix(apicfg.Internal.Services.Registry.Path).HandlerFunc(discovery.Handler)
+		sub.PathPrefix(apicfg.Internal.Services.Registry.Path).HandlerFunc(registryfwd.Handler)
 	})
 
 	return nil

@@ -25,7 +25,7 @@ func Main() error {
 	}
 	defer db.Close()
 
-	internalsd := discoveryfile.NewFileReader("FIXME:", deplcfg.ServiceDiscovery.UpdatePeriod, discoveryfile.ServiceParams{
+	internalsd := discoveryfile.NewFileReader(flags.InternalGateway, deplcfg.ServiceDiscovery.UpdatePeriod, discoveryfile.ServiceParams{
 		Port: 0,
 		Tls:  true,
 	})

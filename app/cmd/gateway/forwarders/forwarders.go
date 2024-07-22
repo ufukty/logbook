@@ -19,14 +19,14 @@ type Forwarders struct {
 	Objectives        *forwarder.LoadBalancedReverseProxy
 }
 
-func New(flags *args.GatewayArgs, deplcfg *deployment.Config, apicfg *api.Config) (*Forwarders, error) {
-	internaldiscovery := discoveryfile.NewFileReader(flags.Discovery, deplcfg.ServiceDiscovery.UpdatePeriod, discoveryfile.ServiceParams{
+func New(flags *args.ApiGatewayArgs, deplcfg *deployment.Config, apicfg *api.Config) (*Forwarders, error) {
+	internalsd := discoveryfile.NewFileReader(flags.InternalGateway, deplcfg.ServiceDiscovery.UpdatePeriod, discoveryfile.ServiceParams{
 		Port: deplcfg.Ports.Internal,
 		Tls:  true,
 	})
-	// NOTE: service registry is needs to be accessed through internal gateway
+	// NOTE: service registry needs to be accessed through internal gateway
 	discovery := discoveryctl.New(
-		registry.NewClient(balancer.New(internaldiscovery), apicfg, true),
+		registry.NewClient(balancer.New(internalsd), apicfg, true),
 		deplcfg.ServiceDiscovery.UpdatePeriod,
 		[]models.Service{
 			models.Account,
@@ -36,7 +36,7 @@ func New(flags *args.GatewayArgs, deplcfg *deployment.Config, apicfg *api.Config
 
 	return &Forwarders{
 		discoveryctl:      discovery,
-		internaldiscovery: internaldiscovery,
+		internaldiscovery: internalsd,
 
 		Accounts:   forwarder.New(discovery.InstanceSource(models.Account), models.Account, api.PathFromInternet(apicfg.Public.Services.Account)),
 		Objectives: forwarder.New(discovery.InstanceSource(models.Objectives), models.Objectives, api.PathFromInternet(apicfg.Public.Services.Objectives)),
