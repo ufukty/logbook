@@ -1,7 +1,7 @@
 package forwarders
 
 import (
-	servicereg "logbook/cmd/registry/client"
+	registry "logbook/cmd/registry/client"
 	"logbook/config/api"
 	"logbook/config/deployment"
 	"logbook/internal/args"
@@ -26,7 +26,7 @@ func New(flags *args.GatewayArgs, deplcfg *deployment.Config, apicfg *api.Config
 	})
 	// NOTE: service registry is needs to be accessed through internal gateway
 	discovery := discoveryctl.New(
-		servicereg.NewClient(balancer.New(internaldiscovery), apicfg, true),
+		registry.NewClient(balancer.New(internaldiscovery), apicfg, true),
 		deplcfg.ServiceDiscovery.UpdatePeriod,
 		[]models.Service{
 			models.Account,

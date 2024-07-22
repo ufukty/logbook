@@ -3,7 +3,7 @@ package discoveryctl
 import (
 	"context"
 	"fmt"
-	servicereg "logbook/cmd/registry/client"
+	registry "logbook/cmd/registry/client"
 	"logbook/cmd/registry/endpoints"
 	"logbook/internal/web/logger"
 	"logbook/models"
@@ -13,11 +13,11 @@ import (
 
 // summary:
 //   - instantiate an instance of [Client] per-service to be reached
-//   - uses [servicereg.Client] to periodically query the service registry,
+//   - uses [registry.Client] to periodically query the service registry,
 //   - contains a cache for the instances,
 //   - complies the [balancer.InstanceSource] interface
 type Client struct {
-	ctl      *servicereg.Client
+	ctl      *registry.Client
 	store    map[models.Service][]models.Instance
 	services []models.Service
 
@@ -28,7 +28,7 @@ type Client struct {
 	cancel context.CancelFunc
 }
 
-func New(ctl *servicereg.Client, period time.Duration, services []models.Service) *Client {
+func New(ctl *registry.Client, period time.Duration, services []models.Service) *Client {
 	ctx, cancel := context.WithCancel(context.Background())
 	d := &Client{
 		ctl:      ctl,

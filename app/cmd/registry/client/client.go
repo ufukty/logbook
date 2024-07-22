@@ -1,4 +1,4 @@
-package servicereg
+package registry
 
 import (
 	"fmt"
