@@ -26,7 +26,7 @@ func mainerr() error {
 	eps := apicfg.Internal.Services.Registry.Endpoints
 	router.StartServerWithEndpoints(router.ServerParameters{
 		Router:  deplycfg.Router,
-		BaseUrl: fmt.Sprintf(":%d", deplycfg.Ports.Discovery),
+		BaseUrl: fmt.Sprintf(":%d", deplycfg.Ports.Registry),
 		TlsCrt:  args.TlsCertificate,
 		TlsKey:  args.TlsKey,
 	}, map[api.Endpoint]http.HandlerFunc{

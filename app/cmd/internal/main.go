@@ -19,7 +19,7 @@ func mainerr() error {
 	}
 
 	sd := discoveryfile.NewFileReader(flags.Discovery, deplcfg.ServiceDiscovery.UpdatePeriod, discoveryfile.ServiceParams{
-		Port: deplcfg.Ports.Discovery,
+		Port: deplcfg.Ports.Registry,
 		Tls:  false,
 	})
 	defer sd.Stop()

@@ -15,5 +15,5 @@ ports:
   gateway: 0
   accounts: 0
   objectives: 0
-  discovery: 8080 # fixed
+  registry: 8080 # fixed
   internal: 8080 # fixed
