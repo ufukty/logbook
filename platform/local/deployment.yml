@@ -6,7 +6,7 @@ router:
   grace-period: 1s
 
 service-discovery:
-  update-period: 30s
+  update-period: 1s
 
 ports:
   gateway: 8080
