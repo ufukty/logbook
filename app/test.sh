@@ -44,8 +44,8 @@ function service() {
     -key "../platform/local/tls/localhost.key"
 }
 
-function discovery() {
-  unbuffer go run "logbook/cmd/discovery" \
+function registry() {
+  unbuffer go run "logbook/cmd/registry" \
     -e local \
     -api api.yml \
     -deployment ../platform/local/deployment.yml \
@@ -67,7 +67,7 @@ function gateway() {
 trap cleanports EXIT
 cleanports
 
-prefix "$(nextcolor)" discovery &
+prefix "$(nextcolor)" registry &
 prefix "$(nextcolor)" service account &
 prefix "$(nextcolor)" service objectives &
 prefix "$(nextcolor)" gateway gateway &
