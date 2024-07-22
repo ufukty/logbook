@@ -24,12 +24,29 @@ func NewClient(lb *balancer.LoadBalancer, apicfg *api.Config) *Client {
 }
 
 func (c *Client) CreateObjective(bq *endpoints.CreateTaskRequest) (*endpoints.CreateTaskResponse, error) {
+	instance, err := c.lb.Next()
+	if err != nil {
+		return nil, fmt.Errorf("LoadBalancer.Next: %w", err)
+	}
+	url := filepath.Join(instance.String(), c.servicepath, c.servicecfg.Endpoints.Create.Path)
 	bs := &endpoints.CreateTaskResponse{}
-	next, err := c.lb.Next()
-	url := filepath.Join(next.String(), c.servicepath, c.servicecfg.Endpoints.Create.Path)
 	err = requests.Send(url, c.servicecfg.Endpoints.Create.Method, bq, bs)
 	if err != nil {
-		return nil, fmt.Errorf(": %w", err)
+		return nil, fmt.Errorf("requests.Send: %w", err)
 	}
-	return bs, nil
+	return bs, err
+}
+
+func (c *Client) ReattachObjective(bq *endpoints.ReattachObjectiveRequest) (*endpoints.ReattachObjectiveResponse, error) {
+	instance, err := c.lb.Next()
+	if err != nil {
+		return nil, fmt.Errorf("LoadBalancer.Next: %w", err)
+	}
+	url := filepath.Join(instance.String(), c.servicepath, c.servicecfg.Endpoints.Attach.Path)
+	bs := &endpoints.ReattachObjectiveResponse{}
+	err = requests.Send(url, c.servicecfg.Endpoints.Attach.Method, bq, bs)
+	if err != nil {
+		return nil, fmt.Errorf("requests.Send: %w", err)
+	}
+	return bs, err
 }
