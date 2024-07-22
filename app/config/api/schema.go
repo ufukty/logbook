@@ -13,11 +13,6 @@ type Account struct {
 	Path      string           `yaml:"path"`
 	Parent    *publicServices  `yaml:"-"`
 }
-type Discovery struct {
-	Endpoints endpoints `yaml:"endpoints"`
-	Path      string    `yaml:"path"`
-	Parent    *services `yaml:"-"`
-}
 type Document struct {
 	Endpoints documentEndpoints `yaml:"endpoints"`
 	Path      string            `yaml:"path"`
@@ -35,6 +30,11 @@ type Objectives struct {
 type Public struct {
 	Path     string         `yaml:"path"`
 	Services publicServices `yaml:"services"`
+}
+type Registry struct {
+	Endpoints endpoints `yaml:"endpoints"`
+	Path      string    `yaml:"path"`
+	Parent    *services `yaml:"-"`
 }
 type Tags struct {
 	Endpoints tagsEndpoints   `yaml:"endpoints"`
@@ -87,7 +87,7 @@ type endpoints struct {
 	ListInstances    listInstances    `yaml:"list-instances"`
 	RecheckInstance  recheckInstance  `yaml:"recheck-instance"`
 	RegisterInstance registerInstance `yaml:"register-instance"`
-	Parent           *Discovery       `yaml:"-"`
+	Parent           *Registry        `yaml:"-"`
 }
 type endpointsCreate struct {
 	Method string               `yaml:"method"`
@@ -150,8 +150,8 @@ type registerInstance struct {
 	Parent *endpoints `yaml:"-"`
 }
 type services struct {
-	Discovery Discovery `yaml:"discovery"`
-	Parent    *Internal `yaml:"-"`
+	Registry Registry  `yaml:"registry"`
+	Parent   *Internal `yaml:"-"`
 }
 type tagsEndpoints struct {
 	Assign   assign   `yaml:"assign"`
@@ -170,11 +170,11 @@ type Config struct {
 
 func parentRefAssignments(c *Config) {
 	c.Internal.Services.Parent = &c.Internal
-	c.Internal.Services.Discovery.Parent = &c.Internal.Services
-	c.Internal.Services.Discovery.Endpoints.Parent = &c.Internal.Services.Discovery
-	c.Internal.Services.Discovery.Endpoints.ListInstances.Parent = &c.Internal.Services.Discovery.Endpoints
-	c.Internal.Services.Discovery.Endpoints.RecheckInstance.Parent = &c.Internal.Services.Discovery.Endpoints
-	c.Internal.Services.Discovery.Endpoints.RegisterInstance.Parent = &c.Internal.Services.Discovery.Endpoints
+	c.Internal.Services.Registry.Parent = &c.Internal.Services
+	c.Internal.Services.Registry.Endpoints.Parent = &c.Internal.Services.Registry
+	c.Internal.Services.Registry.Endpoints.ListInstances.Parent = &c.Internal.Services.Registry.Endpoints
+	c.Internal.Services.Registry.Endpoints.RecheckInstance.Parent = &c.Internal.Services.Registry.Endpoints
+	c.Internal.Services.Registry.Endpoints.RegisterInstance.Parent = &c.Internal.Services.Registry.Endpoints
 	c.Public.Services.Parent = &c.Public
 	c.Public.Services.Account.Parent = &c.Public.Services
 	c.Public.Services.Account.Endpoints.Parent = &c.Public.Services.Account
@@ -221,15 +221,6 @@ func (a Account) GetPath() string {
 func (a *Account) SetPath(v string) {
 	a.Path = v
 }
-func (d Discovery) GetParent() any {
-	return d.Parent
-}
-func (d Discovery) GetPath() string {
-	return d.Path
-}
-func (d *Discovery) SetPath(v string) {
-	d.Path = v
-}
 func (d Document) GetParent() any {
 	return d.Parent
 }
@@ -259,6 +250,15 @@ func (p Public) GetPath() string {
 }
 func (p *Public) SetPath(v string) {
 	p.Path = v
+}
+func (r Registry) GetParent() any {
+	return r.Parent
+}
+func (r Registry) GetPath() string {
+	return r.Path
+}
+func (r *Registry) SetPath(v string) {
+	r.Path = v
 }
 func (t Tags) GetParent() any {
 	return t.Parent

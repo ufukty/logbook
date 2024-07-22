@@ -23,7 +23,7 @@ func mainerr() error {
 
 	ep := endpoints.New(a)
 
-	eps := apicfg.Internal.Services.Discovery.Endpoints
+	eps := apicfg.Internal.Services.Registry.Endpoints
 	router.StartServerWithEndpoints(router.ServerParameters{
 		Router:  deplycfg.Router,
 		BaseUrl: fmt.Sprintf(":%d", deplycfg.Ports.Discovery),

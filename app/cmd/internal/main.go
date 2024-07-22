@@ -24,7 +24,7 @@ func mainerr() error {
 	})
 	defer sd.Stop()
 
-	discovery := forwarder.New(sd, models.Discovery, apicfg.Internal.Services.Discovery.Path)
+	discovery := forwarder.New(sd, models.Discovery, apicfg.Internal.Services.Registry.Path)
 
 	router.StartServer(router.ServerParameters{
 		Router:  deplcfg.Router,
@@ -34,7 +34,7 @@ func mainerr() error {
 	}, func(r *mux.Router) {
 		r = r.UseEncodedPath()
 		sub := r.PathPrefix(apicfg.Public.Path).Subrouter()
-		sub.PathPrefix(apicfg.Internal.Services.Discovery.Path).HandlerFunc(discovery.Handler)
+		sub.PathPrefix(apicfg.Internal.Services.Registry.Path).HandlerFunc(discovery.Handler)
 	})
 
 	return nil

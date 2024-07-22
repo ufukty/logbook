@@ -13,17 +13,17 @@ import (
 type Client struct {
 	lb          *balancer.LoadBalancer
 	servicepath string
-	servicecfg  api.Discovery
+	servicecfg  api.Registry
 }
 
 func NewClient(lb *balancer.LoadBalancer, apicfg *api.Config, throughgateway bool) *Client {
-	servicepath := apicfg.Internal.Services.Discovery.Path
+	servicepath := apicfg.Internal.Services.Registry.Path
 	if throughgateway {
 		servicepath = filepath.Join(apicfg.Internal.Path, servicepath)
 	}
 	return &Client{
 		servicepath: servicepath,
-		servicecfg:  apicfg.Internal.Services.Discovery,
+		servicecfg:  apicfg.Internal.Services.Registry,
 		lb:          lb,
 	}
 }
