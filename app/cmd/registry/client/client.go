@@ -33,9 +33,9 @@ func (c *Client) RegisterInstance(bq *endpoints.RegisterInstanceRequest) (*endpo
 	if err != nil {
 		return nil, fmt.Errorf("LoadBalancer.Next: %w", err)
 	}
-	url := filepath.Join(instance.String(), c.servicepath, c.servicecfg.Endpoints.RecheckInstance.Path)
+	url := filepath.Join(instance.String(), c.servicepath, c.servicecfg.Endpoints.RegisterInstance.Path)
 	bs := &endpoints.RegisterInstanceResponse{}
-	err = requests.Send(url, c.servicecfg.Endpoints.RecheckInstance.Method, bq, bs)
+	err = requests.Send(url, c.servicecfg.Endpoints.RegisterInstance.Method, bq, bs)
 	if err != nil {
 		return nil, fmt.Errorf("requests.Send: %w", err)
 	}
@@ -60,9 +60,9 @@ func (c *Client) ListInstances(bq *endpoints.ListInstancesRequest) (*endpoints.L
 	if err != nil {
 		return nil, fmt.Errorf("LoadBalancer.Next: %w", err)
 	}
-	url := filepath.Join(instance.String(), c.servicepath, c.servicecfg.Endpoints.RecheckInstance.Path)
+	url := filepath.Join(instance.String(), c.servicepath, c.servicecfg.Endpoints.ListInstances.Path)
 	bs := &endpoints.ListInstancesResponse{}
-	err = requests.Send(url, c.servicecfg.Endpoints.RecheckInstance.Method, bq, bs)
+	err = requests.Send(url, c.servicecfg.Endpoints.ListInstances.Method, bq, bs)
 	if err != nil {
 		return nil, fmt.Errorf("requests.Send: %w", err)
 	}
