@@ -9,22 +9,22 @@ import (
 	"net/http"
 )
 
-type CreateTaskRequest struct {
+type CreateObjectiveRequest struct {
 	Parent  app.Ovid         `json:"parent"`
 	Content ObjectiveContent `json:"content"`
 }
 
-func (ct CreateTaskRequest) validate() error {
+func (ct CreateObjectiveRequest) validate() error {
 	return validate.RequestFields(ct)
 }
 
-type CreateTaskResponse struct {
+type CreateObjectiveResponse struct {
 	Update []app.Ovid `json:"update"`
 }
 
 // TODO: Check user input for script tags in order to prevent XSS attempts
-func (e *Endpoints) CreateTask(w http.ResponseWriter, r *http.Request) {
-	bq := &CreateTaskRequest{}
+func (e *Endpoints) CreateObjective(w http.ResponseWriter, r *http.Request) {
+	bq := &CreateObjectiveRequest{}
 
 	if err := requests.ParseRequest(w, r, bq); err != nil {
 		log.Println(fmt.Errorf("parsing request: %w", err))
@@ -49,7 +49,7 @@ func (e *Endpoints) CreateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	bs := CreateTaskResponse{
+	bs := CreateObjectiveResponse{
 		Update: o,
 	}
 	if err := requests.WriteJsonResponse(bs, w); err != nil {

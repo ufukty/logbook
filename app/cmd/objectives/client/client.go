@@ -23,13 +23,13 @@ func NewClient(lb *balancer.LoadBalancer, apicfg *api.Config) *Client {
 	}
 }
 
-func (c *Client) CreateObjective(bq *endpoints.CreateTaskRequest) (*endpoints.CreateTaskResponse, error) {
+func (c *Client) CreateObjective(bq *endpoints.CreateObjectiveRequest) (*endpoints.CreateObjectiveResponse, error) {
 	instance, err := c.lb.Next()
 	if err != nil {
 		return nil, fmt.Errorf("LoadBalancer.Next: %w", err)
 	}
 	url := filepath.Join(instance.String(), c.servicepath, c.servicecfg.Endpoints.Create.Path)
-	bs := &endpoints.CreateTaskResponse{}
+	bs := &endpoints.CreateObjectiveResponse{}
 	err = requests.Send(url, c.servicecfg.Endpoints.Create.Method, bq, bs)
 	if err != nil {
 		return nil, fmt.Errorf("requests.Send: %w", err)

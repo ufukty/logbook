@@ -28,7 +28,7 @@ func TestCreateObjective(t *testing.T) {
 
 	w := httptest.NewRecorder()
 
-	ep.CreateTask(w, r)
+	ep.CreateObjective(w, r)
 
 	if w.Code != http.StatusOK {
 		t.Fatal(fmt.Sprintf("got http error code %v", w.Code))

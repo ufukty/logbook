@@ -35,7 +35,7 @@ func Main() error {
 		TlsKey:  flags.TlsKey,
 	}, map[api.Endpoint]http.HandlerFunc{
 		s.Endpoints.Attach:    em.ReattachObjective,
-		s.Endpoints.Create:    em.CreateTask,
+		s.Endpoints.Create:    em.CreateObjective,
 		s.Endpoints.Mark:      em.MarkComplete,
 		s.Endpoints.Placement: em.GetPlacementArray,
 	})
