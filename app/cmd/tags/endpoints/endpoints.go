@@ -1,18 +1,18 @@
 package endpoints
 
 import (
-	"logbook/cmd/objectives/database"
+	"logbook/cmd/tags/app"
 	"logbook/internal/web/logger"
 )
 
 type Endpoints struct {
-	db  *database.Queries
+	app *app.App
 	log *logger.Logger
 }
 
-func NewManager(db *database.Queries) *Endpoints {
+func New(app *app.App) *Endpoints {
 	return &Endpoints{
-		db:  db,
+		app: app,
 		log: logger.NewLogger("endpoints"),
 	}
 }

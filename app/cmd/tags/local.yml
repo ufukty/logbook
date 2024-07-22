@@ -1,0 +1,5 @@
+database:
+  dsn: postgres://ufuktan:@localhost:5432/logbook_tags?pool_max_conns=10
+  user: ufuktan
+  name: logbook_tags
+  default: postgres

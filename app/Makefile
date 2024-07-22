@@ -3,6 +3,7 @@ all: \
 	config/deployment/config.go
 	$(MAKE) -C cmd/account
 	$(MAKE) -C cmd/objectives
+	$(MAKE) -C cmd/tags
 
 config/api/schema.go: api.yml config/api/directives.yml
 	gonfique generate \
