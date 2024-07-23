@@ -29,6 +29,8 @@ func Main() error {
 		Port: deplcfg.Ports.Internal,
 		Tls:  true,
 	})
+	defer internalsd.Stop()
+
 	app := app.New(db, apicfg, internalsd)
 	em := endpoints.New(app)
 	s := apicfg.Public.Services.Account
