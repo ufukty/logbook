@@ -32,8 +32,9 @@ function service() {
   unbuffer go run "logbook/cmd/${SERVICENAME}" \
     -e local \
     -api api.yml \
-    -deployment ../platform/local/deployment.yml \
     -service "cmd/${SERVICENAME}/local.yml" \
+    -deployment "../platform/local/deployment.yml" \
+    -internal "../platform/local/registryfile.internalgateway.json" \
     -cert "../platform/local/tls/localhost.crt" \
     -key "../platform/local/tls/localhost.key"
 }
@@ -42,18 +43,27 @@ function registry() {
   unbuffer go run "logbook/cmd/registry" \
     -e local \
     -api api.yml \
-    -deployment ../platform/local/deployment.yml \
+    -deployment "../platform/local/deployment.yml" \
     -cert "../platform/local/tls/localhost.crt" \
     -key "../platform/local/tls/localhost.key"
 }
 
-function gateway() {
-  GATEWAYNAME="${1:?}"
-  unbuffer go run "logbook/cmd/$GATEWAYNAME" \
+function api-gateway() {
+  unbuffer go run "logbook/cmd/api" \
     -e local \
     -api api.yml \
-    -deployment ../platform/local/deployment.yml \
-    -discovery "../platform/local/discovery.yml" \
+    -deployment "../platform/local/deployment.yml" \
+    -internal "../platform/local/registryfile.internalgateway.json" \
+    -cert "../platform/local/tls/localhost.crt" \
+    -key "../platform/local/tls/localhost.key"
+}
+
+function internal-gateway() {
+  unbuffer go run "logbook/cmd/internal" \
+    -e local \
+    -api api.yml \
+    -deployment "../platform/local/deployment.yml" \
+    -registry "../platform/local/registryfile.registryservice.json" \
     -cert "../platform/local/tls/localhost.crt" \
     -key "../platform/local/tls/localhost.key"
 }
@@ -66,7 +76,7 @@ prefix "$(nextcolor)" registry &
 prefix "$(nextcolor)" service account &
 prefix "$(nextcolor)" service objectives &
 
-prefix "$(nextcolor)" gateway api &
-prefix "$(nextcolor)" gateway internal &
+prefix "$(nextcolor)" api-gateway &
+prefix "$(nextcolor)" internal-gateway &
 
 wait
