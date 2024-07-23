@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"log"
-	"logbook/cmd/gateway/cfgs"
-	"logbook/cmd/gateway/forwarders"
+	"logbook/cmd/api/cfgs"
+	"logbook/cmd/api/forwarders"
 	"logbook/internal/web/router"
 
 	"github.com/gorilla/mux"

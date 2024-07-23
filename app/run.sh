@@ -66,7 +66,7 @@ prefix "$(nextcolor)" registry &
 prefix "$(nextcolor)" service account &
 prefix "$(nextcolor)" service objectives &
 
-prefix "$(nextcolor)" gateway gateway &
+prefix "$(nextcolor)" gateway api &
 prefix "$(nextcolor)" gateway internal &
 
 wait
