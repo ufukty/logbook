@@ -1,4 +1,4 @@
-package discoveryfile
+package registryfile
 
 import (
 	"context"

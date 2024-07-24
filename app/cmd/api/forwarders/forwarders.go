@@ -7,20 +7,20 @@ import (
 	"logbook/internal/args"
 	"logbook/internal/web/balancer"
 	"logbook/internal/web/discoveryctl"
-	"logbook/internal/web/discoveryfile"
 	"logbook/internal/web/forwarder"
+	"logbook/internal/web/registryfile"
 	"logbook/models"
 )
 
 type Forwarders struct {
-	internaldiscovery *discoveryfile.FileReader // config-based service discovery
+	internaldiscovery *registryfile.FileReader // config-based service discovery
 	discoveryctl      *discoveryctl.Client
 	Accounts          *forwarder.LoadBalancedReverseProxy
 	Objectives        *forwarder.LoadBalancedReverseProxy
 }
 
 func New(flags *args.ApiGatewayArgs, deplcfg *deployment.Config, apicfg *api.Config) (*Forwarders, error) {
-	internalsd := discoveryfile.NewFileReader(flags.InternalGateway, deplcfg.ServiceDiscovery.UpdatePeriod, discoveryfile.ServiceParams{
+	internalsd := registryfile.NewFileReader(flags.InternalGateway, deplcfg.ServiceDiscovery.UpdatePeriod, registryfile.ServiceParams{
 		Port: deplcfg.Ports.Internal,
 		Tls:  true,
 	})

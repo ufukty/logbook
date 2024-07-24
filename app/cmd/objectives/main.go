@@ -7,7 +7,7 @@ import (
 	"logbook/cmd/objectives/database"
 	"logbook/cmd/objectives/endpoints"
 	"logbook/config/api"
-	"logbook/internal/web/discoveryfile"
+	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router"
 	"net/http"
 )
@@ -24,7 +24,7 @@ func Main() error {
 	}
 	defer db.Close()
 
-	internalsd := discoveryfile.NewFileReader(flags.InternalGateway, deplcfg.ServiceDiscovery.UpdatePeriod, discoveryfile.ServiceParams{
+	internalsd := registryfile.NewFileReader(flags.InternalGateway, deplcfg.ServiceDiscovery.UpdatePeriod, registryfile.ServiceParams{
 		Port: deplcfg.Ports.Registry,
 		Tls:  true,
 	})

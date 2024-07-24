@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log"
 	"logbook/cmd/internal/cfgs"
-	"logbook/internal/web/discoveryfile"
 	"logbook/internal/web/forwarder"
+	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router"
 	"logbook/models"
 
@@ -18,7 +18,7 @@ func mainerr() error {
 		return fmt.Errorf("reading configs: %w", err)
 	}
 
-	registrysd := discoveryfile.NewFileReader(flags.RegistryService, deplcfg.ServiceDiscovery.UpdatePeriod, discoveryfile.ServiceParams{
+	registrysd := registryfile.NewFileReader(flags.RegistryService, deplcfg.ServiceDiscovery.UpdatePeriod, registryfile.ServiceParams{
 		Port: deplcfg.Ports.Registry,
 		Tls:  false,
 	})
