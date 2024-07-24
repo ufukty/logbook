@@ -37,10 +37,12 @@ func (lbrp *LoadBalancedReverseProxy) next() (*httputil.ReverseProxy, error) {
 				pr.Out.URL.Path = strings.TrimPrefix(pr.In.URL.Path, lbrp.servicepath)
 				pr.Out.URL.RawPath = strings.TrimPrefix(pr.In.URL.RawPath, lbrp.servicepath)
 
-				lbrp.log.Printf("forwarding request: (%s %s %s) => (%s %s %s)\n",
-					pr.In.Method, pr.In.Host, pr.In.URL.String(),
-					pr.Out.Method, pr.Out.Host, pr.Out.URL.String(),
-				)
+				pr.Out.Host = pr.In.Host
+
+				// lbrp.log.Printf("forwarding request: (%s %s %s) => (%s %s %s)\n",
+				// 	pr.In.Method, pr.In.Host, pr.In.URL.String(),
+				// 	pr.Out.Method, pr.Out.Host, pr.Out.URL.String(),
+				// )
 			},
 			ErrorHandler: func(w http.ResponseWriter, r *http.Request, err error) {
 				log.Printf("proxy error: %v, method=%s, url=%s, remoteAddr=%s\n", err, r.Method, r.URL.String(), r.RemoteAddr)
