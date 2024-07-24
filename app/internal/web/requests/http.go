@@ -16,12 +16,18 @@ import (
 )
 
 func separateParams(in any) (map[string]string, map[string]any) {
-	var t = reflect.TypeOf(in)
-	var v = reflect.ValueOf(in)
-	var fields = v.NumField()
-	var url = map[string]string{}
-	var body = map[string]any{}
+	url := map[string]string{}
+	body := map[string]any{}
+
+	t := reflect.TypeOf(in)
+	v := reflect.ValueOf(in)	
+	if t.Kind() == reflect.Pointer {
+		t = t.Elem()
+		v = v.Elem()
+	}
+	fields := v.NumField()
 	var tags reflect.StructTag
+
 	for i := 0; i < fields; i++ {
 		tags = t.Field(i).Tag
 		if key, exists := tags.Lookup("url"); exists {

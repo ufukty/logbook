@@ -9,7 +9,7 @@ import (
 )
 
 type ListInstancesRequest struct {
-	Service models.Service `url:"service"` // TODO: add the support for binding url fragments into 'url' marked fields in 'requests' package
+	Service models.Service `url:"service"`
 }
 
 type ListInstancesResponse []models.Instance

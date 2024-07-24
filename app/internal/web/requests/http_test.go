@@ -19,7 +19,7 @@ func Test_separateParams(t *testing.T) {
 		folder = "1665/Kutbil/Plaza"
 	)
 
-	req := SeparateParamsTest{
+	req := &SeparateParamsTest{
 		ArchiveId: aid,
 		Folder:    folder,
 	}
