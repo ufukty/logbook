@@ -11,8 +11,8 @@ import (
 	"mime"
 	"net/http"
 	"reflect"
-
-	"github.com/gorilla/mux"
+	"regexp"
+	"strings"
 )
 
 func separateParams(in any) (map[string]string, map[string]any) {
@@ -20,7 +20,7 @@ func separateParams(in any) (map[string]string, map[string]any) {
 	body := map[string]any{}
 
 	t := reflect.TypeOf(in)
-	v := reflect.ValueOf(in)	
+	v := reflect.ValueOf(in)
 	if t.Kind() == reflect.Pointer {
 		t = t.Elem()
 		v = v.Elem()
@@ -39,14 +39,37 @@ func separateParams(in any) (map[string]string, map[string]any) {
 	return url, body
 }
 
+var segmentpattern = regexp.MustCompile("^{(.*)}$")
+
+func substitudeUrlWithParams(url string, urlparams map[string]string) (string, error) {
+	segments := strings.Split(url, "/")
+	for i := 0; i < len(segments); i++ {
+		matches := segmentpattern.FindStringSubmatch(segments[i])
+		if len(matches) == 2 {
+			if value, ok := urlparams[matches[1]]; ok {
+				segments[i] = value
+			} else {
+				return "", fmt.Errorf("url contains additional parameters that mapping type doesn't provide values for: %s", matches[1])
+			}
+		}
+	}
+	return strings.Join(segments, "/"), nil
+}
+
 func NewRequest[Request any](url, method string, params *Request) (*http.Request, error) {
 	var err error
-	var urlParams, bodyParams = separateParams(params)
+	var urlparams, bodyparams = separateParams(params)
 	var buffer = bytes.NewBuffer([]byte{})
-	if bodyParams != nil {
-		err = json.NewEncoder(buffer).Encode(bodyParams)
+	if bodyparams != nil {
+		err = json.NewEncoder(buffer).Encode(bodyparams)
 		if err != nil {
 			return nil, fmt.Errorf("serializing the body: %w", err)
+		}
+	}
+	if urlparams != nil {
+		url, err = substitudeUrlWithParams(url, urlparams)
+		if err != nil {
+			return nil, fmt.Errorf("substituting url parameters: %w", err)
 		}
 	}
 	var r *http.Request
@@ -54,12 +77,9 @@ func NewRequest[Request any](url, method string, params *Request) (*http.Request
 	if err != nil {
 		return nil, fmt.Errorf("creating request object: %w", err)
 	}
-	if bodyParams != nil {
+	if bodyparams != nil {
 		r.Header.Set("Content-Type", mime.TypeByExtension("json"))
 		r.Header.Set("Content-Length", fmt.Sprintf("%d", buffer.Len()))
-	}
-	if urlParams != nil {
-		r = mux.SetURLVars(r, urlParams)
 	}
 	return r, nil
 }
