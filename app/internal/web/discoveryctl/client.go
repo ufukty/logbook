@@ -54,7 +54,7 @@ func (d *Client) queryserver() error {
 		if err != nil {
 			return fmt.Errorf("sending listing request: %w", err)
 		}
-		d.store[service] = *bs
+		d.store[service] = bs.Instances
 	}
 	return nil
 }

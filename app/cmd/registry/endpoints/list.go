@@ -12,7 +12,9 @@ type ListInstancesRequest struct {
 	Service models.Service `url:"service"`
 }
 
-type ListInstancesResponse []models.Instance
+type ListInstancesResponse struct {
+	Instances []models.Instance `json:"instances"`
+}
 
 func (e *Endpoints) ListInstances(w http.ResponseWriter, r *http.Request) {
 	bq := &ListInstancesRequest{}
@@ -29,7 +31,7 @@ func (e *Endpoints) ListInstances(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, redact(err), http.StatusInternalServerError)
 		return
 	}
-	bs := ListInstancesResponse(instances)
+	bs := ListInstancesResponse{instances}
 
 	if err := requests.WriteJsonResponse(bs, w); err != nil {
 		log.Println(fmt.Errorf("writing json response: %w", err))
