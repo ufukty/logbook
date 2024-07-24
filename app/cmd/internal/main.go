@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"logbook/cmd/internal/cfgs"
+	"logbook/config/api"
 	"logbook/internal/web/forwarder"
 	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router"
@@ -24,7 +25,7 @@ func mainerr() error {
 	})
 	defer registrysd.Stop()
 
-	registryfwd := forwarder.New(registrysd, models.Discovery, apicfg.Internal.Services.Registry.Path)
+	registryfwd := forwarder.New(registrysd, models.Discovery, api.PathFromInternet(apicfg.Internal.Services.Registry))
 
 	router.StartServer(router.ServerParameters{
 		Router:  deplcfg.Router,
@@ -33,7 +34,7 @@ func mainerr() error {
 		TlsKey:  flags.TlsKey,
 	}, func(r *mux.Router) {
 		r = r.UseEncodedPath()
-		sub := r.PathPrefix(apicfg.Public.Path).Subrouter()
+		sub := r.PathPrefix(apicfg.Internal.Path).Subrouter()
 		sub.PathPrefix(apicfg.Internal.Services.Registry.Path).HandlerFunc(registryfwd.Handler)
 	})
 
