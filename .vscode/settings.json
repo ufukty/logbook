@@ -1,6 +1,5 @@
 {
     "editor.wordWrap": "off",
-    "go.lintFlags": ["-ST1001"], // "ST1001: Dot imports are discouraged"
     "runOnSave.commands": [
         {
             "match": "\\.(mmd|d2)$",
