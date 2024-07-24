@@ -31,7 +31,7 @@ func Main() error {
 	defer internalsd.Stop()
 
 	app := app.New(db, internalsd)
-	em := endpoints.NewManager(app)
+	eps := endpoints.New(app)
 
 	s := apicfg.Public.Services.Objectives
 	router.StartServerWithEndpoints(router.ServerParameters{
@@ -40,10 +40,10 @@ func Main() error {
 		TlsCrt:  flags.TlsCertificate,
 		TlsKey:  flags.TlsKey,
 	}, map[api.Endpoint]http.HandlerFunc{
-		s.Endpoints.Attach:    em.ReattachObjective,
-		s.Endpoints.Create:    em.CreateObjective,
-		s.Endpoints.Mark:      em.MarkComplete,
-		s.Endpoints.Placement: em.GetPlacementArray,
+		s.Endpoints.Attach:    eps.ReattachObjective,
+		s.Endpoints.Create:    eps.CreateObjective,
+		s.Endpoints.Mark:      eps.MarkComplete,
+		s.Endpoints.Placement: eps.GetPlacementArray,
 	})
 
 	return nil

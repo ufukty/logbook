@@ -29,11 +29,13 @@ func Main() error {
 		Port: deplcfg.Ports.Internal,
 		Tls:  true,
 	})
+	defer internalsd.Stop()
+
 	app := app.New(db, apicfg, internalsd)
 	eps := endpoints.New(app)
-	s := apicfg.Public.Services.Tags
 
 	// TODO: tls between services needs certs per host(name)
+	s := apicfg.Public.Services.Tags
 	router.StartServerWithEndpoints(router.ServerParameters{
 		Router:  deplcfg.Router,
 		BaseUrl: fmt.Sprintf(":%d", deplcfg.Ports.Tags),

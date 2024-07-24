@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-func mainerr() error {
+func Main() error {
 	args, deplycfg, apicfg, err := cfgs.Read()
 	if err != nil {
 		return fmt.Errorf("reading config: %w", err)
@@ -20,26 +20,25 @@ func mainerr() error {
 
 	a := app.New(time.Minute, 2*time.Minute)
 	defer a.Stop()
+	eps := endpoints.New(a)
 
-	ep := endpoints.New(a)
-
-	eps := apicfg.Internal.Services.Registry.Endpoints
+	s := apicfg.Internal.Services.Registry
 	router.StartServerWithEndpoints(router.ServerParameters{
 		Router:  deplycfg.Router,
 		BaseUrl: fmt.Sprintf(":%d", deplycfg.Ports.Registry),
 		TlsCrt:  args.TlsCertificate,
 		TlsKey:  args.TlsKey,
 	}, map[api.Endpoint]http.HandlerFunc{
-		eps.ListInstances:    ep.ListInstances,
-		eps.RecheckInstance:  ep.RecheckInstance,
-		eps.RegisterInstance: ep.RegisterInstance,
+		s.Endpoints.ListInstances:    eps.ListInstances,
+		s.Endpoints.RecheckInstance:  eps.RecheckInstance,
+		s.Endpoints.RegisterInstance: eps.RegisterInstance,
 	})
 
 	return nil
 }
 
 func main() {
-	if err := mainerr(); err != nil {
+	if err := Main(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}

@@ -10,7 +10,7 @@ type Endpoints struct {
 	log *logger.Logger
 }
 
-func NewManager(app *app.App) *Endpoints {
+func New(app *app.App) *Endpoints {
 	return &Endpoints{
 		app: app,
 		log: logger.NewLogger("endpoints"),

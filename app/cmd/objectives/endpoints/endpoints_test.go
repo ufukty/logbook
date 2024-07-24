@@ -29,5 +29,5 @@ func getTestDependencies() (*Endpoints, error) {
 		return nil, fmt.Errorf("connecting database: %w", err)
 	}
 	app := app.New(q, &mockInstanceSource{}) // FIXME:
-	return NewManager(app), nil
+	return New(app), nil
 }
