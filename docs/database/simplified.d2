@@ -1,7 +1,7 @@
 user: {
   shape: sql_table
 
-  user_id: uuid
+  uid: UserId
   password: text
 }
 
@@ -10,60 +10,69 @@ user -- bookmark
 bookmark: {
   shape: sql_table
 
-  user_id: uuid
-  oid: uuid
+  uid: UserId
+  oid: ObjectiveId
   display_name: text
-  rocks: are hidden in the UI
-  is_rock: bool
-  creation_date: date
+  is_rock: bool # rocks are hidden in the UI
+  created_at: date
 }
 
 privilege: {
   shape: sql_table
 
   user_role_id: uuid
-  oid: uuid
-  user_id: uuid
+  oid: ObjectiveId
+  uid: UserId
   role: "Owner, Supervisor, Executor, Guest"
   status: "Invited, Accepted, Rejected, Canceled"
-  creation_date: date
-  update_date: date
+  created_at: date
+  updated_at: date
+}
+
+rock: {
+  shape: sql_table
+
+  uid: UserId
+  oid: ObjectiveId
+  vid: VersionId # anchor
 }
 
 objective: {
   shape: sql_table
 
-  oid: uuid
-  vid: uuid
-  based: uuid
+  oid: ObjectiveId
+  vid: VersionId
+  based: VersionId
   type: "Regular, Rock"
   content: text
-  creator: uuid
+  creator: UserId
   creation: timestamp
 
   # "Inherit: super obj, randomize else" 
   sharding_id: uuid
   # "Needed: for sharding." 
-  root_oid: uuid
+  root_oid: ObjectiveId
 }
 
 # recalculate every link on a tree when new viewer come" ?
 objective_link: {
   shape: sql_table
 
-  linkid: uuid
+  lid: LinkId
 
   # "Inherit: super obj, randomize otherwise" 
   sharding_id: uuid
 
-  sub_oid: uuid
-  sup_oid: uuid
-  sub_vid: uuid
-  sup_vid: uuid
+  sub_oid: ObjectiveId
+  sup_oid: ObjectiveId
+  sub_vid: VersionId
+  sup_vid: VersionId
 
-  creation_at: date
+  created_at: date
   deleted_at: date
 }
+
+rock.uid -- user.uid
 
 objective.oid -- objective_link.sup_oid
 objective.oid -- objective_link.sub_oid
@@ -80,9 +89,9 @@ privilege.vid -- objective.vid
 computed_to_top: {
   shape: sql_table
 
-  oid: uuid
-  vid: uuid
-  viewer_id: user
+  oid: ObjectiveId
+  vid: VersionId
+  viewer: UserId
 
   is_solo: bool
   bool: is_leaf
@@ -101,9 +110,9 @@ computed_to_top: {
 computed_to_bottom: {
   shape: sql_table
 
-  oid: uuid
-  vid: uuid
-  viewer_id: user
+  oid: ObjectiveId
+  vid: VersionId
+  viewer: UserId
 
   degree: int
 }
@@ -118,17 +127,17 @@ operation: {
   shape: sql_table
 
   operation_id: uuid
-  vid: uuid
-  previous_vid: uuid
+  vid: VersionId
+  previous_vid: VersionId
 
-  user_id: uuid
+  uid: UserId
   summary: enum
   status: enum
 
-  oid: uuid
-  linkid: uuid
+  oid: ObjectiveId
+  lid: LinkId
 
-  created_at: uuid
+  created_at: date
 }
 
 operation_completion: {
@@ -136,9 +145,9 @@ operation_completion: {
 
   operation_id: uuid
   generic_operation_id: uuid
-  oid: uuid
-  vid: uuid
-  actor: uuid
+  oid: ObjectiveId
+  vid: VersionId
+  actor: UserId
   created_at: date
 }
 
