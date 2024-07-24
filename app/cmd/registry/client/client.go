@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"logbook/cmd/registry/endpoints"
 	"logbook/config/api"
+	"logbook/internal/utilities/urls"
 	"logbook/internal/web/balancer"
 	"logbook/internal/web/requests"
 	"net/http"
@@ -33,7 +34,7 @@ func (c *Client) RegisterInstance(bq *endpoints.RegisterInstanceRequest) (*endpo
 	if err != nil {
 		return nil, fmt.Errorf("LoadBalancer.Next: %w", err)
 	}
-	url := filepath.Join(instance.String(), c.servicepath, c.servicecfg.Endpoints.RegisterInstance.Path)
+	url := urls.Join(instance.String(), c.servicepath, c.servicecfg.Endpoints.RegisterInstance.Path)
 	bs := &endpoints.RegisterInstanceResponse{}
 	err = requests.Send(url, c.servicecfg.Endpoints.RegisterInstance.Method, bq, bs)
 	if err != nil {
@@ -47,7 +48,7 @@ func (c *Client) RecheckInstance(bq *endpoints.RecheckInstanceRequest) (*http.Re
 	if err != nil {
 		return nil, fmt.Errorf("LoadBalancer.Next: %w", err)
 	}
-	url := filepath.Join(instance.String(), c.servicepath, c.servicecfg.Endpoints.RecheckInstance.Path)
+	url := urls.Join(instance.String(), c.servicepath, c.servicecfg.Endpoints.RecheckInstance.Path)
 	rs, err := requests.SendRaw(url, c.servicecfg.Endpoints.RecheckInstance.Method, bq)
 	if err != nil {
 		return nil, fmt.Errorf("requests.SendRaw: %w", err)
@@ -60,7 +61,7 @@ func (c *Client) ListInstances(bq *endpoints.ListInstancesRequest) (*endpoints.L
 	if err != nil {
 		return nil, fmt.Errorf("LoadBalancer.Next: %w", err)
 	}
-	url := filepath.Join(instance.String(), c.servicepath, c.servicecfg.Endpoints.ListInstances.Path)
+	url := urls.Join(instance.String(), c.servicepath, c.servicecfg.Endpoints.ListInstances.Path)
 	bs := &endpoints.ListInstancesResponse{}
 	err = requests.Send(url, c.servicecfg.Endpoints.ListInstances.Method, bq, bs)
 	if err != nil {

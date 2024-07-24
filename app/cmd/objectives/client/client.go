@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"logbook/cmd/objectives/endpoints"
 	"logbook/config/api"
+	"logbook/internal/utilities/urls"
 	"logbook/internal/web/balancer"
 	"logbook/internal/web/requests"
-	"path/filepath"
 )
 
 type Client struct {
@@ -28,7 +28,7 @@ func (c *Client) MarkComplete(bq *endpoints.MarkCompleteRequest) (*endpoints.Mar
 	if err != nil {
 		return nil, fmt.Errorf("LoadBalancer.Next: %w", err)
 	}
-	url := filepath.Join(instance.String(), c.servicepath, c.servicecfg.Endpoints.Mark.Path)
+	url := urls.Join(instance.String(), c.servicepath, c.servicecfg.Endpoints.Mark.Path)
 	bs := &endpoints.MarkCompleteResponse{}
 	err = requests.Send(url, c.servicecfg.Endpoints.Mark.Method, bq, bs)
 	if err != nil {
@@ -42,7 +42,7 @@ func (c *Client) CreateObjective(bq *endpoints.CreateObjectiveRequest) (*endpoin
 	if err != nil {
 		return nil, fmt.Errorf("LoadBalancer.Next: %w", err)
 	}
-	url := filepath.Join(instance.String(), c.servicepath, c.servicecfg.Endpoints.Create.Path)
+	url := urls.Join(instance.String(), c.servicepath, c.servicecfg.Endpoints.Create.Path)
 	bs := &endpoints.CreateObjectiveResponse{}
 	err = requests.Send(url, c.servicecfg.Endpoints.Create.Method, bq, bs)
 	if err != nil {
@@ -56,7 +56,7 @@ func (c *Client) ReattachObjective(bq *endpoints.ReattachObjectiveRequest) (*end
 	if err != nil {
 		return nil, fmt.Errorf("LoadBalancer.Next: %w", err)
 	}
-	url := filepath.Join(instance.String(), c.servicepath, c.servicecfg.Endpoints.Attach.Path)
+	url := urls.Join(instance.String(), c.servicepath, c.servicecfg.Endpoints.Attach.Path)
 	bs := &endpoints.ReattachObjectiveResponse{}
 	err = requests.Send(url, c.servicecfg.Endpoints.Attach.Method, bq, bs)
 	if err != nil {
@@ -70,7 +70,7 @@ func (c *Client) GetPlacementArray(bq *endpoints.GetPlacementArrayRequest) (*end
 	if err != nil {
 		return nil, fmt.Errorf("LoadBalancer.Next: %w", err)
 	}
-	url := filepath.Join(instance.String(), c.servicepath, c.servicecfg.Endpoints.Placement.Path)
+	url := urls.Join(instance.String(), c.servicepath, c.servicecfg.Endpoints.Placement.Path)
 	bs := &endpoints.GetPlacementArrayResponse{}
 	err = requests.Send(url, c.servicecfg.Endpoints.Placement.Method, bq, bs)
 	if err != nil {

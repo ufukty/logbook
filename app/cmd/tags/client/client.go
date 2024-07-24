@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"logbook/cmd/tags/endpoints"
 	"logbook/config/api"
+	"logbook/internal/utilities/urls"
 	"logbook/internal/web/balancer"
 	"logbook/internal/web/requests"
-	"path/filepath"
 )
 
 type Client struct {
@@ -28,7 +28,7 @@ func (c *Client) TagAssign(bq *endpoints.TagAssignRequest) (*endpoints.TagAssign
 	if err != nil {
 		return nil, fmt.Errorf("LoadBalancer.Next: %w", err)
 	}
-	url := filepath.Join(instance.String(), c.servicepath, c.servicecfg.Endpoints.Assign.Path)
+	url := urls.Join(instance.String(), c.servicepath, c.servicecfg.Endpoints.Assign.Path)
 	bs := &endpoints.TagAssignResponse{}
 	err = requests.Send(url, c.servicecfg.Endpoints.Assign.Method, bq, bs)
 	if err != nil {
@@ -42,7 +42,7 @@ func (c *Client) TagCreation(bq *endpoints.TagCreationRequest) (*endpoints.TagCr
 	if err != nil {
 		return nil, fmt.Errorf("LoadBalancer.Next: %w", err)
 	}
-	url := filepath.Join(instance.String(), c.servicepath, c.servicecfg.Endpoints.Creation.Path)
+	url := urls.Join(instance.String(), c.servicepath, c.servicecfg.Endpoints.Creation.Path)
 	bs := &endpoints.TagCreationResponse{}
 	err = requests.Send(url, c.servicecfg.Endpoints.Creation.Method, bq, bs)
 	if err != nil {
