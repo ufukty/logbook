@@ -126,9 +126,14 @@ func Send[Request any, Response any](url, method string, bq *Request, bs *Respon
 	if err != nil {
 		return fmt.Errorf("sending the request: %w", err)
 	}
-	err = parseJsonResponse[Response](rs, bs)
-	if err != nil {
-		return fmt.Errorf("binding response: %w", err)
+	if rs.StatusCode != 200 {
+		return fmt.Errorf("server responded with status code: %d", rs.StatusCode)
+	}
+	if isBodyNeeded(bs) {
+		err = parseJsonResponse[Response](rs, bs)
+		if err != nil {
+			return fmt.Errorf("binding response: %w", err)
+		}
 	}
 	return nil
 }
