@@ -153,10 +153,11 @@ CREATE TABLE "op_objective_update_completion"(
 ;
 
 CREATE TABLE "bookmark"(
-    "user" "UserId" NOT NULL,
+    "uid" "UserId" NOT NULL,
     "oid" "ObjectiveId" NOT NULL,
     "vid" "VersionId" NOT NULL,
-    "name" text,
+    "display_name" text,
+    "is_rock" boolean NOT NULL DEFAULT FALSE,
     "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "deleted_at" timestamp
 );

@@ -10,12 +10,13 @@ import (
 )
 
 type Bookmark struct {
-	User      database.UserId
-	Oid       ObjectiveId
-	Vid       VersionId
-	Name      pgtype.Text
-	CreatedAt pgtype.Timestamp
-	DeletedAt pgtype.Timestamp
+	Uid         database.UserId
+	Oid         ObjectiveId
+	Vid         VersionId
+	DisplayName pgtype.Text
+	IsRock      bool
+	CreatedAt   pgtype.Timestamp
+	DeletedAt   pgtype.Timestamp
 }
 
 type ComputedToBottom struct {
