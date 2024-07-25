@@ -12,6 +12,7 @@ bookmark: {
 
   uid: UserId
   oid: ObjectiveId
+  vid: VersionId
   display_name: text
   is_rock: bool # rocks are hidden in the UI
   created_at: date
@@ -27,14 +28,6 @@ privilege: {
   status: "Invited, Accepted, Rejected, Canceled"
   created_at: date
   updated_at: date
-}
-
-rock: {
-  shape: sql_table
-
-  uid: UserId
-  oid: ObjectiveId
-  vid: VersionId # anchor
 }
 
 objective: {
@@ -72,15 +65,14 @@ objective_link: {
   deleted_at: date
 }
 
-rock.uid -- user.uid
-
 objective.oid -- objective_link.sup_oid
 objective.oid -- objective_link.sub_oid
 objective.vid -- objective_link.sup_vid
 objective.vid -- objective_link.sub_vid
 
 # a bookmark points to a root node of a work tree
-bookmark -- objective
+bookmark.oid -- objective.oid
+bookmark.vid -- objective.vid
 
 # Any task with custom privilege hand.can have owner/viewers/executors
 privilege.oid -- objective.oid
