@@ -10,6 +10,7 @@ import (
 )
 
 type Bookmark struct {
+	Bid         interface{}
 	Uid         database.UserId
 	Oid         ObjectiveId
 	Vid         VersionId

@@ -14,6 +14,8 @@ CREATE DOMAIN "OperationId" AS uuid;
 
 CREATE DOMAIN "LinkId" AS uuid;
 
+CREATE DOMAIN "BookmarkId" AS uuid;
+
 CREATE TABLE "versioning_config"(
     "oid" "ObjectiveId" NOT NULL,
     "first" "VersionId" NOT NULL,
@@ -153,6 +155,7 @@ CREATE TABLE "op_objective_update_completion"(
 ;
 
 CREATE TABLE "bookmark"(
+    "bid" "BookmarkId" NOT NULL DEFAULT gen_random_uuid(),
     "uid" "UserId" NOT NULL,
     "oid" "ObjectiveId" NOT NULL,
     "vid" "VersionId" NOT NULL,
