@@ -54,7 +54,7 @@ func TestCreateUser(t *testing.T) {
 		t.Fatal(fmt.Errorf("opening database connection: %w", err))
 	}
 
-	a := app.New(q, apicfg, &MockInstanceSource{models.Instance{}}) // FIXME:
+	a := app.New(q, apicfg, nil) // FIXME: mock objectives service?
 	ep := New(a)
 
 	ep.CreateUser(w, r)

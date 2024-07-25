@@ -6,7 +6,6 @@ import (
 	"logbook/cmd/account/database"
 	"logbook/cmd/account/service"
 	"logbook/config/api"
-	"logbook/models"
 )
 
 func getTestDependencies() (*Endpoints, error) {
@@ -27,6 +26,6 @@ func getTestDependencies() (*Endpoints, error) {
 	if err != nil {
 		return nil, fmt.Errorf("connecting database: %w", err)
 	}
-	a := app.New(q, apicfg, &MockInstanceSource{models.Instance{}}) // FIXME:
+	a := app.New(q, apicfg, nil) // FIXME: mock objectives service?
 	return New(a), nil
 }

@@ -5,7 +5,6 @@ import (
 	"logbook/cmd/account/database"
 	objectives "logbook/cmd/objectives/client"
 	"logbook/config/api"
-	"logbook/internal/web/balancer"
 )
 
 type App struct {
@@ -14,10 +13,10 @@ type App struct {
 	objectives *objectives.Client
 }
 
-func New(queries *database.Queries, apicfg *api.Config, internalsd balancer.InstanceSource) *App {
+func New(queries *database.Queries, apicfg *api.Config, objectivesctl *objectives.Client) *App {
 	return &App{
 		authz:      authz.New(queries),
 		queries:    queries,
-		objectives: objectives.NewClient(balancer.New(internalsd), apicfg),
+		objectives: objectivesctl,
 	}
 }

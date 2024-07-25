@@ -7,10 +7,16 @@ import (
 	"logbook/cmd/account/cfgs"
 	"logbook/cmd/account/database"
 	"logbook/cmd/account/endpoints"
+	objectives "logbook/cmd/objectives/client"
+	registry "logbook/cmd/registry/client"
 	"logbook/config/api"
+	"logbook/internal/web/balancer"
+	"logbook/internal/web/discoveryctl"
 	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router"
+	"logbook/models"
 	"net/http"
+	"time"
 )
 
 func Main() error {
@@ -30,8 +36,14 @@ func Main() error {
 		Tls:  true,
 	})
 	defer internalsd.Stop()
+	discovery := discoveryctl.New(registry.NewClient(balancer.New(internalsd), apicfg, true), time.Second, []models.Service{
+		models.Objectives,
+	})
+	defer discovery.Stop()
 
-	app := app.New(db, apicfg, internalsd)
+	objectivesctl := objectives.NewClient(balancer.New(discovery.InstanceSource(models.Objectives)), apicfg)
+
+	app := app.New(db, apicfg, objectivesctl)
 	em := endpoints.New(app)
 	s := apicfg.Public.Services.Account
 
