@@ -23,6 +23,7 @@ public:
         delete: { method: POST, path: "/delete" }
         placement: { method: GET, path: "/{root}/placement" }
         mark: { method: POST, path: "/mark" }
+        rock-create: { method: POST, path: "/rock" }
 
     tags:
       path: /tags

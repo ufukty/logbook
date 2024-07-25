@@ -3,9 +3,9 @@
 package api
 
 import (
-	"fmt"
 	"gopkg.in/yaml.v3"
 	"os"
+	"fmt"
 )
 
 type Account struct {
@@ -120,12 +120,13 @@ type mark struct {
 	Parent *objectivesEndpoints `yaml:"-"`
 }
 type objectivesEndpoints struct {
-	Attach    attach          `yaml:"attach"`
-	Create    endpointsCreate `yaml:"create"`
-	Delete    delete          `yaml:"delete"`
-	Mark      mark            `yaml:"mark"`
-	Placement placement       `yaml:"placement"`
-	Parent    *Objectives     `yaml:"-"`
+	Attach     attach          `yaml:"attach"`
+	Create     endpointsCreate `yaml:"create"`
+	Delete     delete          `yaml:"delete"`
+	Mark       mark            `yaml:"mark"`
+	Placement  placement       `yaml:"placement"`
+	RockCreate rockCreate      `yaml:"rock-create"`
+	Parent     *Objectives     `yaml:"-"`
 }
 type placement struct {
 	Method string               `yaml:"method"`
@@ -148,6 +149,11 @@ type registerInstance struct {
 	Method string     `yaml:"method"`
 	Path   string     `yaml:"path"`
 	Parent *endpoints `yaml:"-"`
+}
+type rockCreate struct {
+	Method string               `yaml:"method"`
+	Path   string               `yaml:"path"`
+	Parent *objectivesEndpoints `yaml:"-"`
 }
 type services struct {
 	Registry Registry  `yaml:"registry"`
@@ -193,6 +199,7 @@ func parentRefAssignments(c *Config) {
 	c.Public.Services.Objectives.Endpoints.Delete.Parent = &c.Public.Services.Objectives.Endpoints
 	c.Public.Services.Objectives.Endpoints.Mark.Parent = &c.Public.Services.Objectives.Endpoints
 	c.Public.Services.Objectives.Endpoints.Placement.Parent = &c.Public.Services.Objectives.Endpoints
+	c.Public.Services.Objectives.Endpoints.RockCreate.Parent = &c.Public.Services.Objectives.Endpoints
 	c.Public.Services.Tags.Parent = &c.Public.Services
 	c.Public.Services.Tags.Endpoints.Parent = &c.Public.Services.Tags
 	c.Public.Services.Tags.Endpoints.Assign.Parent = &c.Public.Services.Tags.Endpoints
@@ -507,6 +514,21 @@ func (r *registerInstance) SetMethod(v string) {
 	r.Method = v
 }
 func (r *registerInstance) SetPath(v string) {
+	r.Path = v
+}
+func (r rockCreate) GetMethod() string {
+	return r.Method
+}
+func (r rockCreate) GetParent() any {
+	return r.Parent
+}
+func (r rockCreate) GetPath() string {
+	return r.Path
+}
+func (r *rockCreate) SetMethod(v string) {
+	r.Method = v
+}
+func (r *rockCreate) SetPath(v string) {
 	r.Path = v
 }
 func (s services) GetParent() any {

@@ -40,10 +40,11 @@ func Main() error {
 		TlsCrt:  flags.TlsCertificate,
 		TlsKey:  flags.TlsKey,
 	}, map[api.Endpoint]http.HandlerFunc{
-		s.Endpoints.Attach:    eps.ReattachObjective,
-		s.Endpoints.Create:    eps.CreateObjective,
-		s.Endpoints.Mark:      eps.MarkComplete,
-		s.Endpoints.Placement: eps.GetPlacementArray,
+		s.Endpoints.Attach:     eps.ReattachObjective,
+		s.Endpoints.Create:     eps.CreateObjective,
+		s.Endpoints.Mark:       eps.MarkComplete,
+		s.Endpoints.Placement:  eps.GetPlacementArray,
+		s.Endpoints.RockCreate: eps.RockCreate,
 	})
 
 	return nil
