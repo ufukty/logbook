@@ -269,6 +269,35 @@ func (q *Queries) InsertOpObjectiveUpdateCompletion(ctx context.Context, arg Ins
 	return i, err
 }
 
+const insertRock = `-- name: InsertRock :one
+INSERT INTO "bookmark"("uid", "oid", "vid", "display_name", "is_rock")
+    VALUES ($1, $2, $3, '', TRUE)
+RETURNING
+    bid, uid, oid, vid, display_name, is_rock, created_at, deleted_at
+`
+
+type InsertRockParams struct {
+	Uid database.UserId
+	Oid ObjectiveId
+	Vid VersionId
+}
+
+func (q *Queries) InsertRock(ctx context.Context, arg InsertRockParams) (Bookmark, error) {
+	row := q.db.QueryRow(ctx, insertRock, arg.Uid, arg.Oid, arg.Vid)
+	var i Bookmark
+	err := row.Scan(
+		&i.Bid,
+		&i.Uid,
+		&i.Oid,
+		&i.Vid,
+		&i.DisplayName,
+		&i.IsRock,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const insertVersion = `-- name: InsertVersion :one
 INSERT INTO "version"("based")
     VALUES ($1)

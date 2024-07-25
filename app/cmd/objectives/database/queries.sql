@@ -144,3 +144,12 @@ INSERT INTO op_objective_update_completion("oid", "vid", "actor", "completed")
 RETURNING
     *;
 
+-- MARK: bookmark
+;
+
+-- name: InsertRock :one
+INSERT INTO "bookmark"("uid", "oid", "vid", "display_name", "is_rock")
+    VALUES ($1, $2, $3, '', TRUE)
+RETURNING
+    *;
+
