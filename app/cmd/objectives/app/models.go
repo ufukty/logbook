@@ -15,8 +15,8 @@ type CreateObjectiveAction struct {
 
 // ObjectiveVersionedId: use to describe specific version of an objective
 type Ovid struct {
-	Oid database.ObjectiveId
-	Vid database.VersionId
+	Oid database.ObjectiveId `json:"oid"`
+	Vid database.VersionId   `json:"vid"`
 }
 
 func (ovid Ovid) String() string {
