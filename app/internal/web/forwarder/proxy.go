@@ -9,12 +9,14 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"strings"
+	"sync"
 )
 
 // TODO: load balancing between processes listen different ports but in same IP address
 type LoadBalancedReverseProxy struct {
 	lb          *balancer.LoadBalancer
 	pool        map[*models.Instance]*httputil.ReverseProxy
+	mu          sync.RWMutex
 	servicepath string // rewrite
 	log         *logger.Logger
 }
@@ -24,9 +26,12 @@ func (lbrp *LoadBalancedReverseProxy) next() (*httputil.ReverseProxy, error) {
 	if err == balancer.ErrNoHostAvailable {
 		return nil, err
 	}
-	if _, ok := lbrp.pool[next]; !ok {
+	lbrp.mu.RLock()
+	nextrp, ok := lbrp.pool[next]
+	lbrp.mu.RUnlock()
+	if !ok {
 		host := fmt.Sprintf("%s:%d", next.Address, next.Port)
-		lbrp.pool[next] = &httputil.ReverseProxy{
+		nextrp = &httputil.ReverseProxy{
 			// see link to understand usage of rewrite
 			// https://www.ory.sh/hop-by-hop-header-vulnerability-go-standard-library-reverse-proxy/
 			Rewrite: func(pr *httputil.ProxyRequest) {
@@ -49,8 +54,11 @@ func (lbrp *LoadBalancedReverseProxy) next() (*httputil.ReverseProxy, error) {
 				http.Error(w, "Bad Gateway", http.StatusBadGateway)
 			},
 		}
+		lbrp.mu.Lock()
+		lbrp.pool[next] = nextrp
+		lbrp.mu.Unlock()
 	}
-	return lbrp.pool[next], nil
+	return nextrp, nil
 }
 
 func (lbrp LoadBalancedReverseProxy) Handler(w http.ResponseWriter, r *http.Request) {
