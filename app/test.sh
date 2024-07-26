@@ -14,7 +14,10 @@ function prefix() {
   shift 1
   PREFIX="$(echo "$@" | tr -d ';')"
   esc=$(printf '\033')
-  "$@" | gsed -E "s;^(.*)$;${esc}\[${COLOR}m$PREFIX:${esc}\[0m \1;g"
+  total_length=20
+  space_count=$((total_length - ${#PREFIX}))
+  padding=$(printf "%${space_count}s")
+  "$@" | gsed -E "s;^(.*)$;${esc}\[${COLOR}m$PREFIX${padding}:${esc}\[0m \1;g"
 }
 
 function cleanports() {
