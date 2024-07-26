@@ -3,8 +3,8 @@ package balancer
 import (
 	"fmt"
 	"logbook/internal/utilities/randoms"
-	"logbook/internal/web/logger"
 	"logbook/models"
+	"sync"
 
 	"errors"
 )
@@ -20,9 +20,8 @@ var (
 type LoadBalancer struct {
 	source InstanceSource
 	index  int
+	mu     sync.Mutex // index
 }
-
-var log = logger.NewLogger("LoadBalancer")
 
 func New(is InstanceSource) *LoadBalancer {
 	return &LoadBalancer{
@@ -32,6 +31,8 @@ func New(is InstanceSource) *LoadBalancer {
 }
 
 func (lb *LoadBalancer) Next() (*models.Instance, error) {
+	lb.mu.Lock()
+	defer lb.mu.Unlock()
 	hosts, err := lb.source.Instances()
 	if err != nil {
 		return nil, fmt.Errorf("checking service pool: %w", err)
