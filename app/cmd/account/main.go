@@ -49,10 +49,12 @@ func Main() error {
 
 	// TODO: tls between services needs certs per host(name)
 	router.StartServerWithEndpoints(router.ServerParameters{
-		Router: deplcfg.Router,
-		Port:   deplcfg.Ports.Accounts,
-		TlsCrt: flags.TlsCertificate,
-		TlsKey: flags.TlsKey,
+		Router:    deplcfg.Router,
+		Address:   flags.PrivateNetworkIp,
+		Port:      deplcfg.Ports.Accounts,
+		Discovery: discovery,
+		TlsCrt:    flags.TlsCertificate,
+		TlsKey:    flags.TlsKey,
 	}, map[api.Endpoint]http.HandlerFunc{
 		s.Endpoints.Create:        em.CreateUser,
 		s.Endpoints.CreateProfile: em.CreateProfile,

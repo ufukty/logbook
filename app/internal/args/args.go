@@ -5,17 +5,20 @@ import (
 )
 
 type ServiceArgs struct {
-	Api             string
-	Deployment      string
-	Service         string
-	InternalGateway string
-	EnvMode         string
-	TlsKey          string
-	TlsCertificate  string
+	PrivateNetworkIp string
+	Api              string
+	Deployment       string
+	Service          string
+	InternalGateway  string
+	EnvMode          string
+	TlsKey           string
+	TlsCertificate   string
 }
 
 func Service() (ServiceArgs, error) {
 	var args ServiceArgs
+	flag.StringVar(&args.PrivateNetworkIp,
+		"ip", "", "Host's IP in the private network, which will be used to register the service into service registry")
 	flag.StringVar(&args.EnvMode,
 		"e", "", "either from [ local | stage | production ]")
 	flag.StringVar(&args.Api,

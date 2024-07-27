@@ -6,10 +6,15 @@ import (
 	"logbook/cmd/objectives/cfgs"
 	"logbook/cmd/objectives/database"
 	"logbook/cmd/objectives/endpoints"
+	registry "logbook/cmd/registry/client"
 	"logbook/config/api"
+	"logbook/internal/web/balancer"
+	"logbook/internal/web/discoveryctl"
 	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router"
+	"logbook/models"
 	"net/http"
+	"time"
 )
 
 func Main() error {
@@ -29,16 +34,20 @@ func Main() error {
 		Tls:  true,
 	})
 	defer internalsd.Stop()
+	discovery := discoveryctl.New(registry.NewClient(balancer.New(internalsd), apicfg, true), time.Second, []models.Service{})
+	defer discovery.Stop()
 
 	app := app.New(db, internalsd)
 	eps := endpoints.New(app)
 
 	s := apicfg.Public.Services.Objectives
 	router.StartServerWithEndpoints(router.ServerParameters{
-		Router: deplcfg.Router,
-		Port:   deplcfg.Ports.Objectives,
-		TlsCrt: flags.TlsCertificate,
-		TlsKey: flags.TlsKey,
+		Router:    deplcfg.Router,
+		Address:   flags.PrivateNetworkIp,
+		Port:      deplcfg.Ports.Objectives,
+		Discovery: discovery,
+		TlsCrt:    flags.TlsCertificate,
+		TlsKey:    flags.TlsKey,
 	}, map[api.Endpoint]http.HandlerFunc{
 		s.Endpoints.Attach:     eps.ReattachObjective,
 		s.Endpoints.Create:     eps.CreateObjective,

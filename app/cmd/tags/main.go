@@ -3,14 +3,19 @@ package main
 import (
 	"fmt"
 	"log"
+	registry "logbook/cmd/registry/client"
 	"logbook/cmd/tags/app"
 	"logbook/cmd/tags/cfgs"
 	"logbook/cmd/tags/database"
 	"logbook/cmd/tags/endpoints"
 	"logbook/config/api"
+	"logbook/internal/web/balancer"
+	"logbook/internal/web/discoveryctl"
 	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router"
+	"logbook/models"
 	"net/http"
+	"time"
 )
 
 func Main() error {
@@ -30,6 +35,8 @@ func Main() error {
 		Tls:  true,
 	})
 	defer internalsd.Stop()
+	discovery := discoveryctl.New(registry.NewClient(balancer.New(internalsd), apicfg, true), time.Second, []models.Service{})
+	defer discovery.Stop()
 
 	app := app.New(db, apicfg, internalsd)
 	eps := endpoints.New(app)
@@ -37,10 +44,12 @@ func Main() error {
 	// TODO: tls between services needs certs per host(name)
 	s := apicfg.Public.Services.Tags
 	router.StartServerWithEndpoints(router.ServerParameters{
-		Router: deplcfg.Router,
-		Port:   deplcfg.Ports.Tags,
-		TlsCrt: flags.TlsCertificate,
-		TlsKey: flags.TlsKey,
+		Router:    deplcfg.Router,
+		Address:   flags.PrivateNetworkIp,
+		Port:      deplcfg.Ports.Tags,
+		Discovery: discovery,
+		TlsCrt:    flags.TlsCertificate,
+		TlsKey:    flags.TlsKey,
 	}, map[api.Endpoint]http.HandlerFunc{
 		s.Endpoints.Assign:   eps.TagAssign,
 		s.Endpoints.Creation: eps.TagCreation,

@@ -6,7 +6,10 @@ import (
 	"log"
 	"logbook/config/api"
 	"logbook/config/deployment"
+	"logbook/internal/web/discoveryctl"
 	"logbook/internal/web/logger"
+	"logbook/models"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -18,10 +21,13 @@ import (
 )
 
 type ServerParameters struct {
-	Router deployment.Router
-	Port   int
-	TlsCrt string
-	TlsKey string
+	Discovery *discoveryctl.Client
+	Service   models.Service
+	Address   string
+	Router    deployment.Router
+	Port      int
+	TlsCrt    string
+	TlsKey    string
 }
 
 func StartServer(params ServerParameters, endpointRegisterer func(r *mux.Router)) {
@@ -40,6 +46,25 @@ func StartServer(params ServerParameters, endpointRegisterer func(r *mux.Router)
 	r.Use(mux.CORSMethodMiddleware(r))
 	r.Use(middleware.Recoverer)
 
+	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", params.Port))
+	if err != nil {
+		l.Println(fmt.Errorf("net.Listen: %w", err))
+	}
+	defer listener.Close()
+	port := listener.Addr().(*net.TCPAddr).Port
+	l.Printf("listening the port: %d\n", port)
+
+	if params.Discovery != nil {
+		err := params.Discovery.SetInstanceDetails(params.Service, models.Instance{
+			Tls:     tls,
+			Address: params.Address,
+			Port:    port,
+		})
+		if err != nil {
+			l.Println(fmt.Errorf("params.Discovery.SetInstanceDetails: %w", err))
+		}
+	}
+
 	server := &http.Server{
 		Addr: fmt.Sprintf(":%d", params.Port),
 		// Good practice to set timeouts to avoid Slowloris attacks.
@@ -50,15 +75,13 @@ func StartServer(params ServerParameters, endpointRegisterer func(r *mux.Router)
 	}
 
 	go func() {
-		if params.TlsKey != "" && params.TlsCrt != "" {
-			l.Printf("calling ListenAndServeTLS on %q\n", params.BaseUrl)
-			if err := server.ListenAndServeTLS(params.TlsCrt, params.TlsKey); err != nil {
-				l.Println(fmt.Errorf("http.Server returned an error from ListenAndServeTLS call: %w", err))
+		if tls {
+			if err := server.ServeTLS(listener, params.TlsCrt, params.TlsKey); err != nil {
+				l.Println(fmt.Errorf("server.ServeTLS: %w", err))
 			}
 		} else {
-			l.Printf("calling ListenAndServe on %q\n", params.BaseUrl)
-			if err := server.ListenAndServe(); err != nil {
-				l.Println(fmt.Errorf("http.Server returned an error from ListendAndServe call: %w", err))
+			if err := server.Serve(listener); err != nil {
+				l.Println(fmt.Errorf("server.Serve: %w", err))
 			}
 		}
 	}()
