@@ -13,10 +13,11 @@ import (
 )
 
 // summary:
-//   - instantiate an instance of [Client] per-service to be reached
-//   - uses [registry.Client] to periodically query the service registry,
-//   - contains a cache for the instances,
-//   - complies the [balancer.InstanceSource] interface
+//   - Pass the list of all services that will be needed through runtime into [New]
+//   - [Client] will periodically fetch the list of instances of services and cache them
+//   - [Client] will periodically recheck the instance with registry after [Client.SetInstanceDetails] called
+//   - [Client] uses [registry.Client] to periodically query the registry service,
+//   - [Client.InstanceSource] returns a struct which conforms [balancer.InstanceSource]
 type Client struct {
 	ctl      *registry.Client
 	store    map[models.Service][]models.Instance
