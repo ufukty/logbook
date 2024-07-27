@@ -20,14 +20,15 @@ import (
 //   - [Client.InstanceSource] returns a struct which conforms [balancer.InstanceSource]
 type Client struct {
 	ctl      *registry.Client
-	store    map[models.Service][]models.Instance
+	reload   time.Duration
 	services []models.Service
 
 	l      logger.Logger
-	reload time.Duration
-	mu     sync.RWMutex
 	ctx    context.Context
 	cancel context.CancelFunc
+
+	store   map[models.Service][]models.Instance
+	storemu sync.RWMutex
 
 	iid   app.InstanceId
 	iidmu sync.RWMutex
@@ -86,11 +87,11 @@ func (d *Client) tick() {
 	for {
 		select {
 		case <-t.C:
-			d.mu.Lock()
+			d.storemu.Lock()
 			if err := d.queryserver(); err != nil {
 				d.l.Println(fmt.Errorf("tick: queryserver: %w", err))
 			}
-			d.mu.Unlock()
+			d.storemu.Unlock()
 
 			d.iidmu.RLock()
 			if err := d.recheck(); err != nil {
@@ -104,8 +105,8 @@ func (d *Client) tick() {
 }
 
 func (d *Client) instances(service models.Service) ([]models.Instance, error) {
-	d.mu.RLock()
-	defer d.mu.RUnlock()
+	d.storemu.RLock()
+	defer d.storemu.RUnlock()
 	return d.store[service], nil
 }
 
