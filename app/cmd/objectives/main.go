@@ -35,10 +35,10 @@ func Main() error {
 
 	s := apicfg.Public.Services.Objectives
 	router.StartServerWithEndpoints(router.ServerParameters{
-		Router:  deplcfg.Router,
-		BaseUrl: fmt.Sprintf(":%d", deplcfg.Ports.Objectives),
-		TlsCrt:  flags.TlsCertificate,
-		TlsKey:  flags.TlsKey,
+		Router: deplcfg.Router,
+		Port:   deplcfg.Ports.Objectives,
+		TlsCrt: flags.TlsCertificate,
+		TlsKey: flags.TlsKey,
 	}, map[api.Endpoint]http.HandlerFunc{
 		s.Endpoints.Attach:     eps.ReattachObjective,
 		s.Endpoints.Create:     eps.CreateObjective,

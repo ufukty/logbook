@@ -18,13 +18,14 @@ import (
 )
 
 type ServerParameters struct {
-	Router  deployment.Router
-	BaseUrl string
-	TlsCrt  string
-	TlsKey  string
+	Router deployment.Router
+	Port   int
+	TlsCrt string
+	TlsKey string
 }
 
 func StartServer(params ServerParameters, endpointRegisterer func(r *mux.Router)) {
+	tls := params.TlsKey != "" && params.TlsCrt != ""
 	l := logger.NewLogger("Router")
 
 	r := mux.NewRouter()
@@ -40,12 +41,12 @@ func StartServer(params ServerParameters, endpointRegisterer func(r *mux.Router)
 	r.Use(middleware.Recoverer)
 
 	server := &http.Server{
-		Addr: params.BaseUrl,
+		Addr: fmt.Sprintf(":%d", params.Port),
 		// Good practice to set timeouts to avoid Slowloris attacks.
 		WriteTimeout: time.Duration(params.Router.WriteTimeout),
 		ReadTimeout:  time.Duration(params.Router.ReadTimeout),
 		IdleTimeout:  time.Duration(params.Router.IdleTimeout),
-		Handler:      r, // Pass our instance of gorilla/mux in.
+		Handler:      r,
 	}
 
 	go func() {

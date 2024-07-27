@@ -20,10 +20,10 @@ func mainerr() error {
 	defer fws.Stop()
 
 	router.StartServer(router.ServerParameters{
-		Router:  deplcfg.Router,
-		BaseUrl: fmt.Sprintf(":%d", deplcfg.Ports.Gateway),
-		TlsCrt:  flags.TlsCertificate,
-		TlsKey:  flags.TlsKey,
+		Router: deplcfg.Router,
+		Port:   deplcfg.Ports.Gateway,
+		TlsCrt: flags.TlsCertificate,
+		TlsKey: flags.TlsKey,
 	}, func(r *mux.Router) {
 		r = r.UseEncodedPath()
 		sub := r.PathPrefix(apicfg.Public.Path).Subrouter()

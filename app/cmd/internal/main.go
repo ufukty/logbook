@@ -28,10 +28,10 @@ func mainerr() error {
 	registryfwd := forwarder.New(registrysd, models.Discovery, api.PathFromInternet(apicfg.Internal.Services.Registry))
 
 	router.StartServer(router.ServerParameters{
-		Router:  deplcfg.Router,
-		BaseUrl: fmt.Sprintf(":%d", deplcfg.Ports.Internal),
-		TlsCrt:  flags.TlsCertificate,
-		TlsKey:  flags.TlsKey,
+		Router: deplcfg.Router,
+		Port:   deplcfg.Ports.Internal,
+		TlsCrt: flags.TlsCertificate,
+		TlsKey: flags.TlsKey,
 	}, func(r *mux.Router) {
 		r = r.UseEncodedPath()
 		sub := r.PathPrefix(apicfg.Internal.Path).Subrouter()

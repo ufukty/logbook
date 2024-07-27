@@ -37,10 +37,10 @@ func Main() error {
 	// TODO: tls between services needs certs per host(name)
 	s := apicfg.Public.Services.Tags
 	router.StartServerWithEndpoints(router.ServerParameters{
-		Router:  deplcfg.Router,
-		BaseUrl: fmt.Sprintf(":%d", deplcfg.Ports.Tags),
-		TlsCrt:  flags.TlsCertificate,
-		TlsKey:  flags.TlsKey,
+		Router: deplcfg.Router,
+		Port:   deplcfg.Ports.Tags,
+		TlsCrt: flags.TlsCertificate,
+		TlsKey: flags.TlsKey,
 	}, map[api.Endpoint]http.HandlerFunc{
 		s.Endpoints.Assign:   eps.TagAssign,
 		s.Endpoints.Creation: eps.TagCreation,
