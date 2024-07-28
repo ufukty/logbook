@@ -1,4 +1,4 @@
-package discoveryctl
+package sidecar
 
 import (
 	"context"
@@ -14,11 +14,11 @@ import (
 
 // summary:
 //   - Pass the list of all services that will be needed through runtime into [New]
-//   - [Client] will periodically fetch the list of instances of services and cache them
-//   - [Client] will periodically recheck the instance with registry after [Client.SetInstanceDetails] called
-//   - [Client] uses [registry.Client] to periodically query the registry service,
-//   - [Client.InstanceSource] returns a struct which conforms [balancer.InstanceSource]
-type Client struct {
+//   - [Sidecar] will periodically fetch the list of instances of services and cache them
+//   - [Sidecar] will periodically recheck the instance with registry after [Sidecar.SetInstanceDetails] called
+//   - [Sidecar] uses [registry.Sidecar] to periodically query the registry service,
+//   - [Sidecar.InstanceSource] returns a struct which conforms [balancer.InstanceSource]
+type Sidecar struct {
 	ctl      *registry.Client
 	reload   time.Duration
 	services []models.Service
@@ -34,9 +34,9 @@ type Client struct {
 	iidmu sync.RWMutex
 }
 
-func New(ctl *registry.Client, period time.Duration, services []models.Service) *Client {
+func New(ctl *registry.Client, period time.Duration, services []models.Service) *Sidecar {
 	ctx, cancel := context.WithCancel(context.Background())
-	d := &Client{
+	d := &Sidecar{
 		ctl:      ctl,
 		store:    map[models.Service][]models.Instance{},
 		services: services,
@@ -50,11 +50,11 @@ func New(ctl *registry.Client, period time.Duration, services []models.Service) 
 	return d
 }
 
-func (d *Client) Stop() {
+func (d *Sidecar) Stop() {
 	d.cancel()
 }
 
-func (d *Client) queryserver() error {
+func (d *Sidecar) queryserver() error {
 	for _, service := range d.services {
 		bs, err := d.ctl.ListInstances(&endpoints.ListInstancesRequest{Service: service})
 		if err != nil {
@@ -65,7 +65,7 @@ func (d *Client) queryserver() error {
 	return nil
 }
 
-func (d *Client) recheck() error {
+func (d *Sidecar) recheck() error {
 	if d.iid == app.InstanceId("") {
 		return nil
 	}
@@ -81,7 +81,7 @@ func (d *Client) recheck() error {
 	return nil
 }
 
-func (d *Client) tick() {
+func (d *Sidecar) tick() {
 	t := time.NewTicker(d.reload)
 	defer t.Stop()
 	for {
@@ -104,17 +104,17 @@ func (d *Client) tick() {
 	}
 }
 
-func (d *Client) instances(service models.Service) ([]models.Instance, error) {
+func (d *Sidecar) instances(service models.Service) ([]models.Instance, error) {
 	d.storemu.RLock()
 	defer d.storemu.RUnlock()
 	return d.store[service], nil
 }
 
-func (c *Client) InstanceSource(s models.Service) *source {
+func (c *Sidecar) InstanceSource(s models.Service) *source {
 	return newServiceStore(c, s)
 }
 
-func (c *Client) SetInstanceDetails(s models.Service, i models.Instance) error {
+func (c *Sidecar) SetInstanceDetails(s models.Service, i models.Instance) error {
 	r, err := c.ctl.RegisterInstance(&endpoints.RegisterInstanceRequest{
 		Service: s,
 		TLS:     i.Tls,

@@ -6,15 +6,15 @@ import (
 	"logbook/config/deployment"
 	"logbook/internal/args"
 	"logbook/internal/web/balancer"
-	"logbook/internal/web/discoveryctl"
 	"logbook/internal/web/forwarder"
 	"logbook/internal/web/registryfile"
+	"logbook/internal/web/sidecar"
 	"logbook/models"
 )
 
 type Forwarders struct {
 	internaldiscovery *registryfile.FileReader // config-based service discovery
-	discoveryctl      *discoveryctl.Client
+	discoveryctl      *sidecar.Sidecar
 	Accounts          *forwarder.LoadBalancedReverseProxy
 	Objectives        *forwarder.LoadBalancedReverseProxy
 }
@@ -25,7 +25,7 @@ func New(flags *args.ApiGatewayArgs, deplcfg *deployment.Config, apicfg *api.Con
 		Tls:  true,
 	})
 	// NOTE: service registry needs to be accessed through internal gateway
-	discovery := discoveryctl.New(
+	discovery := sidecar.New(
 		registry.NewClient(balancer.New(internalsd), apicfg, true),
 		deplcfg.ServiceDiscovery.UpdatePeriod,
 		[]models.Service{

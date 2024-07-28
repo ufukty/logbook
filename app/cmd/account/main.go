@@ -11,9 +11,9 @@ import (
 	registry "logbook/cmd/registry/client"
 	"logbook/config/api"
 	"logbook/internal/web/balancer"
-	"logbook/internal/web/discoveryctl"
 	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router"
+	"logbook/internal/web/sidecar"
 	"logbook/models"
 	"net/http"
 	"time"
@@ -36,12 +36,12 @@ func Main() error {
 		Tls:  true,
 	})
 	defer internalsd.Stop()
-	discovery := discoveryctl.New(registry.NewClient(balancer.New(internalsd), apicfg, true), time.Second, []models.Service{
+	sc := sidecar.New(registry.NewClient(balancer.New(internalsd), apicfg, true), time.Second, []models.Service{
 		models.Objectives,
 	})
-	defer discovery.Stop()
+	defer sc.Stop()
 
-	objectivesctl := objectives.NewClient(balancer.New(discovery.InstanceSource(models.Objectives)), apicfg)
+	objectivesctl := objectives.NewClient(balancer.New(sc.InstanceSource(models.Objectives)), apicfg)
 
 	app := app.New(db, apicfg, objectivesctl)
 	em := endpoints.New(app)
@@ -49,12 +49,12 @@ func Main() error {
 
 	// TODO: tls between services needs certs per host(name)
 	router.StartServerWithEndpoints(router.ServerParameters{
-		Router:    deplcfg.Router,
-		Address:   flags.PrivateNetworkIp,
-		Port:      deplcfg.Ports.Accounts,
-		Discovery: discovery,
-		TlsCrt:    flags.TlsCertificate,
-		TlsKey:    flags.TlsKey,
+		Router:  deplcfg.Router,
+		Address: flags.PrivateNetworkIp,
+		Port:    deplcfg.Ports.Accounts,
+		Sidecar: sc,
+		TlsCrt:  flags.TlsCertificate,
+		TlsKey:  flags.TlsKey,
 	}, map[api.Endpoint]http.HandlerFunc{
 		s.Endpoints.Create:        em.CreateUser,
 		s.Endpoints.CreateProfile: em.CreateProfile,

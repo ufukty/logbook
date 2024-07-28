@@ -9,9 +9,9 @@ import (
 	registry "logbook/cmd/registry/client"
 	"logbook/config/api"
 	"logbook/internal/web/balancer"
-	"logbook/internal/web/discoveryctl"
 	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router"
+	"logbook/internal/web/sidecar"
 	"logbook/models"
 	"net/http"
 	"time"
@@ -34,20 +34,20 @@ func Main() error {
 		Tls:  true,
 	})
 	defer internalsd.Stop()
-	discovery := discoveryctl.New(registry.NewClient(balancer.New(internalsd), apicfg, true), time.Second, []models.Service{})
-	defer discovery.Stop()
+	sc := sidecar.New(registry.NewClient(balancer.New(internalsd), apicfg, true), time.Second, []models.Service{})
+	defer sc.Stop()
 
 	app := app.New(db, internalsd)
 	eps := endpoints.New(app)
 
 	s := apicfg.Public.Services.Objectives
 	router.StartServerWithEndpoints(router.ServerParameters{
-		Router:    deplcfg.Router,
-		Address:   flags.PrivateNetworkIp,
-		Port:      deplcfg.Ports.Objectives,
-		Discovery: discovery,
-		TlsCrt:    flags.TlsCertificate,
-		TlsKey:    flags.TlsKey,
+		Router:  deplcfg.Router,
+		Address: flags.PrivateNetworkIp,
+		Port:    deplcfg.Ports.Objectives,
+		Sidecar: sc,
+		TlsCrt:  flags.TlsCertificate,
+		TlsKey:  flags.TlsKey,
 	}, map[api.Endpoint]http.HandlerFunc{
 		s.Endpoints.Attach:     eps.ReattachObjective,
 		s.Endpoints.Create:     eps.CreateObjective,

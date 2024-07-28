@@ -6,8 +6,8 @@ import (
 	"log"
 	"logbook/config/api"
 	"logbook/config/deployment"
-	"logbook/internal/web/discoveryctl"
 	"logbook/internal/web/logger"
+	"logbook/internal/web/sidecar"
 	"logbook/models"
 	"net"
 	"net/http"
@@ -21,13 +21,13 @@ import (
 )
 
 type ServerParameters struct {
-	Discovery *discoveryctl.Client
-	Service   models.Service
-	Address   string
-	Router    deployment.Router
-	Port      int
-	TlsCrt    string
-	TlsKey    string
+	Sidecar *sidecar.Sidecar
+	Service models.Service
+	Address string
+	Router  deployment.Router
+	Port    int
+	TlsCrt  string
+	TlsKey  string
 }
 
 func StartServer(params ServerParameters, endpointRegisterer func(r *mux.Router)) {
@@ -54,8 +54,8 @@ func StartServer(params ServerParameters, endpointRegisterer func(r *mux.Router)
 	port := listener.Addr().(*net.TCPAddr).Port
 	l.Printf("listening the port: %d\n", port)
 
-	if params.Discovery != nil {
-		err := params.Discovery.SetInstanceDetails(params.Service, models.Instance{
+	if params.Sidecar != nil {
+		err := params.Sidecar.SetInstanceDetails(params.Service, models.Instance{
 			Tls:     tls,
 			Address: params.Address,
 			Port:    port,

@@ -1,4 +1,4 @@
-package discoveryctl
+package sidecar
 
 import (
 	"logbook/internal/web/balancer"
@@ -7,12 +7,12 @@ import (
 
 type source struct {
 	s models.Service
-	c *Client
+	c *Sidecar
 }
 
 var _ balancer.InstanceSource = &source{}
 
-func newServiceStore(c *Client, service models.Service) *source {
+func newServiceStore(c *Sidecar, service models.Service) *source {
 	return &source{
 		s: service,
 		c: c,
