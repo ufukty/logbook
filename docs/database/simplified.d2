@@ -1,12 +1,3 @@
-user: {
-  shape: sql_table
-
-  uid: UserId
-  password: text
-}
-
-user -- bookmark
-
 bookmark: {
   shape: sql_table
 
@@ -15,7 +6,7 @@ bookmark: {
   vid: VersionId
   display_name: text
   is_rock: bool # rocks are hidden in the UI
-  created_at: date
+  created_at: timestamp
 }
 
 privilege: {
@@ -26,8 +17,8 @@ privilege: {
   uid: UserId
   role: "Owner, Supervisor, Executor, Guest"
   status: "Invited, Accepted, Rejected, Canceled"
-  created_at: date
-  updated_at: date
+  created_at: timestamp
+  updated_at: timestamp
 }
 
 objective: {
@@ -39,12 +30,8 @@ objective: {
   type: "Regular, Rock"
   content: text
   creator: UserId
-  creation: timestamp
-
-  # "Inherit: super obj, randomize else" 
-  sharding_id: uuid
-  # "Needed: for sharding." 
-  root_oid: ObjectiveId
+  created_at: timestamp
+  deleted_at: timestamp
 }
 
 # recalculate every link on a tree when new viewer come" ?
@@ -57,26 +44,13 @@ objective_link: {
   sharding_id: uuid
 
   sub_oid: ObjectiveId
-  sup_oid: ObjectiveId
   sub_vid: VersionId
+  sup_oid: ObjectiveId
   sup_vid: VersionId
 
-  created_at: date
-  deleted_at: date
+  created_at: timestamp
+  deleted_at: timestamp
 }
-
-objective.oid -- objective_link.sup_oid
-objective.oid -- objective_link.sub_oid
-objective.vid -- objective_link.sup_vid
-objective.vid -- objective_link.sub_vid
-
-# a bookmark points to a root node of a work tree
-bookmark.oid -- objective.oid
-bookmark.vid -- objective.vid
-
-# Any task with custom privilege hand.can have owner/viewers/executors
-privilege.oid -- objective.oid
-privilege.vid -- objective.vid
 
 computed_to_top: {
   shape: sql_table
@@ -86,8 +60,7 @@ computed_to_top: {
   viewer: UserId
 
   is_solo: bool
-  bool: is_leaf
-  # "for: leaf" 
+  is_leaf: bool
   is_completed: bool
 
   # "inherited: from inviter on task creation." 
@@ -109,18 +82,12 @@ computed_to_bottom: {
   degree: int
 }
 
-objective.oid -- computed_to_top.oid
-objective.vid -- computed_to_top.vid
-
-objective.oid -- computed_to_bottom.oid
-objective.vid -- computed_to_bottom.vid
-
 operation: {
   shape: sql_table
 
-  operation_id: uuid
+  opid: OperationId
   vid: VersionId
-  previous_vid: VersionId
+  based: VersionId
 
   uid: UserId
   summary: enum
@@ -129,20 +96,44 @@ operation: {
   oid: ObjectiveId
   lid: LinkId
 
-  created_at: date
+  created_at: timestamp
+  deleted_at: timestamp
 }
 
 operation_completion: {
   shape: sql_table
 
-  operation_id: uuid
-  generic_operation_id: uuid
+  opid: OperationId
+  generic_opid: OperationId
   oid: ObjectiveId
   vid: VersionId
   actor: UserId
-  created_at: date
+  created_at: timestamp
 }
 
-operation -- operation_completion
+# a bookmark points to a root node of a work tree
+bookmark.oid -- objective.oid
+bookmark.vid <-> objective.vid
 
-objective -- operation
+# Any task with custom privilege hand.can have owner/viewers/executors
+objective.oid -- privilege.oid
+objective.vid <-> privilege.vid
+
+objective.oid -- objective_link.sup_oid
+objective.vid <-> objective_link.sup_vid
+
+objective.oid -- objective_link.sub_oid
+objective.vid <-> objective_link.sub_vid
+
+objective.oid -- operation.oid
+objective.vid <-> operation.vid
+
+objective.oid -- computed_to_top.oid
+objective.vid <-> computed_to_top.vid
+
+objective.oid -- computed_to_bottom.oid
+objective.vid <-> computed_to_bottom.vid
+
+operation.opid -- operation_completion.opid
+
+objective.oid -- operation.oid
