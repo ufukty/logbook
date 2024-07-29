@@ -12,7 +12,6 @@ import (
 	"sync"
 )
 
-// TODO: load balancing between processes listen different ports but in same IP address
 type LoadBalancedReverseProxy struct {
 	lb          *balancer.LoadBalancer
 	pool        map[*models.Instance]*httputil.ReverseProxy
@@ -61,7 +60,7 @@ func (lbrp *LoadBalancedReverseProxy) next() (*httputil.ReverseProxy, error) {
 	return nextrp, nil
 }
 
-func (lbrp LoadBalancedReverseProxy) Handler(w http.ResponseWriter, r *http.Request) {
+func (lbrp *LoadBalancedReverseProxy) Handler(w http.ResponseWriter, r *http.Request) {
 	forwarder, err := lbrp.next()
 	if err != nil {
 		http.Error(w, "Service you want to access is not available at the moment. Please try again later.", http.StatusBadGateway)
