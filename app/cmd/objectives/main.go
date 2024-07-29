@@ -30,7 +30,7 @@ func Main() error {
 	defer db.Close()
 
 	internalsd := registryfile.NewFileReader(flags.InternalGateway, deplcfg.ServiceDiscovery.UpdatePeriod, registryfile.ServiceParams{
-		Port: deplcfg.Ports.Registry,
+		Port: deplcfg.Ports.Internal,
 		Tls:  true,
 	})
 	defer internalsd.Stop()
