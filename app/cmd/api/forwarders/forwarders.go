@@ -25,7 +25,7 @@ func New(flags *args.ApiGatewayArgs, deplcfg *deployment.Config, apicfg *api.Con
 		Tls:  true,
 	})
 	// NOTE: service registry needs to be accessed through internal gateway
-	discovery := sidecar.New(
+	sc := sidecar.New(
 		registry.NewClient(balancer.New(internalsd), apicfg, true),
 		deplcfg.ServiceDiscovery.UpdatePeriod,
 		[]models.Service{
@@ -33,13 +33,14 @@ func New(flags *args.ApiGatewayArgs, deplcfg *deployment.Config, apicfg *api.Con
 			models.Objectives,
 		},
 	)
+	defer sc.Stop()
 
 	return &Forwarders{
-		discoveryctl:      discovery,
+		discoveryctl:      sc,
 		internaldiscovery: internalsd,
 
-		Accounts:   forwarder.New(discovery.InstanceSource(models.Account), models.Account, api.PathFromInternet(apicfg.Public.Services.Account)),
-		Objectives: forwarder.New(discovery.InstanceSource(models.Objectives), models.Objectives, api.PathFromInternet(apicfg.Public.Services.Objectives)),
+		Accounts:   forwarder.New(sc.InstanceSource(models.Account), models.Account, api.PathFromInternet(apicfg.Public.Services.Account)),
+		Objectives: forwarder.New(sc.InstanceSource(models.Objectives), models.Objectives, api.PathFromInternet(apicfg.Public.Services.Objectives)),
 	}, nil
 }
 
