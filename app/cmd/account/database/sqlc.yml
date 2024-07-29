@@ -14,16 +14,21 @@ sql:
         overrides:
           - db_type: UserId
             go_type:
+              import: "logbook/models/columns"
               type: UserId
           - db_type: LoginId
             go_type:
+              import: "logbook/models/columns"
               type: LoginId
           - db_type: AccessId
             go_type:
+              import: "logbook/models/columns"
               type: AccessId
           - db_type: SessionId
             go_type:
+              import: "logbook/models/columns"
               type: SessionId
           - db_type: SessionToken
             go_type:
+              import: "logbook/models/columns"
               type: SessionToken

@@ -8,19 +8,20 @@ import (
 	"net/netip"
 
 	"github.com/jackc/pgx/v5/pgtype"
+	"logbook/models/columns"
 )
 
 type Access struct {
-	Aid       AccessId
-	Uid       UserId
+	Aid       columns.AccessId
+	Uid       columns.UserId
 	Useragent pgtype.Text
 	Ipaddress netip.Addr
 	CreatedAt pgtype.Timestamp
 }
 
 type Login struct {
-	Lid       LoginId
-	Uid       UserId
+	Lid       columns.LoginId
+	Uid       columns.UserId
 	Email     string
 	Hash      string
 	Deleted   bool
@@ -28,38 +29,38 @@ type Login struct {
 }
 
 type Profile struct {
-	Uid       UserId
+	Uid       columns.UserId
 	Firstname string
 	Lastname  string
 	CreatedAt pgtype.Timestamp
 }
 
 type SessionAccountRead struct {
-	Sid       SessionId
-	Uid       UserId
+	Sid       columns.SessionId
+	Uid       columns.UserId
 	Token     string
 	Deleted   bool
 	CreatedAt pgtype.Timestamp
 }
 
 type SessionAccountWrite struct {
-	Sid       SessionId
-	Uid       UserId
+	Sid       columns.SessionId
+	Uid       columns.UserId
 	Token     string
 	Deleted   bool
 	CreatedAt pgtype.Timestamp
 }
 
 type SessionStandard struct {
-	Sid       SessionId
-	Uid       UserId
-	Token     SessionToken
+	Sid       columns.SessionId
+	Uid       columns.UserId
+	Token     columns.SessionToken
 	Deleted   bool
 	CreatedAt pgtype.Timestamp
 }
 
 type User struct {
-	Uid       UserId
+	Uid       columns.UserId
 	Deleted   bool
 	CreatedAt pgtype.Timestamp
 }

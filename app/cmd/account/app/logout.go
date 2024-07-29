@@ -3,10 +3,10 @@ package app
 import (
 	"context"
 	"fmt"
-	"logbook/cmd/account/database"
+	"logbook/models/columns"
 )
 
-func (a *App) Logout(ctx context.Context, token database.SessionToken) error {
+func (a *App) Logout(ctx context.Context, token columns.SessionToken) error {
 	err := a.queries.DeleteSessionByToken(ctx, token)
 	if err != nil {
 		// if err, ok := err.(*pgconn.PgError); ok {

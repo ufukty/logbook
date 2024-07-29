@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"logbook/cmd/objectives/database"
+	columns "logbook/models/columns"
 )
 
 func (a *App) ListObjectiveAncestry(ctx context.Context, ovid Ovid) ([]Ovid, error) {
@@ -19,7 +20,7 @@ func (a *App) ListObjectiveAncestry(ctx context.Context, ovid Ovid) ([]Ovid, err
 		}
 		c.Oid = l.SupOid
 		c.Vid = l.SupVid
-		if c.Oid == database.ZeroObjectId {
+		if c.Oid == columns.ZeroObjectId {
 			break
 		}
 		anc = append(anc, c)

@@ -3,11 +3,11 @@ package app
 import (
 	"context"
 	"fmt"
-	"logbook/cmd/account/database"
+	"logbook/models/columns"
 )
 
 type DeleteLoginParameters struct {
-	Lid database.LoginId
+	Lid columns.LoginId
 }
 
 func (a *App) DeleteLoginByLid(ctx context.Context, params DeleteLoginParameters) error {

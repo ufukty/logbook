@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log"
 	"logbook/cmd/account/app"
-	"logbook/cmd/account/database"
 	"logbook/internal/web/requests"
+	database "logbook/models/columns"
 	"net/http"
 
 	"github.com/jackc/pgx/v5/pgtype"

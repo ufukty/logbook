@@ -8,7 +8,7 @@ package database
 import (
 	"context"
 
-	objectives "logbook/cmd/objectives/database"
+	"logbook/models/columns"
 )
 
 const selectTagsByObjectiveId = `-- name: SelectTagsByObjectiveId :many
@@ -23,8 +23,8 @@ WHERE
 `
 
 type SelectTagsByObjectiveIdParams struct {
-	Oid objectives.ObjectiveId
-	Vid objectives.VersionId
+	Oid columns.ObjectiveId
+	Vid columns.VersionId
 }
 
 func (q *Queries) SelectTagsByObjectiveId(ctx context.Context, arg SelectTagsByObjectiveIdParams) ([]Tagging, error) {

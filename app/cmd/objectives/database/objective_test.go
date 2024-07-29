@@ -3,8 +3,8 @@ package database
 import (
 	"context"
 	"fmt"
-	"logbook/cmd/account/database"
 	"logbook/cmd/objectives/service"
+	"logbook/models/columns"
 	"testing"
 )
 
@@ -25,10 +25,10 @@ func Test_Objectives(t *testing.T) {
 	defer q.Close()
 
 	o1, err := q.InsertObjective(context.Background(), InsertObjectiveParams{
-		Vid:     ZeroVersionId,
-		Based:   ZeroVersionId,
+		Vid:     columns.ZeroVersionId,
+		Based:   columns.ZeroVersionId,
 		Content: "Hello world",
-		Creator: database.ZeroUserId,
+		Creator: columns.ZeroUserId,
 	})
 	if err != nil {
 		t.Fatal(fmt.Errorf("act 1: %w", err))
@@ -46,11 +46,11 @@ func Test_Objectives(t *testing.T) {
 		t.Fatal("assert, o1 != o2")
 	}
 
-	if o2.CreatedAt == ZeroTimestamp {
+	if o2.CreatedAt == columns.ZeroTimestamp {
 		t.Fatal("assert 2, o2.CreatedAt is not populated")
 	}
 
-	if o2.Oid == ZeroObjectId {
+	if o2.Oid == columns.ZeroObjectId {
 		t.Fatal("assert 2, o2.CreatedAt is not populated")
 	}
 }

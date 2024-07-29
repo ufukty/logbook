@@ -6,23 +6,22 @@ package database
 
 import (
 	"github.com/jackc/pgx/v5/pgtype"
-	account "logbook/cmd/account/database"
-	objectives "logbook/cmd/objectives/database"
+	"logbook/models/columns"
 )
 
 type Tag struct {
 	Tid       interface{}
-	Vid       objectives.VersionId
+	Vid       columns.VersionId
 	Text      string
-	Uid       account.UserId
+	Uid       columns.UserId
 	Deleted   bool
 	CreatedAt pgtype.Timestamp
 }
 
 type Tagging struct {
-	Tid       TagId
-	Oid       objectives.ObjectiveId
-	Vid       objectives.VersionId
+	Tid       columns.TagId
+	Oid       columns.ObjectiveId
+	Vid       columns.VersionId
 	Deleted   bool
 	CreatedAt pgtype.Timestamp
 }

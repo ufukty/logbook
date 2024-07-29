@@ -6,14 +6,14 @@ package database
 
 import (
 	"github.com/jackc/pgx/v5/pgtype"
-	"logbook/cmd/account/database"
+	"logbook/models/columns"
 )
 
 type Bookmark struct {
 	Bid         interface{}
-	Uid         database.UserId
-	Oid         ObjectiveId
-	Vid         VersionId
+	Uid         columns.UserId
+	Oid         columns.ObjectiveId
+	Vid         columns.VersionId
 	DisplayName pgtype.Text
 	IsRock      bool
 	CreatedAt   pgtype.Timestamp
@@ -21,14 +21,14 @@ type Bookmark struct {
 }
 
 type ComputedToBottom struct {
-	Oid   ObjectiveId
-	Vid   VersionId
+	Oid   columns.ObjectiveId
+	Vid   columns.VersionId
 	Depth int32
 }
 
 type ComputedToTop struct {
-	Oid                    ObjectiveId
-	Vid                    VersionId
+	Oid                    columns.ObjectiveId
+	Vid                    columns.VersionId
 	DependenciesAreCleared bool
 	AllCleared             bool
 	Degree                 int32
@@ -36,48 +36,48 @@ type ComputedToTop struct {
 }
 
 type Objective struct {
-	Oid       ObjectiveId
-	Vid       VersionId
-	Based     VersionId
+	Oid       columns.ObjectiveId
+	Vid       columns.VersionId
+	Based     columns.VersionId
 	Content   string
-	Creator   database.UserId
+	Creator   columns.UserId
 	CreatedAt pgtype.Timestamp
 }
 
 type ObjectiveCompletion struct {
-	Oid       ObjectiveId
-	Vid       VersionId
-	Actor     database.UserId
+	Oid       columns.ObjectiveId
+	Vid       columns.VersionId
+	Actor     columns.UserId
 	Completed bool
 	CreatedAt pgtype.Timestamp
 }
 
 type ObjectiveDeleted struct {
-	Oid       ObjectiveId
-	Vid       VersionId
-	DeletedBy database.UserId
+	Oid       columns.ObjectiveId
+	Vid       columns.VersionId
+	DeletedBy columns.UserId
 	DeletedAt pgtype.Timestamp
 }
 
 type ObjectiveEffectiveVersion struct {
-	Oid ObjectiveId
-	Vid VersionId
+	Oid columns.ObjectiveId
+	Vid columns.VersionId
 }
 
 type ObjectiveLink struct {
-	Lid       LinkId
-	SupOid    ObjectiveId
-	SupVid    VersionId
-	SubOid    ObjectiveId
-	SubVid    VersionId
-	Creator   database.UserId
+	Lid       columns.LinkId
+	SupOid    columns.ObjectiveId
+	SupVid    columns.VersionId
+	SubOid    columns.ObjectiveId
+	SubVid    columns.VersionId
+	Creator   columns.UserId
 	CreatedAt pgtype.Timestamp
 }
 
 type ObjectiveView struct {
-	Oid           ObjectiveId
-	Vid           VersionId
-	Viewer        database.UserId
+	Oid           columns.ObjectiveId
+	Vid           columns.VersionId
+	Viewer        columns.UserId
 	Degree        int32
 	Depth         int32
 	Ready         bool
@@ -86,57 +86,57 @@ type ObjectiveView struct {
 }
 
 type OpObjectiveAttachSubobjective struct {
-	Opid      OperationId
-	Actor     database.UserId
-	SupOid    ObjectiveId
-	SupVid    VersionId
-	SubOid    ObjectiveId
-	SubVid    VersionId
+	Opid      columns.OperationId
+	Actor     columns.UserId
+	SupOid    columns.ObjectiveId
+	SupVid    columns.VersionId
+	SubOid    columns.ObjectiveId
+	SubVid    columns.VersionId
 	CreatedAt pgtype.Timestamp
 }
 
 type OpObjectiveContentUpdate struct {
-	Opid      OperationId
-	Actor     database.UserId
-	Oid       ObjectiveId
-	Vid       VersionId
+	Opid      columns.OperationId
+	Actor     columns.UserId
+	Oid       columns.ObjectiveId
+	Vid       columns.VersionId
 	Content   pgtype.Text
 	CreatedAt pgtype.Timestamp
 }
 
 type OpObjectiveCreate struct {
-	Opid      OperationId
-	Actor     database.UserId
-	Poid      ObjectiveId
-	Pvid      VersionId
+	Opid      columns.OperationId
+	Actor     columns.UserId
+	Poid      columns.ObjectiveId
+	Pvid      columns.VersionId
 	Content   pgtype.Text
 	CreatedAt pgtype.Timestamp
 }
 
 type OpObjectiveDelete struct {
-	Opid      OperationId
-	Actor     database.UserId
-	Oid       ObjectiveId
-	Vid       VersionId
+	Opid      columns.OperationId
+	Actor     columns.UserId
+	Oid       columns.ObjectiveId
+	Vid       columns.VersionId
 	CreatedAt pgtype.Timestamp
 }
 
 type OpObjectiveUpdateCompletion struct {
-	Opid      OperationId
-	Actor     database.UserId
-	Oid       ObjectiveId
-	Vid       VersionId
+	Opid      columns.OperationId
+	Actor     columns.UserId
+	Oid       columns.ObjectiveId
+	Vid       columns.VersionId
 	Completed bool
 	CreatedAt pgtype.Timestamp
 }
 
 type Version struct {
-	Vid   VersionId
-	Based VersionId
+	Vid   columns.VersionId
+	Based columns.VersionId
 }
 
 type VersioningConfig struct {
-	Oid       ObjectiveId
-	First     VersionId
-	Effective VersionId
+	Oid       columns.ObjectiveId
+	First     columns.VersionId
+	Effective columns.VersionId
 }

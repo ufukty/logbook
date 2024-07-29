@@ -1,0 +1,17 @@
+[Unit]
+Description=App server for api-gateway
+# After=app-db-tunnel.service
+
+[Service]
+Type=simple
+User=logbook_app
+WorkingDirectory=/home/logbook_app
+ExecStart=/home/logbook_app/api-gateway -config=/home/logbook_app/config.yml
+Restart=always
+RestartSec=5s
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=/var/log/logbook.d/backup.log
+
+[Install]
+WantedBy=multi-user.target

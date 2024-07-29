@@ -8,6 +8,7 @@ import (
 	"log"
 	"logbook/cmd/account/app/average"
 	"logbook/cmd/account/database"
+	"logbook/models/columns"
 	"time"
 
 	"github.com/alexedwards/argon2id"
@@ -20,14 +21,14 @@ type CreateSessionParameters struct {
 
 var ErrHashMismatch = fmt.Errorf("given password's hash doesn't match with stored hash")
 
-func generateToken(length int) (database.SessionToken, error) {
+func generateToken(length int) (columns.SessionToken, error) {
 	bytes := make([]byte, length)
 	if _, err := rand.Read(bytes); err != nil {
 		return "", err
 	}
 	b64 := base64.URLEncoding.EncodeToString(bytes)
 	cut := string([]byte(b64))[:256]
-	return database.SessionToken(cut), nil
+	return columns.SessionToken(cut), nil
 }
 
 func renewHash(q *database.Queries, ctx context.Context, login database.Login, params CreateSessionParameters) error {

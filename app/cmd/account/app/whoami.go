@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"logbook/cmd/account/database"
+	"logbook/models/columns"
 
 	"github.com/jackc/pgx/v5"
 )
@@ -15,7 +16,7 @@ var (
 	ErrProfileNotFound = fmt.Errorf("profile not found")
 )
 
-func (a App) WhoAmI(ctx context.Context, token database.SessionToken) (*database.Profile, error) {
+func (a App) WhoAmI(ctx context.Context, token columns.SessionToken) (*database.Profile, error) {
 	session, err := a.queries.SelectSessionByToken(ctx, token)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {

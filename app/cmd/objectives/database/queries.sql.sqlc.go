@@ -9,7 +9,7 @@ import (
 	"context"
 
 	"github.com/jackc/pgx/v5/pgtype"
-	"logbook/cmd/account/database"
+	"logbook/models/columns"
 )
 
 const createTask = `-- name: CreateTask :one
@@ -20,9 +20,9 @@ RETURNING
 `
 
 type CreateTaskParams struct {
-	Based   VersionId
+	Based   columns.VersionId
 	Content string
-	Creator database.UserId
+	Creator columns.UserId
 }
 
 func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (Objective, error) {
@@ -47,11 +47,11 @@ RETURNING
 `
 
 type InsertLinkParams struct {
-	SupOid  ObjectiveId
-	SupVid  VersionId
-	SubOid  ObjectiveId
-	SubVid  VersionId
-	Creator database.UserId
+	SupOid  columns.ObjectiveId
+	SupVid  columns.VersionId
+	SubOid  columns.ObjectiveId
+	SubVid  columns.VersionId
+	Creator columns.UserId
 }
 
 func (q *Queries) InsertLink(ctx context.Context, arg InsertLinkParams) (ObjectiveLink, error) {
@@ -83,10 +83,10 @@ RETURNING
 `
 
 type InsertObjectiveParams struct {
-	Vid     VersionId
-	Based   VersionId
+	Vid     columns.VersionId
+	Based   columns.VersionId
 	Content string
-	Creator database.UserId
+	Creator columns.UserId
 }
 
 func (q *Queries) InsertObjective(ctx context.Context, arg InsertObjectiveParams) (Objective, error) {
@@ -116,11 +116,11 @@ RETURNING
 `
 
 type InsertOpObjectiveAttachSubobjectiveParams struct {
-	Actor  database.UserId
-	SupOid ObjectiveId
-	SupVid VersionId
-	SubOid ObjectiveId
-	SubVid VersionId
+	Actor  columns.UserId
+	SupOid columns.ObjectiveId
+	SupVid columns.VersionId
+	SubOid columns.ObjectiveId
+	SubVid columns.VersionId
 }
 
 func (q *Queries) InsertOpObjectiveAttachSubobjective(ctx context.Context, arg InsertOpObjectiveAttachSubobjectiveParams) (OpObjectiveAttachSubobjective, error) {
@@ -152,9 +152,9 @@ RETURNING
 `
 
 type InsertOpObjectiveContentUpdateParams struct {
-	Oid     ObjectiveId
-	Vid     VersionId
-	Actor   database.UserId
+	Oid     columns.ObjectiveId
+	Vid     columns.VersionId
+	Actor   columns.UserId
 	Content pgtype.Text
 }
 
@@ -185,9 +185,9 @@ RETURNING
 `
 
 type InsertOpObjectiveCreateParams struct {
-	Poid    ObjectiveId
-	Pvid    VersionId
-	Actor   database.UserId
+	Poid    columns.ObjectiveId
+	Pvid    columns.VersionId
+	Actor   columns.UserId
 	Content pgtype.Text
 }
 
@@ -218,9 +218,9 @@ RETURNING
 `
 
 type InsertOpObjectiveDeleteParams struct {
-	Oid   ObjectiveId
-	Vid   VersionId
-	Actor database.UserId
+	Oid   columns.ObjectiveId
+	Vid   columns.VersionId
+	Actor columns.UserId
 }
 
 func (q *Queries) InsertOpObjectiveDelete(ctx context.Context, arg InsertOpObjectiveDeleteParams) (OpObjectiveDelete, error) {
@@ -244,9 +244,9 @@ RETURNING
 `
 
 type InsertOpObjectiveUpdateCompletionParams struct {
-	Oid       ObjectiveId
-	Vid       VersionId
-	Actor     database.UserId
+	Oid       columns.ObjectiveId
+	Vid       columns.VersionId
+	Actor     columns.UserId
 	Completed bool
 }
 
@@ -277,9 +277,9 @@ RETURNING
 `
 
 type InsertRockParams struct {
-	Uid database.UserId
-	Oid ObjectiveId
-	Vid VersionId
+	Uid columns.UserId
+	Oid columns.ObjectiveId
+	Vid columns.VersionId
 }
 
 func (q *Queries) InsertRock(ctx context.Context, arg InsertRockParams) (Bookmark, error) {
@@ -305,7 +305,7 @@ RETURNING
     vid, based
 `
 
-func (q *Queries) InsertVersion(ctx context.Context, based VersionId) (Version, error) {
+func (q *Queries) InsertVersion(ctx context.Context, based columns.VersionId) (Version, error) {
 	row := q.db.QueryRow(ctx, insertVersion, based)
 	var i Version
 	err := row.Scan(&i.Vid, &i.Based)
@@ -322,9 +322,9 @@ WHERE
 LIMIT 1
 `
 
-func (q *Queries) SelectEffectiveVersionOfObjective(ctx context.Context, oid ObjectiveId) (VersionId, error) {
+func (q *Queries) SelectEffectiveVersionOfObjective(ctx context.Context, oid columns.ObjectiveId) (columns.VersionId, error) {
 	row := q.db.QueryRow(ctx, selectEffectiveVersionOfObjective, oid)
-	var vid VersionId
+	var vid columns.VersionId
 	err := row.Scan(&vid)
 	return vid, err
 }
@@ -346,8 +346,8 @@ LIMIT 1
 `
 
 type SelectObjectiveParams struct {
-	Oid ObjectiveId
-	Vid VersionId
+	Oid columns.ObjectiveId
+	Vid columns.VersionId
 }
 
 func (q *Queries) SelectObjective(ctx context.Context, arg SelectObjectiveParams) (Objective, error) {
@@ -381,16 +381,16 @@ LIMIT 50
 `
 
 type SelectSubLinksParams struct {
-	SupOid ObjectiveId
-	SupVid VersionId
+	SupOid columns.ObjectiveId
+	SupVid columns.VersionId
 }
 
 type SelectSubLinksRow struct {
-	Lid       LinkId
-	SupOid    ObjectiveId
-	SupVid    VersionId
-	SubOid    ObjectiveId
-	SubVid    VersionId
+	Lid       columns.LinkId
+	SupOid    columns.ObjectiveId
+	SupVid    columns.VersionId
+	SubOid    columns.ObjectiveId
+	SubVid    columns.VersionId
 	CreatedAt pgtype.Timestamp
 }
 
@@ -438,16 +438,16 @@ LIMIT 1
 `
 
 type SelectTheUpperLinkParams struct {
-	SubOid ObjectiveId
-	SubVid VersionId
+	SubOid columns.ObjectiveId
+	SubVid columns.VersionId
 }
 
 type SelectTheUpperLinkRow struct {
-	Lid       LinkId
-	SupOid    ObjectiveId
-	SupVid    VersionId
-	SubOid    ObjectiveId
-	SubVid    VersionId
+	Lid       columns.LinkId
+	SupOid    columns.ObjectiveId
+	SupVid    columns.VersionId
+	SubOid    columns.ObjectiveId
+	SubVid    columns.VersionId
 	CreatedAt pgtype.Timestamp
 }
 
@@ -476,7 +476,7 @@ WHERE
 LIMIT 1
 `
 
-func (q *Queries) SelectVersion(ctx context.Context, vid VersionId) (Version, error) {
+func (q *Queries) SelectVersion(ctx context.Context, vid columns.VersionId) (Version, error) {
 	row := q.db.QueryRow(ctx, selectVersion, vid)
 	var i Version
 	err := row.Scan(&i.Vid, &i.Based)
@@ -495,7 +495,7 @@ WHERE
 LIMIT 1
 `
 
-func (q *Queries) SelectVersioningConfig(ctx context.Context, oid ObjectiveId) (VersioningConfig, error) {
+func (q *Queries) SelectVersioningConfig(ctx context.Context, oid columns.ObjectiveId) (VersioningConfig, error) {
 	row := q.db.QueryRow(ctx, selectVersioningConfig, oid)
 	var i VersioningConfig
 	err := row.Scan(&i.Oid, &i.First, &i.Effective)

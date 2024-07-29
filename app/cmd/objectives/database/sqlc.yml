@@ -14,21 +14,25 @@ sql:
         overrides:
           - db_type: ObjectiveId
             go_type:
+              import: "logbook/models/columns"
               type: ObjectiveId
 
           - db_type: UserId
             go_type:
-              import: "logbook/cmd/account/database"
+              import: "logbook/models/columns"
               type: UserId
 
           - db_type: VersionId
             go_type:
+              import: "logbook/models/columns"
               type: VersionId
 
           - db_type: OperationId
             go_type:
+              import: "logbook/models/columns"
               type: OperationId
 
           - db_type: LinkId
             go_type:
+              import: "logbook/models/columns"
               type: LinkId

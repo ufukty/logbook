@@ -10,6 +10,7 @@ import (
 	"net/netip"
 
 	"github.com/jackc/pgx/v5/pgtype"
+	"logbook/models/columns"
 )
 
 const deleteLoginByLid = `-- name: DeleteLoginByLid :exec
@@ -21,7 +22,7 @@ WHERE
     "lid" = $1
 `
 
-func (q *Queries) DeleteLoginByLid(ctx context.Context, lid LoginId) error {
+func (q *Queries) DeleteLoginByLid(ctx context.Context, lid columns.LoginId) error {
 	_, err := q.db.Exec(ctx, deleteLoginByLid, lid)
 	return err
 }
@@ -35,7 +36,7 @@ WHERE
     "sid" = $1
 `
 
-func (q *Queries) DeleteSessionBySid(ctx context.Context, sid SessionId) error {
+func (q *Queries) DeleteSessionBySid(ctx context.Context, sid columns.SessionId) error {
 	_, err := q.db.Exec(ctx, deleteSessionBySid, sid)
 	return err
 }
@@ -49,7 +50,7 @@ WHERE
     "token" = $1
 `
 
-func (q *Queries) DeleteSessionByToken(ctx context.Context, token SessionToken) error {
+func (q *Queries) DeleteSessionByToken(ctx context.Context, token columns.SessionToken) error {
 	_, err := q.db.Exec(ctx, deleteSessionByToken, token)
 	return err
 }
@@ -63,7 +64,7 @@ WHERE
     "uid" = $1
 `
 
-func (q *Queries) DeleteUserByUid(ctx context.Context, uid UserId) error {
+func (q *Queries) DeleteUserByUid(ctx context.Context, uid columns.UserId) error {
 	_, err := q.db.Exec(ctx, deleteUserByUid, uid)
 	return err
 }
@@ -76,7 +77,7 @@ RETURNING
 `
 
 type InsertAccessParams struct {
-	Uid       UserId
+	Uid       columns.UserId
 	Useragent pgtype.Text
 	Ipaddress netip.Addr
 }
@@ -102,7 +103,7 @@ RETURNING
 `
 
 type InsertLoginParams struct {
-	Uid   UserId
+	Uid   columns.UserId
 	Email string
 	Hash  string
 }
@@ -129,7 +130,7 @@ RETURNING
 `
 
 type InsertProfileInformationParams struct {
-	Uid       UserId
+	Uid       columns.UserId
 	Firstname string
 	Lastname  string
 }
@@ -154,8 +155,8 @@ RETURNING
 `
 
 type InsertSessionParams struct {
-	Uid   UserId
-	Token SessionToken
+	Uid   columns.UserId
+	Token columns.SessionToken
 }
 
 func (q *Queries) InsertSession(ctx context.Context, arg InsertSessionParams) (SessionStandard, error) {
@@ -179,7 +180,7 @@ RETURNING
 `
 
 type InsertSessionAccountReadParams struct {
-	Uid   UserId
+	Uid   columns.UserId
 	Token string
 }
 
@@ -204,7 +205,7 @@ RETURNING
 `
 
 type InsertSessionAccountWriteParams struct {
-	Uid   UserId
+	Uid   columns.UserId
 	Token string
 }
 
@@ -245,7 +246,7 @@ WHERE
     AND NOT "deleted"
 `
 
-func (q *Queries) SelectActiveSessionsByUid(ctx context.Context, uid UserId) ([]SessionStandard, error) {
+func (q *Queries) SelectActiveSessionsByUid(ctx context.Context, uid columns.UserId) ([]SessionStandard, error) {
 	rows, err := q.db.Query(ctx, selectActiveSessionsByUid, uid)
 	if err != nil {
 		return nil, err
@@ -310,7 +311,7 @@ ORDER BY
 LIMIT 1
 `
 
-func (q *Queries) SelectLatestProfileByUid(ctx context.Context, uid UserId) (Profile, error) {
+func (q *Queries) SelectLatestProfileByUid(ctx context.Context, uid columns.UserId) (Profile, error) {
 	row := q.db.QueryRow(ctx, selectLatestProfileByUid, uid)
 	var i Profile
 	err := row.Scan(
@@ -334,7 +335,7 @@ ORDER BY
 LIMIT 20
 `
 
-func (q *Queries) SelectLatestTwentyAccessesByUid(ctx context.Context, uid UserId) ([]Access, error) {
+func (q *Queries) SelectLatestTwentyAccessesByUid(ctx context.Context, uid columns.UserId) ([]Access, error) {
 	rows, err := q.db.Query(ctx, selectLatestTwentyAccessesByUid, uid)
 	if err != nil {
 		return nil, err
@@ -370,7 +371,7 @@ WHERE
     AND NOT "deleted"
 `
 
-func (q *Queries) SelectLoginsByUid(ctx context.Context, uid UserId) ([]Login, error) {
+func (q *Queries) SelectLoginsByUid(ctx context.Context, uid columns.UserId) ([]Login, error) {
 	rows, err := q.db.Query(ctx, selectLoginsByUid, uid)
 	if err != nil {
 		return nil, err
@@ -406,7 +407,7 @@ WHERE
     "sid" = $1
 `
 
-func (q *Queries) SelectSessionAccountRead(ctx context.Context, sid SessionId) (SessionAccountRead, error) {
+func (q *Queries) SelectSessionAccountRead(ctx context.Context, sid columns.SessionId) (SessionAccountRead, error) {
 	row := q.db.QueryRow(ctx, selectSessionAccountRead, sid)
 	var i SessionAccountRead
 	err := row.Scan(
@@ -428,7 +429,7 @@ WHERE
     "sid" = $1
 `
 
-func (q *Queries) SelectSessionAccountWrite(ctx context.Context, sid SessionId) (SessionAccountWrite, error) {
+func (q *Queries) SelectSessionAccountWrite(ctx context.Context, sid columns.SessionId) (SessionAccountWrite, error) {
 	row := q.db.QueryRow(ctx, selectSessionAccountWrite, sid)
 	var i SessionAccountWrite
 	err := row.Scan(
@@ -450,7 +451,7 @@ WHERE
     "token" = $1
 `
 
-func (q *Queries) SelectSessionByToken(ctx context.Context, token SessionToken) (SessionStandard, error) {
+func (q *Queries) SelectSessionByToken(ctx context.Context, token columns.SessionToken) (SessionStandard, error) {
 	row := q.db.QueryRow(ctx, selectSessionByToken, token)
 	var i SessionStandard
 	err := row.Scan(
@@ -473,7 +474,7 @@ WHERE
 LIMIT 1
 `
 
-func (q *Queries) SelectUserByUserId(ctx context.Context, uid UserId) (User, error) {
+func (q *Queries) SelectUserByUserId(ctx context.Context, uid columns.UserId) (User, error) {
 	row := q.db.QueryRow(ctx, selectUserByUserId, uid)
 	var i User
 	err := row.Scan(&i.Uid, &i.Deleted, &i.CreatedAt)

@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"logbook/cmd/account/database"
+	"logbook/cmd/objectives/endpoints"
+	"logbook/models/columns"
 
 	"github.com/alexedwards/argon2id"
 )
@@ -17,9 +19,9 @@ var argon2idParams = &argon2id.Params{
 }
 
 type RegistrationParameters struct {
-	Firstname database.HumanName
-	Lastname  database.HumanName
-	Email     database.Email
+	Firstname columns.HumanName
+	Lastname  columns.HumanName
+	Email     columns.Email
 	Password  string
 }
 

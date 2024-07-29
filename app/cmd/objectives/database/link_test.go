@@ -3,8 +3,8 @@ package database
 import (
 	"context"
 	"fmt"
-	"logbook/cmd/account/database"
 	"logbook/cmd/objectives/service"
+	"logbook/models/columns"
 	"testing"
 )
 
@@ -25,20 +25,20 @@ func Test_Links(t *testing.T) {
 	defer q.Close()
 
 	o1, err := q.InsertObjective(context.Background(), InsertObjectiveParams{
-		Vid:     ZeroVersionId,
-		Based:   ZeroVersionId,
+		Vid:     columns.ZeroVersionId,
+		Based:   columns.ZeroVersionId,
 		Content: "Hello world",
-		Creator: database.ZeroUserId,
+		Creator: columns.ZeroUserId,
 	})
 	if err != nil {
 		t.Fatal(fmt.Errorf("act 1: %w", err))
 	}
 
 	o2, err := q.InsertObjective(context.Background(), InsertObjectiveParams{
-		Vid:     ZeroVersionId,
-		Based:   ZeroVersionId,
+		Vid:     columns.ZeroVersionId,
+		Based:   columns.ZeroVersionId,
 		Content: "Quick brown fox",
-		Creator: database.ZeroUserId,
+		Creator: columns.ZeroUserId,
 	})
 	if err != nil {
 		t.Fatal(fmt.Errorf("act 2: %w", err))
@@ -49,17 +49,17 @@ func Test_Links(t *testing.T) {
 		SupVid:  o1.Vid,
 		SubOid:  o2.Oid,
 		SubVid:  o2.Vid,
-		Creator: database.ZeroUserId,
+		Creator: columns.ZeroUserId,
 	})
 	if err != nil {
 		t.Fatal(fmt.Errorf("act 3, adding link: %w", err))
 	}
 
-	if li.CreatedAt == ZeroTimestamp {
+	if li.CreatedAt == columns.ZeroTimestamp {
 		t.Fatal(fmt.Println("assert 1, created_at is not populated"))
 	}
 
-	if li.Lid == ZeroLinkId {
+	if li.Lid == columns.ZeroLinkId {
 		t.Fatal(fmt.Println("assert 2, lid is not populated"))
 	}
 

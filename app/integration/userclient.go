@@ -5,7 +5,6 @@ import (
 	account "logbook/cmd/account/client"
 	"logbook/cmd/objectives/app"
 	objectives "logbook/cmd/objectives/client"
-	"logbook/cmd/objectives/database"
 	"logbook/cmd/objectives/endpoints"
 	"logbook/config/api"
 	"logbook/integration/data"

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"logbook/cmd/objectives/database"
+	"logbook/models/columns"
 )
 
 // proposals can have multiple actions
@@ -59,7 +60,7 @@ func (a *App) createVersionedObjective(ctx context.Context, act CreateObjectiveA
 	o := database.Objective{
 		Oid:     act.Parent.Oid,
 		Vid:     v.Vid,
-		Based:   database.ZeroVersionId,
+		Based:   columns.ZeroVersionId,
 		Content: act.Content,
 		Creator: act.Creator,
 	}

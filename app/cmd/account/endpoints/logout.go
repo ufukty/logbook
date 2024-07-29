@@ -2,7 +2,7 @@ package endpoints
 
 import (
 	"fmt"
-	"logbook/cmd/account/database"
+	database "logbook/models/columns"
 	"net/http"
 )
 

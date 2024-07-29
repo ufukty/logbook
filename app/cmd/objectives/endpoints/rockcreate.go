@@ -3,14 +3,14 @@ package endpoints
 import (
 	"fmt"
 	"log"
-	"logbook/cmd/account/database"
 	"logbook/internal/web/requests"
 	"logbook/internal/web/validate"
+	"logbook/models/columns"
 	"net/http"
 )
 
 type RockCreateRequest struct {
-	UserId database.UserId `json:"uid"`
+	UserId columns.UserId `json:"uid"`
 }
 
 func (bq RockCreateRequest) validate() error {

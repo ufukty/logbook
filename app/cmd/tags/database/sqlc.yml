@@ -15,18 +15,16 @@ sql:
           - db_type: ObjectiveId
             go_type:
               type: ObjectiveId
-              import: "logbook/cmd/objectives/database" # FIXME: future circular dependency. common package for column types?
-              package: objectives
+              import: "logbook/models/columns"
           - db_type: TagId
             go_type:
               type: TagId
+              import: "logbook/models/columns"
           - db_type: UserId
             go_type:
               type: UserId
-              import: "logbook/cmd/account/database"
-              package: account
+              import: "logbook/models/columns"
           - db_type: VersionId
             go_type:
               type: VersionId
-              import: "logbook/cmd/objectives/database"
-              package: objectives
+              import: "logbook/models/columns"

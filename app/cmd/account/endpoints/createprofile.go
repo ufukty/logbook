@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"log"
 	"logbook/cmd/account/app"
-	"logbook/cmd/account/database"
 	"logbook/internal/web/requests"
 	"logbook/internal/web/validate"
+	database "logbook/models/columns"
 	"net/http"
 )
 

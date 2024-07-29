@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
-	"logbook/cmd/account/database"
+	database "logbook/models/columns"
 )
 
 func (a *App) DeleteUser(ctx context.Context, uid database.UserId) error {

@@ -4,13 +4,14 @@ import (
 	"context"
 	"fmt"
 	"logbook/cmd/account/database"
+	"logbook/models/columns"
 )
 
 type CreateProfileParams struct {
-	SessionToken database.SessionToken
-	Uid          database.UserId
-	Firstname    database.HumanName
-	Lastname     database.HumanName
+	SessionToken columns.SessionToken
+	Uid          columns.UserId
+	Firstname    columns.HumanName
+	Lastname     columns.HumanName
 }
 
 func (a App) CreateProfile(ctx context.Context, params CreateProfileParams) error {

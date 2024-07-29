@@ -1,10 +1,10 @@
 package webhook
 
-import "logbook/cmd/objectives/database"
+import "logbook/models/columns"
 
 type eventOutdate struct {
-	oid           database.ObjectiveId
-	current, next database.VersionId
+	oid           columns.ObjectiveId
+	current, next columns.VersionId
 }
 
 type Webhook struct {

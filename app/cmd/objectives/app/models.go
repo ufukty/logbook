@@ -2,21 +2,20 @@ package app
 
 import (
 	"fmt"
-	accountdb "logbook/cmd/account/database"
-	"logbook/cmd/objectives/database"
 	"logbook/internal/web/validate"
+	"logbook/models/columns"
 )
 
 type CreateObjectiveAction struct {
 	Parent  Ovid
 	Content string
-	Creator accountdb.UserId
+	Creator columns.UserId
 }
 
 // ObjectiveVersionedId: use to describe specific version of an objective
 type Ovid struct {
-	Oid database.ObjectiveId `json:"oid"`
-	Vid database.VersionId   `json:"vid"`
+	Oid columns.ObjectiveId `json:"oid"`
+	Vid columns.VersionId   `json:"vid"`
 }
 
 func (ovid Ovid) String() string {

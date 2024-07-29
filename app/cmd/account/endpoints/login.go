@@ -5,15 +5,15 @@ import (
 	"log"
 	"logbook/cmd/account/app"
 	"logbook/cmd/account/app/average"
-	"logbook/cmd/account/database"
 	"logbook/internal/web/requests"
 	"logbook/internal/web/validate"
+	"logbook/models/columns"
 	"net/http"
 )
 
 type CreateSessionRequest struct {
-	Email    database.Email `json:"email"`
-	Password string         `json:"password"`
+	Email    columns.Email `json:"email"`
+	Password string        `json:"password"`
 }
 
 func (bq CreateSessionRequest) validate() error {
