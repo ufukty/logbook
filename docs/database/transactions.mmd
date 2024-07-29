@@ -1,0 +1,31 @@
+sequenceDiagram
+autonumber
+
+actor c as Client
+participant a as Accounts<br>Service
+participant ad as Accounts<br>Database 
+participant o as Objectives<br>Service
+participant od as Accounts<br>Database 
+
+c->>+a: HTTP Register
+a->>+ad: SQL BEGIN TRANSACTION
+ad-->>a: Ta
+a->>ad: (Ta) INSERT INTO USER
+a->>+o: HTTP Create Rock
+o->>+od: SQL BEGIN TRANSACTION
+od-->>o: Tb
+o->>od: (Tb) INSERT INTO OBJECTIVE
+o->>od: (Tb) COMMIT
+alt 
+  od->>o: (Tb) OK
+  o->>a: OK
+  a->>ad: (Ta) COMMIT
+  a->>c: OK
+else
+  od->>o: (Tb) FAIL
+  deactivate od
+  o->>-a: 500
+  a->>ad: (Ta) ROLLBACK
+  deactivate ad
+  a->>-c: 500
+end
