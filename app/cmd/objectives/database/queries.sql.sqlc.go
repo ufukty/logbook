@@ -465,22 +465,3 @@ func (q *Queries) SelectVersion(ctx context.Context, vid columns.VersionId) (Ver
 	err := row.Scan(&i.Vid, &i.Based)
 	return i, err
 }
-
-const selectVersioningConfig = `-- name: SelectVersioningConfig :one
-SELECT
-    "oid",
-    "first",
-    "effective"
-FROM
-    "versioning_config"
-WHERE
-    "oid" = $1
-LIMIT 1
-`
-
-func (q *Queries) SelectVersioningConfig(ctx context.Context, oid columns.ObjectiveId) (VersioningConfig, error) {
-	row := q.db.QueryRow(ctx, selectVersioningConfig, oid)
-	var i VersioningConfig
-	err := row.Scan(&i.Oid, &i.First, &i.Effective)
-	return i, err
-}

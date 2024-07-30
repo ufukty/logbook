@@ -86,22 +86,6 @@ INSERT INTO "version"("based")
 RETURNING
     *;
 
--- MARK: versioning config
-;
-
--- name: SelectVersioningConfig :one
-SELECT
-    "oid",
-    "first",
-    "effective"
-FROM
-    "versioning_config"
-WHERE
-    "oid" = $1
-LIMIT 1;
-
-;
-
 -- MARK: operations
 ;
 

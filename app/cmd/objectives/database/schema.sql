@@ -16,12 +16,6 @@ CREATE DOMAIN "LinkId" AS uuid;
 
 CREATE DOMAIN "BookmarkId" AS uuid;
 
-CREATE TABLE "versioning_config"(
-    "oid" "ObjectiveId" NOT NULL,
-    "first" "VersionId" NOT NULL,
-    "effective" "VersionId" NOT NULL
-);
-
 CREATE TABLE "version"(
     "vid" "VersionId" NOT NULL UNIQUE DEFAULT gen_random_uuid(),
     "based" "VersionId" NOT NULL
@@ -56,13 +50,6 @@ CREATE TABLE "objective_completion"(
     "actor" "UserId" NOT NULL, -- user id
     "completed" boolean NOT NULL DEFAULT FALSE,
     "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE "objective_deleted"(
-    "oid" "ObjectiveId" NOT NULL,
-    "vid" "VersionId" NOT NULL,
-    "deleted_by" "UserId" NOT NULL,
-    "deleted_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- MARK: Computed properties and user preferences per item per user

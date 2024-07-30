@@ -52,13 +52,6 @@ type ObjectiveCompletion struct {
 	CreatedAt pgtype.Timestamp
 }
 
-type ObjectiveDeleted struct {
-	Oid       columns.ObjectiveId
-	Vid       columns.VersionId
-	DeletedBy columns.UserId
-	DeletedAt pgtype.Timestamp
-}
-
 type ObjectiveLink struct {
 	Lid       columns.LinkId
 	SupOid    columns.ObjectiveId
@@ -128,10 +121,4 @@ type OpObjectiveUpdateCompletion struct {
 type Version struct {
 	Vid   columns.VersionId
 	Based columns.VersionId
-}
-
-type VersioningConfig struct {
-	Oid       columns.ObjectiveId
-	First     columns.VersionId
-	Effective columns.VersionId
 }
