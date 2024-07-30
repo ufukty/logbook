@@ -96,13 +96,6 @@ CREATE TABLE "computed_to_bottom"(
     PRIMARY KEY ("oid", "vid")
 );
 
-CREATE TABLE "objective_effective_version"(
-    "oid" "ObjectiveId" NOT NULL UNIQUE,
-    "vid" "VersionId" NOT NULL
-);
-
-CREATE INDEX "index_effective_version" ON "objective_effective_version"("oid");
-
 -- MARK: operations
 ;
 

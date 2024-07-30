@@ -312,23 +312,6 @@ func (q *Queries) InsertVersion(ctx context.Context, based columns.VersionId) (V
 	return i, err
 }
 
-const selectEffectiveVersionOfObjective = `-- name: SelectEffectiveVersionOfObjective :one
-SELECT
-    "vid"
-FROM
-    "objective_effective_version"
-WHERE
-    "oid" = $1
-LIMIT 1
-`
-
-func (q *Queries) SelectEffectiveVersionOfObjective(ctx context.Context, oid columns.ObjectiveId) (columns.VersionId, error) {
-	row := q.db.QueryRow(ctx, selectEffectiveVersionOfObjective, oid)
-	var vid columns.VersionId
-	err := row.Scan(&vid)
-	return vid, err
-}
-
 const selectObjective = `-- name: SelectObjective :one
 SELECT
     "oid",

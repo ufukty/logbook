@@ -59,11 +59,6 @@ type ObjectiveDeleted struct {
 	DeletedAt pgtype.Timestamp
 }
 
-type ObjectiveEffectiveVersion struct {
-	Oid columns.ObjectiveId
-	Vid columns.VersionId
-}
-
 type ObjectiveLink struct {
 	Lid       columns.LinkId
 	SupOid    columns.ObjectiveId

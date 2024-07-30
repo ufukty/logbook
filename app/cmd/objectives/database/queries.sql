@@ -22,15 +22,6 @@ INSERT INTO "objective"("vid", "based", "content", "creator")
 RETURNING
     *;
 
--- name: SelectEffectiveVersionOfObjective :one
-SELECT
-    "vid"
-FROM
-    "objective_effective_version"
-WHERE
-    "oid" = $1
-LIMIT 1;
-
 -- name: CreateTask :one
 INSERT INTO "objective"("based", "content", "creator")
     VALUES ($1, $2, $3)
