@@ -43,10 +43,10 @@ objective_link: {
   # "Inherit: super obj, randomize otherwise" 
   sharding_id: uuid
 
-  sub_oid: ObjectiveId
-  sub_vid: VersionId
   sup_oid: ObjectiveId
+  sub_oid: ObjectiveId
   sup_vid: VersionId
+  sub_vid: VersionId
 
   created_at: timestamp
   deleted_at: timestamp
@@ -116,8 +116,8 @@ bookmark.oid -- objective.oid
 bookmark.vid <-> objective.vid
 
 # Any task with custom privilege hand.can have owner/viewers/executors
-objective.oid -- privilege.oid
-objective.vid <-> privilege.vid
+privilege.oid -- objective.oid
+privilege.vid <-> objective.vid
 
 objective.oid -- objective_link.sup_oid
 objective.vid <-> objective_link.sup_vid
@@ -134,6 +134,6 @@ objective.vid <-> computed_to_top.vid
 objective.oid -- computed_to_bottom.oid
 objective.vid <-> computed_to_bottom.vid
 
-operation.opid -- operation_completion.opid
+operation_completion.opid -- operation.opid 
 
 objective.oid -- operation.oid
