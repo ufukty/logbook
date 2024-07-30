@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"logbook/cmd/objectives/database"
+	"logbook/models"
 	"logbook/models/columns"
 )
 
@@ -49,7 +50,7 @@ import (
 // TODO: create NewOperation
 // TODO: trigger task-props calculation
 // TODO: transaction-commit-rollback
-func (a *App) createVersionedObjective(ctx context.Context, act CreateObjectiveAction, ancestry []Ovid, vancestry []database.VersioningConfig) ([]Ovid, error) {
+func (a *App) createVersionedObjective(ctx context.Context, act CreateObjectiveAction, ancestry []models.Ovid, vancestry []database.VersioningConfig) ([]models.Ovid, error) {
 	// check authz
 	vc := vancestry[len(vancestry)-1]
 	v, err := a.queries.InsertVersion(ctx, vc.Effective)
@@ -74,8 +75,8 @@ func (a *App) createVersionedObjective(ctx context.Context, act CreateObjectiveA
 		return nil, fmt.Errorf("inserting objective into the db: %w", err)
 	}
 
-	updates := []Ovid{}
-	var prev Ovid
+	updates := []models.Ovid{}
+	var prev models.Ovid
 	for _, parentOvid := range ancestry {
 		parent, err := a.queries.SelectObjective(ctx, database.SelectObjectiveParams{
 			Oid: parentOvid.Oid,
@@ -130,7 +131,7 @@ func (a *App) createVersionedObjective(ctx context.Context, act CreateObjectiveA
 	return updates, nil
 }
 
-func (a *App) CreateObjective(ctx context.Context, act CreateObjectiveAction) ([]Ovid, error) {
+func (a *App) CreateObjective(ctx context.Context, act CreateObjectiveAction) ([]models.Ovid, error) {
 	ancestry, err := a.ListObjectiveAncestry(ctx, act.Parent)
 	if err != nil {
 		return nil, fmt.Errorf("listing ancestry of %q: %w", act.Parent, err)

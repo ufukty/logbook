@@ -5,12 +5,13 @@ import (
 	"errors"
 	"fmt"
 	"logbook/cmd/objectives/database"
+	"logbook/models"
 
 	"github.com/jackc/pgx/v4"
 )
 
 // FIXME: Don't return error on pgx returns NoData but continoue to next iteration on loop
-func (a *App) ListVersioningConfigForAncestry(ctx context.Context, ancestry []Ovid) ([]database.VersioningConfig, error) {
+func (a *App) ListVersioningConfigForAncestry(ctx context.Context, ancestry []models.Ovid) ([]database.VersioningConfig, error) {
 	vancestry := []database.VersioningConfig{}
 	for _, c := range ancestry {
 		vc, err := a.queries.SelectVersioningConfig(ctx, c.Oid)

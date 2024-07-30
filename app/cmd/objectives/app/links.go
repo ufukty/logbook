@@ -4,11 +4,12 @@ import (
 	"context"
 	"fmt"
 	"logbook/cmd/objectives/database"
+	"logbook/models"
 	columns "logbook/models/columns"
 )
 
-func (a *App) ListObjectiveAncestry(ctx context.Context, ovid Ovid) ([]Ovid, error) {
-	anc := []Ovid{}
+func (a *App) ListObjectiveAncestry(ctx context.Context, ovid models.Ovid) ([]models.Ovid, error) {
+	anc := []models.Ovid{}
 	c := ovid
 	for limit := 0; true; limit++ {
 		l, err := a.queries.SelectTheUpperLink(ctx, database.SelectTheUpperLinkParams{

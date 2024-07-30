@@ -6,11 +6,12 @@ import (
 	"logbook/cmd/objectives/app"
 	"logbook/internal/web/requests"
 	"logbook/internal/web/validate"
+	"logbook/models"
 	"net/http"
 )
 
 type CreateObjectiveRequest struct {
-	Parent  app.Ovid         `json:"parent"`
+	Parent  models.Ovid         `json:"parent"`
 	Content ObjectiveContent `json:"content"`
 }
 
@@ -19,7 +20,7 @@ func (ct CreateObjectiveRequest) validate() error {
 }
 
 type CreateObjectiveResponse struct {
-	Update []app.Ovid `json:"update"`
+	Update []models.Ovid `json:"update"`
 }
 
 // TODO: Check user input for script tags in order to prevent XSS attempts
