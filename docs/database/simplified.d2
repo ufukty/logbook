@@ -34,14 +34,10 @@ objective: {
   deleted_at: timestamp
 }
 
-# recalculate every link on a tree when new viewer come" ?
 objective_link: {
   shape: sql_table
 
   lid: LinkId
-
-  # "Inherit: super obj, randomize otherwise" 
-  sharding_id: uuid
 
   sup_oid: ObjectiveId
   sub_oid: ObjectiveId
@@ -63,12 +59,9 @@ computed_to_top: {
   is_leaf: bool
   is_completed: bool
 
-  # "inherited: from inviter on task creation." 
   index: int
-  depth: int
-  # "changes: for each user. divide with degree to find completion_percentage" 
+  degree: int
   completed_subtasks: int
-  # "changes: for each user. not the same with objective.is_completed" 
   completion_percentage: float
 }
 
@@ -79,7 +72,7 @@ computed_to_bottom: {
   vid: VersionId
   viewer: UserId
 
-  degree: int
+  depth: int
 }
 
 operation: {
