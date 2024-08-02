@@ -84,12 +84,13 @@ operation: {
   shape: sql_table
 
   opid: OperationId
-  vid: VersionId
-  based: VersionId
-
+  
+  targetoid: ObjectiveId
+  targetvid: VersionId
   actor: UserId
-  status: enum
-  type: enum # Transitive, Checkout, Completion, Reattach, Reorder, Content
+
+  op_type: enum # Transitive, Checkout, Completion, Reattach, Reorder, Content
+  status: enum # Received, Accepted, Rejected
 
   created_at: timestamp
   deleted_at: timestamp
@@ -99,10 +100,7 @@ op_completion: {
   shape: sql_table
 
   opid: OperationId
-  oid: ObjectiveId
-  vid: VersionId
-  actor: UserId
-  created_at: timestamp
+  completed: bool
 }
 
 direction: right
