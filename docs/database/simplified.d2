@@ -119,30 +119,30 @@ direction: right
 
 # a bookmark points to a root node of a work tree
 bookmark.oid -- objective.oid
-bookmark.vid -- objective.vid
+# bookmark.vid -- objective.vid
 
 # Any task with custom privilege hand.can have owner/viewers/executors
 privilege.oid -- objective.oid
-privilege.vid -- objective.vid
+# privilege.vid -- objective.vid
 
 objective.oid -- links.sup_oid
-objective.vid -- links.sup_vid
+# objective.vid -- links.sup_vid
 
 objective.oid -- links.sub_oid
-objective.vid -- links.sub_vid
+# objective.vid -- links.sub_vid
 
 objective.oid -- operation.oid
-objective.vid -- operation.vid
+# objective.vid -- operation.vid
 
 objective.oid -- computed_to_top.oid
-objective.vid -- computed_to_top.vid
+# objective.vid -- computed_to_top.vid
 
 objective.oid -- computed_to_bottom.oid
-objective.vid -- computed_to_bottom.vid
+# objective.vid -- computed_to_bottom.vid
 
-op_completion.opid -- operation.opid 
+operation.opid -- op_completion.opid
 
 objective.oid -- operation.oid
 
 objective.oid -- props.oid
-objective.vid -- props.vid
+# objective.vid -- props.vid
