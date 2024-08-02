@@ -93,12 +93,9 @@ operation: {
   vid: VersionId
   based: VersionId
 
-  uid: UserId
-  summary: enum
+  actor: UserId
   status: enum
-
-  oid: ObjectiveId
-  lid: LinkId
+  type: enum # Transitive, Checkout, Completion, Reattach, Reorder, Content
 
   created_at: timestamp
   deleted_at: timestamp
@@ -108,7 +105,6 @@ op_completion: {
   shape: sql_table
 
   opid: OperationId
-  generic_opid: OperationId
   oid: ObjectiveId
   vid: VersionId
   actor: UserId
@@ -131,9 +127,6 @@ objective.oid -- links.sup_oid
 objective.oid -- links.sub_oid
 # objective.vid -- links.sub_vid
 
-objective.oid -- operation.oid
-# objective.vid -- operation.vid
-
 objective.oid -- computed_to_top.oid
 # objective.vid -- computed_to_top.vid
 
@@ -142,7 +135,7 @@ objective.oid -- computed_to_bottom.oid
 
 operation.opid -- op_completion.opid
 
-objective.oid -- operation.oid
+objective.created_by -- operation.opid
 
 objective.oid -- props.oid
 # objective.vid -- props.vid
