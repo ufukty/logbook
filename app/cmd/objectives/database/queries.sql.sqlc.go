@@ -312,6 +312,22 @@ func (q *Queries) InsertVersion(ctx context.Context, based columns.VersionId) (V
 	return i, err
 }
 
+const selectActive = `-- name: SelectActive :one
+SELECT
+    oid, vid
+FROM
+    "active"
+WHERE
+    "oid" == $1
+`
+
+func (q *Queries) SelectActive(ctx context.Context, oid columns.ObjectiveId) (Active, error) {
+	row := q.db.QueryRow(ctx, selectActive, oid)
+	var i Active
+	err := row.Scan(&i.Oid, &i.Vid)
+	return i, err
+}
+
 const selectObjective = `-- name: SelectObjective :one
 SELECT
     "oid",
@@ -463,5 +479,28 @@ func (q *Queries) SelectVersion(ctx context.Context, vid columns.VersionId) (Ver
 	row := q.db.QueryRow(ctx, selectVersion, vid)
 	var i Version
 	err := row.Scan(&i.Vid, &i.Based)
+	return i, err
+}
+
+const updateActive = `-- name: UpdateActive :one
+UPDATE
+    "active"
+SET
+    "vid" = $2
+WHERE
+    "oid" == $1
+RETURNING
+    oid, vid
+`
+
+type UpdateActiveParams struct {
+	Oid columns.ObjectiveId
+	Vid columns.VersionId
+}
+
+func (q *Queries) UpdateActive(ctx context.Context, arg UpdateActiveParams) (Active, error) {
+	row := q.db.QueryRow(ctx, updateActive, arg.Oid, arg.Vid)
+	var i Active
+	err := row.Scan(&i.Oid, &i.Vid)
 	return i, err
 }

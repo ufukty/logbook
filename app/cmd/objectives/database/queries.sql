@@ -70,6 +70,24 @@ RETURNING
 -- MARK: versioning
 ;
 
+-- name: SelectActive :one
+SELECT
+    *
+FROM
+    "active"
+WHERE
+    "oid" == $1;
+
+-- name: UpdateActive :one
+UPDATE
+    "active"
+SET
+    "vid" = $2
+WHERE
+    "oid" == $1
+RETURNING
+    *;
+
 -- name: SelectVersion :one
 SELECT
     "vid",

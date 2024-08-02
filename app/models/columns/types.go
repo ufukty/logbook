@@ -19,7 +19,6 @@ type (
 
 // objectives
 type (
-	CommitId    string
 	LinkId      string
 	ObjectiveId string
 	OperationId string

@@ -8,8 +8,6 @@ CREATE DOMAIN "ObjectiveId" AS uuid;
 
 CREATE DOMAIN "VersionId" AS uuid;
 
-CREATE DOMAIN "CommitId" AS uuid;
-
 CREATE DOMAIN "OperationId" AS uuid;
 
 CREATE DOMAIN "LinkId" AS uuid;
@@ -21,12 +19,17 @@ CREATE TABLE "version"(
     "based" "VersionId" NOT NULL
 );
 
+CREATE TABLE "active"(
+    "oid" "ObjectiveId" NOT NULL UNIQUE,
+    "vid" "VersionId" NOT NULL
+);
+
 CREATE TABLE "objective"(
     "oid" "ObjectiveId" NOT NULL DEFAULT gen_random_uuid(), -- objective id
     "vid" "VersionId" NOT NULL,
     "based" "VersionId" NOT NULL, -- previous "vid" OR '00000000-0000-0000-0000-000000000000'
     "content" text NOT NULL,
-    "creator" "UserId" NOT NULL, -- user id
+    "creator" "UserId" NOT NULL,
     "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY ("oid", "vid")
 );
@@ -38,7 +41,7 @@ CREATE TABLE "objective_link"(
     "sup_oid" "ObjectiveId" NOT NULL, -- super objective id
     "sup_vid" "VersionId" NOT NULL, -- super version id
     "sub_oid" "ObjectiveId" NOT NULL, -- sub objective id
-    "sub_vid" "VersionId" NOT NULL, -- sub version id
+    "sub_vid" "VersionId" NOT NULL, -- sub branch id
     "creator" "UserId" NOT NULL,
     "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY ("sup_oid", "sup_vid", "sub_oid")

@@ -13,10 +13,6 @@ func (v AccessId) Validate() error {
 	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
 }
 
-func (v CommitId) Validate() error {
-	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
-}
-
 func (v Email) Validate() error {
 	return validate.StringBasics(string(v), min_length_email, max_length_email, regexp_email)
 }

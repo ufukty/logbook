@@ -9,6 +9,11 @@ import (
 	"logbook/models/columns"
 )
 
+type Active struct {
+	Oid columns.ObjectiveId
+	Vid columns.VersionId
+}
+
 type Bookmark struct {
 	Bid         interface{}
 	Uid         columns.UserId
