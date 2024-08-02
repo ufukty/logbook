@@ -14,6 +14,7 @@ privilege: {
 
   user_role_id: uuid
   oid: ObjectiveId
+  vid: VersionId
   uid: UserId
   role: "Owner, Supervisor, Executor, Guest"
   status: "Invited, Accepted, Rejected, Canceled"
@@ -27,6 +28,16 @@ objective: {
   oid: ObjectiveId
   vid: VersionId
   based: VersionId
+  created_by: OperationId
+
+  created_at: timestamp
+}
+
+props: {
+  shape: sql_table
+
+  oid: ObjectiveId
+  vid: VersionId
   type: "Regular, Rock"
   content: text
   creator: UserId
@@ -34,7 +45,7 @@ objective: {
   deleted_at: timestamp
 }
 
-objective_link: {
+links: {
   shape: sql_table
 
   lid: LinkId
@@ -93,7 +104,7 @@ operation: {
   deleted_at: timestamp
 }
 
-operation_completion: {
+op_completion: {
   shape: sql_table
 
   opid: OperationId
@@ -104,29 +115,34 @@ operation_completion: {
   created_at: timestamp
 }
 
+direction: right
+
 # a bookmark points to a root node of a work tree
 bookmark.oid -- objective.oid
-bookmark.vid <-> objective.vid
+bookmark.vid -- objective.vid
 
 # Any task with custom privilege hand.can have owner/viewers/executors
 privilege.oid -- objective.oid
-privilege.vid <-> objective.vid
+privilege.vid -- objective.vid
 
-objective.oid -- objective_link.sup_oid
-objective.vid <-> objective_link.sup_vid
+objective.oid -- links.sup_oid
+objective.vid -- links.sup_vid
 
-objective.oid -- objective_link.sub_oid
-objective.vid <-> objective_link.sub_vid
+objective.oid -- links.sub_oid
+objective.vid -- links.sub_vid
 
 objective.oid -- operation.oid
-objective.vid <-> operation.vid
+objective.vid -- operation.vid
 
 objective.oid -- computed_to_top.oid
-objective.vid <-> computed_to_top.vid
+objective.vid -- computed_to_top.vid
 
 objective.oid -- computed_to_bottom.oid
-objective.vid <-> computed_to_bottom.vid
+objective.vid -- computed_to_bottom.vid
 
-operation_completion.opid -- operation.opid 
+op_completion.opid -- operation.opid 
 
 objective.oid -- operation.oid
+
+objective.oid -- props.oid
+objective.vid -- props.vid
