@@ -30,7 +30,7 @@ objective: {
   based: VersionId
   created_by: OperationId
 
-  created_at: timestamp
+  created_at: timestamp # creation of this version (=row)
 }
 
 props: {
@@ -38,7 +38,6 @@ props: {
 
   oid: ObjectiveId
   vid: VersionId
-  type: "Regular, Rock"
   content: text
   creator: UserId
   created_at: timestamp
