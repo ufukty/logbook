@@ -85,8 +85,8 @@ operation: {
 
   opid: OperationId
   
-  targetoid: ObjectiveId
-  targetvid: VersionId
+  subjectoid: ObjectiveId
+  subjectvid: VersionId
   actor: UserId
 
   op_type: enum # Transitive, Checkout, Completion, Reattach, Reorder, Content
@@ -96,11 +96,50 @@ operation: {
   deleted_at: timestamp
 }
 
+op_checkout: {
+  shape: sql_table
+  
+  opid: OperationId 
+  to: VersionId
+}
+
+op_content: {
+  shape: sql_table
+  
+  opid: OperationId 
+  text: string
+}
+
 op_completion: {
   shape: sql_table
 
   opid: OperationId
   completed: bool
+}
+
+# reattachment operation gets defined on the old parent of the objective is requested to be moved into next parent's bottom
+op_reattach: {
+  shape: sql_table
+  
+  opid: OperationId 
+  child: ObjectiveId # find the vid from only version of child linked to current version of subject
+  newparent: ObjectiveId # find the vid of parent from following the ascendants of subject reached from active versions
+}
+
+op_reorder: {
+  shape: sql_table
+  
+  opid: OperationId 
+  child: ObjectiveId
+  moveafter: ObjectiveId
+}
+
+# every ascendant gets an transitive update operation when an objective gets version changing event from user (either checkout or content/prop modification)
+op_transitive: {
+  shape: sql_table
+  
+  opid: OperationId 
+  cause: OperationId
 }
 
 direction: right
@@ -125,7 +164,12 @@ objective.oid -- computed_to_top.oid
 objective.oid -- computed_to_bottom.oid
 # objective.vid -- computed_to_bottom.vid
 
+operation.opid -- op_checkout.opid
 operation.opid -- op_completion.opid
+operation.opid -- op_content.opid
+operation.opid -- op_reattach.opid
+operation.opid -- op_reorder.opid
+operation.opid -- op_transitive.opid
 
 objective.created_by -- operation.opid
 
