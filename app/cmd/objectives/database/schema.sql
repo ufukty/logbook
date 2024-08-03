@@ -36,15 +36,12 @@ CREATE TABLE "objective"(
 
 CREATE INDEX "index_objective" ON "objective"("created_at");
 
-CREATE TABLE "objective_link"(
-    "lid" "LinkId" NOT NULL DEFAULT gen_random_uuid(), -- link id
+
+CREATE TABLE "link"(
     "sup_oid" "ObjectiveId" NOT NULL, -- super objective id
     "sup_vid" "VersionId" NOT NULL, -- super version id
     "sub_oid" "ObjectiveId" NOT NULL, -- sub objective id
     "sub_vid" "VersionId" NOT NULL, -- sub branch id
-    "creator" "UserId" NOT NULL,
-    "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY ("sup_oid", "sup_vid", "sub_oid")
 );
 
 CREATE TABLE "objective_completion"(
