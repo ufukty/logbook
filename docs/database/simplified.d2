@@ -41,6 +41,15 @@ objective: {
   created_at: timestamp # creation of this version (=row)
 }
 
+objective_view_prefs: {
+  shape: sql_table
+
+  uid: UserId
+  oid: ObjectiveId
+  fold: boolean
+}
+
+
 # cached from operations to reduce view build duration
 # separately versioned from the objective to detach it from privilege and collaboration config changes
 computed_props: {
@@ -85,11 +94,10 @@ operation: {
   subjectvid: VersionId
   actor: UserId
 
-  op_type: enum # Transitive, Checkout, Completion, Reattach, Reorder, Content
-  status: enum # Received, Accepted, Rejected
+  op_type: enum
+  op_status: enum
 
   created_at: timestamp
-  deleted_at: timestamp
 }
 
 op_checkout: {
@@ -149,6 +157,8 @@ bookmark.oid -- objective.oid
 # Any task with custom privilege hand.can have owner/viewers/executors
 privilege.oid -- objective.oid
 # privilege.vid -- objective.vid
+
+objective_view_prefs.oid -- objective.oid
 
 objective.oid -- links.sup_oid
 # objective.vid -- links.sup_vid

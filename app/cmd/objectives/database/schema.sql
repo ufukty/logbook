@@ -10,6 +10,8 @@ CREATE DOMAIN "VersionId" AS uuid;
 
 CREATE DOMAIN "OperationId" AS uuid;
 
+CREATE DOMAIN "PropertyId" AS uuid;
+
 CREATE DOMAIN "LinkId" AS uuid;
 
 CREATE DOMAIN "BookmarkId" AS uuid;
@@ -31,7 +33,7 @@ CREATE TABLE "objective"(
 
 CREATE INDEX "index_objective" ON "objective"("created_at");
 
-CREATE "computed_props"(
+CREATE TABLE "computed_props"(
     "propid" "PropertyId" NOT NULL DEFAULT gen_random_uuid(),
     "content" text NOT NULL,
     "creator" "UserId" NOT NULL,
@@ -40,23 +42,15 @@ CREATE "computed_props"(
 );
 
 CREATE TABLE "link"(
-    "sup_oid" "ObjectiveId" NOT NULL, -- super objective id
-    "sup_vid" "VersionId" NOT NULL, -- super version id
-    "sub_oid" "ObjectiveId" NOT NULL, -- sub objective id
-    "sub_vid" "VersionId" NOT NULL, -- sub branch id
+    "sup_oid" "ObjectiveId" NOT NULL,
+    "sup_vid" "VersionId" NOT NULL,
+    "sub_oid" "ObjectiveId" NOT NULL,
+    "sub_vid" "VersionId" NOT NULL
 );
 
--- MARK: Computed properties and user preferences per item per user
-;
-
-CREATE TABLE "objective_view"(
+CREATE TABLE "objective_view_prefs"(
+    "uid" "UserId" NOT NULL,
     "oid" "ObjectiveId" NOT NULL,
-    "vid" "VersionId" NOT NULL,
-    "viewer" "UserId" NOT NULL,
-    "degree" int NOT NULL,
-    "depth" int NOT NULL,
-    "ready" boolean NOT NULL,
-    "completion_pct" float NOT NULL,
     "fold" boolean NOT NULL
 );
 
@@ -71,55 +65,71 @@ CREATE TABLE "computed_to_top"(
     "index" int NOT NULL,
     "subtree_size" int NOT NULL,
     "completed_subitems" int NOT NULL,
-    PRIMARY KEY ("oid", "vid")
+    PRIMARY KEY ("oid", "vid", "viewer")
 );
 
--- MARK: operations
-;
+CREATE TYPE "OpType" AS ENUM(
+    'checkout',
+    'obj_completion',
+    'obj_content',
+    'obj_create', --
+    'obj_delete', --
+    'obj_reattach',
+    'obj_reorder',
+    'transitive'
+);
 
-CREATE TABLE "op_objective_create"(
-    "opid" "OperationId" NOT NULL DEFAULT gen_random_uuid(),
+CREATE TYPE "OpStatus" AS ENUM(
+    'received',
+    'accepted',
+    'rejected'
+);
+
+CREATE TABLE "operation"(
+    "opid" "OperationId" NOT NULL,
+    "subjectoid" "ObjectiveId" NOT NULL,
+    "subjectvid" "VersionId" NOT NULL,
     "actor" "UserId" NOT NULL,
-    "poid" "ObjectiveId" NOT NULL, -- parent oid
-    "pvid" "VersionId" NOT NULL, -- parent vid based on
-    "content" text,
+    "op_type" "OpType" NOT NULL, -- Transitive, Checkout, Completion, Reattach, Reorder, Content
+    "status" "OpStatus" NOT NULL, -- Received, Accepted, Rejected
     "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE "op_objective_delete"(
-    "opid" "OperationId" NOT NULL DEFAULT gen_random_uuid(),
-    "actor" "UserId" NOT NULL,
-    "oid" "ObjectiveId" NOT NULL,
-    "vid" "VersionId" NOT NULL, -- based on
-    "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE "op_chekout"(
+    "opid" "OperationId" NOT NULL,
+    "to" "VersionId" NOT NULL
 );
 
-CREATE TABLE "op_objective_content_update"(
-    "opid" "OperationId" NOT NULL DEFAULT gen_random_uuid(),
-    "actor" "UserId" NOT NULL,
-    "oid" "ObjectiveId" NOT NULL,
-    "vid" "VersionId" NOT NULL, -- based on
-    "content" text,
-    "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE "op_obj_completion"(
+    "opid" "OperationId" NOT NULL,
+    "completed" boolean NOT NULL
 );
 
-CREATE TABLE "op_objective_attach_subobjective"(
-    "opid" "OperationId" NOT NULL DEFAULT gen_random_uuid(),
-    "actor" "UserId" NOT NULL,
-    "sup_oid" "ObjectiveId" NOT NULL,
-    "sup_vid" "VersionId" NOT NULL, -- based on
-    "sub_oid" "ObjectiveId" NOT NULL,
-    "sub_vid" "VersionId" NOT NULL,
-    "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE "op_obj_content"(
+    "opid" "OperationId" NOT NULL,
+    "content" text
 );
 
-CREATE TABLE "op_objective_update_completion"(
-    "opid" "OperationId" NOT NULL DEFAULT gen_random_uuid(),
-    "actor" "UserId" NOT NULL,
-    "oid" "ObjectiveId" NOT NULL,
-    "vid" "VersionId" NOT NULL,
-    "completed" boolean NOT NULL,
-    "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE "op_obj_create"(
+    "opid" "OperationId" NOT NULL,
+    "content" text
+);
+
+CREATE TABLE "op_obj_reattach"(
+    "opid" "OperationId" NOT NULL,
+    "child" "ObjectiveId" NOT NULL,
+    "newparent" "ObjectiveId" NOT NULL
+);
+
+CREATE TABLE "op_obj_reorder"(
+    "opid" "OperationId" NOT NULL,
+    "child" "ObjectiveId" NOT NULL,
+    "moveafter" "ObjectiveId" NOT NULL
+);
+
+CREATE TABLE "op_transitive"(
+    "opid" "OperationId" NOT NULL,
+    "cause" "OperationId" NOT NULL
 );
 
 -- TODO: operations: reorder, note (create,update,delete), delegation (assign, unassign), collaboration (init, invite, restrict), versioning (rollback, fastforward)
