@@ -36,6 +36,13 @@ CREATE TABLE "objective"(
 
 CREATE INDEX "index_objective" ON "objective"("created_at");
 
+CREATE "computed_props"(
+    "propid" "PropertyId" NOT NULL DEFAULT gen_random_uuid(),
+    "content" text NOT NULL,
+    "creator" "UserId" NOT NULL,
+    "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY ("propid")
+);
 
 CREATE TABLE "link"(
     "sup_oid" "ObjectiveId" NOT NULL, -- super objective id
