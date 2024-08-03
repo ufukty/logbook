@@ -14,11 +14,6 @@ CREATE DOMAIN "LinkId" AS uuid;
 
 CREATE DOMAIN "BookmarkId" AS uuid;
 
-CREATE TABLE "version"(
-    "vid" "VersionId" NOT NULL UNIQUE DEFAULT gen_random_uuid(),
-    "based" "VersionId" NOT NULL
-);
-
 CREATE TABLE "active"(
     "oid" "ObjectiveId" NOT NULL UNIQUE,
     "vid" "VersionId" NOT NULL
@@ -51,14 +46,6 @@ CREATE TABLE "link"(
     "sub_vid" "VersionId" NOT NULL, -- sub branch id
 );
 
-CREATE TABLE "objective_completion"(
-    "oid" "ObjectiveId" NOT NULL,
-    "vid" "VersionId" NOT NULL,
-    "actor" "UserId" NOT NULL, -- user id
-    "completed" boolean NOT NULL DEFAULT FALSE,
-    "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
 -- MARK: Computed properties and user preferences per item per user
 ;
 
@@ -80,13 +67,6 @@ CREATE TABLE "computed_to_top"(
     "all_cleared" boolean NOT NULL,
     "degree" int NOT NULL,
     "completed_subtasks" int NOT NULL,
-    PRIMARY KEY ("oid", "vid")
-);
-
-CREATE TABLE "computed_to_bottom"(
-    "oid" "ObjectiveId" NOT NULL,
-    "vid" "VersionId" NOT NULL,
-    "depth" int NOT NULL,
     PRIMARY KEY ("oid", "vid")
 );
 
