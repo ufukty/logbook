@@ -60,13 +60,17 @@ CREATE TABLE "objective_view"(
     "fold" boolean NOT NULL
 );
 
+-- is_ready = completed_items == completed_items
+-- is_leaf = subtree_size == 0
 CREATE TABLE "computed_to_top"(
     "oid" "ObjectiveId" NOT NULL,
     "vid" "VersionId" NOT NULL,
-    "dependencies_are_cleared" boolean NOT NULL,
-    "all_cleared" boolean NOT NULL,
-    "degree" int NOT NULL,
-    "completed_subtasks" int NOT NULL,
+    "viewer" "UserId" NOT NULL,
+    "is_solo" boolean NOT NULL,
+    "is_completed" boolean NOT NULL,
+    "index" int NOT NULL,
+    "subtree_size" int NOT NULL,
+    "completed_subitems" int NOT NULL,
     PRIMARY KEY ("oid", "vid")
 );
 
