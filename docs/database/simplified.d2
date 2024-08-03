@@ -1,3 +1,10 @@
+active: {
+  shape: sql_table
+
+  oid: ObjectiveId
+  vid: VersionId
+}
+
 bookmark: {
   shape: sql_table
 
@@ -29,7 +36,7 @@ objective: {
   vid: VersionId
   based: VersionId
   created_by: OperationId
-  propid: PropertyId
+  props: PropertyId
 
   created_at: timestamp # creation of this version (=row)
 }
@@ -70,16 +77,6 @@ computed_to_top: {
   degree: int
   completed_subtasks: int
   completion_percentage: float
-}
-
-computed_to_bottom: {
-  shape: sql_table
-
-  oid: ObjectiveId
-  vid: VersionId
-  viewer: UserId
-
-  depth: int
 }
 
 operation: {
@@ -146,6 +143,8 @@ op_transitive: {
 
 direction: right
 
+active.oid -- objective.oid
+
 # a bookmark points to a root node of a work tree
 bookmark.oid -- objective.oid
 # bookmark.vid -- objective.vid
@@ -163,9 +162,6 @@ objective.oid -- links.sub_oid
 objective.oid -- computed_to_top.oid
 # objective.vid -- computed_to_top.vid
 
-objective.oid -- computed_to_bottom.oid
-# objective.vid -- computed_to_bottom.vid
-
 operation.opid -- op_checkout.opid
 operation.opid -- op_completion.opid
 operation.opid -- op_content.opid
@@ -175,5 +171,5 @@ operation.opid -- op_transitive.opid
 
 objective.created_by -- operation.opid
 
-objective.propid -- computed_props.propid
+objective.props -- computed_props.propid
 # objective.vid -- props.vid
