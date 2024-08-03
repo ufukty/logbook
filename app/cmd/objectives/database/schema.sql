@@ -28,8 +28,8 @@ CREATE TABLE "objective"(
     "oid" "ObjectiveId" NOT NULL DEFAULT gen_random_uuid(), -- objective id
     "vid" "VersionId" NOT NULL,
     "based" "VersionId" NOT NULL, -- previous "vid" OR '00000000-0000-0000-0000-000000000000'
-    "content" text NOT NULL,
-    "creator" "UserId" NOT NULL,
+    "created_by" "OperationId" NOT NULL,
+    "props" "ProperyId",
     "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY ("oid", "vid")
 );
