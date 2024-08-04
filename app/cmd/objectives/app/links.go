@@ -5,14 +5,13 @@ import (
 	"fmt"
 	"logbook/cmd/objectives/database"
 	"logbook/models"
-	"slices"
 
 	"github.com/jackc/pgx/v5"
 )
 
 var ErrLeftBehind = fmt.Errorf("the objective is either directly or eventually linked to an objective which its version is left behind")
 
-// returns a path from the node to the root: [subject, active-ascendants, ..., rock] or [ErrLeftBehind]
+// returns a path from the node to the root: [rock, active-ascendants..., subject] or [ErrLeftBehind]
 func (a *App) ListActivePathToRock(ctx context.Context, subject models.Ovid) ([]models.Ovid, error) {
 	active, err := a.queries.SelectActive(ctx, subject.Oid)
 	if err != nil {
@@ -39,7 +38,7 @@ func (a *App) ListActivePathToRock(ctx context.Context, subject models.Ovid) ([]
 		} else if err != nil {
 			return nil, fmt.Errorf("ListActivePathToRock(%s): %w", parent, err)
 		} else {
-			return slices.Insert(path, 0, subject), nil
+			return append(path, subject), nil
 		}
 	}
 	return nil, ErrLeftBehind
