@@ -121,6 +121,13 @@ op_completion: {
   completed: bool
 }
 
+op_create_subtask: {
+  shape: sql_table
+
+  opid: OperationId
+  content: string
+}
+
 # reattachment operation gets defined on the old parent of the objective is requested to be moved into next parent's bottom
 op_reattach: {
   shape: sql_table
@@ -172,6 +179,7 @@ objective.oid -- computed_to_top.oid
 operation.opid -- op_checkout.opid
 operation.opid -- op_completion.opid
 operation.opid -- op_content.opid
+operation.opid -- op_create_subtask.opid
 operation.opid -- op_reattach.opid
 operation.opid -- op_reorder.opid
 operation.opid -- op_transitive.opid
