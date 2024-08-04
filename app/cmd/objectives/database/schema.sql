@@ -22,11 +22,11 @@ CREATE TABLE "active"(
 );
 
 CREATE TABLE "objective"(
-    "oid" "ObjectiveId" NOT NULL DEFAULT gen_random_uuid(), -- objective id
-    "vid" "VersionId" NOT NULL,
+    "oid" "ObjectiveId" NOT NULL DEFAULT gen_random_uuid(),
+    "vid" "VersionId" NOT NULL DEFAULT gen_random_uuid(),
     "based" "VersionId" NOT NULL, -- previous "vid" OR '00000000-0000-0000-0000-000000000000'
     "created_by" "OperationId" NOT NULL,
-    "props" "ProperyId",
+    "props" "PropertyId",
     "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY ("oid", "vid")
 );
@@ -76,6 +76,7 @@ CREATE TYPE "OpType" AS ENUM(
     'obj_delete', --
     'obj_reattach',
     'obj_reorder',
+    'usr_register',
     'transitive'
 );
 
@@ -86,16 +87,16 @@ CREATE TYPE "OpStatus" AS ENUM(
 );
 
 CREATE TABLE "operation"(
-    "opid" "OperationId" NOT NULL,
+    "opid" "OperationId" NOT NULL UNIQUE DEFAULT gen_random_uuid(),
     "subjectoid" "ObjectiveId" NOT NULL,
     "subjectvid" "VersionId" NOT NULL,
     "actor" "UserId" NOT NULL,
     "op_type" "OpType" NOT NULL, -- Transitive, Checkout, Completion, Reattach, Reorder, Content
-    "status" "OpStatus" NOT NULL, -- Received, Accepted, Rejected
+    "op_status" "OpStatus" NOT NULL, -- Received, Accepted, Rejected
     "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE "op_chekout"(
+CREATE TABLE "op_checkout"(
     "opid" "OperationId" NOT NULL,
     "to" "VersionId" NOT NULL
 );
@@ -110,7 +111,7 @@ CREATE TABLE "op_obj_content"(
     "content" text
 );
 
-CREATE TABLE "op_obj_create"(
+CREATE TABLE "op_obj_create_subtask"(
     "opid" "OperationId" NOT NULL,
     "content" text
 );
@@ -142,7 +143,6 @@ CREATE TABLE "bookmark"(
     "vid" "VersionId" NOT NULL,
     "display_name" text,
     "is_rock" boolean NOT NULL DEFAULT FALSE,
-    "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "deleted_at" timestamp
+    "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 

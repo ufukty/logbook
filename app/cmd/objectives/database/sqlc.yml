@@ -1,7 +1,12 @@
 version: "2"
 sql:
   - engine: "postgresql"
-    queries: "queries.sql"
+    queries:
+      - "queries.bookmark.sql"
+      - "queries.links.sql"
+      - "queries.objectives.sql"
+      - "queries.operations.sql"
+      - "queries.versions.sql"
     schema: "schema.sql"
     gen:
       go:
@@ -36,3 +41,8 @@ sql:
             go_type:
               import: "logbook/models/columns"
               type: LinkId
+
+          - db_type: PropertiesId
+            go_type:
+              import: "logbook/models/columns"
+              type: PropertiesId

@@ -2,7 +2,7 @@ all: \
 	database/dbtx.sqlc.go \
 	service/config.go
 
-database/dbtx.sqlc.go: database/sqlc.yml database/queries.sql database/schema.sql
+database/dbtx.sqlc.go: database/sqlc.yml database/queries.*.sql database/schema.sql
 	cd database && sqlc generate . ; rm dbtx.sqlc.go
 
 service/config.go: local.yml

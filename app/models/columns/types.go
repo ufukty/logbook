@@ -19,10 +19,11 @@ type (
 
 // objectives
 type (
-	LinkId      string
-	ObjectiveId string
-	OperationId string
-	VersionId   string
+	LinkId       string
+	ObjectiveId  string
+	OperationId  string
+	PropertiesId string
+	VersionId    string
 )
 
 // tags

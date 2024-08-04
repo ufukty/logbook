@@ -5,9 +5,104 @@
 package database
 
 import (
+	"database/sql/driver"
+	"fmt"
+
 	"github.com/jackc/pgx/v5/pgtype"
 	"logbook/models/columns"
 )
+
+type OpStatus string
+
+const (
+	OpStatusReceived OpStatus = "received"
+	OpStatusAccepted OpStatus = "accepted"
+	OpStatusRejected OpStatus = "rejected"
+)
+
+func (e *OpStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = OpStatus(s)
+	case string:
+		*e = OpStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for OpStatus: %T", src)
+	}
+	return nil
+}
+
+type NullOpStatus struct {
+	OpStatus OpStatus
+	Valid    bool // Valid is true if OpStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullOpStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.OpStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.OpStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullOpStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.OpStatus), nil
+}
+
+type OpType string
+
+const (
+	OpTypeCheckout         OpType = "checkout"
+	OpTypeObjCompletion    OpType = "obj_completion"
+	OpTypeObjContent       OpType = "obj_content"
+	OpTypeObjCreateSubtask OpType = "obj_create_subtask"
+	OpTypeObjDelete        OpType = "obj_delete"
+	OpTypeObjReattach      OpType = "obj_reattach"
+	OpTypeObjReorder       OpType = "obj_reorder"
+	OpTypeUsrRegister      OpType = "usr_register"
+	OpTypeTransitive       OpType = "transitive"
+)
+
+func (e *OpType) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = OpType(s)
+	case string:
+		*e = OpType(s)
+	default:
+		return fmt.Errorf("unsupported scan type for OpType: %T", src)
+	}
+	return nil
+}
+
+type NullOpType struct {
+	OpType OpType
+	Valid  bool // Valid is true if OpType is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullOpType) Scan(value interface{}) error {
+	if value == nil {
+		ns.OpType, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.OpType.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullOpType) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.OpType), nil
+}
 
 type Active struct {
 	Oid columns.ObjectiveId
@@ -22,108 +117,91 @@ type Bookmark struct {
 	DisplayName pgtype.Text
 	IsRock      bool
 	CreatedAt   pgtype.Timestamp
-	DeletedAt   pgtype.Timestamp
 }
 
-type ComputedToBottom struct {
-	Oid   columns.ObjectiveId
-	Vid   columns.VersionId
-	Depth int32
+type ComputedProp struct {
+	Propid    interface{}
+	Content   string
+	Creator   columns.UserId
+	CreatedAt pgtype.Timestamp
 }
 
 type ComputedToTop struct {
-	Oid                    columns.ObjectiveId
-	Vid                    columns.VersionId
-	DependenciesAreCleared bool
-	AllCleared             bool
-	Degree                 int32
-	CompletedSubtasks      int32
+	Oid               columns.ObjectiveId
+	Vid               columns.VersionId
+	Viewer            columns.UserId
+	IsSolo            bool
+	IsCompleted       bool
+	Index             int32
+	SubtreeSize       int32
+	CompletedSubitems int32
+}
+
+type Link struct {
+	SupOid columns.ObjectiveId
+	SupVid columns.VersionId
+	SubOid columns.ObjectiveId
+	SubVid columns.VersionId
 }
 
 type Objective struct {
 	Oid       columns.ObjectiveId
 	Vid       columns.VersionId
 	Based     columns.VersionId
-	Content   string
-	Creator   columns.UserId
+	CreatedBy columns.OperationId
+	Props     interface{}
 	CreatedAt pgtype.Timestamp
 }
 
-type ObjectiveCompletion struct {
-	Oid       columns.ObjectiveId
-	Vid       columns.VersionId
-	Actor     columns.UserId
+type ObjectiveViewPref struct {
+	Uid  columns.UserId
+	Oid  columns.ObjectiveId
+	Fold bool
+}
+
+type OpCheckout struct {
+	Opid columns.OperationId
+	To   columns.VersionId
+}
+
+type OpObjCompletion struct {
+	Opid      columns.OperationId
 	Completed bool
-	CreatedAt pgtype.Timestamp
 }
 
-type ObjectiveLink struct {
-	Lid       columns.LinkId
-	SupOid    columns.ObjectiveId
-	SupVid    columns.VersionId
-	SubOid    columns.ObjectiveId
-	SubVid    columns.VersionId
-	Creator   columns.UserId
-	CreatedAt pgtype.Timestamp
+type OpObjContent struct {
+	Opid    columns.OperationId
+	Content pgtype.Text
 }
 
-type ObjectiveView struct {
-	Oid           columns.ObjectiveId
-	Vid           columns.VersionId
-	Viewer        columns.UserId
-	Degree        int32
-	Depth         int32
-	Ready         bool
-	CompletionPct float64
-	Fold          bool
+type OpObjCreateSubtask struct {
+	Opid    columns.OperationId
+	Content pgtype.Text
 }
 
-type OpObjectiveAttachSubobjective struct {
+type OpObjReattach struct {
 	Opid      columns.OperationId
-	Actor     columns.UserId
-	SupOid    columns.ObjectiveId
-	SupVid    columns.VersionId
-	SubOid    columns.ObjectiveId
-	SubVid    columns.VersionId
-	CreatedAt pgtype.Timestamp
+	Child     columns.ObjectiveId
+	Newparent columns.ObjectiveId
 }
 
-type OpObjectiveContentUpdate struct {
+type OpObjReorder struct {
 	Opid      columns.OperationId
-	Actor     columns.UserId
-	Oid       columns.ObjectiveId
-	Vid       columns.VersionId
-	Content   pgtype.Text
-	CreatedAt pgtype.Timestamp
+	Child     columns.ObjectiveId
+	Moveafter columns.ObjectiveId
 }
 
-type OpObjectiveCreate struct {
-	Opid      columns.OperationId
-	Actor     columns.UserId
-	Poid      columns.ObjectiveId
-	Pvid      columns.VersionId
-	Content   pgtype.Text
-	CreatedAt pgtype.Timestamp
+type OpTransitive struct {
+	Opid  columns.OperationId
+	Cause columns.OperationId
 }
 
-type OpObjectiveDelete struct {
-	Opid      columns.OperationId
-	Actor     columns.UserId
-	Oid       columns.ObjectiveId
-	Vid       columns.VersionId
-	CreatedAt pgtype.Timestamp
-}
-
-type OpObjectiveUpdateCompletion struct {
-	Opid      columns.OperationId
-	Actor     columns.UserId
-	Oid       columns.ObjectiveId
-	Vid       columns.VersionId
-	Completed bool
-	CreatedAt pgtype.Timestamp
-}
-
-type Version struct {
-	Vid   columns.VersionId
-	Based columns.VersionId
+type Operation struct {
+	Opid       columns.OperationId
+	Subjectoid columns.ObjectiveId
+	Subjectvid columns.VersionId
+	Actor      columns.UserId
+	OpType     OpType
+	OpStatus   OpStatus
+	CreatedAt  pgtype.Timestamp
 }

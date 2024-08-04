@@ -5,8 +5,8 @@ func (o Objective) Clone() *Objective {
 		Oid:       o.Oid,
 		Vid:       o.Vid,
 		Based:     o.Based,
-		Content:   o.Content,
-		Creator:   o.Creator,
+		CreatedBy: o.CreatedBy,
+		Props:     o.Props,
 		CreatedAt: o.CreatedAt,
 	}
 }
