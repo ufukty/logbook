@@ -72,7 +72,7 @@ CREATE TYPE "OpType" AS ENUM(
     'checkout',
     'obj_completion',
     'obj_content',
-    'obj_create', --
+    'obj_create_subtask', --
     'obj_delete', --
     'obj_reattach',
     'obj_reorder',
