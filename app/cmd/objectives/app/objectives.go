@@ -6,147 +6,133 @@ import (
 	"logbook/cmd/objectives/database"
 	"logbook/models"
 	"logbook/models/columns"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
-// proposals can have multiple actions
-// func (a *App) UpdateObjective(ovid Ovid, as []database.Action) error {
-// 	nextVid := uuid.New()
-
-// 	o, err := a.db.SelectObjective(ovid.Oid, ovid.Vid)
-// 	if err != nil {
-// 		return fmt.Errorf("getting objective for oid: %w", err)
-// 	}
-
-// 	if err := a.ApplyActionsOnVersionedObjective(o.Clone(), as); err != nil {
-// 		return fmt.Errorf("applying action list on objective: %w", err)
-// 	}
-
-// 	createNextVersionOfParent := func(oid database.ObjectiveId) database.Objective {
-// 		links , err := a.db.SelectTheUpperLink(Ovid{oid, vid})
-// 		for _, link := range links {
-// 			if link.Type == nil {
-// 			}
-// 		}
-// 		// TODO: same version of update sibling
-// 	}
-// 	updateChildren := func(ovid Ovid) {
-
-// 	}
-
-// 	bq := endpoints.TagAssignRequest{}
-// 	bs, err := bq.Send()
-// 	if err != nil {
-// 		return fmt.Errorf("copying tag records to new version of the task: %w", err)
-// 	}
-
-// 	return nil
-// }
-
-// func (a *App) ComposeView(root database.ObjectiveId, vid database.VersionId) (any, error) {
-
-// }
-
-// TODO: Turn the parent objective into a goal if it is currently a task
-// TODO: create NewOperation
-// TODO: trigger task-props calculation
-// TODO: transaction-commit-rollback
-func (a *App) createVersionedObjective(ctx context.Context, act CreateObjectiveAction, ancestry []models.Ovid, vancestry []database.VersioningConfig) ([]models.Ovid, error) {
-	// check authz
-	vc := vancestry[len(vancestry)-1]
-	v, err := a.queries.InsertVersion(ctx, vc.Effective)
-	if err != nil {
-		return nil, fmt.Errorf("producing the next version id before updating ancestry: %w", err)
-	}
-
-	o := database.Objective{
-		Oid:     act.Parent.Oid,
-		Vid:     v.Vid,
-		Based:   columns.ZeroVersionId,
-		Content: act.Content,
-		Creator: act.Creator,
-	}
-	o, err = a.queries.InsertObjective(ctx, database.InsertObjectiveParams{
-		Vid:     o.Vid,
-		Based:   o.Based,
-		Content: o.Content,
-		Creator: o.Creator,
-	})
-	if err != nil {
-		return nil, fmt.Errorf("inserting objective into the db: %w", err)
-	}
-
-	updates := []models.Ovid{}
-	var prev models.Ovid
-	for _, parentOvid := range ancestry {
-		parent, err := a.queries.SelectObjective(ctx, database.SelectObjectiveParams{
-			Oid: parentOvid.Oid,
-			Vid: parentOvid.Vid,
-		})
-		if err != nil {
-			return nil, fmt.Errorf("selecting parent %s from db: %w", parentOvid, err)
-		}
-		parent.Based, parent.Vid = parent.Vid, v.Vid
-		parent, err = a.queries.InsertObjective(ctx, database.InsertObjectiveParams{
-			Vid:     parent.Vid,
-			Based:   parent.Based,
-			Content: parent.Content,
-			Creator: parent.Creator,
-		})
-		if err != nil {
-			return nil, fmt.Errorf("inserting version bumped parent into the db: %w", err)
-		}
-		sublinks, err := a.queries.SelectSubLinks(ctx, database.SelectSubLinksParams{
-			SupOid: parent.Oid,
-			SupVid: parent.Vid,
-		})
-		if err != nil {
-			return nil, fmt.Errorf("selecting sublinks of parent (%q/%q) from db: %w", parent.Oid, parent.Vid, err)
-		}
-		for _, link := range sublinks {
-			if link.SubOid == prev.Oid {
-				_, err = a.queries.InsertLink(ctx, database.InsertLinkParams{
-					SupOid: parent.Oid,
-					SupVid: parent.Vid,
-					SubOid: prev.Oid,
-					SubVid: v.Vid,
-				})
-				if err != nil {
-					return nil, fmt.Errorf("inserting the link from %q (direct ancestry) to %q in version %q: %w", prev.Oid, parent.Oid, v.Vid, err)
-				}
-			} else {
-				_, err = a.queries.InsertLink(ctx, database.InsertLinkParams{
-					SupOid: parent.Oid,
-					SupVid: parent.Vid,
-					SubOid: link.SubOid,
-					SubVid: link.SubVid,
-				})
-				if err != nil {
-					return nil, fmt.Errorf("inserting the link from %q (sibling from ancestry) to %q in version %q: %w", prev.Oid, parent.Oid, v.Vid, err)
-				}
-			}
-		}
-		prev.Oid, prev.Vid = parent.Oid, parent.Vid
-	}
-
-	return updates, nil
+type CreateSubtaskParams struct {
+	Creator columns.UserId
+	Parent  models.Ovid
+	Content string
 }
 
-func (a *App) CreateObjective(ctx context.Context, act CreateObjectiveAction) ([]models.Ovid, error) {
-	ancestry, err := a.ListObjectiveAncestry(ctx, act.Parent)
-	if err != nil {
-		return nil, fmt.Errorf("listing ancestry of %q: %w", act.Parent, err)
+// TODO: check prileges on parent
+// DONE: create operations
+// TODO: trigger task-props calculation
+// TODO: transaction-commit-rollback
+// DONE: bubblink
+// TODO: fast-forward to each updated ascendants
+func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) error {
+	activepath, err := a.ListActivePathToRock(ctx, params.Parent)
+	if err == ErrLeftBehind {
+		return ErrLeftBehind
+	} else if err != nil {
+		return fmt.Errorf("checking the parent %s if it is inside active path: %w", params.Parent, err)
 	}
-	vancestry, err := a.ListVersioningConfigForAncestry(ctx, ancestry)
+
+	op, err := a.queries.InsertOperation(ctx, database.InsertOperationParams{
+		Subjectoid: params.Parent.Oid,
+		Subjectvid: params.Parent.Vid,
+		Actor:      params.Creator,
+		OpType:     database.OpTypeObjCreateSubtask,
+		OpStatus:   database.OpStatusAccepted,
+	})
 	if err != nil {
-		return nil, fmt.Errorf("listing versioning config for parents: %w", err)
+		return fmt.Errorf("inserting the creation operation: %w", err)
 	}
-	if len(vancestry) > 0 {
-		ovids, err := a.createVersionedObjective(ctx, act, ancestry, vancestry)
+
+	_, err = a.queries.InsertOpObjCreateSubtask(ctx, database.InsertOpObjCreateSubtaskParams{
+		Opid:    op.Opid,
+		Content: pgtype.Text{String: params.Content, Valid: true},
+	})
+	if err != nil {
+		return fmt.Errorf("inserting subtask creation details: %w", err)
+	}
+
+	obj, err := a.queries.InsertNewObjective(ctx, database.InsertNewObjectiveParams{
+		CreatedBy: op.Opid,
+		Props:     nil,
+	})
+	if err != nil {
+		return fmt.Errorf("inserting the objective: %w", err)
+	}
+
+	// TODO: trigger computing props (async?)
+
+	// bubblink: promote updates to ascendants
+	child := models.Ovid{Oid: obj.Oid, Vid: obj.Vid}
+	cause := op.Opid
+	for i := len(activepath) - 1; i >= 0; i-- {
+		ascendant := activepath[i]
+
+		optrs, err := a.queries.InsertOperation(ctx, database.InsertOperationParams{
+			Subjectoid: ascendant.Oid,
+			Subjectvid: ascendant.Vid,
+			Actor:      columns.ZeroUserId, // inherit user?
+			OpType:     database.OpTypeTransitive,
+			OpStatus:   database.OpStatusAccepted,
+		})
 		if err != nil {
-			return nil, fmt.Errorf("creating objective under versioning: %w", err)
+			return fmt.Errorf("inserting operation on ascendant %s for transitive update: %w", ascendant, err)
 		}
-		return ovids, nil
-	} else {
-		return nil, nil
+
+		_, err = a.queries.InsertOpTransitive(ctx, database.InsertOpTransitiveParams{
+			Opid:  optrs.Opid,
+			Cause: cause,
+		})
+		if err != nil {
+			return fmt.Errorf("inserting transitive update specific operation details on ascendant %s for transitive update: %w", ascendant, err)
+		}
+
+		objasc, err := a.queries.InsertUpdatedObjective(ctx, database.InsertUpdatedObjectiveParams{
+			Oid:       ascendant.Oid,
+			Based:     ascendant.Vid,
+			CreatedBy: cause,
+			Props:     nil,
+		})
+		if err != nil {
+			return fmt.Errorf("inserting version updated ascendant: %w", err)
+		}
+
+		_, err = a.queries.InsertLink(ctx, database.InsertLinkParams{
+			SupOid: objasc.Oid,
+			SupVid: objasc.Vid,
+			SubOid: child.Oid,
+			SubVid: child.Vid,
+		})
+		if err != nil {
+			return fmt.Errorf("inserting a link the updated ascendants: %w", err)
+		}
+
+		// link unchanged siblings too
+		sublinks, err := a.queries.SelectSubLinks(ctx, database.SelectSubLinksParams{
+			SupOid: ascendant.Oid,
+			SupVid: ascendant.Vid,
+		})
+		if err != nil {
+			return fmt.Errorf("selecting list of sub links of ascendant for current version: %w", err)
+		}
+		for _, sublink := range sublinks {
+			if sublink.SubOid == objasc.Oid {
+				continue // not sibling but itself's old version
+			}
+			_, err = a.queries.InsertLink(ctx, database.InsertLinkParams{
+				SupOid: objasc.Oid,
+				SupVid: objasc.Vid,
+				SubOid: sublink.SubOid,
+				SubVid: sublink.SubVid,
+			})
+			if err != nil {
+				return fmt.Errorf("inserting a link from updated ascendants to existing sibling: %w", err)
+			}
+		}
+
+		// TODO: trigger computing props on objasc (async?)
+		// TODO: checkout viewers of objasc to the new version
+
+		cause = optrs.Opid
+		child = models.Ovid{Oid: objasc.Oid, Vid: objasc.Vid}
 	}
+
+	return nil
 }

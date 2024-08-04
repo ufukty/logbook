@@ -11,7 +11,7 @@ import (
 )
 
 type CreateObjectiveRequest struct {
-	Parent  models.Ovid         `json:"parent"`
+	Parent  models.Ovid      `json:"parent"`
 	Content ObjectiveContent `json:"content"`
 }
 
@@ -19,9 +19,7 @@ func (ct CreateObjectiveRequest) validate() error {
 	return validate.RequestFields(ct)
 }
 
-type CreateObjectiveResponse struct {
-	Update []models.Ovid `json:"update"`
-}
+type CreateObjectiveResponse struct{}
 
 // TODO: Check user input for script tags in order to prevent XSS attempts
 func (e *Endpoints) CreateObjective(w http.ResponseWriter, r *http.Request) {
@@ -39,7 +37,7 @@ func (e *Endpoints) CreateObjective(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	o, err := e.app.CreateObjective(r.Context(), app.CreateObjectiveAction{
+	err := e.app.CreateSubtask(r.Context(), app.CreateSubtaskParams{
 		Parent:  bq.Parent,
 		Content: string(bq.Content),
 		Creator: "00000000-0000-0000-0000-000000000000", // TODO: check auth header
@@ -50,9 +48,7 @@ func (e *Endpoints) CreateObjective(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	bs := CreateObjectiveResponse{
-		Update: o,
-	}
+	bs := CreateObjectiveResponse{}
 	if err := requests.WriteJsonResponse(bs, w); err != nil {
 		log.Println(fmt.Errorf("writing json response: %w", err))
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
