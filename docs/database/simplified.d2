@@ -128,13 +128,20 @@ op_obj_create_subtask: {
   content: string
 }
 
-# reattachment operation gets defined on the old parent of the objective is requested to be moved into next parent's bottom
-op_obj_reattach: {
+# subject is parent
+op_obj_attach: {
   shape: sql_table
   
   opid: OperationId 
   child: ObjectiveId # find the vid from only version of child linked to current version of subject
-  newparent: ObjectiveId # find the vid of parent from following the ascendants of subject reached from active versions
+}
+
+# subject is parent
+op_obj_detach: {
+  shape: sql_table
+  
+  opid: OperationId 
+  child: ObjectiveId # find the vid from only version of child linked to current version of subject
 }
 
 op_obj_reorder: {
@@ -180,7 +187,8 @@ operation.opid -- op_checkout.opid
 operation.opid -- op_obj_completion.opid
 operation.opid -- op_obj_content.opid
 operation.opid -- op_obj_create_subtask.opid
-operation.opid -- op_obj_reattach.opid
+operation.opid -- op_obj_attach.opid
+operation.opid -- op_obj_detach.opid
 operation.opid -- op_obj_reorder.opid
 operation.opid -- op_transitive.opid
 
