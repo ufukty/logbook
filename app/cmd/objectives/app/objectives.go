@@ -21,7 +21,7 @@ type CreateSubtaskParams struct {
 // TODO: trigger task-props calculation
 // TODO: transaction-commit-rollback
 // DONE: bubblink
-// TODO: fast-forward to each updated ascendants
+// DONE: mark active version for promoted ascendants
 func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) error {
 	activepath, err := a.ListActivePathToRock(ctx, params.Parent)
 	if err == ErrLeftBehind {
@@ -128,7 +128,15 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) err
 		}
 
 		// TODO: trigger computing props on objasc (async?)
-		// TODO: checkout viewers of objasc to the new version
+
+		// TODO: publish an event to notify frontends viewing any objective of active path?
+		_, err = a.queries.UpdateActiveVidForObjective(ctx, database.UpdateActiveVidForObjectiveParams{
+			Oid: objasc.Oid,
+			Vid: objasc.Vid,
+		})
+		if err != nil {
+			return fmt.Errorf("updating active version for the ascendant: %w", err)
+		}
 
 		cause = optrs.Opid
 		child = models.Ovid{Oid: objasc.Oid, Vid: objasc.Vid}
