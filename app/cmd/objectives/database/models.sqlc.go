@@ -160,38 +160,45 @@ type ObjectiveViewPref struct {
 }
 
 type OpCheckout struct {
+	ID   pgtype.UUID
 	Opid columns.OperationId
 	To   columns.VersionId
 }
 
 type OpObjCompletion struct {
+	ID        pgtype.UUID
 	Opid      columns.OperationId
 	Completed bool
 }
 
 type OpObjContent struct {
+	ID      pgtype.UUID
 	Opid    columns.OperationId
 	Content pgtype.Text
 }
 
 type OpObjCreateSubtask struct {
+	ID      pgtype.UUID
 	Opid    columns.OperationId
 	Content pgtype.Text
 }
 
 type OpObjReattach struct {
+	ID        pgtype.UUID
 	Opid      columns.OperationId
 	Child     columns.ObjectiveId
 	Newparent columns.ObjectiveId
 }
 
 type OpObjReorder struct {
+	ID        pgtype.UUID
 	Opid      columns.OperationId
 	Child     columns.ObjectiveId
 	Moveafter columns.ObjectiveId
 }
 
 type OpTransitive struct {
+	ID    pgtype.UUID
 	Opid  columns.OperationId
 	Cause columns.OperationId
 }

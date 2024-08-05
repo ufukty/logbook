@@ -16,7 +16,7 @@ const insertOpCheckout = `-- name: InsertOpCheckout :one
 INSERT INTO "op_checkout"("opid", "to")
     VALUES ($1, $2)
 RETURNING
-    opid, "to"
+    id, opid, "to"
 `
 
 type InsertOpCheckoutParams struct {
@@ -27,7 +27,7 @@ type InsertOpCheckoutParams struct {
 func (q *Queries) InsertOpCheckout(ctx context.Context, arg InsertOpCheckoutParams) (OpCheckout, error) {
 	row := q.db.QueryRow(ctx, insertOpCheckout, arg.Opid, arg.To)
 	var i OpCheckout
-	err := row.Scan(&i.Opid, &i.To)
+	err := row.Scan(&i.ID, &i.Opid, &i.To)
 	return i, err
 }
 
@@ -35,7 +35,7 @@ const insertOpObjCompletion = `-- name: InsertOpObjCompletion :one
 INSERT INTO "op_obj_completion"("opid", "completed")
     VALUES ($1, $2)
 RETURNING
-    opid, completed
+    id, opid, completed
 `
 
 type InsertOpObjCompletionParams struct {
@@ -46,7 +46,7 @@ type InsertOpObjCompletionParams struct {
 func (q *Queries) InsertOpObjCompletion(ctx context.Context, arg InsertOpObjCompletionParams) (OpObjCompletion, error) {
 	row := q.db.QueryRow(ctx, insertOpObjCompletion, arg.Opid, arg.Completed)
 	var i OpObjCompletion
-	err := row.Scan(&i.Opid, &i.Completed)
+	err := row.Scan(&i.ID, &i.Opid, &i.Completed)
 	return i, err
 }
 
@@ -54,7 +54,7 @@ const insertOpObjContent = `-- name: InsertOpObjContent :one
 INSERT INTO "op_obj_content"("opid", "content")
     VALUES ($1, $2)
 RETURNING
-    opid, content
+    id, opid, content
 `
 
 type InsertOpObjContentParams struct {
@@ -65,7 +65,7 @@ type InsertOpObjContentParams struct {
 func (q *Queries) InsertOpObjContent(ctx context.Context, arg InsertOpObjContentParams) (OpObjContent, error) {
 	row := q.db.QueryRow(ctx, insertOpObjContent, arg.Opid, arg.Content)
 	var i OpObjContent
-	err := row.Scan(&i.Opid, &i.Content)
+	err := row.Scan(&i.ID, &i.Opid, &i.Content)
 	return i, err
 }
 
@@ -73,7 +73,7 @@ const insertOpObjCreateSubtask = `-- name: InsertOpObjCreateSubtask :one
 INSERT INTO "op_obj_create_subtask"("opid", "content")
     VALUES ($1, $2)
 RETURNING
-    opid, content
+    id, opid, content
 `
 
 type InsertOpObjCreateSubtaskParams struct {
@@ -84,7 +84,7 @@ type InsertOpObjCreateSubtaskParams struct {
 func (q *Queries) InsertOpObjCreateSubtask(ctx context.Context, arg InsertOpObjCreateSubtaskParams) (OpObjCreateSubtask, error) {
 	row := q.db.QueryRow(ctx, insertOpObjCreateSubtask, arg.Opid, arg.Content)
 	var i OpObjCreateSubtask
-	err := row.Scan(&i.Opid, &i.Content)
+	err := row.Scan(&i.ID, &i.Opid, &i.Content)
 	return i, err
 }
 
@@ -92,7 +92,7 @@ const insertOpObjReattach = `-- name: InsertOpObjReattach :one
 INSERT INTO "op_obj_reattach"("opid", "child", "newparent")
     VALUES ($1, $2, $3)
 RETURNING
-    opid, child, newparent
+    id, opid, child, newparent
 `
 
 type InsertOpObjReattachParams struct {
@@ -104,7 +104,12 @@ type InsertOpObjReattachParams struct {
 func (q *Queries) InsertOpObjReattach(ctx context.Context, arg InsertOpObjReattachParams) (OpObjReattach, error) {
 	row := q.db.QueryRow(ctx, insertOpObjReattach, arg.Opid, arg.Child, arg.Newparent)
 	var i OpObjReattach
-	err := row.Scan(&i.Opid, &i.Child, &i.Newparent)
+	err := row.Scan(
+		&i.ID,
+		&i.Opid,
+		&i.Child,
+		&i.Newparent,
+	)
 	return i, err
 }
 
@@ -112,7 +117,7 @@ const insertOpObjReorder = `-- name: InsertOpObjReorder :one
 INSERT INTO "op_obj_reorder"("opid", "child", "moveafter")
     VALUES ($1, $2, $3)
 RETURNING
-    opid, child, moveafter
+    id, opid, child, moveafter
 `
 
 type InsertOpObjReorderParams struct {
@@ -124,7 +129,12 @@ type InsertOpObjReorderParams struct {
 func (q *Queries) InsertOpObjReorder(ctx context.Context, arg InsertOpObjReorderParams) (OpObjReorder, error) {
 	row := q.db.QueryRow(ctx, insertOpObjReorder, arg.Opid, arg.Child, arg.Moveafter)
 	var i OpObjReorder
-	err := row.Scan(&i.Opid, &i.Child, &i.Moveafter)
+	err := row.Scan(
+		&i.ID,
+		&i.Opid,
+		&i.Child,
+		&i.Moveafter,
+	)
 	return i, err
 }
 
@@ -132,7 +142,7 @@ const insertOpTransitive = `-- name: InsertOpTransitive :one
 INSERT INTO "op_transitive"("opid", "cause")
     VALUES ($1, $2)
 RETURNING
-    opid, cause
+    id, opid, cause
 `
 
 type InsertOpTransitiveParams struct {
@@ -143,7 +153,7 @@ type InsertOpTransitiveParams struct {
 func (q *Queries) InsertOpTransitive(ctx context.Context, arg InsertOpTransitiveParams) (OpTransitive, error) {
 	row := q.db.QueryRow(ctx, insertOpTransitive, arg.Opid, arg.Cause)
 	var i OpTransitive
-	err := row.Scan(&i.Opid, &i.Cause)
+	err := row.Scan(&i.ID, &i.Opid, &i.Cause)
 	return i, err
 }
 

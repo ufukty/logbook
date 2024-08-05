@@ -97,38 +97,45 @@ CREATE TABLE "operation"(
 );
 
 CREATE TABLE "op_checkout"(
+    "id" uuid NOT NULL UNIQUE DEFAULT gen_random_uuid(),
     "opid" "OperationId" NOT NULL,
     "to" "VersionId" NOT NULL
 );
 
 CREATE TABLE "op_obj_completion"(
+    "id" uuid NOT NULL UNIQUE DEFAULT gen_random_uuid(),
     "opid" "OperationId" NOT NULL,
     "completed" boolean NOT NULL
 );
 
 CREATE TABLE "op_obj_content"(
+    "id" uuid NOT NULL UNIQUE DEFAULT gen_random_uuid(),
     "opid" "OperationId" NOT NULL,
     "content" text
 );
 
 CREATE TABLE "op_obj_create_subtask"(
+    "id" uuid NOT NULL UNIQUE DEFAULT gen_random_uuid(),
     "opid" "OperationId" NOT NULL,
     "content" text
 );
 
 CREATE TABLE "op_obj_reattach"(
+    "id" uuid NOT NULL UNIQUE DEFAULT gen_random_uuid(),
     "opid" "OperationId" NOT NULL,
     "child" "ObjectiveId" NOT NULL,
     "newparent" "ObjectiveId" NOT NULL
 );
 
 CREATE TABLE "op_obj_reorder"(
+    "id" uuid NOT NULL UNIQUE DEFAULT gen_random_uuid(),
     "opid" "OperationId" NOT NULL,
     "child" "ObjectiveId" NOT NULL,
     "moveafter" "ObjectiveId" NOT NULL
 );
 
 CREATE TABLE "op_transitive"(
+    "id" uuid NOT NULL UNIQUE DEFAULT gen_random_uuid(),
     "opid" "OperationId" NOT NULL,
     "cause" "OperationId" NOT NULL
 );
