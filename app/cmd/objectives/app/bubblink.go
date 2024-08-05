@@ -10,9 +10,10 @@ import (
 
 // promotes an update to ascendants
 // last item of the activepath should be the source of update promotion, newly updated objective (oid:latestvid)
-func (a *App) bubblink(ctx context.Context, activepath []models.Ovid, op database.Operation) error {
+// it returns the operation id generated for the transitive update of the uppermost objective in the activepath
+func (a *App) bubblink(ctx context.Context, activepath []models.Ovid, op database.Operation) (columns.OperationId, error) {
 	if len(activepath) <= 1 {
-		return nil // no ascendant to promote update
+		return columns.ZeroOperationId, nil // no ascendant to promote update
 	}
 	child := activepath[len(activepath)-1]
 	cause := op.Opid
@@ -27,7 +28,7 @@ func (a *App) bubblink(ctx context.Context, activepath []models.Ovid, op databas
 			OpStatus:   database.OpStatusAccepted,
 		})
 		if err != nil {
-			return fmt.Errorf("inserting operation on ascendant %s for transitive update: %w", ascendant, err)
+			return columns.ZeroOperationId, fmt.Errorf("inserting operation on ascendant %s for transitive update: %w", ascendant, err)
 		}
 
 		_, err = a.queries.InsertOpTransitive(ctx, database.InsertOpTransitiveParams{
@@ -35,7 +36,7 @@ func (a *App) bubblink(ctx context.Context, activepath []models.Ovid, op databas
 			Cause: cause,
 		})
 		if err != nil {
-			return fmt.Errorf("inserting transitive update specific operation details on ascendant %s for transitive update: %w", ascendant, err)
+			return columns.ZeroOperationId, fmt.Errorf("inserting transitive update specific operation details on ascendant %s for transitive update: %w", ascendant, err)
 		}
 
 		objasc, err := a.queries.InsertUpdatedObjective(ctx, database.InsertUpdatedObjectiveParams{
@@ -45,7 +46,7 @@ func (a *App) bubblink(ctx context.Context, activepath []models.Ovid, op databas
 			Props:     nil,
 		})
 		if err != nil {
-			return fmt.Errorf("inserting version updated ascendant: %w", err)
+			return columns.ZeroOperationId, fmt.Errorf("inserting version updated ascendant: %w", err)
 		}
 
 		_, err = a.queries.InsertLink(ctx, database.InsertLinkParams{
@@ -55,7 +56,7 @@ func (a *App) bubblink(ctx context.Context, activepath []models.Ovid, op databas
 			SubVid: child.Vid,
 		})
 		if err != nil {
-			return fmt.Errorf("inserting a link the updated ascendants: %w", err)
+			return columns.ZeroOperationId, fmt.Errorf("inserting a link the updated ascendants: %w", err)
 		}
 
 		// link unchanged siblings too
@@ -64,7 +65,7 @@ func (a *App) bubblink(ctx context.Context, activepath []models.Ovid, op databas
 			SupVid: ascendant.Vid,
 		})
 		if err != nil {
-			return fmt.Errorf("selecting list of sub links of ascendant for current version: %w", err)
+			return columns.ZeroOperationId, fmt.Errorf("selecting list of sub links of ascendant for current version: %w", err)
 		}
 		for _, sublink := range sublinks {
 			if sublink.SubOid == objasc.Oid {
@@ -77,7 +78,7 @@ func (a *App) bubblink(ctx context.Context, activepath []models.Ovid, op databas
 				SubVid: sublink.SubVid,
 			})
 			if err != nil {
-				return fmt.Errorf("inserting a link from updated ascendants to existing sibling: %w", err)
+				return columns.ZeroOperationId, fmt.Errorf("inserting a link from updated ascendants to existing sibling: %w", err)
 			}
 		}
 
@@ -89,10 +90,10 @@ func (a *App) bubblink(ctx context.Context, activepath []models.Ovid, op databas
 			Vid: objasc.Vid,
 		})
 		if err != nil {
-			return fmt.Errorf("updating active version for the ascendant: %w", err)
+			return columns.ZeroOperationId, fmt.Errorf("updating active version for the ascendant: %w", err)
 		}
 		cause = optrs.Opid
 		child = models.Ovid{Oid: objasc.Oid, Vid: objasc.Vid}
 	}
-	return nil
+	return cause, nil
 }
