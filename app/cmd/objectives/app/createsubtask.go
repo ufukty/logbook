@@ -59,7 +59,7 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) err
 
 	// TODO: trigger computing props (async?)
 
-	err = a.bubblink(ctx, models.Ovid{obj.Oid, obj.Vid}, op, activepath)
+	err = a.bubblink(ctx, append(activepath, models.Ovid{obj.Oid, obj.Vid}), op)
 	if err != nil {
 		return fmt.Errorf("promoting the version change to ascendants: %w", err)
 	}

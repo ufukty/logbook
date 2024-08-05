@@ -9,10 +9,14 @@ import (
 )
 
 // promotes an update to ascendants
-func (a *App) bubblink(ctx context.Context, subject models.Ovid, op database.Operation, activepath []models.Ovid) error {
-	child := subject
+// last item of the activepath should be the source of update promotion, newly updated objective (oid:latestvid)
+func (a *App) bubblink(ctx context.Context, activepath []models.Ovid, op database.Operation) error {
+	if len(activepath) <= 1 {
+		return nil // no ascendant to promote update
+	}
+	child := activepath[len(activepath)-1]
 	cause := op.Opid
-	for i := len(activepath) - 1; i >= 0; i-- {
+	for i := len(activepath) - 2; i >= 0; i-- {
 		ascendant := activepath[i]
 
 		optrs, err := a.queries.InsertOperation(ctx, database.InsertOperationParams{

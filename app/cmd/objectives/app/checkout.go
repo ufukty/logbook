@@ -64,7 +64,7 @@ func (a *App) Checkout(ctx context.Context, params CheckoutParams) error {
 		return fmt.Errorf("updating the active version of objective: %w", err)
 	}
 
-	err = a.bubblink(ctx, models.Ovid{obj.Oid, obj.Vid}, op, activepath)
+	err = a.bubblink(ctx, append(activepath, models.Ovid{obj.Oid, obj.Vid}), op)
 	if err != nil {
 		return fmt.Errorf("promoting the version change to ascendants: %w", err)
 	}
