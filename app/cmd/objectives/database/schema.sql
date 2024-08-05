@@ -120,7 +120,14 @@ CREATE TABLE "op_obj_create_subtask"(
     "content" text
 );
 
-CREATE TABLE "op_obj_reattach"(
+CREATE TABLE "op_obj_attach"(
+    "id" uuid NOT NULL UNIQUE DEFAULT gen_random_uuid(),
+    "opid" "OperationId" NOT NULL,
+    "child" "ObjectiveId" NOT NULL,
+    "newparent" "ObjectiveId" NOT NULL
+);
+
+CREATE TABLE "op_obj_detach"(
     "id" uuid NOT NULL UNIQUE DEFAULT gen_random_uuid(),
     "opid" "OperationId" NOT NULL,
     "child" "ObjectiveId" NOT NULL,

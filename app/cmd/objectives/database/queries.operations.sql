@@ -29,8 +29,14 @@ RETURNING
     *;
 
 -- name: InsertOpObjReattach :one
-INSERT INTO "op_obj_reattach"("opid", "child", "newparent")
-    VALUES ($1, $2, $3)
+INSERT INTO "op_obj_attach"("opid", "child")
+    VALUES ($1, $2)
+RETURNING
+    *;
+
+-- name: InsertOpObjDetach :one
+INSERT INTO "op_obj_detach"("opid", "child")
+    VALUES ($1, $2)
 RETURNING
     *;
 

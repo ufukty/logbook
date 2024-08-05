@@ -165,6 +165,13 @@ type OpCheckout struct {
 	To   columns.VersionId
 }
 
+type OpObjAttach struct {
+	ID        pgtype.UUID
+	Opid      columns.OperationId
+	Child     columns.ObjectiveId
+	Newparent columns.ObjectiveId
+}
+
 type OpObjCompletion struct {
 	ID        pgtype.UUID
 	Opid      columns.OperationId
@@ -183,7 +190,7 @@ type OpObjCreateSubtask struct {
 	Content pgtype.Text
 }
 
-type OpObjReattach struct {
+type OpObjDetach struct {
 	ID        pgtype.UUID
 	Opid      columns.OperationId
 	Child     columns.ObjectiveId

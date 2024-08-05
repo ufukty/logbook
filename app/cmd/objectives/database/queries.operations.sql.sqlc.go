@@ -88,22 +88,45 @@ func (q *Queries) InsertOpObjCreateSubtask(ctx context.Context, arg InsertOpObjC
 	return i, err
 }
 
+const insertOpObjDetach = `-- name: InsertOpObjDetach :one
+INSERT INTO "op_obj_detach"("opid", "child")
+    VALUES ($1, $2)
+RETURNING
+    id, opid, child, newparent
+`
+
+type InsertOpObjDetachParams struct {
+	Opid  columns.OperationId
+	Child columns.ObjectiveId
+}
+
+func (q *Queries) InsertOpObjDetach(ctx context.Context, arg InsertOpObjDetachParams) (OpObjDetach, error) {
+	row := q.db.QueryRow(ctx, insertOpObjDetach, arg.Opid, arg.Child)
+	var i OpObjDetach
+	err := row.Scan(
+		&i.ID,
+		&i.Opid,
+		&i.Child,
+		&i.Newparent,
+	)
+	return i, err
+}
+
 const insertOpObjReattach = `-- name: InsertOpObjReattach :one
-INSERT INTO "op_obj_reattach"("opid", "child", "newparent")
-    VALUES ($1, $2, $3)
+INSERT INTO "op_obj_attach"("opid", "child")
+    VALUES ($1, $2)
 RETURNING
     id, opid, child, newparent
 `
 
 type InsertOpObjReattachParams struct {
-	Opid      columns.OperationId
-	Child     columns.ObjectiveId
-	Newparent columns.ObjectiveId
+	Opid  columns.OperationId
+	Child columns.ObjectiveId
 }
 
-func (q *Queries) InsertOpObjReattach(ctx context.Context, arg InsertOpObjReattachParams) (OpObjReattach, error) {
-	row := q.db.QueryRow(ctx, insertOpObjReattach, arg.Opid, arg.Child, arg.Newparent)
-	var i OpObjReattach
+func (q *Queries) InsertOpObjReattach(ctx context.Context, arg InsertOpObjReattachParams) (OpObjAttach, error) {
+	row := q.db.QueryRow(ctx, insertOpObjReattach, arg.Opid, arg.Child)
+	var i OpObjAttach
 	err := row.Scan(
 		&i.ID,
 		&i.Opid,
