@@ -28,7 +28,7 @@ INSERT INTO "op_obj_create_subtask"("opid", "content")
 RETURNING
     *;
 
--- name: InsertOpObjReattach :one
+-- name: InsertOpObjAttach :one
 INSERT INTO "op_obj_attach"("opid", "child")
     VALUES ($1, $2)
 RETURNING
