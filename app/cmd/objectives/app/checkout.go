@@ -20,6 +20,13 @@ var ErrVersionDoesNotExist = fmt.Errorf("given version of the objective doesn't 
 
 // TODO: bubblink (update and checkout ascendants) (implicit/explicit checkouts?)
 func (a *App) Checkout(ctx context.Context, params CheckoutParams) error {
+	activepath, err := a.ListActivePathToRock(ctx, params.Subject)
+	if err == ErrLeftBehind {
+		return ErrLeftBehind
+	} else if err != nil {
+		return fmt.Errorf("checking if the objective %s is in active path: %w", params.Subject, err)
+	}
+
 	op, err := a.queries.InsertOperation(ctx, database.InsertOperationParams{
 		Subjectoid: params.Subject.Oid,
 		Subjectvid: params.Subject.Vid,
@@ -39,7 +46,7 @@ func (a *App) Checkout(ctx context.Context, params CheckoutParams) error {
 		return fmt.Errorf("insert checkout operation details: %w", err)
 	}
 
-	_, err = a.queries.SelectObjective(ctx, database.SelectObjectiveParams{
+	obj, err := a.queries.SelectObjective(ctx, database.SelectObjectiveParams{
 		Oid: op.Subjectoid,
 		Vid: params.To,
 	})
@@ -55,6 +62,11 @@ func (a *App) Checkout(ctx context.Context, params CheckoutParams) error {
 	})
 	if err != nil {
 		return fmt.Errorf("updating the active version of objective: %w", err)
+	}
+
+	err = a.bubblink(ctx, obj, op, activepath)
+	if err != nil {
+		return fmt.Errorf("promoting the version change to ascendants: %w", err)
 	}
 
 	return nil
