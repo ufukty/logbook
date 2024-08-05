@@ -9,8 +9,8 @@ import (
 )
 
 // promotes an update to ascendants
-func (a *App) bubblink(ctx context.Context, subject database.Objective, op database.Operation, activepath []models.Ovid) error {
-	child := models.Ovid{Oid: subject.Oid, Vid: subject.Vid}
+func (a *App) bubblink(ctx context.Context, subject models.Ovid, op database.Operation, activepath []models.Ovid) error {
+	child := subject
 	cause := op.Opid
 	for i := len(activepath) - 1; i >= 0; i-- {
 		ascendant := activepath[i]
