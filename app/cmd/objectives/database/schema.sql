@@ -78,7 +78,8 @@ CREATE TYPE "OpType" AS ENUM(
     'obj_detach',
     'obj_reorder',
     'usr_register',
-    'transitive'
+    'transitive',
+    'double_transitive_merger'
 );
 
 CREATE TYPE "OpStatus" AS ENUM(
@@ -146,6 +147,13 @@ CREATE TABLE "op_transitive"(
     "id" uuid NOT NULL UNIQUE DEFAULT gen_random_uuid(),
     "opid" "OperationId" NOT NULL,
     "cause" "OperationId" NOT NULL
+);
+
+CREATE TABLE "op_double_transitive_merger"(
+    "id" uuid NOT NULL UNIQUE DEFAULT gen_random_uuid(),
+    "opid" "OperationId" NOT NULL,
+    "first" "OperationId" NOT NULL,
+    "second" "OperationId" NOT NULL
 );
 
 -- TODO: operations: reorder, note (create,update,delete), delegation (assign, unassign), collaboration (init, invite, restrict), versioning (rollback, fastforward)

@@ -52,3 +52,9 @@ INSERT INTO "op_transitive"("opid", "cause")
 RETURNING
     *;
 
+-- name: InsertOpDoubleTransitiveMerger :one
+INSERT INTO "op_double_transitive_merger"("opid", "first", "second")
+    VALUES ($1, $2, $3)
+RETURNING
+    *;
+

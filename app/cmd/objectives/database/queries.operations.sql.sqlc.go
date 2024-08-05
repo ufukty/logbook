@@ -31,6 +31,31 @@ func (q *Queries) InsertOpCheckout(ctx context.Context, arg InsertOpCheckoutPara
 	return i, err
 }
 
+const insertOpDoubleTransitiveMerger = `-- name: InsertOpDoubleTransitiveMerger :one
+INSERT INTO "op_double_transitive_merger"("opid", "first", "second")
+    VALUES ($1, $2, $3)
+RETURNING
+    id, opid, first, second
+`
+
+type InsertOpDoubleTransitiveMergerParams struct {
+	Opid   columns.OperationId
+	First  columns.OperationId
+	Second columns.OperationId
+}
+
+func (q *Queries) InsertOpDoubleTransitiveMerger(ctx context.Context, arg InsertOpDoubleTransitiveMergerParams) (OpDoubleTransitiveMerger, error) {
+	row := q.db.QueryRow(ctx, insertOpDoubleTransitiveMerger, arg.Opid, arg.First, arg.Second)
+	var i OpDoubleTransitiveMerger
+	err := row.Scan(
+		&i.ID,
+		&i.Opid,
+		&i.First,
+		&i.Second,
+	)
+	return i, err
+}
+
 const insertOpObjAttach = `-- name: InsertOpObjAttach :one
 INSERT INTO "op_obj_attach"("opid", "child")
     VALUES ($1, $2)

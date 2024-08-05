@@ -58,16 +58,17 @@ func (ns NullOpStatus) Value() (driver.Value, error) {
 type OpType string
 
 const (
-	OpTypeCheckout         OpType = "checkout"
-	OpTypeObjCompletion    OpType = "obj_completion"
-	OpTypeObjContent       OpType = "obj_content"
-	OpTypeObjCreateSubtask OpType = "obj_create_subtask"
-	OpTypeObjDelete        OpType = "obj_delete"
-	OpTypeObjAttach        OpType = "obj_attach"
-	OpTypeObjDetach        OpType = "obj_detach"
-	OpTypeObjReorder       OpType = "obj_reorder"
-	OpTypeUsrRegister      OpType = "usr_register"
-	OpTypeTransitive       OpType = "transitive"
+	OpTypeCheckout               OpType = "checkout"
+	OpTypeObjCompletion          OpType = "obj_completion"
+	OpTypeObjContent             OpType = "obj_content"
+	OpTypeObjCreateSubtask       OpType = "obj_create_subtask"
+	OpTypeObjDelete              OpType = "obj_delete"
+	OpTypeObjAttach              OpType = "obj_attach"
+	OpTypeObjDetach              OpType = "obj_detach"
+	OpTypeObjReorder             OpType = "obj_reorder"
+	OpTypeUsrRegister            OpType = "usr_register"
+	OpTypeTransitive             OpType = "transitive"
+	OpTypeDoubleTransitiveMerger OpType = "double_transitive_merger"
 )
 
 func (e *OpType) Scan(src interface{}) error {
@@ -164,6 +165,13 @@ type OpCheckout struct {
 	ID   pgtype.UUID
 	Opid columns.OperationId
 	To   columns.VersionId
+}
+
+type OpDoubleTransitiveMerger struct {
+	ID     pgtype.UUID
+	Opid   columns.OperationId
+	First  columns.OperationId
+	Second columns.OperationId
 }
 
 type OpObjAttach struct {
