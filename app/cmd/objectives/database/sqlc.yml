@@ -3,10 +3,13 @@ sql:
   - engine: "postgresql"
     queries:
       - "queries.bookmark.sql"
+      - "queries.computed.sql"
       - "queries.links.sql"
       - "queries.objectives.sql"
       - "queries.operations.sql"
+      - "queries.properties.sql"
       - "queries.versions.sql"
+      - "queries.viewprefs.sql"
     schema: "schema.sql"
     gen:
       go:
