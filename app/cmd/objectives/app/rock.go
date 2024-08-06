@@ -5,34 +5,36 @@ import (
 	"fmt"
 	"logbook/cmd/objectives/database"
 	"logbook/models/columns"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
-// TODO: generate version number based on zero-vid
-// TODO: insert objective using the version number
-// TODO: insert bookmark using oid-vid
 func (a *App) RockCreate(ctx context.Context, uid columns.UserId) error {
-	v, err := a.queries.InsertVersion(ctx, columns.ZeroVersionId)
-	if err != nil {
-		return fmt.Errorf("queries.InsertVersion: %w", err)
-	}
-
-	o, err := a.queries.InsertObjective(ctx, database.InsertObjectiveParams{
-		Vid:     v.Vid,
-		Based:   columns.ZeroVersionId,
+	props, err := a.queries.InsertProperties(ctx, database.InsertPropertiesParams{
 		Content: "",
 		Creator: uid,
 	})
 	if err != nil {
-		return fmt.Errorf("queries.InsertObjective: %w", err)
+		return fmt.Errorf("InsertProperties: %w", err)
 	}
 
-	_, err = a.queries.InsertRock(ctx, database.InsertRockParams{
-		Uid: uid,
-		Oid: o.Oid,
-		Vid: v.Vid,
+	obj, err := a.queries.InsertNewObjective(ctx, database.InsertNewObjectiveParams{
+		CreatedBy: columns.ZeroOperationId,
+		Props:     props.Propid,
 	})
 	if err != nil {
-		return fmt.Errorf("queries.InsertRock: %w", err)
+		return fmt.Errorf("InsertNewObjective: %w", err)
+	}
+
+	_, err = a.queries.InsertBookmark(ctx, database.InsertBookmarkParams{
+		Uid:         uid,
+		Oid:         obj.Oid,
+		Vid:         obj.Vid,
+		DisplayName: pgtype.Text{"", true},
+		IsRock:      true,
+	})
+	if err != nil {
+		return fmt.Errorf("InsertBookmark: %w", err)
 	}
 
 	return nil
