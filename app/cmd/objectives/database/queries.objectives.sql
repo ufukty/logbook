@@ -20,9 +20,3 @@ INSERT INTO "objective"("oid", "based", "created_by", "props")
 RETURNING
     *;
 
--- name: InsertRock :one
-INSERT INTO "objective"("oid", "based", "created_by", "props")
-    VALUES ($1, $2, $3, $4)
-RETURNING
-    *;
-

@@ -122,7 +122,7 @@ type Bookmark struct {
 }
 
 type ComputedProp struct {
-	Propid    interface{}
+	Propid    columns.PropertiesId
 	Content   string
 	Creator   columns.UserId
 	CreatedAt pgtype.Timestamp
@@ -151,7 +151,7 @@ type Objective struct {
 	Vid       columns.VersionId
 	Based     columns.VersionId
 	CreatedBy columns.OperationId
-	Props     interface{}
+	Props     columns.PropertiesId
 	CreatedAt pgtype.Timestamp
 }
 

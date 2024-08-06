@@ -45,7 +45,7 @@ WHERE
 LIMIT 1
 `
 
-func (q *Queries) SelectProperties(ctx context.Context, propid interface{}) (ComputedProp, error) {
+func (q *Queries) SelectProperties(ctx context.Context, propid columns.PropertiesId) (ComputedProp, error) {
 	row := q.db.QueryRow(ctx, selectProperties, propid)
 	var i ComputedProp
 	err := row.Scan(

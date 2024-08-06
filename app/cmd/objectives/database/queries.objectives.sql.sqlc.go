@@ -20,44 +20,11 @@ RETURNING
 
 type InsertNewObjectiveParams struct {
 	CreatedBy columns.OperationId
-	Props     interface{}
+	Props     columns.PropertiesId
 }
 
 func (q *Queries) InsertNewObjective(ctx context.Context, arg InsertNewObjectiveParams) (Objective, error) {
 	row := q.db.QueryRow(ctx, insertNewObjective, arg.CreatedBy, arg.Props)
-	var i Objective
-	err := row.Scan(
-		&i.Oid,
-		&i.Vid,
-		&i.Based,
-		&i.CreatedBy,
-		&i.Props,
-		&i.CreatedAt,
-	)
-	return i, err
-}
-
-const insertRock = `-- name: InsertRock :one
-INSERT INTO "objective"("oid", "based", "created_by", "props")
-    VALUES ($1, $2, $3, $4)
-RETURNING
-    oid, vid, based, created_by, props, created_at
-`
-
-type InsertRockParams struct {
-	Oid       columns.ObjectiveId
-	Based     columns.VersionId
-	CreatedBy columns.OperationId
-	Props     interface{}
-}
-
-func (q *Queries) InsertRock(ctx context.Context, arg InsertRockParams) (Objective, error) {
-	row := q.db.QueryRow(ctx, insertRock,
-		arg.Oid,
-		arg.Based,
-		arg.CreatedBy,
-		arg.Props,
-	)
 	var i Objective
 	err := row.Scan(
 		&i.Oid,
@@ -81,7 +48,7 @@ type InsertUpdatedObjectiveParams struct {
 	Oid       columns.ObjectiveId
 	Based     columns.VersionId
 	CreatedBy columns.OperationId
-	Props     interface{}
+	Props     columns.PropertiesId
 }
 
 func (q *Queries) InsertUpdatedObjective(ctx context.Context, arg InsertUpdatedObjectiveParams) (Objective, error) {

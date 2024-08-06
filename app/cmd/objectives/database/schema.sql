@@ -10,7 +10,7 @@ CREATE DOMAIN "VersionId" AS uuid;
 
 CREATE DOMAIN "OperationId" AS uuid;
 
-CREATE DOMAIN "PropertyId" AS uuid;
+CREATE DOMAIN "PropertiesId" AS uuid;
 
 CREATE DOMAIN "LinkId" AS uuid;
 
@@ -26,7 +26,7 @@ CREATE TABLE "objective"(
     "vid" "VersionId" NOT NULL DEFAULT gen_random_uuid(),
     "based" "VersionId" NOT NULL, -- previous "vid" OR '00000000-0000-0000-0000-000000000000'
     "created_by" "OperationId" NOT NULL,
-    "props" "PropertyId",
+    "props" "PropertiesId" NOT NULL,
     "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY ("oid", "vid")
 );
@@ -34,7 +34,7 @@ CREATE TABLE "objective"(
 CREATE INDEX "index_objective" ON "objective"("created_at");
 
 CREATE TABLE "computed_props"(
-    "propid" "PropertyId" NOT NULL DEFAULT gen_random_uuid(),
+    "propid" "PropertiesId" NOT NULL DEFAULT gen_random_uuid(),
     "content" text NOT NULL,
     "creator" "UserId" NOT NULL,
     "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
