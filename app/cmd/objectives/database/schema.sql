@@ -164,7 +164,7 @@ CREATE TABLE "bookmark"(
     "uid" "UserId" NOT NULL,
     "oid" "ObjectiveId" NOT NULL,
     "vid" "VersionId" NOT NULL,
-    "display_name" text,
+    "title" text NOT NULL,
     "is_rock" boolean NOT NULL DEFAULT FALSE,
     "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

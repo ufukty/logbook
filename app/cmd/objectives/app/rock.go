@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"logbook/cmd/objectives/database"
 	"logbook/models/columns"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 func (a *App) RockCreate(ctx context.Context, uid columns.UserId) error {
@@ -27,11 +25,11 @@ func (a *App) RockCreate(ctx context.Context, uid columns.UserId) error {
 	}
 
 	_, err = a.queries.InsertBookmark(ctx, database.InsertBookmarkParams{
-		Uid:         uid,
-		Oid:         obj.Oid,
-		Vid:         obj.Vid,
-		DisplayName: pgtype.Text{"", true},
-		IsRock:      true,
+		Uid:    uid,
+		Oid:    obj.Oid,
+		Vid:    obj.Vid,
+		Title:  "",
+		IsRock: true,
 	})
 	if err != nil {
 		return fmt.Errorf("InsertBookmark: %w", err)

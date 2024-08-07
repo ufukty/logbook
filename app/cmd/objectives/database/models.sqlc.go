@@ -112,13 +112,13 @@ type Active struct {
 }
 
 type Bookmark struct {
-	Bid         columns.BookmarkId
-	Uid         columns.UserId
-	Oid         columns.ObjectiveId
-	Vid         columns.VersionId
-	DisplayName pgtype.Text
-	IsRock      bool
-	CreatedAt   pgtype.Timestamp
+	Bid       columns.BookmarkId
+	Uid       columns.UserId
+	Oid       columns.ObjectiveId
+	Vid       columns.VersionId
+	Title     string
+	IsRock    bool
+	CreatedAt pgtype.Timestamp
 }
 
 type ComputedProp struct {

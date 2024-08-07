@@ -8,23 +8,22 @@ package database
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5/pgtype"
 	"logbook/models/columns"
 )
 
 const insertBookmark = `-- name: InsertBookmark :one
-INSERT INTO "bookmark"("uid", "oid", "vid", "display_name", "is_rock")
+INSERT INTO "bookmark"("uid", "oid", "vid", "title", "is_rock")
     VALUES ($1, $2, $3, $4, $5)
 RETURNING
-    bid, uid, oid, vid, display_name, is_rock, created_at
+    bid, uid, oid, vid, title, is_rock, created_at
 `
 
 type InsertBookmarkParams struct {
-	Uid         columns.UserId
-	Oid         columns.ObjectiveId
-	Vid         columns.VersionId
-	DisplayName pgtype.Text
-	IsRock      bool
+	Uid    columns.UserId
+	Oid    columns.ObjectiveId
+	Vid    columns.VersionId
+	Title  string
+	IsRock bool
 }
 
 func (q *Queries) InsertBookmark(ctx context.Context, arg InsertBookmarkParams) (Bookmark, error) {
@@ -32,7 +31,7 @@ func (q *Queries) InsertBookmark(ctx context.Context, arg InsertBookmarkParams) 
 		arg.Uid,
 		arg.Oid,
 		arg.Vid,
-		arg.DisplayName,
+		arg.Title,
 		arg.IsRock,
 	)
 	var i Bookmark
@@ -41,7 +40,7 @@ func (q *Queries) InsertBookmark(ctx context.Context, arg InsertBookmarkParams) 
 		&i.Uid,
 		&i.Oid,
 		&i.Vid,
-		&i.DisplayName,
+		&i.Title,
 		&i.IsRock,
 		&i.CreatedAt,
 	)
@@ -50,7 +49,7 @@ func (q *Queries) InsertBookmark(ctx context.Context, arg InsertBookmarkParams) 
 
 const selectBookmarks = `-- name: SelectBookmarks :many
 SELECT
-    bid, uid, oid, vid, display_name, is_rock, created_at
+    bid, uid, oid, vid, title, is_rock, created_at
 FROM
     "bookmark"
 WHERE
@@ -72,7 +71,7 @@ func (q *Queries) SelectBookmarks(ctx context.Context, uid columns.UserId) ([]Bo
 			&i.Uid,
 			&i.Oid,
 			&i.Vid,
-			&i.DisplayName,
+			&i.Title,
 			&i.IsRock,
 			&i.CreatedAt,
 		); err != nil {
