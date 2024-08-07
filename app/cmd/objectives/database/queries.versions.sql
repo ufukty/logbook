@@ -4,7 +4,7 @@ SELECT
 FROM
     "active"
 WHERE
-    "oid" == $1;
+    "oid" = $1;
 
 -- name: UpdateActiveVidForObjective :one
 UPDATE
@@ -12,6 +12,7 @@ UPDATE
 SET
     "vid" = $2
 WHERE
-    "oid" == $1
+    "oid" = $1
 RETURNING
     *;
+

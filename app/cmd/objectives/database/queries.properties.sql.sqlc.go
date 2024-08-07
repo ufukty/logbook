@@ -41,7 +41,7 @@ SELECT
 FROM
     "computed_props"
 WHERE
-    "propid" == $1
+    "propid" = $1
 LIMIT 1
 `
 

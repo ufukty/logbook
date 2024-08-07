@@ -22,8 +22,8 @@ SELECT
 FROM
     "computed_to_top"
 WHERE
-    "oid" == $1
-    AND "vid" == $2
-    AND "viewer" == $3
+    "oid" = $1
+    AND "vid" = $2
+    AND "viewer" = $3
 LIMIT 1;
 

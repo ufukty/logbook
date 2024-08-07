@@ -37,8 +37,8 @@ SELECT
 FROM
     "objective_view_prefs"
 WHERE
-    "uid" == $1
-    AND "oid" == $2
+    "uid" = $1
+    AND "oid" = $2
 LIMIT 1
 `
 

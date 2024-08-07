@@ -10,6 +10,6 @@ SELECT
 FROM
     "bookmark"
 WHERE
-    "uid" == $1
+    "uid" = $1
 LIMIT 100;
 

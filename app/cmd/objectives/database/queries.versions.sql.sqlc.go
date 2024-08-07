@@ -17,7 +17,7 @@ SELECT
 FROM
     "active"
 WHERE
-    "oid" == $1
+    "oid" = $1
 `
 
 func (q *Queries) SelectActive(ctx context.Context, oid columns.ObjectiveId) (Active, error) {
@@ -33,7 +33,7 @@ UPDATE
 SET
     "vid" = $2
 WHERE
-    "oid" == $1
+    "oid" = $1
 RETURNING
     oid, vid
 `
