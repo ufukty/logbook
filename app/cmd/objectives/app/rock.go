@@ -35,5 +35,13 @@ func (a *App) RockCreate(ctx context.Context, uid columns.UserId) error {
 		return fmt.Errorf("InsertBookmark: %w", err)
 	}
 
+	_, err = a.queries.InsertActiveVidForObjective(ctx, database.InsertActiveVidForObjectiveParams{
+		Oid: obj.Oid,
+		Vid: obj.Vid,
+	})
+	if err != nil {
+		return fmt.Errorf("UpdateActiveVidForObjective: %w", err)
+	}
+
 	return nil
 }
