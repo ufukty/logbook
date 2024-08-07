@@ -66,12 +66,20 @@ func TestLogic(t *testing.T) {
 			t.Fatal(fmt.Errorf("act 1, insert operation for user registration (to create the rock with the opid): %w", err))
 		}
 
-		rock, err = q.InsertNewObjective(ctx, InsertNewObjectiveParams{
-			CreatedBy: register.Opid,
-			Props:     nil,
+		props, err := q.InsertProperties(ctx, InsertPropertiesParams{
+			Content: "",
+			Creator: uid,
 		})
 		if err != nil {
-			t.Fatal(fmt.Errorf("act 2, insert the rock: %w", err))
+			t.Fatal(fmt.Errorf("act 2, insert props: %w", err))
+		}
+
+		rock, err = q.InsertNewObjective(ctx, InsertNewObjectiveParams{
+			CreatedBy: register.Opid,
+			Props:     props.Propid,
+		})
+		if err != nil {
+			t.Fatal(fmt.Errorf("act 3, insert the rock: %w", err))
 		}
 	})
 
@@ -85,7 +93,7 @@ func TestLogic(t *testing.T) {
 			OpStatus:   OpStatusReceived,
 		})
 		if err != nil {
-			t.Fatal(fmt.Errorf("act 3, insert row to 'operation' table: %w", err))
+			t.Fatal(fmt.Errorf("act 4, insert row to 'operation' table: %w", err))
 		}
 
 		_, err = q.InsertOpObjCreateSubtask(ctx, InsertOpObjCreateSubtaskParams{
@@ -93,15 +101,23 @@ func TestLogic(t *testing.T) {
 			Content: pgtype.Text{String: "Hello world", Valid: true},
 		})
 		if err != nil {
-			t.Fatal(fmt.Errorf("act 4, insert row to 'op_obj_create' table: %w", err))
+			t.Fatal(fmt.Errorf("act 5, insert row to 'op_obj_create' table: %w", err))
+		}
+
+		props, err := q.InsertProperties(ctx, InsertPropertiesParams{
+			Content: "",
+			Creator: uid,
+		})
+		if err != nil {
+			t.Fatal(fmt.Errorf("act 6, insert props: %w", err))
 		}
 
 		obj, err = q.InsertNewObjective(ctx, InsertNewObjectiveParams{
 			CreatedBy: op.Opid,
-			Props:     nil,
+			Props:     props.Propid,
 		})
 		if err != nil {
-			t.Fatal(fmt.Errorf("act 5, insert row to 'objective' table: %w", err))
+			t.Fatal(fmt.Errorf("act 7, insert row to 'objective' table: %w", err))
 		}
 	})
 
@@ -114,7 +130,7 @@ func TestLogic(t *testing.T) {
 			SubVid: obj.Vid,
 		})
 		if err != nil {
-			t.Fatal(fmt.Errorf("act 6, insert row to 'link' table: %w", err))
+			t.Fatal(fmt.Errorf("act 8, insert row to 'link' table: %w", err))
 		}
 
 		l, err := q.SelectUpperLinks(ctx, SelectUpperLinksParams{
@@ -122,7 +138,7 @@ func TestLogic(t *testing.T) {
 			SubVid: obj.Vid,
 		})
 		if err != nil {
-			t.Fatal(fmt.Errorf("act 7, select the link from objective to the rock: %w", err))
+			t.Fatal(fmt.Errorf("act 9, select the link from objective to the rock: %w", err))
 		}
 
 		if len(l) != 1 {
@@ -134,7 +150,7 @@ func TestLogic(t *testing.T) {
 			Vid: l[0].SupVid,
 		})
 		if err != nil {
-			t.Fatal(fmt.Errorf("act 8, select the rock through the link: %w", err))
+			t.Fatal(fmt.Errorf("act 10, select the rock through the link: %w", err))
 		}
 	})
 
