@@ -23,7 +23,7 @@ type CreateSubtaskParams struct {
 func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) error {
 	activepath, err := a.ListActivePathToRock(ctx, params.Parent)
 	if err == ErrLeftBehind {
-		return ErrLeftBehind
+		return fmt.Errorf("checking active path: %w", ErrLeftBehind)
 	} else if err != nil {
 		return fmt.Errorf("checking the parent %s if it is inside active path: %w", params.Parent, err)
 	}
@@ -64,6 +64,14 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) err
 	}
 
 	// TODO: trigger computing props (async?)
+
+	_, err = a.queries.InsertActiveVidForObjective(ctx, database.InsertActiveVidForObjectiveParams{
+		Oid: obj.Oid,
+		Vid: obj.Vid,
+	})
+	if err != nil {
+		return fmt.Errorf("inserting active version: %w", err)
+	}
 
 	_, err = a.bubblink(ctx, append(activepath, models.Ovid{obj.Oid, obj.Vid}), op)
 	if err != nil {
