@@ -11,6 +11,25 @@ import (
 	"logbook/models/columns"
 )
 
+const insertActiveVidForObjective = `-- name: InsertActiveVidForObjective :one
+INSERT INTO "active"("oid", "vid")
+    VALUES ($1, $2)
+RETURNING
+    oid, vid
+`
+
+type InsertActiveVidForObjectiveParams struct {
+	Oid columns.ObjectiveId
+	Vid columns.VersionId
+}
+
+func (q *Queries) InsertActiveVidForObjective(ctx context.Context, arg InsertActiveVidForObjectiveParams) (Active, error) {
+	row := q.db.QueryRow(ctx, insertActiveVidForObjective, arg.Oid, arg.Vid)
+	var i Active
+	err := row.Scan(&i.Oid, &i.Vid)
+	return i, err
+}
+
 const selectActive = `-- name: SelectActive :one
 SELECT
     oid, vid
