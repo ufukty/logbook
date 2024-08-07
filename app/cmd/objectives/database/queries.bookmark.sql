@@ -4,3 +4,12 @@ INSERT INTO "bookmark"("uid", "oid", "vid", "display_name", "is_rock")
 RETURNING
     *;
 
+-- name: SelectBookmarks :many
+SELECT
+    *
+FROM
+    "bookmark"
+WHERE
+    "uid" == $1
+LIMIT 100;
+

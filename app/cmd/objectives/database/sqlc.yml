@@ -49,3 +49,8 @@ sql:
             go_type:
               import: "logbook/models/columns"
               type: PropertiesId
+
+          - db_type: BookmarkId
+            go_type:
+              import: "logbook/models/columns"
+              type: BookmarkId

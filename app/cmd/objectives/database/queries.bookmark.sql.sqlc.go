@@ -47,3 +47,41 @@ func (q *Queries) InsertBookmark(ctx context.Context, arg InsertBookmarkParams) 
 	)
 	return i, err
 }
+
+const selectBookmarks = `-- name: SelectBookmarks :many
+SELECT
+    bid, uid, oid, vid, display_name, is_rock, created_at
+FROM
+    "bookmark"
+WHERE
+    "uid" == $1
+LIMIT 100
+`
+
+func (q *Queries) SelectBookmarks(ctx context.Context, uid columns.UserId) ([]Bookmark, error) {
+	rows, err := q.db.Query(ctx, selectBookmarks, uid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Bookmark
+	for rows.Next() {
+		var i Bookmark
+		if err := rows.Scan(
+			&i.Bid,
+			&i.Uid,
+			&i.Oid,
+			&i.Vid,
+			&i.DisplayName,
+			&i.IsRock,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

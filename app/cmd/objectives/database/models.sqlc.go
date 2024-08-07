@@ -112,7 +112,7 @@ type Active struct {
 }
 
 type Bookmark struct {
-	Bid         interface{}
+	Bid         columns.BookmarkId
 	Uid         columns.UserId
 	Oid         columns.ObjectiveId
 	Vid         columns.VersionId

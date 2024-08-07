@@ -19,6 +19,7 @@ type (
 
 // objectives
 type (
+	BookmarkId   string
 	LinkId       string
 	ObjectiveId  string
 	OperationId  string
