@@ -37,7 +37,7 @@ func Main() error {
 	sc := sidecar.New(registry.NewClient(balancer.New(internalsd), apicfg, true), time.Second, []models.Service{})
 	defer sc.Stop()
 
-	app := app.New(db, internalsd)
+	app := app.New(db)
 	eps := endpoints.New(app)
 
 	s := apicfg.Public.Services.Objectives
