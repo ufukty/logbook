@@ -6,25 +6,11 @@ import (
 	"logbook/cmd/objectives/database"
 	"logbook/models"
 	"logbook/models/columns"
+	"logbook/models/owners"
 	"slices"
 
 	"github.com/jackc/pgx/v5"
 )
-
-type ObjectiveType string
-
-const (
-	Goal = ObjectiveType("goal")
-	Task = ObjectiveType("task")
-)
-
-type ObjectiveView struct {
-	Oid           columns.ObjectiveId `json:"oid"`
-	Vid           columns.VersionId   `json:"vid"`
-	Depth         int                 `json:"depth"`
-	ObjectiveType ObjectiveType       `json:"objective_type"`
-	Folded        bool                `json:"folded"`
-}
 
 type ViewBuilderParams struct {
 	Viewer        columns.UserId
@@ -37,8 +23,8 @@ func doOverlap(aStart, aEnd, bStart, bEnd int32) bool {
 }
 
 // TODO: mind permissions
-func (a *App) viewBuilder(ctx context.Context, viewer columns.UserId, subject models.Ovid, start, end int32, depth int) ([]ObjectiveView, error) {
-	view := []ObjectiveView{}
+func (a *App) viewBuilder(ctx context.Context, viewer columns.UserId, subject models.Ovid, start, end int32, depth int) ([]owners.ObjectiveView, error) {
+	view := []owners.ObjectiveView{}
 
 	if end <= start || end < 0 {
 		return view, nil
@@ -64,9 +50,9 @@ func (a *App) viewBuilder(ctx context.Context, viewer columns.UserId, subject mo
 	fold := false
 	cursor := int32(0)
 	if doOverlap(start, end, 0, 1) {
-		objtype := Task
+		objtype := owners.Task
 		if len(subs) > 0 {
-			objtype = Goal
+			objtype = owners.Goal
 		}
 		vp, err := a.queries.SelectObjectiveViewPrefs(ctx, database.SelectObjectiveViewPrefsParams{
 			Uid: viewer,
@@ -77,7 +63,7 @@ func (a *App) viewBuilder(ctx context.Context, viewer columns.UserId, subject mo
 		} else if err == nil {
 			fold = vp.Fold
 		}
-		view = append(view, ObjectiveView{
+		view = append(view, owners.ObjectiveView{
 			Oid:           subject.Oid,
 			Vid:           subject.Vid,
 			Depth:         depth,
@@ -122,6 +108,6 @@ func (a *App) viewBuilder(ctx context.Context, viewer columns.UserId, subject mo
 // and in the length of [ViewBuilderParams.Length] which doesn't contain hidden/unaccessible objectives.
 //
 // may wrap: [ErrLeftBehind]
-func (a *App) ViewBuilder(ctx context.Context, params ViewBuilderParams) ([]ObjectiveView, error) {
+func (a *App) ViewBuilder(ctx context.Context, params ViewBuilderParams) ([]owners.ObjectiveView, error) {
 	return a.viewBuilder(ctx, params.Viewer, params.Root, int32(params.Start), int32(params.Start+params.Length), 0)
 }
