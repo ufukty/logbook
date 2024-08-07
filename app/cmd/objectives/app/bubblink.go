@@ -39,11 +39,19 @@ func (a *App) bubblink(ctx context.Context, activepath []models.Ovid, op databas
 			return columns.ZeroOperationId, fmt.Errorf("inserting transitive update specific operation details on ascendant %s for transitive update: %w", ascendant, err)
 		}
 
+		obj, err := a.queries.SelectObjective(ctx, database.SelectObjectiveParams{
+			Oid: ascendant.Oid,
+			Vid: ascendant.Vid,
+		})
+		if err != nil {
+			return columns.ZeroOperationId, fmt.Errorf("selecting current version of objective for props: %w", err)
+		}
+
 		objasc, err := a.queries.InsertUpdatedObjective(ctx, database.InsertUpdatedObjectiveParams{
 			Oid:       ascendant.Oid,
 			Based:     ascendant.Vid,
 			CreatedBy: cause,
-			Props:     nil,
+			Props:     obj.Props,
 		})
 		if err != nil {
 			return columns.ZeroOperationId, fmt.Errorf("inserting version updated ascendant: %w", err)

@@ -6,8 +6,6 @@ import (
 	"logbook/cmd/objectives/database"
 	"logbook/models"
 	"logbook/models/columns"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type CreateSubtaskParams struct {
@@ -18,7 +16,7 @@ type CreateSubtaskParams struct {
 
 // TODO: check prileges on parent
 // DONE: create operations
-// TODO: trigger task-props calculation
+// DONE: props
 // TODO: transaction-commit-rollback
 // DONE: bubblink
 // DONE: mark active version for promoted ascendants
@@ -43,15 +41,23 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) err
 
 	_, err = a.queries.InsertOpObjCreateSubtask(ctx, database.InsertOpObjCreateSubtaskParams{
 		Opid:    op.Opid,
-		Content: pgtype.Text{String: params.Content, Valid: true},
+		Content: params.Content,
 	})
 	if err != nil {
 		return fmt.Errorf("inserting subtask creation details: %w", err)
 	}
 
+	props, err := a.queries.InsertProperties(ctx, database.InsertPropertiesParams{
+		Content: params.Content,
+		Creator: params.Creator,
+	})
+	if err != nil {
+		return fmt.Errorf("inserting properties row: %w", err)
+	}
+
 	obj, err := a.queries.InsertNewObjective(ctx, database.InsertNewObjectiveParams{
 		CreatedBy: op.Opid,
-		Props:     nil,
+		Props:     props.Propid,
 	})
 	if err != nil {
 		return fmt.Errorf("inserting the objective: %w", err)
