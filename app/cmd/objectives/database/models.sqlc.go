@@ -190,13 +190,13 @@ type OpObjCompletion struct {
 type OpObjContent struct {
 	ID      pgtype.UUID
 	Opid    columns.OperationId
-	Content pgtype.Text
+	Content string
 }
 
 type OpObjCreateSubtask struct {
 	ID      pgtype.UUID
 	Opid    columns.OperationId
-	Content pgtype.Text
+	Content string
 }
 
 type OpObjDetach struct {

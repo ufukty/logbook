@@ -113,13 +113,13 @@ CREATE TABLE "op_obj_completion"(
 CREATE TABLE "op_obj_content"(
     "id" uuid NOT NULL UNIQUE DEFAULT gen_random_uuid(),
     "opid" "OperationId" NOT NULL,
-    "content" text
+    "content" text NOT NULL
 );
 
 CREATE TABLE "op_obj_create_subtask"(
     "id" uuid NOT NULL UNIQUE DEFAULT gen_random_uuid(),
     "opid" "OperationId" NOT NULL,
-    "content" text
+    "content" text NOT NULL
 );
 
 CREATE TABLE "op_obj_attach"(

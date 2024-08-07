@@ -6,8 +6,6 @@ import (
 	"logbook/cmd/objectives/service"
 	"logbook/models/columns"
 	"testing"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 func TestMigration(t *testing.T) {
@@ -98,7 +96,7 @@ func TestLogic(t *testing.T) {
 
 		_, err = q.InsertOpObjCreateSubtask(ctx, InsertOpObjCreateSubtaskParams{
 			Opid:    op.Opid,
-			Content: pgtype.Text{String: "Hello world", Valid: true},
+			Content: "Hello world",
 		})
 		if err != nil {
 			t.Fatal(fmt.Errorf("act 5, insert row to 'op_obj_create' table: %w", err))

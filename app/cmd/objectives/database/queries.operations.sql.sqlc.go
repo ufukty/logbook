@@ -8,7 +8,6 @@ package database
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5/pgtype"
 	"logbook/models/columns"
 )
 
@@ -108,7 +107,7 @@ RETURNING
 
 type InsertOpObjContentParams struct {
 	Opid    columns.OperationId
-	Content pgtype.Text
+	Content string
 }
 
 func (q *Queries) InsertOpObjContent(ctx context.Context, arg InsertOpObjContentParams) (OpObjContent, error) {
@@ -127,7 +126,7 @@ RETURNING
 
 type InsertOpObjCreateSubtaskParams struct {
 	Opid    columns.OperationId
-	Content pgtype.Text
+	Content string
 }
 
 func (q *Queries) InsertOpObjCreateSubtask(ctx context.Context, arg InsertOpObjCreateSubtaskParams) (OpObjCreateSubtask, error) {
