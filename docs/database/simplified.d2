@@ -30,6 +30,16 @@ collaboration: {
   disabled_at: timestamp
 }
 
+collaborator: {
+  shape: sql_table
+
+  cid: CollaborationId
+  uid: UserId
+
+  created_at: timestamp
+  deleted_at: timestamp
+}
+
 privilege: {
   shape: sql_table
 
@@ -190,6 +200,7 @@ active.oid -- objective.oid
 bookmark.oid -- objective.oid
 # bookmark.vid -- objective.vid
 
+collaboration.cid -- collaborator.cid
 collaboration.oid -- objective.oid
 
 # Any task with custom privilege hand.can have owner/viewers/executors
