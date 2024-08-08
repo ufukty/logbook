@@ -25,7 +25,7 @@ func (a *App) ListActivePathToRock(ctx context.Context, subject models.Ovid) ([]
 		SubOid: subject.Oid,
 		SubVid: subject.Vid,
 	})
-	if err == pgx.ErrNoRows {
+	if len(parents) == 0 {
 		return []models.Ovid{subject}, nil // assuming it is the rock or an orphaned subtree
 	} else if err != nil {
 		return nil, fmt.Errorf("SelectUpperLinks(%s): %w", subject, err)
