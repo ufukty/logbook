@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"logbook/cmd/objectives/database"
 	"logbook/models"
-
-	"github.com/jackc/pgx/v5"
 )
 
 var ErrLeftBehind = fmt.Errorf("the objective is either directly or eventually linked to an objective which its version is left behind")
