@@ -3,6 +3,7 @@ sql:
   - engine: "postgresql"
     queries:
       - "queries.bookmark.sql"
+      - "queries.collaboration.sql"
       - "queries.computed.sql"
       - "queries.links.sql"
       - "queries.objectives.sql"
@@ -54,3 +55,8 @@ sql:
             go_type:
               import: "logbook/models/columns"
               type: BookmarkId
+
+          - db_type: CollaborationId
+            go_type:
+              import: "logbook/models/columns"
+              type: CollaborationId

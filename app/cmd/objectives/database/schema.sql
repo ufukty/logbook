@@ -2,19 +2,21 @@
 -- CREATE DATABASE logbook;
 -- \c logbook;
 -- ;
-CREATE DOMAIN "UserId" AS uuid;
+CREATE DOMAIN "BookmarkId" AS uuid;
+
+CREATE DOMAIN "CollaborationId" AS uuid;
+
+CREATE DOMAIN "LinkId" AS uuid;
 
 CREATE DOMAIN "ObjectiveId" AS uuid;
-
-CREATE DOMAIN "VersionId" AS uuid;
 
 CREATE DOMAIN "OperationId" AS uuid;
 
 CREATE DOMAIN "PropertiesId" AS uuid;
 
-CREATE DOMAIN "LinkId" AS uuid;
+CREATE DOMAIN "UserId" AS uuid;
 
-CREATE DOMAIN "BookmarkId" AS uuid;
+CREATE DOMAIN "VersionId" AS uuid;
 
 CREATE TABLE "active"(
     "oid" "ObjectiveId" NOT NULL UNIQUE,
@@ -160,12 +162,30 @@ CREATE TABLE "op_double_transitive_merger"(
 ;
 
 CREATE TABLE "bookmark"(
-    "bid" "BookmarkId" NOT NULL DEFAULT gen_random_uuid(),
+    "bid" "BookmarkId" UNIQUE NOT NULL DEFAULT gen_random_uuid(),
     "uid" "UserId" NOT NULL,
     "oid" "ObjectiveId" NOT NULL,
     "vid" "VersionId" NOT NULL,
     "title" text NOT NULL,
     "is_rock" boolean NOT NULL DEFAULT FALSE,
     "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE "collaboration"(
+    "cid" "CollaborationId" UNIQUE NOT NULL DEFAULT gen_random_uuid(),
+    "oid" "ObjectiveId" NOT NULL,
+    "creator" "UserId" NOT NULL,
+    "admin" "UserId" NOT NULL,
+    "leader" "UserId" NOT NULL,
+    "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" timestamp
+);
+
+CREATE TABLE "collaborator"(
+    "id" uuid UNIQUE NOT NULL DEFAULT gen_random_uuid(),
+    "cid" "CollaborationId" NOT NULL,
+    "uid" "UserId" NOT NULL,
+    "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" timestamp
 );
 

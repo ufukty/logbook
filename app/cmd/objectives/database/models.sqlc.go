@@ -121,6 +121,24 @@ type Bookmark struct {
 	CreatedAt pgtype.Timestamp
 }
 
+type Collaboration struct {
+	Cid       columns.CollaborationId
+	Oid       columns.ObjectiveId
+	Creator   columns.UserId
+	Admin     columns.UserId
+	Leader    columns.UserId
+	CreatedAt pgtype.Timestamp
+	DeletedAt pgtype.Timestamp
+}
+
+type Collaborator struct {
+	ID        pgtype.UUID
+	Cid       columns.CollaborationId
+	Uid       columns.UserId
+	CreatedAt pgtype.Timestamp
+	DeletedAt pgtype.Timestamp
+}
+
 type ComputedProp struct {
 	Propid    columns.PropertiesId
 	Content   string
