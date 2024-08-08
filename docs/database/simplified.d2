@@ -198,25 +198,20 @@ active.oid -- objective.oid
 
 # a bookmark points to a root node of a work tree
 bookmark.oid -- objective.oid
-# bookmark.vid -- objective.vid
 
 collaboration.cid -- collaborator.cid
 collaboration.oid -- objective.oid
 
 # Any task with custom privilege hand.can have owner/viewers/executors
 privilege.oid -- objective.oid
-# privilege.vid -- objective.vid
 
 objective_view_prefs.oid -- objective.oid
 
 objective.oid -- links.sup_oid
-# objective.vid -- links.sup_vid
 
 objective.oid -- links.sub_oid
-# objective.vid -- links.sub_vid
 
 objective.oid -- computed_to_top.oid
-# objective.vid -- computed_to_top.vid
 
 operation.opid -- op_checkout.opid
 operation.opid -- op_obj_completion.opid
@@ -231,4 +226,3 @@ operation.opid -- op_double_transitive_merger.opid
 objective.created_by -- operation.opid
 
 objective.props -- computed_props.propid
-# objective.vid -- props.vid
