@@ -20,7 +20,7 @@ var ErrVersionDoesNotExist = fmt.Errorf("given version of the objective doesn't 
 
 // TODO: bubblink (update and checkout ascendants) (implicit/explicit checkouts?)
 func (a *App) Checkout(ctx context.Context, params CheckoutParams) error {
-	activepath, err := a.ListActivePathToRock(ctx, params.Subject)
+	activepath, err := a.listActivePathToRock(ctx, params.Subject)
 	if err == ErrLeftBehind {
 		return ErrLeftBehind
 	} else if err != nil {

@@ -21,7 +21,7 @@ type CreateSubtaskParams struct {
 // DONE: bubblink
 // DONE: mark active version for promoted ascendants
 func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) error {
-	activepath, err := a.ListActivePathToRock(ctx, params.Parent)
+	activepath, err := a.listActivePathToRock(ctx, params.Parent)
 	if err == ErrLeftBehind {
 		return fmt.Errorf("checking active path: %w", ErrLeftBehind)
 	} else if err != nil {

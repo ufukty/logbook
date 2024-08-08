@@ -12,7 +12,7 @@ import (
 var ErrLeftBehind = fmt.Errorf("the objective is either directly or eventually linked to an objective which its version is left behind")
 
 // returns a path from the node to the root: [rock, active-ascendants..., subject] or [ErrLeftBehind]
-func (a *App) ListActivePathToRock(ctx context.Context, subject models.Ovid) ([]models.Ovid, error) {
+func (a *App) listActivePathToRock(ctx context.Context, subject models.Ovid) ([]models.Ovid, error) {
 	active, err := a.queries.SelectActive(ctx, subject.Oid)
 	if err != nil {
 		return nil, fmt.Errorf("SelectActive(%s): %w", subject.Oid, err)
@@ -32,7 +32,7 @@ func (a *App) ListActivePathToRock(ctx context.Context, subject models.Ovid) ([]
 	}
 
 	for _, parent := range parents {
-		path, err := a.ListActivePathToRock(ctx, models.Ovid{parent.SupOid, parent.SupVid})
+		path, err := a.listActivePathToRock(ctx, models.Ovid{parent.SupOid, parent.SupVid})
 		if err == ErrLeftBehind {
 			continue // try other parents
 		} else if err != nil {

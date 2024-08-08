@@ -33,12 +33,12 @@ func popCommonActivePath(l, r []models.Ovid) ([]models.Ovid, []models.Ovid, []mo
 
 // TODO: check auth at the both current and next parent for actor
 func (a *App) Reattach(ctx context.Context, params ReattachParams) error {
-	apCurrent, err := a.ListActivePathToRock(ctx, params.CurrentParent)
+	apCurrent, err := a.listActivePathToRock(ctx, params.CurrentParent)
 	if err != nil {
 		return fmt.Errorf("checking if the current parent is in active path: %w", err)
 	}
 
-	apNext, err := a.ListActivePathToRock(ctx, params.NextParent)
+	apNext, err := a.listActivePathToRock(ctx, params.NextParent)
 	if err != nil {
 		return fmt.Errorf("checking if the next parent is in active path: %w", err)
 	}
