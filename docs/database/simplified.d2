@@ -16,6 +16,20 @@ bookmark: {
   created_at: timestamp
 }
 
+collaboration: {
+  shape: sql_table
+
+  cid: CollaborationId
+  oid: ObjectiveId
+  
+  creator: UserId
+  admin: UserId
+  leader: UserId
+
+  created_at: timestamp
+  disabled_at: timestamp
+}
+
 privilege: {
   shape: sql_table
 
@@ -65,8 +79,8 @@ links: {
   shape: sql_table
 
   sup_oid: ObjectiveId
-  sub_oid: ObjectiveId
   sup_vid: VersionId
+  sub_oid: ObjectiveId
   sub_vid: VersionId
 }
 
@@ -175,6 +189,8 @@ active.oid -- objective.oid
 # a bookmark points to a root node of a work tree
 bookmark.oid -- objective.oid
 # bookmark.vid -- objective.vid
+
+collaboration.oid -- objective.oid
 
 # Any task with custom privilege hand.can have owner/viewers/executors
 privilege.oid -- objective.oid
