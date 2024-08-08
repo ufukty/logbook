@@ -44,6 +44,8 @@ which jq ||
   brew install jq
 which unbuffer ||
   brew install expect
+which magick ||
+  brew install imagemagick
 
 (which ansible && which qr) ||
   pip install -r "$WORKSPACE/dependencies/requirements.txt"
