@@ -25,7 +25,7 @@ func (q *Queries) DeleteCollaboration(ctx context.Context, cid columns.Collabora
 	return err
 }
 
-const deleteCollaboratorFromCollaboration = `-- name: DeleteCollaboratorFromCollaboration :exec
+const deleteCollaborator = `-- name: DeleteCollaborator :exec
 UPDATE
     "collaborator"
 SET
@@ -35,25 +35,25 @@ WHERE
     AND "uid" = $2
 `
 
-type DeleteCollaboratorFromCollaborationParams struct {
+type DeleteCollaboratorParams struct {
 	Cid columns.CollaborationId
 	Uid columns.UserId
 }
 
-func (q *Queries) DeleteCollaboratorFromCollaboration(ctx context.Context, arg DeleteCollaboratorFromCollaborationParams) error {
-	_, err := q.db.Exec(ctx, deleteCollaboratorFromCollaboration, arg.Cid, arg.Uid)
+func (q *Queries) DeleteCollaborator(ctx context.Context, arg DeleteCollaboratorParams) error {
+	_, err := q.db.Exec(ctx, deleteCollaborator, arg.Cid, arg.Uid)
 	return err
 }
 
 const insertCollaboration = `-- name: InsertCollaboration :one
-INSERT INTO "collaboration"("oid", "creator", "admin", "leader")
+INSERT INTO "collaboration"("cid", "creator", "admin", "leader")
     VALUES ($1, $2, $3, $4)
 RETURNING
-    cid, oid, creator, admin, leader, created_at, deleted_at
+    cid, aid, creator, admin, leader, created_at, deleted_at
 `
 
 type InsertCollaborationParams struct {
-	Oid     columns.ObjectiveId
+	Cid     columns.CollaborationId
 	Creator columns.UserId
 	Admin   columns.UserId
 	Leader  columns.UserId
@@ -61,7 +61,7 @@ type InsertCollaborationParams struct {
 
 func (q *Queries) InsertCollaboration(ctx context.Context, arg InsertCollaborationParams) (Collaboration, error) {
 	row := q.db.QueryRow(ctx, insertCollaboration,
-		arg.Oid,
+		arg.Cid,
 		arg.Creator,
 		arg.Admin,
 		arg.Leader,
@@ -69,7 +69,7 @@ func (q *Queries) InsertCollaboration(ctx context.Context, arg InsertCollaborati
 	var i Collaboration
 	err := row.Scan(
 		&i.Cid,
-		&i.Oid,
+		&i.Aid,
 		&i.Creator,
 		&i.Admin,
 		&i.Leader,
@@ -104,57 +104,69 @@ func (q *Queries) InsertCollaborator(ctx context.Context, arg InsertCollaborator
 	return i, err
 }
 
-const listCollaborationsOnObjective = `-- name: ListCollaborationsOnObjective :many
+const selectCollaboration = `-- name: SelectCollaboration :one
 SELECT
-    cid, oid, creator, admin, leader, created_at, deleted_at
+    cid, aid, creator, admin, leader, created_at, deleted_at
 FROM
     "collaboration"
 WHERE
-    "oid" = $1
+    "cid" = $1
+`
+
+func (q *Queries) SelectCollaboration(ctx context.Context, cid columns.CollaborationId) (Collaboration, error) {
+	row := q.db.QueryRow(ctx, selectCollaboration, cid)
+	var i Collaboration
+	err := row.Scan(
+		&i.Cid,
+		&i.Aid,
+		&i.Creator,
+		&i.Admin,
+		&i.Leader,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const selectCollaborationOnControlArea = `-- name: SelectCollaborationOnControlArea :one
+SELECT
+    cid, aid, creator, admin, leader, created_at, deleted_at
+FROM
+    "collaboration"
+WHERE
+    "aid" = $1
     AND "deleted_at" IS NULL
 LIMIT 50
 `
 
-func (q *Queries) ListCollaborationsOnObjective(ctx context.Context, oid columns.ObjectiveId) ([]Collaboration, error) {
-	rows, err := q.db.Query(ctx, listCollaborationsOnObjective, oid)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Collaboration
-	for rows.Next() {
-		var i Collaboration
-		if err := rows.Scan(
-			&i.Cid,
-			&i.Oid,
-			&i.Creator,
-			&i.Admin,
-			&i.Leader,
-			&i.CreatedAt,
-			&i.DeletedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
+func (q *Queries) SelectCollaborationOnControlArea(ctx context.Context, aid columns.AreaId) (Collaboration, error) {
+	row := q.db.QueryRow(ctx, selectCollaborationOnControlArea, aid)
+	var i Collaboration
+	err := row.Scan(
+		&i.Cid,
+		&i.Aid,
+		&i.Creator,
+		&i.Admin,
+		&i.Leader,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
 }
 
-const listCollaboratorsForCollaboration = `-- name: ListCollaboratorsForCollaboration :many
+const selectCollaborators = `-- name: SelectCollaborators :many
 SELECT
     id, cid, uid, created_at, deleted_at
 FROM
     "collaborator"
 WHERE
     "cid" = $1
-LIMIT 50
+    AND "deleted_at" IS NULL
+LIMIT 100
 `
 
-func (q *Queries) ListCollaboratorsForCollaboration(ctx context.Context, cid columns.CollaborationId) ([]Collaborator, error) {
-	rows, err := q.db.Query(ctx, listCollaboratorsForCollaboration, cid)
+func (q *Queries) SelectCollaborators(ctx context.Context, cid columns.CollaborationId) ([]Collaborator, error) {
+	rows, err := q.db.Query(ctx, selectCollaborators, cid)
 	if err != nil {
 		return nil, err
 	}
@@ -177,28 +189,4 @@ func (q *Queries) ListCollaboratorsForCollaboration(ctx context.Context, cid col
 		return nil, err
 	}
 	return items, nil
-}
-
-const selectCollaboration = `-- name: SelectCollaboration :one
-SELECT
-    cid, oid, creator, admin, leader, created_at, deleted_at
-FROM
-    "collaboration"
-WHERE
-    "cid" = $1
-`
-
-func (q *Queries) SelectCollaboration(ctx context.Context, cid columns.CollaborationId) (Collaboration, error) {
-	row := q.db.QueryRow(ctx, selectCollaboration, cid)
-	var i Collaboration
-	err := row.Scan(
-		&i.Cid,
-		&i.Oid,
-		&i.Creator,
-		&i.Admin,
-		&i.Leader,
-		&i.CreatedAt,
-		&i.DeletedAt,
-	)
-	return i, err
 }

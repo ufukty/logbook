@@ -1,10 +1,10 @@
--- name: ListCollaborationsOnObjective :many
+-- name: SelectCollaborationOnControlArea :one
 SELECT
     *
 FROM
     "collaboration"
 WHERE
-    "oid" = $1
+    "aid" = $1
     AND "deleted_at" IS NULL
 LIMIT 50;
 
@@ -17,7 +17,7 @@ WHERE
     "cid" = $1;
 
 -- name: InsertCollaboration :one
-INSERT INTO "collaboration"("oid", "creator", "admin", "leader")
+INSERT INTO "collaboration"("cid", "creator", "admin", "leader")
     VALUES ($1, $2, $3, $4)
 RETURNING
     *;
@@ -36,16 +36,17 @@ INSERT INTO "collaborator"("cid", "uid")
 RETURNING
     *;
 
--- name: ListCollaboratorsForCollaboration :many
+-- name: SelectCollaborators :many
 SELECT
     *
 FROM
     "collaborator"
 WHERE
     "cid" = $1
-LIMIT 50;
+    AND "deleted_at" IS NULL
+LIMIT 100;
 
--- name: DeleteCollaboratorFromCollaboration :exec
+-- name: DeleteCollaborator :exec
 UPDATE
     "collaborator"
 SET

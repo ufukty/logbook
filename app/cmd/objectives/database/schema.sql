@@ -2,6 +2,8 @@
 -- CREATE DATABASE logbook;
 -- \c logbook;
 -- ;
+CREATE DOMAIN "AreaId" AS uuid;
+
 CREATE DOMAIN "BookmarkId" AS uuid;
 
 CREATE DOMAIN "CollaborationId" AS uuid;
@@ -171,9 +173,22 @@ CREATE TABLE "bookmark"(
     "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TYPE "AreaType" AS ENUM(
+    'solo',
+    'collaboration'
+);
+
+CREATE TABLE "control_area"(
+    "aid" "AreaId" UNIQUE NOT NULL DEFAULT gen_random_uuid(),
+    "root" "ObjectiveId" NOT NULL,
+    "ar_type" "AreaType" NOT NULL,
+    "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" timestamp
+);
+
 CREATE TABLE "collaboration"(
     "cid" "CollaborationId" UNIQUE NOT NULL DEFAULT gen_random_uuid(),
-    "oid" "ObjectiveId" NOT NULL,
+    "aid" "AreaId" NOT NULL,
     "creator" "UserId" NOT NULL,
     "admin" "UserId" NOT NULL,
     "leader" "UserId" NOT NULL,

@@ -12,6 +12,48 @@ import (
 	"logbook/models/columns"
 )
 
+type AreaType string
+
+const (
+	AreaTypeSolo          AreaType = "solo"
+	AreaTypeCollaboration AreaType = "collaboration"
+)
+
+func (e *AreaType) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = AreaType(s)
+	case string:
+		*e = AreaType(s)
+	default:
+		return fmt.Errorf("unsupported scan type for AreaType: %T", src)
+	}
+	return nil
+}
+
+type NullAreaType struct {
+	AreaType AreaType
+	Valid    bool // Valid is true if AreaType is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullAreaType) Scan(value interface{}) error {
+	if value == nil {
+		ns.AreaType, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.AreaType.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullAreaType) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.AreaType), nil
+}
+
 type OpStatus string
 
 const (
@@ -123,7 +165,7 @@ type Bookmark struct {
 
 type Collaboration struct {
 	Cid       columns.CollaborationId
-	Oid       columns.ObjectiveId
+	Aid       columns.AreaId
 	Creator   columns.UserId
 	Admin     columns.UserId
 	Leader    columns.UserId
@@ -155,6 +197,14 @@ type ComputedToTop struct {
 	Index             int32
 	SubtreeSize       int32
 	CompletedSubitems int32
+}
+
+type ControlArea struct {
+	Aid       columns.AreaId
+	Root      columns.ObjectiveId
+	ArType    AreaType
+	CreatedAt pgtype.Timestamp
+	DeletedAt pgtype.Timestamp
 }
 
 type Link struct {

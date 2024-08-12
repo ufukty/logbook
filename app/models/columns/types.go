@@ -19,6 +19,7 @@ type (
 
 // objectives
 type (
+	AreaId          string
 	BookmarkId      string
 	CollaborationId string
 	LinkId          string

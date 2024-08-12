@@ -3,6 +3,7 @@ package columns
 import "github.com/jackc/pgx/v5/pgtype"
 
 const (
+	ZeroAreaId          = AreaId("00000000-0000-0000-0000-000000000000")
 	ZeroBookmarkId      = BookmarkId("00000000-0000-0000-0000-000000000000")
 	ZeroCollaborationId = CollaborationId("00000000-0000-0000-0000-000000000000")
 	ZeroLinkId          = LinkId("00000000-0000-0000-0000-000000000000")
