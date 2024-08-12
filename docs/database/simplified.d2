@@ -16,11 +16,22 @@ bookmark: {
   created_at: timestamp
 }
 
+control_area: {
+  shape: sql_table
+
+  aid: AreaId
+  root: ObjectiveId
+  ar_type: AreaType
+
+  created_at: timestamp
+  deleted_at: timestamp?
+}
+
 collaboration: {
   shape: sql_table
 
   cid: CollaborationId
-  oid: ObjectiveId
+  aid: AreaId
   
   creator: UserId
   admin: UserId
@@ -38,19 +49,6 @@ collaborator: {
 
   created_at: timestamp
   deleted_at: timestamp
-}
-
-privilege: {
-  shape: sql_table
-
-  user_role_id: uuid
-  oid: ObjectiveId
-  vid: VersionId
-  uid: UserId
-  role: "Owner, Supervisor, Executor, Guest"
-  status: "Invited, Accepted, Rejected, Canceled"
-  created_at: timestamp
-  updated_at: timestamp
 }
 
 objective: {
@@ -72,7 +70,6 @@ objective_view_prefs: {
   oid: ObjectiveId
   fold: boolean
 }
-
 
 # cached from operations to reduce view build duration
 # separately versioned from the objective to detach it from privilege and collaboration config changes
@@ -199,16 +196,13 @@ active.oid -- objective.oid
 # a bookmark points to a root node of a work tree
 bookmark.oid -- objective.oid
 
+control_area.root -- objective.oid
+control_area.aid -- collaboration.aid
 collaboration.cid -- collaborator.cid
-collaboration.oid -- objective.oid
-
-# Any task with custom privilege hand.can have owner/viewers/executors
-privilege.oid -- objective.oid
 
 objective_view_prefs.oid -- objective.oid
 
 objective.oid -- links.sup_oid
-
 objective.oid -- links.sub_oid
 
 objective.oid -- computed_to_top.oid
