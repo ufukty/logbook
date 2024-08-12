@@ -1,3 +1,12 @@
+-- name: SelectOperation :one
+SELECT
+    *
+FROM
+    "operation"
+WHERE
+    "opid" = $1
+LIMIT 1;
+
 -- name: InsertOperation :one
 INSERT INTO "operation"("subjectoid", "subjectvid", "actor", "op_type", "op_status")
     VALUES ($1, $2, $3, $4, $5)

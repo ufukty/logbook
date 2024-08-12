@@ -239,3 +239,28 @@ func (q *Queries) InsertOperation(ctx context.Context, arg InsertOperationParams
 	)
 	return i, err
 }
+
+const selectOperation = `-- name: SelectOperation :one
+SELECT
+    opid, subjectoid, subjectvid, actor, op_type, op_status, created_at
+FROM
+    "operation"
+WHERE
+    "opid" = $1
+LIMIT 1
+`
+
+func (q *Queries) SelectOperation(ctx context.Context, opid columns.OperationId) (Operation, error) {
+	row := q.db.QueryRow(ctx, selectOperation, opid)
+	var i Operation
+	err := row.Scan(
+		&i.Opid,
+		&i.Subjectoid,
+		&i.Subjectvid,
+		&i.Actor,
+		&i.OpType,
+		&i.OpStatus,
+		&i.CreatedAt,
+	)
+	return i, err
+}

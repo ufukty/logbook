@@ -1,6 +1,7 @@
 package owners
 
 import (
+	"logbook/cmd/objectives/database"
 	"logbook/models/columns"
 	"time"
 )
@@ -27,4 +28,11 @@ type ObjectiveView struct {
 	Depth         int                 `json:"depth"`
 	ObjectiveType ObjectiveType       `json:"objective_type"`
 	Folded        bool                `json:"folded"`
+}
+
+type OperationHistoryItem struct {
+	Version   columns.VersionId `json:"version"`
+	Type      database.OpType   `json:"type"`
+	CreatedBy columns.UserId    `json:"created_by"`
+	CreatedAt time.Time         `json:"created_at"`
 }
