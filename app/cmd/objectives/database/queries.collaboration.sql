@@ -46,6 +46,17 @@ WHERE
     AND "deleted_at" IS NULL
 LIMIT 100;
 
+-- name: SelectCollaborator :one
+SELECT
+    *
+FROM
+    "collaborator"
+WHERE
+    "cid" = $1
+    AND "uid" = $2
+    AND "deleted_at" IS NULL
+LIMIT 1;
+
 -- name: DeleteCollaborator :exec
 UPDATE
     "collaborator"

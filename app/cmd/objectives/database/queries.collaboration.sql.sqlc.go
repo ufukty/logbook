@@ -154,6 +154,36 @@ func (q *Queries) SelectCollaborationOnControlArea(ctx context.Context, aid colu
 	return i, err
 }
 
+const selectCollaborator = `-- name: SelectCollaborator :one
+SELECT
+    id, cid, uid, created_at, deleted_at
+FROM
+    "collaborator"
+WHERE
+    "cid" = $1
+    AND "uid" = $2
+    AND "deleted_at" IS NULL
+LIMIT 1
+`
+
+type SelectCollaboratorParams struct {
+	Cid columns.CollaborationId
+	Uid columns.UserId
+}
+
+func (q *Queries) SelectCollaborator(ctx context.Context, arg SelectCollaboratorParams) (Collaborator, error) {
+	row := q.db.QueryRow(ctx, selectCollaborator, arg.Cid, arg.Uid)
+	var i Collaborator
+	err := row.Scan(
+		&i.ID,
+		&i.Cid,
+		&i.Uid,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const selectCollaborators = `-- name: SelectCollaborators :many
 SELECT
     id, cid, uid, created_at, deleted_at
