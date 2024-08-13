@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"logbook/cmd/objectives/database"
 	"logbook/models"
-	"slices"
 
 	"github.com/jackc/pgx/v5"
 )
@@ -17,9 +16,7 @@ func (a *App) findControlArea(ctx context.Context, subject models.Ovid) (*databa
 	if err != nil {
 		return nil, fmt.Errorf("listActivePathToRock: %w", err)
 	}
-	slices.Reverse(ap)
-	var ascendant models.Ovid
-	for _, ascendant = range ap {
+	for _, ascendant := range ap {
 		ca, err := a.queries.SelectControlAreaOnObjective(ctx, ascendant.Oid)
 		if err == pgx.ErrNoRows {
 			continue

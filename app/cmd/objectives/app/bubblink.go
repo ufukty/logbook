@@ -9,17 +9,15 @@ import (
 )
 
 // promotes an update to ascendants
-// last item of the activepath should be the source of update promotion, newly updated objective (oid:latestvid)
+// first item of the activepath should be the source of update promotion, newly updated objective (oid:latestvid)
 // it returns the operation id generated for the transitive update of the uppermost objective in the activepath
 func (a *App) bubblink(ctx context.Context, activepath []models.Ovid, op database.Operation) (columns.OperationId, error) {
 	if len(activepath) <= 1 {
 		return columns.ZeroOperationId, nil // no ascendant to promote update
 	}
-	child := activepath[len(activepath)-1]
+	child := activepath[0]
 	cause := op.Opid
-	for i := len(activepath) - 2; i >= 0; i-- {
-		ascendant := activepath[i]
-
+	for _, ascendant := range activepath[1:] {
 		optrs, err := a.queries.InsertOperation(ctx, database.InsertOperationParams{
 			Subjectoid: ascendant.Oid,
 			Subjectvid: ascendant.Vid,

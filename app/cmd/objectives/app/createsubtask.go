@@ -6,6 +6,7 @@ import (
 	"logbook/cmd/objectives/database"
 	"logbook/models"
 	"logbook/models/columns"
+	"slices"
 )
 
 type CreateSubtaskParams struct {
@@ -73,7 +74,7 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) err
 		return fmt.Errorf("inserting active version: %w", err)
 	}
 
-	_, err = a.bubblink(ctx, append(activepath, models.Ovid{obj.Oid, obj.Vid}), op)
+	_, err = a.bubblink(ctx, slices.Insert(activepath, 0, models.Ovid{obj.Oid, obj.Vid}), op)
 	if err != nil {
 		return fmt.Errorf("promoting the version change to ascendants: %w", err)
 	}

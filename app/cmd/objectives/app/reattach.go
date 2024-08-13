@@ -23,12 +23,13 @@ func popCommonActivePath(l, r []models.Ovid) ([]models.Ovid, []models.Ovid, []mo
 	if len(l) > len(r) {
 		l, r = r, l
 	}
-	c := 0
-	for ; c < len(l) && l[c] == r[c]; c++ {
-		// i like to move it move it
+	lc, rc := len(l)-1, len(r)-1
+	for rc > 0 && l[lc] == r[rc] {
+		lc--
+		rc--
 	}
-	common := l[:c]
-	return l[c:], r[c:], common
+	common := l[lc+1:]
+	return l[:lc+1], r[:rc+1], common
 }
 
 // TODO: check auth at the both current and next parent for actor
