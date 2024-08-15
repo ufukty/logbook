@@ -91,18 +91,42 @@ links: {
   sub_vid: VersionId
 }
 
-computed_to_top: {
+computed_to_top_solo: {
   shape: sql_table
 
   oid: ObjectiveId
   vid: VersionId
-  viewer: uuid
-  viewer_type: ViewerType
+  viewer: UserId
 
   is_solo: bool
   is_completed: bool
 
   index: int
+  subtree_size: int
+  completed_subitems: int
+}
+
+computed_to_top_collaboration: {
+  shape: sql_table
+
+  oid: ObjectiveId
+  vid: VersionId
+  viewer: CollaborationId
+
+  is_completed: bool
+
+  index: int
+  subtree_size: int
+  completed_subitems: int
+}
+
+computed_to_top_collaborator: {
+  shape: sql_table
+
+  oid: ObjectiveId
+  vid: VersionId
+  viewer: UserId
+
   subtree_size: int
   completed_subitems: int
 }
@@ -192,7 +216,7 @@ op_double_transitive_merger: {
 
 direction: right
 
-active.oid -- objective.oid
+objective.oid -- active.oid
 
 # a bookmark points to a root node of a work tree
 bookmark.oid -- objective.oid
@@ -201,12 +225,14 @@ control_area.root -- objective.oid
 control_area.aid -- collaboration.aid
 collaboration.cid -- collaborator.cid
 
-objective_view_prefs.oid -- objective.oid
+objective.oid -- objective_view_prefs.oid
 
 objective.oid -- links.sup_oid
 objective.oid -- links.sub_oid
 
-objective.oid -- computed_to_top.oid
+computed_to_top_solo.oid -- objective.oid
+computed_to_top_collaboration.oid -- objective.oid
+computed_to_top_collaborator.oid -- objective.oid
 
 operation.opid -- op_checkout.opid
 operation.opid -- op_obj_completion.opid
