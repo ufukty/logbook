@@ -66,3 +66,7 @@ sql:
             go_type:
               import: "logbook/models/columns"
               type: CollaborationId
+          
+          - db_type: ComputedToTopViewerId
+            go_type:
+              type: string

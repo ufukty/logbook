@@ -20,6 +20,8 @@ CREATE DOMAIN "UserId" AS uuid;
 
 CREATE DOMAIN "VersionId" AS uuid;
 
+CREATE DOMAIN "ComputedToTopViewerId" AS uuid;
+
 CREATE TABLE "active"(
     "oid" "ObjectiveId" NOT NULL UNIQUE,
     "vid" "VersionId" NOT NULL
@@ -58,12 +60,18 @@ CREATE TABLE "objective_view_prefs"(
     "fold" boolean NOT NULL
 );
 
+CREATE TYPE "ViewerType" AS ENUM(
+    'user',
+    'collaborator'
+);
+
 -- is_ready = completed_items == completed_items
 -- is_leaf = subtree_size == 0
 CREATE TABLE "computed_to_top"(
     "oid" "ObjectiveId" NOT NULL,
     "vid" "VersionId" NOT NULL,
-    "viewer" "UserId" NOT NULL,
+    "viewer" "ComputedToTopViewerId" NOT NULL,
+    "viewer_type" "ViewerType" NOT NULL,
     "is_solo" boolean NOT NULL,
     "is_completed" boolean NOT NULL,
     "index" int NOT NULL,

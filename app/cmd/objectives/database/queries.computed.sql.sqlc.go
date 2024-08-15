@@ -12,10 +12,10 @@ import (
 )
 
 const insertComputedToTop = `-- name: InsertComputedToTop :one
-INSERT INTO "computed_to_top"("oid", "vid", "viewer", "is_solo", "is_completed", "index", "subtree_size", "completed_subitems")
-    VALUES ("$1", "$2", "$3", "$4", "$5", "$6", "$7", "$8")
+INSERT INTO "computed_to_top"("oid", "vid", "viewer", "viewer_type", "is_solo", "is_completed", "index", "subtree_size", "completed_subitems")
+    VALUES ("$1", "$2", "$3", "$4", "$5", "$6", "$7", "$8", "$9")
 RETURNING
-    oid, vid, viewer, is_solo, is_completed, index, subtree_size, completed_subitems
+    oid, vid, viewer, viewer_type, is_solo, is_completed, index, subtree_size, completed_subitems
 `
 
 func (q *Queries) InsertComputedToTop(ctx context.Context) (ComputedToTop, error) {
@@ -25,6 +25,7 @@ func (q *Queries) InsertComputedToTop(ctx context.Context) (ComputedToTop, error
 		&i.Oid,
 		&i.Vid,
 		&i.Viewer,
+		&i.ViewerType,
 		&i.IsSolo,
 		&i.IsCompleted,
 		&i.Index,
@@ -36,7 +37,7 @@ func (q *Queries) InsertComputedToTop(ctx context.Context) (ComputedToTop, error
 
 const selectComputedToTop = `-- name: SelectComputedToTop :one
 SELECT
-    oid, vid, viewer, is_solo, is_completed, index, subtree_size, completed_subitems
+    oid, vid, viewer, viewer_type, is_solo, is_completed, index, subtree_size, completed_subitems
 FROM
     "computed_to_top"
 WHERE
@@ -49,7 +50,7 @@ LIMIT 1
 type SelectComputedToTopParams struct {
 	Oid    columns.ObjectiveId
 	Vid    columns.VersionId
-	Viewer columns.UserId
+	Viewer string
 }
 
 func (q *Queries) SelectComputedToTop(ctx context.Context, arg SelectComputedToTopParams) (ComputedToTop, error) {
@@ -59,6 +60,7 @@ func (q *Queries) SelectComputedToTop(ctx context.Context, arg SelectComputedToT
 		&i.Oid,
 		&i.Vid,
 		&i.Viewer,
+		&i.ViewerType,
 		&i.IsSolo,
 		&i.IsCompleted,
 		&i.Index,

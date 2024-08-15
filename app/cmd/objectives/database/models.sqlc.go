@@ -148,6 +148,48 @@ func (ns NullOpType) Value() (driver.Value, error) {
 	return string(ns.OpType), nil
 }
 
+type ViewerType string
+
+const (
+	ViewerTypeUser         ViewerType = "user"
+	ViewerTypeCollaborator ViewerType = "collaborator"
+)
+
+func (e *ViewerType) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = ViewerType(s)
+	case string:
+		*e = ViewerType(s)
+	default:
+		return fmt.Errorf("unsupported scan type for ViewerType: %T", src)
+	}
+	return nil
+}
+
+type NullViewerType struct {
+	ViewerType ViewerType
+	Valid      bool // Valid is true if ViewerType is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullViewerType) Scan(value interface{}) error {
+	if value == nil {
+		ns.ViewerType, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.ViewerType.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullViewerType) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.ViewerType), nil
+}
+
 type Active struct {
 	Oid columns.ObjectiveId
 	Vid columns.VersionId
@@ -191,7 +233,8 @@ type ComputedProp struct {
 type ComputedToTop struct {
 	Oid               columns.ObjectiveId
 	Vid               columns.VersionId
-	Viewer            columns.UserId
+	Viewer            string
+	ViewerType        ViewerType
 	IsSolo            bool
 	IsCompleted       bool
 	Index             int32
