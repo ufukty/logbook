@@ -26,8 +26,8 @@ WHERE
 LIMIT 1;
 
 -- name: InsertComputedToTopSolo :one
-INSERT INTO "computed_to_top_solo"("oid", "vid", "viewer", "is_completed", "subtree_size", "completed_subitems")
-    VALUES ("$1", "$2", "$3", "$4", "$5", "$6")
+INSERT INTO "computed_to_top_solo"("oid", "vid", "is_completed", "subtree_size", "completed_subitems")
+    VALUES ("$1", "$2", "$3", "$4", "$5")
 RETURNING
     *;
 
@@ -39,12 +39,11 @@ FROM
 WHERE
     "oid" = $1
     AND "vid" = $2
-    AND "viewer" = $3
 LIMIT 1;
 
 -- name: InsertComputedToTopCollaborated :one
-INSERT INTO "computed_to_top_collaborated"("oid", "vid", "viewer", "is_completed", "subtree_size", "completed_subitems")
-    VALUES ("$1", "$2", "$3", "$4", "$5", "$6")
+INSERT INTO "computed_to_top_collaborated"("oid", "vid", "is_completed", "subtree_size", "completed_subitems")
+    VALUES ("$1", "$2", "$3", "$4", "$5")
 RETURNING
     *;
 
@@ -56,7 +55,6 @@ FROM
 WHERE
     "oid" = $1
     AND "vid" = $2
-    AND "viewer" = $3
 LIMIT 1;
 
 -- name: InsertComputedToTopCollaborator :one

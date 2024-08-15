@@ -31,10 +31,10 @@ func (q *Queries) InsertComputedToTop(ctx context.Context) (ComputedToTop, error
 }
 
 const insertComputedToTopCollaborated = `-- name: InsertComputedToTopCollaborated :one
-INSERT INTO "computed_to_top_collaborated"("oid", "vid", "viewer", "is_completed", "subtree_size", "completed_subitems")
-    VALUES ("$1", "$2", "$3", "$4", "$5", "$6")
+INSERT INTO "computed_to_top_collaborated"("oid", "vid", "is_completed", "subtree_size", "completed_subitems")
+    VALUES ("$1", "$2", "$3", "$4", "$5")
 RETURNING
-    oid, vid, viewer, is_completed, subtree_size, completed_subitems
+    oid, vid, is_completed, subtree_size, completed_subitems
 `
 
 func (q *Queries) InsertComputedToTopCollaborated(ctx context.Context) (ComputedToTopCollaborated, error) {
@@ -43,7 +43,6 @@ func (q *Queries) InsertComputedToTopCollaborated(ctx context.Context) (Computed
 	err := row.Scan(
 		&i.Oid,
 		&i.Vid,
-		&i.Viewer,
 		&i.IsCompleted,
 		&i.SubtreeSize,
 		&i.CompletedSubitems,
@@ -72,10 +71,10 @@ func (q *Queries) InsertComputedToTopCollaborator(ctx context.Context) (Computed
 }
 
 const insertComputedToTopSolo = `-- name: InsertComputedToTopSolo :one
-INSERT INTO "computed_to_top_solo"("oid", "vid", "viewer", "is_completed", "subtree_size", "completed_subitems")
-    VALUES ("$1", "$2", "$3", "$4", "$5", "$6")
+INSERT INTO "computed_to_top_solo"("oid", "vid", "is_completed", "subtree_size", "completed_subitems")
+    VALUES ("$1", "$2", "$3", "$4", "$5")
 RETURNING
-    oid, vid, viewer, is_completed, subtree_size, completed_subitems
+    oid, vid, is_completed, subtree_size, completed_subitems
 `
 
 func (q *Queries) InsertComputedToTopSolo(ctx context.Context) (ComputedToTopSolo, error) {
@@ -84,7 +83,6 @@ func (q *Queries) InsertComputedToTopSolo(ctx context.Context) (ComputedToTopSol
 	err := row.Scan(
 		&i.Oid,
 		&i.Vid,
-		&i.Viewer,
 		&i.IsCompleted,
 		&i.SubtreeSize,
 		&i.CompletedSubitems,
@@ -122,29 +120,26 @@ func (q *Queries) SelectComputedToTop(ctx context.Context, arg SelectComputedToT
 
 const selectComputedToTopCollaborated = `-- name: SelectComputedToTopCollaborated :one
 SELECT
-    oid, vid, viewer, is_completed, subtree_size, completed_subitems
+    oid, vid, is_completed, subtree_size, completed_subitems
 FROM
     "computed_to_top_collaborated"
 WHERE
     "oid" = $1
     AND "vid" = $2
-    AND "viewer" = $3
 LIMIT 1
 `
 
 type SelectComputedToTopCollaboratedParams struct {
-	Oid    columns.ObjectiveId
-	Vid    columns.VersionId
-	Viewer columns.CollaborationId
+	Oid columns.ObjectiveId
+	Vid columns.VersionId
 }
 
 func (q *Queries) SelectComputedToTopCollaborated(ctx context.Context, arg SelectComputedToTopCollaboratedParams) (ComputedToTopCollaborated, error) {
-	row := q.db.QueryRow(ctx, selectComputedToTopCollaborated, arg.Oid, arg.Vid, arg.Viewer)
+	row := q.db.QueryRow(ctx, selectComputedToTopCollaborated, arg.Oid, arg.Vid)
 	var i ComputedToTopCollaborated
 	err := row.Scan(
 		&i.Oid,
 		&i.Vid,
-		&i.Viewer,
 		&i.IsCompleted,
 		&i.SubtreeSize,
 		&i.CompletedSubitems,
@@ -185,29 +180,26 @@ func (q *Queries) SelectComputedToTopCollaborator(ctx context.Context, arg Selec
 
 const selectComputedToTopSolo = `-- name: SelectComputedToTopSolo :one
 SELECT
-    oid, vid, viewer, is_completed, subtree_size, completed_subitems
+    oid, vid, is_completed, subtree_size, completed_subitems
 FROM
     "computed_to_top_solo"
 WHERE
     "oid" = $1
     AND "vid" = $2
-    AND "viewer" = $3
 LIMIT 1
 `
 
 type SelectComputedToTopSoloParams struct {
-	Oid    columns.ObjectiveId
-	Vid    columns.VersionId
-	Viewer columns.UserId
+	Oid columns.ObjectiveId
+	Vid columns.VersionId
 }
 
 func (q *Queries) SelectComputedToTopSolo(ctx context.Context, arg SelectComputedToTopSoloParams) (ComputedToTopSolo, error) {
-	row := q.db.QueryRow(ctx, selectComputedToTopSolo, arg.Oid, arg.Vid, arg.Viewer)
+	row := q.db.QueryRow(ctx, selectComputedToTopSolo, arg.Oid, arg.Vid)
 	var i ComputedToTopSolo
 	err := row.Scan(
 		&i.Oid,
 		&i.Vid,
-		&i.Viewer,
 		&i.IsCompleted,
 		&i.SubtreeSize,
 		&i.CompletedSubitems,

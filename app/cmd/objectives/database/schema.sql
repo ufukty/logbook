@@ -72,7 +72,6 @@ CREATE TABLE "computed_to_top"(
 CREATE TABLE "computed_to_top_solo"(
     "oid" "ObjectiveId" NOT NULL,
     "vid" "VersionId" NOT NULL,
-    "viewer" "UserId" NOT NULL,
     "is_completed" boolean NOT NULL,
     "subtree_size" int NOT NULL,
     "completed_subitems" int NOT NULL,
@@ -82,7 +81,6 @@ CREATE TABLE "computed_to_top_solo"(
 CREATE TABLE "computed_to_top_collaborated"(
     "oid" "ObjectiveId" NOT NULL,
     "vid" "VersionId" NOT NULL,
-    "viewer" "CollaborationId" NOT NULL,
     "is_completed" boolean NOT NULL,
     "subtree_size" int NOT NULL,
     "completed_subitems" int NOT NULL,

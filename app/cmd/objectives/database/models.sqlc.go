@@ -198,7 +198,6 @@ type ComputedToTop struct {
 type ComputedToTopCollaborated struct {
 	Oid               columns.ObjectiveId
 	Vid               columns.VersionId
-	Viewer            columns.CollaborationId
 	IsCompleted       bool
 	SubtreeSize       int32
 	CompletedSubitems int32
@@ -215,7 +214,6 @@ type ComputedToTopCollaborator struct {
 type ComputedToTopSolo struct {
 	Oid               columns.ObjectiveId
 	Vid               columns.VersionId
-	Viewer            columns.UserId
 	IsCompleted       bool
 	SubtreeSize       int32
 	CompletedSubitems int32
