@@ -91,6 +91,15 @@ links: {
   sub_vid: VersionId
 }
 
+computed_to_top: {
+  shape: sql_table
+
+  oid: ObjectiveId
+  vid: VersionId
+
+  is_in_collaboration: bool
+}
+
 computed_to_top_solo: {
   shape: sql_table
 
@@ -225,6 +234,7 @@ objective.oid -- objective_view_prefs.oid
 objective.oid -- links.sup_oid
 objective.oid -- links.sub_oid
 
+computed_to_top.oid -- objective.oid
 computed_to_top_solo.oid -- objective.oid
 computed_to_top_collaboration.oid -- objective.oid
 computed_to_top_collaborator.oid -- objective.oid
