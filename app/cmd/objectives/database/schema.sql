@@ -60,21 +60,39 @@ CREATE TABLE "objective_view_prefs"(
     "fold" boolean NOT NULL
 );
 
-CREATE TYPE "ViewerType" AS ENUM(
-    'user',
-    'collaborator'
+CREATE TABLE "computed_to_top"(
+    "id" uuid UNIQUE DEFAULT gen_random_UUID(),
+    "oid" "ObjectiveId" NOT NULL,
+    "vid" "VersionId" NOT NULL,
+    "is_in_collaboration" boolean NOT NULL DEFAULT FALSE
 );
 
 -- is_ready = completed_items == completed_items
 -- is_leaf = subtree_size == 0
-CREATE TABLE "computed_to_top"(
+CREATE TABLE "computed_to_top_solo"(
     "oid" "ObjectiveId" NOT NULL,
     "vid" "VersionId" NOT NULL,
-    "viewer" "ComputedToTopViewerId" NOT NULL,
-    "viewer_type" "ViewerType" NOT NULL,
-    "is_solo" boolean NOT NULL,
+    "viewer" "UserId" NOT NULL,
     "is_completed" boolean NOT NULL,
-    "index" int NOT NULL,
+    "subtree_size" int NOT NULL,
+    "completed_subitems" int NOT NULL,
+    PRIMARY KEY ("oid", "vid", "viewer")
+);
+
+CREATE TABLE "computed_to_top_collaborated"(
+    "oid" "ObjectiveId" NOT NULL,
+    "vid" "VersionId" NOT NULL,
+    "viewer" "CollaborationId" NOT NULL,
+    "is_completed" boolean NOT NULL,
+    "subtree_size" int NOT NULL,
+    "completed_subitems" int NOT NULL,
+    PRIMARY KEY ("oid", "vid", "viewer")
+);
+
+CREATE TABLE "computed_to_top_collaborator"(
+    "oid" "ObjectiveId" NOT NULL,
+    "vid" "VersionId" NOT NULL,
+    "viewer" "UserId" NOT NULL,
     "subtree_size" int NOT NULL,
     "completed_subitems" int NOT NULL,
     PRIMARY KEY ("oid", "vid", "viewer")
