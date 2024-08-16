@@ -21,6 +21,7 @@ type (
 type (
 	AreaId          string
 	BookmarkId      string
+	BottomUpPropsId string
 	CollaborationId string
 	LinkId          string
 	ObjectiveId     string

@@ -3,8 +3,8 @@ sql:
   - engine: "postgresql"
     queries:
       - "queries.bookmark.sql"
+      - "queries.bottom_up_props.sql"
       - "queries.collaboration.sql"
-      - "queries.computed.sql"
       - "queries.controlarea.sql"
       - "queries.links.sql"
       - "queries.objectives.sql"
@@ -56,6 +56,11 @@ sql:
             go_type:
               import: "logbook/models/columns"
               type: PropertiesId
+
+          - db_type: BottomUpPropsId
+            go_type:
+              import: "logbook/models/columns"
+              type: BottomUpPropsId
 
           - db_type: BookmarkId
             go_type:

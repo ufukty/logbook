@@ -20,7 +20,7 @@ CREATE DOMAIN "UserId" AS uuid;
 
 CREATE DOMAIN "VersionId" AS uuid;
 
-CREATE DOMAIN "ComputedToTopViewerId" AS uuid;
+CREATE DOMAIN "BottomUpPropsId" AS uuid;
 
 CREATE TABLE "active"(
     "oid" "ObjectiveId" NOT NULL UNIQUE,
@@ -32,7 +32,8 @@ CREATE TABLE "objective"(
     "vid" "VersionId" NOT NULL DEFAULT gen_random_uuid(),
     "based" "VersionId" NOT NULL, -- previous "vid" OR '00000000-0000-0000-0000-000000000000'
     "created_by" "OperationId" NOT NULL,
-    "props" "PropertiesId" NOT NULL,
+    "pid" "PropertiesId" NOT NULL,
+    "bupid" "BottomUpPropsId" NOT NULL,
     "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY ("oid", "vid")
 );
@@ -60,40 +61,20 @@ CREATE TABLE "objective_view_prefs"(
     "fold" boolean NOT NULL
 );
 
-CREATE TABLE "computed_to_top"(
-    "id" uuid UNIQUE DEFAULT gen_random_UUID(),
-    "oid" "ObjectiveId" NOT NULL,
-    "vid" "VersionId" NOT NULL,
-    "is_in_collaboration" boolean NOT NULL DEFAULT FALSE
-);
-
 -- is_ready = completed_items == completed_items
 -- is_leaf = subtree_size == 0
-CREATE TABLE "computed_to_top_solo"(
-    "oid" "ObjectiveId" NOT NULL,
-    "vid" "VersionId" NOT NULL,
+CREATE TABLE "bottom_up_props"(
+    "bupid" "BottomUpPropsId" NOT NULL UNIQUE DEFAULT gen_random_uuid(),
     "is_completed" boolean NOT NULL,
     "subtree_size" int NOT NULL,
-    "completed_subitems" int NOT NULL,
-    PRIMARY KEY ("oid", "vid", "viewer")
+    "completed_subitems" int NOT NULL
 );
 
-CREATE TABLE "computed_to_top_collaborated"(
-    "oid" "ObjectiveId" NOT NULL,
-    "vid" "VersionId" NOT NULL,
-    "is_completed" boolean NOT NULL,
-    "subtree_size" int NOT NULL,
-    "completed_subitems" int NOT NULL,
-    PRIMARY KEY ("oid", "vid", "viewer")
-);
-
-CREATE TABLE "computed_to_top_collaborator"(
-    "oid" "ObjectiveId" NOT NULL,
-    "vid" "VersionId" NOT NULL,
+CREATE TABLE "bottom_up_props_third_person"(
+    "bupid" "BottomUpPropsId" NOT NULL UNIQUE,
     "viewer" "UserId" NOT NULL,
     "subtree_size" int NOT NULL,
-    "completed_subitems" int NOT NULL,
-    PRIMARY KEY ("oid", "vid", "viewer")
+    "completed_subitems" int NOT NULL
 );
 
 CREATE TYPE "OpType" AS ENUM(

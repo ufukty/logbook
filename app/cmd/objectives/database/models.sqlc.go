@@ -163,6 +163,20 @@ type Bookmark struct {
 	CreatedAt pgtype.Timestamp
 }
 
+type BottomUpProp struct {
+	Bupid             columns.BottomUpPropsId
+	IsCompleted       bool
+	SubtreeSize       int32
+	CompletedSubitems int32
+}
+
+type BottomUpPropsThirdPerson struct {
+	Bupid             columns.BottomUpPropsId
+	Viewer            columns.UserId
+	SubtreeSize       int32
+	CompletedSubitems int32
+}
+
 type Collaboration struct {
 	Cid       columns.CollaborationId
 	Aid       columns.AreaId
@@ -188,37 +202,6 @@ type ComputedProp struct {
 	CreatedAt pgtype.Timestamp
 }
 
-type ComputedToTop struct {
-	ID                pgtype.UUID
-	Oid               columns.ObjectiveId
-	Vid               columns.VersionId
-	IsInCollaboration bool
-}
-
-type ComputedToTopCollaborated struct {
-	Oid               columns.ObjectiveId
-	Vid               columns.VersionId
-	IsCompleted       bool
-	SubtreeSize       int32
-	CompletedSubitems int32
-}
-
-type ComputedToTopCollaborator struct {
-	Oid               columns.ObjectiveId
-	Vid               columns.VersionId
-	Viewer            columns.UserId
-	SubtreeSize       int32
-	CompletedSubitems int32
-}
-
-type ComputedToTopSolo struct {
-	Oid               columns.ObjectiveId
-	Vid               columns.VersionId
-	IsCompleted       bool
-	SubtreeSize       int32
-	CompletedSubitems int32
-}
-
 type ControlArea struct {
 	Aid       columns.AreaId
 	Root      columns.ObjectiveId
@@ -239,7 +222,8 @@ type Objective struct {
 	Vid       columns.VersionId
 	Based     columns.VersionId
 	CreatedBy columns.OperationId
-	Props     columns.PropertiesId
+	Pid       columns.PropertiesId
+	Bupid     columns.BottomUpPropsId
 	CreatedAt pgtype.Timestamp
 }
 

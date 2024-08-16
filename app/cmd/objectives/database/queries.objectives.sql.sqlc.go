@@ -12,43 +12,46 @@ import (
 )
 
 const insertNewObjective = `-- name: InsertNewObjective :one
-INSERT INTO "objective"("based", "created_by", "props")
-    VALUES ('00000000-0000-0000-0000-000000000000', $1, $2)
+INSERT INTO "objective"("based", "created_by", "pid", "bupid")
+    VALUES ('00000000-0000-0000-0000-000000000000', $1, $2, $3)
 RETURNING
-    oid, vid, based, created_by, props, created_at
+    oid, vid, based, created_by, pid, bupid, created_at
 `
 
 type InsertNewObjectiveParams struct {
 	CreatedBy columns.OperationId
-	Props     columns.PropertiesId
+	Pid       columns.PropertiesId
+	Bupid     columns.BottomUpPropsId
 }
 
 func (q *Queries) InsertNewObjective(ctx context.Context, arg InsertNewObjectiveParams) (Objective, error) {
-	row := q.db.QueryRow(ctx, insertNewObjective, arg.CreatedBy, arg.Props)
+	row := q.db.QueryRow(ctx, insertNewObjective, arg.CreatedBy, arg.Pid, arg.Bupid)
 	var i Objective
 	err := row.Scan(
 		&i.Oid,
 		&i.Vid,
 		&i.Based,
 		&i.CreatedBy,
-		&i.Props,
+		&i.Pid,
+		&i.Bupid,
 		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const insertUpdatedObjective = `-- name: InsertUpdatedObjective :one
-INSERT INTO "objective"("oid", "based", "created_by", "props")
-    VALUES ($1, $2, $3, $4)
+INSERT INTO "objective"("oid", "based", "created_by", "pid", "bupid")
+    VALUES ($1, $2, $3, $4, $5)
 RETURNING
-    oid, vid, based, created_by, props, created_at
+    oid, vid, based, created_by, pid, bupid, created_at
 `
 
 type InsertUpdatedObjectiveParams struct {
 	Oid       columns.ObjectiveId
 	Based     columns.VersionId
 	CreatedBy columns.OperationId
-	Props     columns.PropertiesId
+	Pid       columns.PropertiesId
+	Bupid     columns.BottomUpPropsId
 }
 
 func (q *Queries) InsertUpdatedObjective(ctx context.Context, arg InsertUpdatedObjectiveParams) (Objective, error) {
@@ -56,7 +59,8 @@ func (q *Queries) InsertUpdatedObjective(ctx context.Context, arg InsertUpdatedO
 		arg.Oid,
 		arg.Based,
 		arg.CreatedBy,
-		arg.Props,
+		arg.Pid,
+		arg.Bupid,
 	)
 	var i Objective
 	err := row.Scan(
@@ -64,7 +68,8 @@ func (q *Queries) InsertUpdatedObjective(ctx context.Context, arg InsertUpdatedO
 		&i.Vid,
 		&i.Based,
 		&i.CreatedBy,
-		&i.Props,
+		&i.Pid,
+		&i.Bupid,
 		&i.CreatedAt,
 	)
 	return i, err
@@ -72,7 +77,7 @@ func (q *Queries) InsertUpdatedObjective(ctx context.Context, arg InsertUpdatedO
 
 const selectObjective = `-- name: SelectObjective :one
 SELECT
-    oid, vid, based, created_by, props, created_at
+    oid, vid, based, created_by, pid, bupid, created_at
 FROM
     "objective"
 WHERE
@@ -94,7 +99,8 @@ func (q *Queries) SelectObjective(ctx context.Context, arg SelectObjectiveParams
 		&i.Vid,
 		&i.Based,
 		&i.CreatedBy,
-		&i.Props,
+		&i.Pid,
+		&i.Bupid,
 		&i.CreatedAt,
 	)
 	return i, err

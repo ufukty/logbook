@@ -6,7 +6,8 @@ func (o Objective) Clone() *Objective {
 		Vid:       o.Vid,
 		Based:     o.Based,
 		CreatedBy: o.CreatedBy,
-		Props:     o.Props,
+		Pid:       o.Pid,
+		Bupid:     o.Bupid,
 		CreatedAt: o.CreatedAt,
 	}
 }

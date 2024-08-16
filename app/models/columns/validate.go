@@ -20,6 +20,9 @@ func (v AreaId) Validate() error {
 func (v BookmarkId) Validate() error {
 	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
 }
+func (v BottomUpPropsId) Validate() error {
+	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
+}
 
 func (v CollaborationId) Validate() error {
 	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
