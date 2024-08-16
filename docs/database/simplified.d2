@@ -57,9 +57,10 @@ objective: {
   oid: ObjectiveId
   vid: VersionId
   based: VersionId
+  pid: PropertyId
+  bupid: BottomUpPropsId
+  
   created_by: OperationId
-  props: PropertyId
-
   created_at: timestamp # creation of this version (=row)
 }
 
@@ -73,10 +74,10 @@ objective_view_prefs: {
 
 # cached from operations to reduce view build duration
 # separately versioned from the objective to detach it from privilege and collaboration config changes
-computed_props: {
+props: {
   shape: sql_table
 
-  propid: PropertyId
+  pid: PropertyId
   content: text
   creator: UserId
   created_at: timestamp
@@ -91,42 +92,20 @@ links: {
   sub_vid: VersionId
 }
 
-computed_to_top: {
+bottom_up_props: {
   shape: sql_table
 
-  oid: ObjectiveId
-  vid: VersionId
-
-  is_in_collaboration: bool
-}
-
-computed_to_top_solo: {
-  shape: sql_table
-
-  oid: ObjectiveId
-  vid: VersionId
+  bupid: BottomUpPropsId
 
   is_completed: bool
   subtree_size: int
   completed_subitems: int
 }
 
-computed_to_top_collaboration: {
+bottom_up_props_third_person: {
   shape: sql_table
 
-  oid: ObjectiveId
-  vid: VersionId
-
-  is_completed: bool
-  subtree_size: int
-  completed_subitems: int
-}
-
-computed_to_top_collaborator: {
-  shape: sql_table
-
-  oid: ObjectiveId
-  vid: VersionId
+  bupid: BottomUpPropsId
   viewer: UserId
 
   subtree_size: int
@@ -232,10 +211,9 @@ objective.oid -- objective_view_prefs.oid
 objective.oid -- links.sup_oid
 objective.oid -- links.sub_oid
 
-computed_to_top.oid -- objective.oid
-computed_to_top_solo.oid -- objective.oid
-computed_to_top_collaboration.oid -- objective.oid
-computed_to_top_collaborator.oid -- objective.oid
+props.pid -- objective.pid
+bottom_up_props.bupid -- objective.bupid
+bottom_up_props_third_person.bupid -- objective.bupid
 
 operation.opid -- op_checkout.opid
 operation.opid -- op_obj_completion.opid
@@ -248,5 +226,3 @@ operation.opid -- op_transitive.opid
 operation.opid -- op_double_transitive_merger.opid
 
 objective.created_by -- operation.opid
-
-objective.props -- computed_props.propid
