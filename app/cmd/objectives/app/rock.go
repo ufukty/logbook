@@ -16,9 +16,19 @@ func (a *App) RockCreate(ctx context.Context, uid columns.UserId) error {
 		return fmt.Errorf("InsertProperties: %w", err)
 	}
 
+	bup, err := a.queries.InsertBottomUpProps(ctx, database.InsertBottomUpPropsParams{
+		IsCompleted:       false,
+		SubtreeSize:       0,
+		CompletedSubitems: 0,
+	})
+	if err != nil {
+		return fmt.Errorf("InsertBottomUpProps: %w", err)
+	}
+
 	obj, err := a.queries.InsertNewObjective(ctx, database.InsertNewObjectiveParams{
 		CreatedBy: columns.ZeroOperationId,
-		Props:     props.Propid,
+		Pid:       props.Propid,
+		Bupid:     bup.Bupid,
 	})
 	if err != nil {
 		return fmt.Errorf("InsertNewObjective: %w", err)
