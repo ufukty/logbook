@@ -22,6 +22,24 @@ func doOverlap(aStart, aEnd, bStart, bEnd int32) bool {
 	return aStart < bEnd && bStart < aEnd
 }
 
+func (a *App) getSubtreeSize(ctx context.Context, viewer columns.UserId, bupid columns.BottomUpPropsId) (int32, error) {
+	bup, err := a.queries.SelectBottomUpProps(ctx, bupid)
+	if err != nil {
+		return 0, fmt.Errorf("SelectBottomUpProps: %w", err)
+	}
+	buptp, err := a.queries.SelectBottomUpPropsThirdPerson(ctx, database.SelectBottomUpPropsThirdPersonParams{
+		Bupid:  bupid,
+		Viewer: viewer,
+	})
+	if err != nil || err != pgx.ErrNoRows {
+		return 0, fmt.Errorf("SelectBottomUpPropsThirdPerson: %w", err)
+	} else if err == pgx.ErrNoRows {
+		return bup.SubtreeSize, nil
+	} else {
+		return bup.SubtreeSize + buptp.SubtreeSize, nil
+	}
+}
+
 // TODO: mind permissions
 func (a *App) viewBuilder(ctx context.Context, viewer columns.UserId, subject models.Ovid, start, end int32, depth int) ([]owners.ObjectiveView, error) {
 	view := []owners.ObjectiveView{}
@@ -30,22 +48,30 @@ func (a *App) viewBuilder(ctx context.Context, viewer columns.UserId, subject mo
 		return view, nil
 	}
 
-	computedToTop, err := a.queries.SelectComputedToTop(ctx, database.SelectComputedToTopParams{
-		Oid:    subject.Oid,
-		Vid:    subject.Vid,
-		Viewer: viewer,
+	obj, err := a.queries.SelectObjective(ctx, database.SelectObjectiveParams{
+		Oid: subject.Oid,
+		Vid: subject.Vid,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("SelectComputedToTop/1: %w", err)
+		return nil, fmt.Errorf("SelectObjective: %w", err)
 	}
-	if computedToTop.SubtreeSize+1 < start { // viewport starts after the subtree
+
+	subtreeSize, err := a.getSubtreeSize(ctx, viewer, obj.Bupid)
+	if err != nil {
+		return nil, fmt.Errorf("getSubtreeSize/1: %w", err)
+	}
+
+	if subtreeSize+1 < start { // viewport starts after the subtree
 		return view, nil
 	}
 
-	subs, _ := a.queries.SelectSubLinks(ctx, database.SelectSubLinksParams{
+	subs, err := a.queries.SelectSubLinks(ctx, database.SelectSubLinksParams{
 		SupOid: subject.Oid,
 		SupVid: subject.Vid,
 	})
+	if err != nil {
+		return nil, fmt.Errorf("SelectSubLinks: %w", err)
+	}
 
 	fold := false
 	cursor := int32(0)
@@ -74,19 +100,22 @@ func (a *App) viewBuilder(ctx context.Context, viewer columns.UserId, subject mo
 	cursor++
 
 	if fold {
-		cursor += computedToTop.SubtreeSize
+		cursor += subtreeSize
 	} else {
 		for _, sub := range subs {
-			computedToTop, err := a.queries.SelectComputedToTop(ctx, database.SelectComputedToTopParams{
-				Oid:    sub.SubOid,
-				Vid:    sub.SubVid,
-				Viewer: viewer,
+			subobj, err := a.queries.SelectObjective(ctx, database.SelectObjectiveParams{
+				Oid: sub.SubOid,
+				Vid: sub.SubVid,
 			})
 			if err != nil {
-				return nil, fmt.Errorf("SelectComputedToTop/2: %w", err)
+				return nil, fmt.Errorf("SelectObjective: %w", err)
+			}
+			subtreeSize, err := a.getSubtreeSize(ctx, viewer, subobj.Bupid)
+			if err != nil {
+				return nil, fmt.Errorf("subtreeSize/2: %w", err)
 			}
 
-			if doOverlap(start, end, cursor, cursor+computedToTop.SubtreeSize+1) {
+			if doOverlap(start, end, cursor, cursor+subtreeSize+1) {
 				v, err := a.viewBuilder(ctx, viewer, models.Ovid{sub.SubOid, sub.SubVid}, start-cursor, end-cursor, depth+1)
 				if err != nil {
 					return nil, fmt.Errorf("viewBuilder: %w", err)
@@ -96,7 +125,7 @@ func (a *App) viewBuilder(ctx context.Context, viewer columns.UserId, subject mo
 					view = slices.Concat(view, v)
 				}
 			}
-			cursor += computedToTop.SubtreeSize + 1
+			cursor += subtreeSize + 1
 		}
 	}
 
