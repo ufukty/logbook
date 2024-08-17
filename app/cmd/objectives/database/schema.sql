@@ -43,7 +43,9 @@ CREATE INDEX "index_objective" ON "objective"("created_at");
 CREATE TABLE "props"(
     "pid" "PropertiesId" NOT NULL UNIQUE DEFAULT gen_random_uuid(),
     "content" text NOT NULL,
+    "completed" boolean NOT NULL,
     "creator" "UserId" NOT NULL,
+    "owner" "UserId" NOT NULL,
     "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -64,7 +66,6 @@ CREATE TABLE "objective_view_prefs"(
 -- is_leaf = subtree_size == 0
 CREATE TABLE "bottom_up_props"(
     "bupid" "BottomUpPropsId" NOT NULL UNIQUE DEFAULT gen_random_uuid(),
-    "is_completed" boolean NOT NULL,
     "subtree_size" int NOT NULL,
     "completed_subitems" int NOT NULL
 );

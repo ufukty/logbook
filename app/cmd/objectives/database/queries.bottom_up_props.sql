@@ -1,6 +1,6 @@
 -- name: InsertBottomUpProps :one
-INSERT INTO "bottom_up_props"("is_completed", "subtree_size", "completed_subitems")
-    VALUES ($1, $2, $3)
+INSERT INTO "bottom_up_props"("subtree_size", "completed_subitems")
+    VALUES ($1, $2)
 RETURNING
     *;
 

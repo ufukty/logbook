@@ -12,27 +12,21 @@ import (
 )
 
 const insertBottomUpProps = `-- name: InsertBottomUpProps :one
-INSERT INTO "bottom_up_props"("is_completed", "subtree_size", "completed_subitems")
-    VALUES ($1, $2, $3)
+INSERT INTO "bottom_up_props"("subtree_size", "completed_subitems")
+    VALUES ($1, $2)
 RETURNING
-    bupid, is_completed, subtree_size, completed_subitems
+    bupid, subtree_size, completed_subitems
 `
 
 type InsertBottomUpPropsParams struct {
-	IsCompleted       bool
 	SubtreeSize       int32
 	CompletedSubitems int32
 }
 
 func (q *Queries) InsertBottomUpProps(ctx context.Context, arg InsertBottomUpPropsParams) (BottomUpProps, error) {
-	row := q.db.QueryRow(ctx, insertBottomUpProps, arg.IsCompleted, arg.SubtreeSize, arg.CompletedSubitems)
+	row := q.db.QueryRow(ctx, insertBottomUpProps, arg.SubtreeSize, arg.CompletedSubitems)
 	var i BottomUpProps
-	err := row.Scan(
-		&i.Bupid,
-		&i.IsCompleted,
-		&i.SubtreeSize,
-		&i.CompletedSubitems,
-	)
+	err := row.Scan(&i.Bupid, &i.SubtreeSize, &i.CompletedSubitems)
 	return i, err
 }
 
@@ -69,7 +63,7 @@ func (q *Queries) InsertBottomUpPropsThirdPerson(ctx context.Context, arg Insert
 
 const selectBottomUpProps = `-- name: SelectBottomUpProps :one
 SELECT
-    bupid, is_completed, subtree_size, completed_subitems
+    bupid, subtree_size, completed_subitems
 FROM
     "bottom_up_props"
 WHERE
@@ -80,12 +74,7 @@ LIMIT 1
 func (q *Queries) SelectBottomUpProps(ctx context.Context, bupid columns.BottomUpPropsId) (BottomUpProps, error) {
 	row := q.db.QueryRow(ctx, selectBottomUpProps, bupid)
 	var i BottomUpProps
-	err := row.Scan(
-		&i.Bupid,
-		&i.IsCompleted,
-		&i.SubtreeSize,
-		&i.CompletedSubitems,
-	)
+	err := row.Scan(&i.Bupid, &i.SubtreeSize, &i.CompletedSubitems)
 	return i, err
 }
 

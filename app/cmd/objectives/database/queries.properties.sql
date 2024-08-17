@@ -8,8 +8,8 @@ WHERE
 LIMIT 1;
 
 -- name: InsertProperties :one
-INSERT INTO "props"("content", "creator")
-    VALUES ($1, $2)
+INSERT INTO "props"("content", "completed", "creator", "owner")
+    VALUES ($1, $2, $3, $4)
 RETURNING
     *;
 

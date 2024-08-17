@@ -65,15 +65,16 @@ func TestLogic(t *testing.T) {
 		}
 
 		props, err := q.InsertProperties(ctx, InsertPropertiesParams{
-			Content: "",
-			Creator: uid,
+			Content:   "",
+			Completed: false,
+			Creator:   uid,
+			Owner:     uid,
 		})
 		if err != nil {
 			t.Fatal(fmt.Errorf("act 2, insert props: %w", err))
 		}
 
 		bup, err := q.InsertBottomUpProps(ctx, InsertBottomUpPropsParams{
-			IsCompleted:       false,
 			SubtreeSize:       0,
 			CompletedSubitems: 0,
 		})
@@ -113,15 +114,16 @@ func TestLogic(t *testing.T) {
 		}
 
 		props, err := q.InsertProperties(ctx, InsertPropertiesParams{
-			Content: "",
-			Creator: uid,
+			Content:   "",
+			Completed: false,
+			Creator:   uid,
+			Owner:     uid,
 		})
 		if err != nil {
 			t.Fatal(fmt.Errorf("act 3, insert props: %w", err))
 		}
 
 		bup, err := q.InsertBottomUpProps(ctx, InsertBottomUpPropsParams{
-			IsCompleted:       false,
 			SubtreeSize:       0,
 			CompletedSubitems: 0,
 		})

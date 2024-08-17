@@ -49,8 +49,10 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) err
 	}
 
 	props, err := a.queries.InsertProperties(ctx, database.InsertPropertiesParams{
-		Content: params.Content,
-		Creator: params.Creator,
+		Content:   params.Content,
+		Completed: false,
+		Creator:   params.Creator,
+		Owner:     params.Creator,
 	})
 	if err != nil {
 		return fmt.Errorf("inserting properties row: %w", err)
@@ -58,7 +60,8 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) err
 
 	obj, err := a.queries.InsertNewObjective(ctx, database.InsertNewObjectiveParams{
 		CreatedBy: op.Opid,
-		Props:     props.Propid,
+		Pid:       props.Pid,
+		Bupid:     bup.Bupid,
 	})
 	if err != nil {
 		return fmt.Errorf("inserting the objective: %w", err)

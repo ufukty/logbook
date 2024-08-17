@@ -9,15 +9,16 @@ import (
 
 func (a *App) RockCreate(ctx context.Context, uid columns.UserId) error {
 	props, err := a.queries.InsertProperties(ctx, database.InsertPropertiesParams{
-		Content: "",
-		Creator: uid,
+		Content:   "",
+		Completed: false,
+		Creator:   uid,
+		Owner:     uid,
 	})
 	if err != nil {
 		return fmt.Errorf("InsertProperties: %w", err)
 	}
 
 	bup, err := a.queries.InsertBottomUpProps(ctx, database.InsertBottomUpPropsParams{
-		IsCompleted:       false,
 		SubtreeSize:       0,
 		CompletedSubitems: 0,
 	})

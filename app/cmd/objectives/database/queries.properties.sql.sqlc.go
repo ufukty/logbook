@@ -12,24 +12,33 @@ import (
 )
 
 const insertProperties = `-- name: InsertProperties :one
-INSERT INTO "props"("content", "creator")
-    VALUES ($1, $2)
+INSERT INTO "props"("content", "completed", "creator", "owner")
+    VALUES ($1, $2, $3, $4)
 RETURNING
-    pid, content, creator, created_at
+    pid, content, completed, creator, owner, created_at
 `
 
 type InsertPropertiesParams struct {
-	Content string
-	Creator columns.UserId
+	Content   string
+	Completed bool
+	Creator   columns.UserId
+	Owner     columns.UserId
 }
 
 func (q *Queries) InsertProperties(ctx context.Context, arg InsertPropertiesParams) (Props, error) {
-	row := q.db.QueryRow(ctx, insertProperties, arg.Content, arg.Creator)
+	row := q.db.QueryRow(ctx, insertProperties,
+		arg.Content,
+		arg.Completed,
+		arg.Creator,
+		arg.Owner,
+	)
 	var i Props
 	err := row.Scan(
 		&i.Pid,
 		&i.Content,
+		&i.Completed,
 		&i.Creator,
+		&i.Owner,
 		&i.CreatedAt,
 	)
 	return i, err
@@ -37,7 +46,7 @@ func (q *Queries) InsertProperties(ctx context.Context, arg InsertPropertiesPara
 
 const selectProperties = `-- name: SelectProperties :one
 SELECT
-    pid, content, creator, created_at
+    pid, content, completed, creator, owner, created_at
 FROM
     "props"
 WHERE
@@ -51,7 +60,9 @@ func (q *Queries) SelectProperties(ctx context.Context, pid columns.PropertiesId
 	err := row.Scan(
 		&i.Pid,
 		&i.Content,
+		&i.Completed,
 		&i.Creator,
+		&i.Owner,
 		&i.CreatedAt,
 	)
 	return i, err

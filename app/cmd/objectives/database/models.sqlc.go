@@ -165,7 +165,6 @@ type Bookmark struct {
 
 type BottomUpProps struct {
 	Bupid             columns.BottomUpPropsId
-	IsCompleted       bool
 	SubtreeSize       int32
 	CompletedSubitems int32
 }
@@ -297,6 +296,8 @@ type Operation struct {
 type Props struct {
 	Pid       columns.PropertiesId
 	Content   string
+	Completed bool
 	Creator   columns.UserId
+	Owner     columns.UserId
 	CreatedAt pgtype.Timestamp
 }
