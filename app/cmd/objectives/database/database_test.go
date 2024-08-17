@@ -75,8 +75,8 @@ func TestLogic(t *testing.T) {
 		}
 
 		bup, err := q.InsertBottomUpProps(ctx, InsertBottomUpPropsParams{
-			SubtreeSize:       0,
-			CompletedSubitems: 0,
+			SubtreeSize:      0,
+			SubtreeCompleted: 0,
 		})
 		if err != nil {
 			t.Fatal(fmt.Errorf("act 3, insert bottom-up props: %w", err))
@@ -124,8 +124,8 @@ func TestLogic(t *testing.T) {
 		}
 
 		bup, err := q.InsertBottomUpProps(ctx, InsertBottomUpPropsParams{
-			SubtreeSize:       0,
-			CompletedSubitems: 0,
+			SubtreeSize:      0,
+			SubtreeCompleted: 0,
 		})
 		if err != nil {
 			t.Fatal(fmt.Errorf("act 4, insert bottom-up props: %w", err))

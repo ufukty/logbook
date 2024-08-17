@@ -164,16 +164,16 @@ type Bookmark struct {
 }
 
 type BottomUpProps struct {
-	Bupid             columns.BottomUpPropsId
-	SubtreeSize       int32
-	CompletedSubitems int32
+	Bupid            columns.BottomUpPropsId
+	SubtreeSize      int32
+	SubtreeCompleted int32
 }
 
 type BottomUpPropsThirdPerson struct {
-	Bupid             columns.BottomUpPropsId
-	Viewer            columns.UserId
-	SubtreeSize       int32
-	CompletedSubitems int32
+	Bupid            columns.BottomUpPropsId
+	Viewer           columns.UserId
+	SubtreeSize      int32
+	SubtreeCompleted int32
 }
 
 type Collaboration struct {

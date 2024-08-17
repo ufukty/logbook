@@ -67,14 +67,14 @@ CREATE TABLE "objective_view_prefs"(
 CREATE TABLE "bottom_up_props"(
     "bupid" "BottomUpPropsId" NOT NULL UNIQUE DEFAULT gen_random_uuid(),
     "subtree_size" int NOT NULL,
-    "completed_subitems" int NOT NULL
+    "subtree_completed" int NOT NULL
 );
 
 CREATE TABLE "bottom_up_props_third_person"(
     "bupid" "BottomUpPropsId" NOT NULL UNIQUE,
     "viewer" "UserId" NOT NULL,
     "subtree_size" int NOT NULL,
-    "completed_subitems" int NOT NULL
+    "subtree_completed" int NOT NULL
 );
 
 CREATE TYPE "OpType" AS ENUM(
