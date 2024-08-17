@@ -83,7 +83,7 @@ func TestLogic(t *testing.T) {
 
 		rock, err = q.InsertNewObjective(ctx, InsertNewObjectiveParams{
 			CreatedBy: register.Opid,
-			Pid:       props.Propid,
+			Pid:       props.Pid,
 			Bupid:     bup.Bupid,
 		})
 		if err != nil {
@@ -131,7 +131,7 @@ func TestLogic(t *testing.T) {
 
 		obj, err = q.InsertNewObjective(ctx, InsertNewObjectiveParams{
 			CreatedBy: op.Opid,
-			Pid:       props.Propid,
+			Pid:       props.Pid,
 			Bupid:     bup.Bupid,
 		})
 		if err != nil {

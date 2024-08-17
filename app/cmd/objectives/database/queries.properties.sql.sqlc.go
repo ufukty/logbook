@@ -12,10 +12,10 @@ import (
 )
 
 const insertProperties = `-- name: InsertProperties :one
-INSERT INTO "computed_props"("content", "creator")
+INSERT INTO "props"("content", "creator")
     VALUES ($1, $2)
 RETURNING
-    propid, content, creator, created_at
+    pid, content, creator, created_at
 `
 
 type InsertPropertiesParams struct {
@@ -23,11 +23,11 @@ type InsertPropertiesParams struct {
 	Creator columns.UserId
 }
 
-func (q *Queries) InsertProperties(ctx context.Context, arg InsertPropertiesParams) (ComputedProp, error) {
+func (q *Queries) InsertProperties(ctx context.Context, arg InsertPropertiesParams) (Prop, error) {
 	row := q.db.QueryRow(ctx, insertProperties, arg.Content, arg.Creator)
-	var i ComputedProp
+	var i Prop
 	err := row.Scan(
-		&i.Propid,
+		&i.Pid,
 		&i.Content,
 		&i.Creator,
 		&i.CreatedAt,
@@ -37,19 +37,19 @@ func (q *Queries) InsertProperties(ctx context.Context, arg InsertPropertiesPara
 
 const selectProperties = `-- name: SelectProperties :one
 SELECT
-    propid, content, creator, created_at
+    pid, content, creator, created_at
 FROM
-    "computed_props"
+    "props"
 WHERE
-    "propid" = $1
+    "pid" = $1
 LIMIT 1
 `
 
-func (q *Queries) SelectProperties(ctx context.Context, propid columns.PropertiesId) (ComputedProp, error) {
-	row := q.db.QueryRow(ctx, selectProperties, propid)
-	var i ComputedProp
+func (q *Queries) SelectProperties(ctx context.Context, pid columns.PropertiesId) (Prop, error) {
+	row := q.db.QueryRow(ctx, selectProperties, pid)
+	var i Prop
 	err := row.Scan(
-		&i.Propid,
+		&i.Pid,
 		&i.Content,
 		&i.Creator,
 		&i.CreatedAt,

@@ -40,12 +40,11 @@ CREATE TABLE "objective"(
 
 CREATE INDEX "index_objective" ON "objective"("created_at");
 
-CREATE TABLE "computed_props"(
-    "propid" "PropertiesId" NOT NULL DEFAULT gen_random_uuid(),
+CREATE TABLE "props"(
+    "pid" "PropertiesId" NOT NULL UNIQUE DEFAULT gen_random_uuid(),
     "content" text NOT NULL,
     "creator" "UserId" NOT NULL,
-    "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY ("propid")
+    "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE "link"(

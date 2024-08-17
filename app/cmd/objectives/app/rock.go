@@ -27,7 +27,7 @@ func (a *App) RockCreate(ctx context.Context, uid columns.UserId) error {
 
 	obj, err := a.queries.InsertNewObjective(ctx, database.InsertNewObjectiveParams{
 		CreatedBy: columns.ZeroOperationId,
-		Pid:       props.Propid,
+		Pid:       props.Pid,
 		Bupid:     bup.Bupid,
 	})
 	if err != nil {

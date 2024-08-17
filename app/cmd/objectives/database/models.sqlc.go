@@ -195,13 +195,6 @@ type Collaborator struct {
 	DeletedAt pgtype.Timestamp
 }
 
-type ComputedProp struct {
-	Propid    columns.PropertiesId
-	Content   string
-	Creator   columns.UserId
-	CreatedAt pgtype.Timestamp
-}
-
 type ControlArea struct {
 	Aid       columns.AreaId
 	Root      columns.ObjectiveId
@@ -299,4 +292,11 @@ type Operation struct {
 	OpType     OpType
 	OpStatus   OpStatus
 	CreatedAt  pgtype.Timestamp
+}
+
+type Prop struct {
+	Pid       columns.PropertiesId
+	Content   string
+	Creator   columns.UserId
+	CreatedAt pgtype.Timestamp
 }

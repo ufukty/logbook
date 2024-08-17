@@ -2,13 +2,13 @@
 SELECT
     *
 FROM
-    "computed_props"
+    "props"
 WHERE
-    "propid" = $1
+    "pid" = $1
 LIMIT 1;
 
 -- name: InsertProperties :one
-INSERT INTO "computed_props"("content", "creator")
+INSERT INTO "props"("content", "creator")
     VALUES ($1, $2)
 RETURNING
     *;
