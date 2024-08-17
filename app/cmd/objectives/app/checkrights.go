@@ -38,7 +38,7 @@ func (a *App) checkRights(ctx context.Context, params canSeeParams) (Right, erro
 		if err != nil {
 			return RightNone, fmt.Errorf("SelectObjective: %w", err)
 		}
-		props, err := a.queries.SelectProperties(ctx, obj.Props)
+		props, err := a.queries.SelectProperties(ctx, obj.Pid)
 		if err != nil {
 			return RightNone, fmt.Errorf("SelectProperties: %w", err)
 		}
