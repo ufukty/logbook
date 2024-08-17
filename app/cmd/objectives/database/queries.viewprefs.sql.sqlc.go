@@ -24,9 +24,9 @@ type InsertObjectiveViewPrefsParams struct {
 	Fold bool
 }
 
-func (q *Queries) InsertObjectiveViewPrefs(ctx context.Context, arg InsertObjectiveViewPrefsParams) (ObjectiveViewPref, error) {
+func (q *Queries) InsertObjectiveViewPrefs(ctx context.Context, arg InsertObjectiveViewPrefsParams) (ObjectiveViewPrefs, error) {
 	row := q.db.QueryRow(ctx, insertObjectiveViewPrefs, arg.Uid, arg.Oid, arg.Fold)
-	var i ObjectiveViewPref
+	var i ObjectiveViewPrefs
 	err := row.Scan(&i.Uid, &i.Oid, &i.Fold)
 	return i, err
 }
@@ -47,9 +47,9 @@ type SelectObjectiveViewPrefsParams struct {
 	Oid columns.ObjectiveId
 }
 
-func (q *Queries) SelectObjectiveViewPrefs(ctx context.Context, arg SelectObjectiveViewPrefsParams) (ObjectiveViewPref, error) {
+func (q *Queries) SelectObjectiveViewPrefs(ctx context.Context, arg SelectObjectiveViewPrefsParams) (ObjectiveViewPrefs, error) {
 	row := q.db.QueryRow(ctx, selectObjectiveViewPrefs, arg.Uid, arg.Oid)
-	var i ObjectiveViewPref
+	var i ObjectiveViewPrefs
 	err := row.Scan(&i.Uid, &i.Oid, &i.Fold)
 	return i, err
 }

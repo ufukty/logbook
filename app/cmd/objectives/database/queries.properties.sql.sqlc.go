@@ -23,9 +23,9 @@ type InsertPropertiesParams struct {
 	Creator columns.UserId
 }
 
-func (q *Queries) InsertProperties(ctx context.Context, arg InsertPropertiesParams) (Prop, error) {
+func (q *Queries) InsertProperties(ctx context.Context, arg InsertPropertiesParams) (Props, error) {
 	row := q.db.QueryRow(ctx, insertProperties, arg.Content, arg.Creator)
-	var i Prop
+	var i Props
 	err := row.Scan(
 		&i.Pid,
 		&i.Content,
@@ -45,9 +45,9 @@ WHERE
 LIMIT 1
 `
 
-func (q *Queries) SelectProperties(ctx context.Context, pid columns.PropertiesId) (Prop, error) {
+func (q *Queries) SelectProperties(ctx context.Context, pid columns.PropertiesId) (Props, error) {
 	row := q.db.QueryRow(ctx, selectProperties, pid)
-	var i Prop
+	var i Props
 	err := row.Scan(
 		&i.Pid,
 		&i.Content,

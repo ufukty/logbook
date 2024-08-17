@@ -24,9 +24,9 @@ type InsertBottomUpPropsParams struct {
 	CompletedSubitems int32
 }
 
-func (q *Queries) InsertBottomUpProps(ctx context.Context, arg InsertBottomUpPropsParams) (BottomUpProp, error) {
+func (q *Queries) InsertBottomUpProps(ctx context.Context, arg InsertBottomUpPropsParams) (BottomUpProps, error) {
 	row := q.db.QueryRow(ctx, insertBottomUpProps, arg.IsCompleted, arg.SubtreeSize, arg.CompletedSubitems)
-	var i BottomUpProp
+	var i BottomUpProps
 	err := row.Scan(
 		&i.Bupid,
 		&i.IsCompleted,
@@ -77,9 +77,9 @@ WHERE
 LIMIT 1
 `
 
-func (q *Queries) SelectBottomUpProps(ctx context.Context, bupid columns.BottomUpPropsId) (BottomUpProp, error) {
+func (q *Queries) SelectBottomUpProps(ctx context.Context, bupid columns.BottomUpPropsId) (BottomUpProps, error) {
 	row := q.db.QueryRow(ctx, selectBottomUpProps, bupid)
-	var i BottomUpProp
+	var i BottomUpProps
 	err := row.Scan(
 		&i.Bupid,
 		&i.IsCompleted,

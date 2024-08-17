@@ -21,6 +21,7 @@ sql:
         output_db_file_name: dbtx.sqlc.go
         output_models_file_name: models.sqlc.go
         output_files_suffix: .sqlc
+        emit_exact_table_names: true
         overrides:
           - db_type: AreaId
             go_type:

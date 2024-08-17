@@ -163,7 +163,7 @@ type Bookmark struct {
 	CreatedAt pgtype.Timestamp
 }
 
-type BottomUpProp struct {
+type BottomUpProps struct {
 	Bupid             columns.BottomUpPropsId
 	IsCompleted       bool
 	SubtreeSize       int32
@@ -220,7 +220,7 @@ type Objective struct {
 	CreatedAt pgtype.Timestamp
 }
 
-type ObjectiveViewPref struct {
+type ObjectiveViewPrefs struct {
 	Uid  columns.UserId
 	Oid  columns.ObjectiveId
 	Fold bool
@@ -294,7 +294,7 @@ type Operation struct {
 	CreatedAt  pgtype.Timestamp
 }
 
-type Prop struct {
+type Props struct {
 	Pid       columns.PropertiesId
 	Content   string
 	Creator   columns.UserId
