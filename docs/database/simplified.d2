@@ -79,7 +79,9 @@ props: {
 
   pid: PropertyId
   content: text
+  completed: bool
   creator: UserId
+  owner: UserId
   created_at: timestamp
 }
 
@@ -97,9 +99,8 @@ bottom_up_props: {
 
   bupid: BottomUpPropsId
 
-  is_completed: bool
   subtree_size: int
-  completed_subitems: int
+  subtree_completed: int
 }
 
 bottom_up_props_third_person: {
@@ -109,7 +110,7 @@ bottom_up_props_third_person: {
   viewer: UserId
 
   subtree_size: int
-  completed_subitems: int
+  subtree_completed: int
 }
 
 operation: {
