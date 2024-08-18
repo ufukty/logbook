@@ -32,16 +32,41 @@ func popCommonActivePath(l, r []models.Ovid) ([]models.Ovid, []models.Ovid, []mo
 	return l[:lc+1], r[:rc+1], common
 }
 
+func (a *App) deltaValuesForReattachment(ctx context.Context, obj database.Objective) (bubblinkDeltaValues, bubblinkDeltaValues, error) {
+	deltasCurrent := bubblinkDeltaValues{}
+	deltasNext := bubblinkDeltaValues{}
+	props, err := a.queries.SelectProperties(ctx, obj.Pid)
+	if err != nil {
+		return bubblinkDeltaValues{}, bubblinkDeltaValues{}, fmt.Errorf("SelectBottomUpProps: %w", err)
+	}
+	if props.Completed {
+		deltasCurrent.SubtreeCompleted--
+		deltasNext.SubtreeCompleted++
+	} else {
+		deltasCurrent.SubtreeCompleted++
+		deltasNext.SubtreeCompleted--
+	}
+	bups, err := a.queries.SelectBottomUpProps(ctx, obj.Bupid)
+	if err != nil {
+		return bubblinkDeltaValues{}, bubblinkDeltaValues{}, fmt.Errorf("SelectBottomUpProps: %w", err)
+	}
+	deltasCurrent.SubtreeCompleted -= bups.SubtreeCompleted
+	deltasNext.SubtreeCompleted += bups.SubtreeCompleted
+	deltasCurrent.SubtreeSize -= bups.SubtreeSize
+	deltasNext.SubtreeSize += bups.SubtreeSize
+	return deltasCurrent, deltasNext, nil
+}
+
 // TODO: check auth at the both current and next parent for actor
 func (a *App) Reattach(ctx context.Context, params ReattachParams) error {
 	apCurrent, err := a.listActivePathToRock(ctx, params.CurrentParent)
 	if err != nil {
-		return fmt.Errorf("checking if the current parent is in active path: %w", err)
+		return fmt.Errorf("listActivePathToRock/current: %w", err)
 	}
 
 	apNext, err := a.listActivePathToRock(ctx, params.NextParent)
 	if err != nil {
-		return fmt.Errorf("checking if the next parent is in active path: %w", err)
+		return fmt.Errorf("listActivePathToRock/next: %w", err)
 	}
 
 	opDetach, err := a.queries.InsertOperation(ctx, database.InsertOperationParams{
@@ -52,7 +77,7 @@ func (a *App) Reattach(ctx context.Context, params ReattachParams) error {
 		OpStatus:   database.OpStatusAccepted,
 	})
 	if err != nil {
-		return fmt.Errorf("inserting operation for detaching the objective from current parrent: %w", err)
+		return fmt.Errorf("InsertOperation: %w", err)
 	}
 
 	_, err = a.queries.InsertOpObjAttach(ctx, database.InsertOpObjAttachParams{
@@ -60,7 +85,7 @@ func (a *App) Reattach(ctx context.Context, params ReattachParams) error {
 		Child: params.CurrentParent.Oid,
 	})
 	if err != nil {
-		return fmt.Errorf("inserting operation specific details for detaching the objective from current parent: %w", err)
+		return fmt.Errorf("InsertOpObjAttach/current: %w", err)
 	}
 
 	opAttach, err := a.queries.InsertOperation(ctx, database.InsertOperationParams{
@@ -71,7 +96,7 @@ func (a *App) Reattach(ctx context.Context, params ReattachParams) error {
 		OpStatus:   database.OpStatusAccepted,
 	})
 	if err != nil {
-		return fmt.Errorf("inserting operation for attaching the objective to next parrent: %w", err)
+		return fmt.Errorf("InsertOperation: %w", err)
 	}
 
 	_, err = a.queries.InsertOpObjAttach(ctx, database.InsertOpObjAttachParams{
@@ -79,17 +104,35 @@ func (a *App) Reattach(ctx context.Context, params ReattachParams) error {
 		Child: params.NextParent.Oid,
 	})
 	if err != nil {
-		return fmt.Errorf("inserting operation specific details for attaching the objective to next parent: %w", err)
+		return fmt.Errorf("InsertOpObjAttach/next: %w", err)
+	}
+
+	active, err := a.queries.SelectActive(ctx, params.Subject)
+	if err != nil {
+		return fmt.Errorf("SelectActive: %w", err)
+	}
+
+	obj, err := a.queries.SelectObjective(ctx, database.SelectObjectiveParams{
+		Oid: params.Subject,
+		Vid: active.Vid,
+	})
+	if err != nil {
+		return fmt.Errorf("SelectObjective: %w", err)
+	}
+
+	deltasCurrent, deltasNext, err := a.deltaValuesForReattachment(ctx, obj)
+	if err != nil {
+		return fmt.Errorf("deltaValuesForReattachment: %w", err)
 	}
 
 	apCurrent, apNext, apCommon := popCommonActivePath(apCurrent, apNext)
-	opidCurrent, err := a.bubblink(ctx, apCurrent, opDetach)
+	opidCurrent, err := a.bubblink(ctx, apCurrent, opDetach, deltasCurrent)
 	if err != nil {
-		return fmt.Errorf("promoting the update to the the current parent is in active path: %w", err)
+		return fmt.Errorf("bubblink/current: %w", err)
 	}
-	opidNext, err := a.bubblink(ctx, apNext, opAttach)
+	opidNext, err := a.bubblink(ctx, apNext, opAttach, deltasNext)
 	if err != nil {
-		return fmt.Errorf("promoting the update to the the next parent is in active path: %w", err)
+		return fmt.Errorf("bubblink/next: %w", err)
 	}
 	if len(apCommon) > 0 {
 		opMerg, err := a.queries.InsertOperation(ctx, database.InsertOperationParams{
@@ -100,7 +143,7 @@ func (a *App) Reattach(ctx context.Context, params ReattachParams) error {
 			OpStatus:   database.OpStatusAccepted,
 		})
 		if err != nil {
-			return fmt.Errorf("inserting operation for merging attachment and detachment operations that crossed on the same ascendant in their bubblinks: %w", err)
+			return fmt.Errorf("InsertOperation/merge: %w", err)
 		}
 		_, err = a.queries.InsertOpDoubleTransitiveMerger(ctx, database.InsertOpDoubleTransitiveMergerParams{
 			Opid:   opMerg.Opid,
@@ -108,11 +151,11 @@ func (a *App) Reattach(ctx context.Context, params ReattachParams) error {
 			Second: opidNext,
 		})
 		if err != nil {
-			return fmt.Errorf("inserting operation specific details for merging attachment and detachment operations that crossed on the same ascendant in their bubblinks: %w", err)
+			return fmt.Errorf("InsertOpDoubleTransitiveMerger: %w", err)
 		}
-		_, err = a.bubblink(ctx, apCommon, opAttach)
+		_, err = a.bubblink(ctx, apCommon, opAttach, zeroDeltas)
 		if err != nil {
-			return fmt.Errorf("promoting the update to the overlapping active paths: %w", err)
+			return fmt.Errorf("bubblink: %w", err)
 		}
 	}
 
