@@ -37,7 +37,7 @@ func (a *App) deltaValuesForReattachment(ctx context.Context, obj database.Objec
 	deltasNext := bubblinkDeltaValues{}
 	props, err := a.queries.SelectProperties(ctx, obj.Pid)
 	if err != nil {
-		return bubblinkDeltaValues{}, bubblinkDeltaValues{}, fmt.Errorf("SelectBottomUpProps: %w", err)
+		return bubblinkDeltaValues{}, bubblinkDeltaValues{}, fmt.Errorf("SelectProperties: %w", err)
 	}
 	if props.Completed {
 		deltasCurrent.SubtreeCompleted--
@@ -80,12 +80,12 @@ func (a *App) Reattach(ctx context.Context, params ReattachParams) error {
 		return fmt.Errorf("InsertOperation: %w", err)
 	}
 
-	_, err = a.queries.InsertOpObjAttach(ctx, database.InsertOpObjAttachParams{
+	_, err = a.queries.InsertOpObjDetach(ctx, database.InsertOpObjDetachParams{
 		Opid:  opDetach.Opid,
 		Child: params.CurrentParent.Oid,
 	})
 	if err != nil {
-		return fmt.Errorf("InsertOpObjAttach/current: %w", err)
+		return fmt.Errorf("InsertOpObjDetach: %w", err)
 	}
 
 	opAttach, err := a.queries.InsertOperation(ctx, database.InsertOperationParams{
@@ -104,7 +104,7 @@ func (a *App) Reattach(ctx context.Context, params ReattachParams) error {
 		Child: params.NextParent.Oid,
 	})
 	if err != nil {
-		return fmt.Errorf("InsertOpObjAttach/next: %w", err)
+		return fmt.Errorf("InsertOpObjAttach: %w", err)
 	}
 
 	active, err := a.queries.SelectActive(ctx, params.Subject)
