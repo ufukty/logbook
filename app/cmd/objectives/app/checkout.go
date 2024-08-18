@@ -19,13 +19,29 @@ type CheckoutParams struct {
 
 var ErrVersionDoesNotExist = fmt.Errorf("given version of the objective doesn't exist")
 
-// TODO: bubblink (update and checkout ascendants) (implicit/explicit checkouts?)
+func (a *App) calculateDeltasForTwoVersions(ctx context.Context, src, dst columns.BottomUpPropsId) (bubblinkDeltaValues, error) {
+	srcbup, err := a.queries.SelectBottomUpProps(ctx, src)
+	if err != nil {
+		return zeroDeltas, fmt.Errorf("SelectBottomUpProps/src: %w", err)
+	}
+
+	dstbup, err := a.queries.SelectBottomUpProps(ctx, dst)
+	if err != nil {
+		return zeroDeltas, fmt.Errorf("SelectBottomUpProps/dst: %w", err)
+	}
+
+	return bubblinkDeltaValues{
+		SubtreeCompleted: dstbup.SubtreeCompleted - srcbup.SubtreeCompleted,
+		SubtreeSize:      dstbup.SubtreeSize - srcbup.SubtreeSize,
+	}, nil
+}
+
 func (a *App) Checkout(ctx context.Context, params CheckoutParams) error {
 	activepath, err := a.listActivePathToRock(ctx, params.Subject)
 	if err == ErrLeftBehind {
 		return ErrLeftBehind
 	} else if err != nil {
-		return fmt.Errorf("checking if the objective %s is in active path: %w", params.Subject, err)
+		return fmt.Errorf("listActivePathToRock: %w", err)
 	}
 
 	op, err := a.queries.InsertOperation(ctx, database.InsertOperationParams{
@@ -36,7 +52,7 @@ func (a *App) Checkout(ctx context.Context, params CheckoutParams) error {
 		OpStatus:   database.OpStatusAccepted,
 	})
 	if err != nil {
-		return fmt.Errorf("insert checkout operation: %w", err)
+		return fmt.Errorf("InsertOperation: %w", err)
 	}
 
 	_, err = a.queries.InsertOpCheckout(ctx, database.InsertOpCheckoutParams{
@@ -44,17 +60,25 @@ func (a *App) Checkout(ctx context.Context, params CheckoutParams) error {
 		To:   params.To,
 	})
 	if err != nil {
-		return fmt.Errorf("insert checkout operation details: %w", err)
+		return fmt.Errorf("InsertOpCheckout: %w", err)
 	}
 
-	obj, err := a.queries.SelectObjective(ctx, database.SelectObjectiveParams{
+	dstobj, err := a.queries.SelectObjective(ctx, database.SelectObjectiveParams{
 		Oid: op.Subjectoid,
 		Vid: params.To,
 	})
 	if err == pgx.ErrNoRows {
 		return ErrVersionDoesNotExist
 	} else if err != nil {
-		return fmt.Errorf("checking if the version of objective requested exist: %w", err)
+		return fmt.Errorf("SelectObjective/dst: %w", err)
+	}
+
+	srcobj, err := a.queries.SelectObjective(ctx, database.SelectObjectiveParams{
+		Oid: op.Subjectoid,
+		Vid: op.Subjectvid,
+	})
+	if err != nil {
+		return fmt.Errorf("SelectObjective/src: %w", err)
 	}
 
 	_, err = a.queries.UpdateActiveVidForObjective(ctx, database.UpdateActiveVidForObjectiveParams{
@@ -62,12 +86,17 @@ func (a *App) Checkout(ctx context.Context, params CheckoutParams) error {
 		Vid: params.To,
 	})
 	if err != nil {
-		return fmt.Errorf("updating the active version of objective: %w", err)
+		return fmt.Errorf("UpdateActiveVidForObjective: %w", err)
 	}
 
-	_, err = a.bubblink(ctx, slices.Insert(activepath, 0, models.Ovid{obj.Oid, obj.Vid}), op)
+	deltas, err := a.calculateDeltasForTwoVersions(ctx, srcobj.Bupid, dstobj.Bupid)
 	if err != nil {
-		return fmt.Errorf("promoting the version change to ascendants: %w", err)
+		return fmt.Errorf("calculateDeltasForTwoVersions: %w", err)
+	}
+
+	_, err = a.bubblink(ctx, slices.Insert(activepath, 0, models.Ovid{dstobj.Oid, dstobj.Vid}), op, deltas)
+	if err != nil {
+		return fmt.Errorf("bubblink: %w", err)
 	}
 
 	return nil
