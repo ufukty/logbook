@@ -19,8 +19,8 @@ func (a *App) RockCreate(ctx context.Context, uid columns.UserId) error {
 	}
 
 	bup, err := a.queries.InsertBottomUpProps(ctx, database.InsertBottomUpPropsParams{
-		SubtreeSize:       0,
-		CompletedSubitems: 0,
+		SubtreeSize:      0,
+		SubtreeCompleted: 0,
 	})
 	if err != nil {
 		return fmt.Errorf("InsertBottomUpProps: %w", err)
