@@ -31,7 +31,7 @@ func (a *App) getSubtreeSize(ctx context.Context, viewer columns.UserId, bupid c
 		Bupid:  bupid,
 		Viewer: viewer,
 	})
-	if err != nil || err != pgx.ErrNoRows {
+	if err != nil && err != pgx.ErrNoRows {
 		return 0, fmt.Errorf("SelectBottomUpPropsThirdPerson: %w", err)
 	} else if err == pgx.ErrNoRows {
 		return bup.SubtreeSize, nil
