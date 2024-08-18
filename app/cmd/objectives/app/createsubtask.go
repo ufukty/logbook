@@ -24,9 +24,9 @@ type CreateSubtaskParams struct {
 func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) error {
 	activepath, err := a.listActivePathToRock(ctx, params.Parent)
 	if err == ErrLeftBehind {
-		return fmt.Errorf("checking active path: %w", ErrLeftBehind)
+		return ErrLeftBehind
 	} else if err != nil {
-		return fmt.Errorf("checking the parent %s if it is inside active path: %w", params.Parent, err)
+		return fmt.Errorf("listActivePathToRock: %w", err)
 	}
 
 	op, err := a.queries.InsertOperation(ctx, database.InsertOperationParams{
@@ -37,7 +37,7 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) err
 		OpStatus:   database.OpStatusAccepted,
 	})
 	if err != nil {
-		return fmt.Errorf("inserting the creation operation: %w", err)
+		return fmt.Errorf("InsertOperation: %w", err)
 	}
 
 	_, err = a.queries.InsertOpObjCreateSubtask(ctx, database.InsertOpObjCreateSubtaskParams{
@@ -45,7 +45,7 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) err
 		Content: params.Content,
 	})
 	if err != nil {
-		return fmt.Errorf("inserting subtask creation details: %w", err)
+		return fmt.Errorf("InsertOpObjCreateSubtask: %w", err)
 	}
 
 	props, err := a.queries.InsertProperties(ctx, database.InsertPropertiesParams{
@@ -55,7 +55,15 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) err
 		Owner:     params.Creator,
 	})
 	if err != nil {
-		return fmt.Errorf("inserting properties row: %w", err)
+		return fmt.Errorf("InsertProperties row: %w", err)
+	}
+
+	bup, err := a.queries.InsertBottomUpProps(ctx, database.InsertBottomUpPropsParams{
+		SubtreeSize:      0,
+		SubtreeCompleted: 0,
+	})
+	if err != nil {
+		return fmt.Errorf("InsertBottomUpProps: %w", err)
 	}
 
 	obj, err := a.queries.InsertNewObjective(ctx, database.InsertNewObjectiveParams{
@@ -64,22 +72,20 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) err
 		Bupid:     bup.Bupid,
 	})
 	if err != nil {
-		return fmt.Errorf("inserting the objective: %w", err)
+		return fmt.Errorf("InsertNewObjective: %w", err)
 	}
-
-	// TODO: trigger computing props (async?)
 
 	_, err = a.queries.InsertActiveVidForObjective(ctx, database.InsertActiveVidForObjectiveParams{
 		Oid: obj.Oid,
 		Vid: obj.Vid,
 	})
 	if err != nil {
-		return fmt.Errorf("inserting active version: %w", err)
+		return fmt.Errorf("InsertActiveVidForObjective: %w", err)
 	}
 
-	_, err = a.bubblink(ctx, slices.Insert(activepath, 0, models.Ovid{obj.Oid, obj.Vid}), op)
+	_, err = a.bubblink(ctx, slices.Insert(activepath, 0, models.Ovid{obj.Oid, obj.Vid}), op, bubblinkDeltaValues{SubtreeSize: 1})
 	if err != nil {
-		return fmt.Errorf("promoting the version change to ascendants: %w", err)
+		return fmt.Errorf("bubblink: %w", err)
 	}
 
 	return nil
