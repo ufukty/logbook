@@ -10,7 +10,6 @@ type Bookmark struct {
 	Bid       columns.BookmarkId  `json:"bid"`
 	Title     string              `json:"title"`
 	Oid       columns.ObjectiveId `json:"oid"`
-	Vid       columns.VersionId   `json:"vid"`
 	IsRock    bool                `json:"is_rock"`
 	CreatedAt time.Time           `json:"created_at"`
 }

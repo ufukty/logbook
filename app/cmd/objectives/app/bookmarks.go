@@ -19,7 +19,6 @@ func (a *App) AddBookmark(ctx context.Context, params AddBookmarkParams) error {
 	_, err := a.queries.InsertBookmark(ctx, database.InsertBookmarkParams{
 		Uid:    params.Actor,
 		Oid:    params.Subject.Oid,
-		Vid:    params.Subject.Vid,
 		Title:  params.BookmarkName,
 		IsRock: false,
 	})
@@ -46,7 +45,6 @@ func (a *App) ListBookmarks(ctx context.Context, params ListBookmarksParams) ([]
 			Bid:       b.Bid,
 			Title:     b.Title,
 			Oid:       b.Oid,
-			Vid:       b.Vid,
 			IsRock:    b.IsRock,
 			CreatedAt: b.CreatedAt.Time,
 		})

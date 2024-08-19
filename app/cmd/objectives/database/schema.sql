@@ -172,7 +172,6 @@ CREATE TABLE "bookmark"(
     "bid" "BookmarkId" UNIQUE NOT NULL DEFAULT gen_random_uuid(),
     "uid" "UserId" NOT NULL,
     "oid" "ObjectiveId" NOT NULL,
-    "vid" "VersionId" NOT NULL,
     "title" text NOT NULL,
     "is_rock" boolean NOT NULL DEFAULT FALSE,
     "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP

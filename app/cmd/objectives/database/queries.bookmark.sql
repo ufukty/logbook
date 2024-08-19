@@ -1,6 +1,6 @@
 -- name: InsertBookmark :one
-INSERT INTO "bookmark"("uid", "oid", "vid", "title", "is_rock")
-    VALUES ($1, $2, $3, $4, $5)
+INSERT INTO "bookmark"("uid", "oid", "title", "is_rock")
+    VALUES ($1, $2, $3, $4)
 RETURNING
     *;
 

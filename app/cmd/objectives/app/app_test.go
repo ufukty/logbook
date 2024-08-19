@@ -52,12 +52,17 @@ func TestApp(t *testing.T) {
 		found := false
 		for _, b := range bs {
 			if b.IsRock {
-				rock = models.Ovid{b.Oid, b.Vid}
+				rock = models.Ovid{Oid: b.Oid}
 				found = true
 			}
 		}
 		if !found {
 			t.Fatal(fmt.Errorf("assert, expected rock to be found: %v", bs))
+		}
+
+		rock.Vid, err = a.GetActiveVersion(ctx, rock.Oid)
+		if err != nil {
+			t.Fatal(fmt.Errorf("act, GetActiveVersion: %w", err))
 		}
 	})
 

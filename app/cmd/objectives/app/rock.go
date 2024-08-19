@@ -38,7 +38,6 @@ func (a *App) RockCreate(ctx context.Context, uid columns.UserId) error {
 	_, err = a.queries.InsertBookmark(ctx, database.InsertBookmarkParams{
 		Uid:    uid,
 		Oid:    obj.Oid,
-		Vid:    obj.Vid,
 		Title:  "",
 		IsRock: true,
 	})

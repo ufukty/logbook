@@ -12,16 +12,15 @@ import (
 )
 
 const insertBookmark = `-- name: InsertBookmark :one
-INSERT INTO "bookmark"("uid", "oid", "vid", "title", "is_rock")
-    VALUES ($1, $2, $3, $4, $5)
+INSERT INTO "bookmark"("uid", "oid", "title", "is_rock")
+    VALUES ($1, $2, $3, $4)
 RETURNING
-    bid, uid, oid, vid, title, is_rock, created_at
+    bid, uid, oid, title, is_rock, created_at
 `
 
 type InsertBookmarkParams struct {
 	Uid    columns.UserId
 	Oid    columns.ObjectiveId
-	Vid    columns.VersionId
 	Title  string
 	IsRock bool
 }
@@ -30,7 +29,6 @@ func (q *Queries) InsertBookmark(ctx context.Context, arg InsertBookmarkParams) 
 	row := q.db.QueryRow(ctx, insertBookmark,
 		arg.Uid,
 		arg.Oid,
-		arg.Vid,
 		arg.Title,
 		arg.IsRock,
 	)
@@ -39,7 +37,6 @@ func (q *Queries) InsertBookmark(ctx context.Context, arg InsertBookmarkParams) 
 		&i.Bid,
 		&i.Uid,
 		&i.Oid,
-		&i.Vid,
 		&i.Title,
 		&i.IsRock,
 		&i.CreatedAt,
@@ -49,7 +46,7 @@ func (q *Queries) InsertBookmark(ctx context.Context, arg InsertBookmarkParams) 
 
 const selectBookmarks = `-- name: SelectBookmarks :many
 SELECT
-    bid, uid, oid, vid, title, is_rock, created_at
+    bid, uid, oid, title, is_rock, created_at
 FROM
     "bookmark"
 WHERE
@@ -70,7 +67,6 @@ func (q *Queries) SelectBookmarks(ctx context.Context, uid columns.UserId) ([]Bo
 			&i.Bid,
 			&i.Uid,
 			&i.Oid,
-			&i.Vid,
 			&i.Title,
 			&i.IsRock,
 			&i.CreatedAt,

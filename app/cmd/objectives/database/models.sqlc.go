@@ -157,7 +157,6 @@ type Bookmark struct {
 	Bid       columns.BookmarkId
 	Uid       columns.UserId
 	Oid       columns.ObjectiveId
-	Vid       columns.VersionId
 	Title     string
 	IsRock    bool
 	CreatedAt pgtype.Timestamp
