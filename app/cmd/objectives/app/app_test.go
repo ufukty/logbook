@@ -87,6 +87,9 @@ func TestApp(t *testing.T) {
 		for _, e := range document {
 			fmt.Println(e)
 		}
+		if len(document) != 2 {
+			t.Errorf("assert, document length, expected 2 got %d", len(document))
+		}
 	})
 
 	t.Run("merged props", func(t *testing.T) {
