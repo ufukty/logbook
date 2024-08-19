@@ -17,17 +17,17 @@ func lastsix[S ~string](id S) S {
 }
 
 func (ow DocumentItem) String() string {
-	return fmt.Sprintf("%s%s%s:%s (%s)",
+	return fmt.Sprintf("%s(type:%s) (oid:%s) (vid:%s)%s",
 		strw.Fill("  ", ow.Depth),
-		ternary(ow.Folded, "+ ", ""),
+		ow.ObjectiveType,
 		lastsix(ow.Oid),
 		lastsix(ow.Vid),
-		ow.ObjectiveType,
+		ternary(ow.Folded, " (fold)", ""),
 	)
 }
 
 func (omps ObjectiveMergedProps) String() string {
-	return fmt.Sprintf("(%s) (%s) (subtree:%d/%d) (owner:%s) (creator:%s) (%s)",
+	return fmt.Sprintf("(content:%s) (%s) (subtree:%d/%d) (owner:%s) (creator:%s) (%s)",
 		omps.Content,
 		ternary(omps.Completed, "completed", "todo"),
 		omps.SubtreeCompleted,
