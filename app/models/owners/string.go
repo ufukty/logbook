@@ -13,7 +13,7 @@ func ternary[T any](cond bool, t, f T) T {
 }
 
 func (ow DocumentItem) String() string {
-	return fmt.Sprintf("%s%s%s:%s (%s)\n",
+	return fmt.Sprintf("%s%s%s:%s (%s)",
 		strw.Fill("  ", ow.Depth),
 		ternary(ow.Folded, "+ ", ""),
 		ow.Oid,
@@ -23,7 +23,7 @@ func (ow DocumentItem) String() string {
 }
 
 func (omps ObjectiveMergedProps) String() string {
-	return fmt.Sprintf("(%s) (%s) (subtree:%d/%d) (owner:%s) (creator:%s) (%s)\n",
+	return fmt.Sprintf("(%s) (%s) (subtree:%d/%d) (owner:%s) (creator:%s) (%s)",
 		omps.Content,
 		ternary(omps.Completed, "completed", "todo"),
 		omps.SubtreeCompleted,
