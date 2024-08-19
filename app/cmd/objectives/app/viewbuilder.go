@@ -41,8 +41,8 @@ func (a *App) getSubtreeSize(ctx context.Context, viewer columns.UserId, bupid c
 }
 
 // TODO: mind permissions
-func (a *App) viewBuilder(ctx context.Context, viewer columns.UserId, subject models.Ovid, start, end int32, depth int) ([]owners.ObjectiveView, error) {
-	view := []owners.ObjectiveView{}
+func (a *App) viewBuilder(ctx context.Context, viewer columns.UserId, subject models.Ovid, start, end int32, depth int) ([]owners.DocumentItem, error) {
+	view := []owners.DocumentItem{}
 
 	if end <= start || end < 0 {
 		return view, nil
@@ -89,7 +89,7 @@ func (a *App) viewBuilder(ctx context.Context, viewer columns.UserId, subject mo
 		} else if err == nil {
 			fold = vp.Fold
 		}
-		view = append(view, owners.ObjectiveView{
+		view = append(view, owners.DocumentItem{
 			Oid:           subject.Oid,
 			Vid:           subject.Vid,
 			Depth:         depth,
@@ -137,6 +137,6 @@ func (a *App) viewBuilder(ctx context.Context, viewer columns.UserId, subject mo
 // and in the length of [ViewBuilderParams.Length] which doesn't contain hidden/unaccessible objectives.
 //
 // may wrap: [ErrLeftBehind]
-func (a *App) ViewBuilder(ctx context.Context, params ViewBuilderParams) ([]owners.ObjectiveView, error) {
+func (a *App) ViewBuilder(ctx context.Context, params ViewBuilderParams) ([]owners.DocumentItem, error) {
 	return a.viewBuilder(ctx, params.Viewer, params.Root, int32(params.Start), int32(params.Start+params.Length), 0)
 }

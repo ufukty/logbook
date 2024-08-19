@@ -5,7 +5,7 @@ import (
 	"logbook/internal/utilities/strw"
 )
 
-func (ow ObjectiveView) String() string {
+func (ow DocumentItem) String() string {
 	fold := ""
 	if ow.Folded {
 		fold = "+ "

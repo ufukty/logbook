@@ -22,7 +22,7 @@ const (
 	Task = ObjectiveType("task")
 )
 
-type ObjectiveView struct {
+type DocumentItem struct {
 	Oid           columns.ObjectiveId `json:"oid"`
 	Vid           columns.VersionId   `json:"vid"`
 	Depth         int                 `json:"depth"`
