@@ -59,7 +59,6 @@ func TestApp(t *testing.T) {
 		if !found {
 			t.Fatal(fmt.Errorf("assert, expected rock to be found: %v", bs))
 		}
-
 		rock.Vid, err = a.GetActiveVersion(ctx, rock.Oid)
 		if err != nil {
 			t.Fatal(fmt.Errorf("act, GetActiveVersion: %w", err))
@@ -79,6 +78,11 @@ func TestApp(t *testing.T) {
 
 	var document []owners.DocumentItem
 	t.Run("view build", func(t *testing.T) {
+		rock.Vid, err = a.GetActiveVersion(ctx, rock.Oid)
+		if err != nil {
+			t.Fatal(fmt.Errorf("act, GetActiveVersion: %w", err))
+		}
+
 		document, err = a.ViewBuilder(ctx, ViewBuilderParams{
 			Viewer: uid,
 			Root:   rock,
