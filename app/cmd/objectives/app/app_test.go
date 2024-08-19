@@ -84,9 +84,6 @@ func TestApp(t *testing.T) {
 			t.Fatal(fmt.Errorf("ViewBuilder: %w", err))
 		}
 
-		for _, e := range document {
-			fmt.Println(e)
-		}
 		if len(document) != 2 {
 			t.Errorf("assert, document length, expected 2 got %d", len(document))
 		}
@@ -98,7 +95,7 @@ func TestApp(t *testing.T) {
 			if err != nil {
 				t.Fatal(fmt.Errorf("act, GetMergedProps: %w", err))
 			}
-			fmt.Println(mps)
+			fmt.Println(e, mps)
 		}
 	})
 }
