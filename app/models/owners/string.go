@@ -12,12 +12,16 @@ func ternary[T any](cond bool, t, f T) T {
 	return f
 }
 
+func lastsix[S ~string](id S) S {
+	return id[max(0, len(id)-6):]
+}
+
 func (ow DocumentItem) String() string {
 	return fmt.Sprintf("%s%s%s:%s (%s)",
 		strw.Fill("  ", ow.Depth),
 		ternary(ow.Folded, "+ ", ""),
-		ow.Oid,
-		ow.Vid,
+		lastsix(ow.Oid),
+		lastsix(ow.Vid),
 		ow.ObjectiveType,
 	)
 }
@@ -28,8 +32,8 @@ func (omps ObjectiveMergedProps) String() string {
 		ternary(omps.Completed, "completed", "todo"),
 		omps.SubtreeCompleted,
 		omps.SubtreeSize,
-		omps.Owner,
-		omps.Creator,
+		lastsix(omps.Owner),
+		lastsix(omps.Creator),
 		omps.CreatedAt,
 	)
 }
