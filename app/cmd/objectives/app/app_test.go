@@ -7,6 +7,7 @@ import (
 	"logbook/cmd/objectives/service"
 	"logbook/models"
 	"logbook/models/columns"
+	"logbook/models/owners"
 	"testing"
 )
 
@@ -71,8 +72,9 @@ func TestApp(t *testing.T) {
 		}
 	})
 
+	var document []owners.DocumentItem
 	t.Run("view build", func(t *testing.T) {
-		v, err := a.ViewBuilder(ctx, ViewBuilderParams{
+		document, err = a.ViewBuilder(ctx, ViewBuilderParams{
 			Viewer: uid,
 			Root:   rock,
 			Start:  0,
@@ -82,8 +84,18 @@ func TestApp(t *testing.T) {
 			t.Fatal(fmt.Errorf("ViewBuilder: %w", err))
 		}
 
-		for _, e := range v {
+		for _, e := range document {
 			fmt.Println(e)
+		}
+	})
+
+	t.Run("merged props", func(t *testing.T) {
+		for _, e := range document {
+			mps, err := a.GetMergedProps(ctx, models.Ovid{Oid: e.Oid, Vid: e.Vid})
+			if err != nil {
+				t.Fatal(fmt.Errorf("act, GetMergedProps: %w", err))
+			}
+			fmt.Println(mps)
 		}
 	})
 }
