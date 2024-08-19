@@ -22,4 +22,14 @@ func (ow DocumentItem) String() string {
 	)
 }
 
+func (omps ObjectiveMergedProps) String() string {
+	return fmt.Sprintf("(%s) (%s) (subtree:%d/%d) (owner:%s) (creator:%s) (%s)\n",
+		omps.Content,
+		ternary(omps.Completed, "completed", "todo"),
+		omps.SubtreeCompleted,
+		omps.SubtreeSize,
+		omps.Owner,
+		omps.Creator,
+		omps.CreatedAt,
+	)
 }
