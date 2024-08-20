@@ -243,6 +243,8 @@ func TestAppRandomOrderSubtaskCreation(t *testing.T) {
 
 	var document []owners.DocumentItem
 	t.Run("view build", func(t *testing.T) {
+		registered := len(store)
+
 		rock.Vid, err = a.GetActiveVersion(ctx, rock.Oid)
 		if err != nil {
 			t.Fatal(fmt.Errorf("act, GetActiveVersion: %w", err))
@@ -252,14 +254,14 @@ func TestAppRandomOrderSubtaskCreation(t *testing.T) {
 			Viewer: uid,
 			Root:   rock,
 			Start:  0,
-			Length: 250,
+			Length: registered,
 		})
 		if err != nil {
 			t.Fatal(fmt.Errorf("ViewBuilder: %w", err))
 		}
 
-		if len(document) != 2 {
-			t.Errorf("assert, document length, expected 2 got %d", len(document))
+		if len(document) != registered {
+			t.Errorf("assert, document length, expected %d got %d", registered, len(document))
 		}
 	})
 
