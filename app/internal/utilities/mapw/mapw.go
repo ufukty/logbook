@@ -1,5 +1,7 @@
 package mapw
 
+import "golang.org/x/exp/maps"
+
 // separates the keys and values of a map into two array
 func Items[K comparable, V any](in map[K]V) ([]K, []V) {
 	keys, values := make([]K, 0, len(in)), make([]V, 0, len(in))
@@ -44,4 +46,12 @@ func Mapify[S []I, I any, C comparable](s S, c func(item I) C) map[C]I {
 		m[c(v)] = v
 	}
 	return m
+}
+
+func UniqueValues[K, V comparable](m map[K]V) []V {
+	vs := map[V]bool{}
+	for _, v := range m {
+		vs[v] = true
+	}
+	return maps.Keys(vs)
 }

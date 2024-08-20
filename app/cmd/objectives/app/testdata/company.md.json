@@ -1,0 +1,497 @@
+[
+    {
+        "content": "Project Management",
+        "children": [
+            {
+                "content": "Project Planning",
+                "children": [
+                    { "content": "Define Project Scope" },
+                    { "content": "Identify Key Deliverables" },
+                    { "content": "Establish Project Objectives" },
+                    { "content": "Develop Initial Project Schedule" },
+                    { "content": "Determine Resource Requirements" }
+                ]
+            },
+            {
+                "content": "Budgeting",
+                "children": [
+                    { "content": "Prepare Initial Budget Estimate" },
+                    { "content": "Identify Cost Constraints" },
+                    { "content": "Allocate Funds Across Tasks" },
+                    { "content": "Plan for Contingency Funds" },
+                    { "content": "Budget Approval Process" }
+                ]
+            },
+            {
+                "content": "Scheduling",
+                "children": [
+                    { "content": "Develop Detailed Project Timeline" },
+                    { "content": "Assign Task Deadlines" },
+                    { "content": "Integrate Milestones into Schedule" },
+                    { "content": "Schedule Resource Allocation" },
+                    { "content": "Monitor and Update Schedule" }
+                ]
+            },
+            {
+                "content": "Resource Allocation",
+                "children": [
+                    { "content": "Identify Required Project Resources" },
+                    { "content": "Allocate Human Resources" },
+                    { "content": "Allocate Material Resources" },
+                    { "content": "Plan for Resource Availability" },
+                    { "content": "Adjust Resources as Needed" }
+                ]
+            },
+            {
+                "content": "Risk Management",
+                "children": [
+                    { "content": "Identify Potential Risks" },
+                    { "content": "Assess Risk Impact and Likelihood" },
+                    { "content": "Develop Risk Mitigation Strategies" },
+                    { "content": "Implement Risk Management Plan" },
+                    { "content": "Monitor and Review Risks" }
+                ]
+            },
+            {
+                "content": "Quality Control",
+                "children": [
+                    { "content": "Define Quality Standards" },
+                    { "content": "Develop Quality Control Processes" },
+                    { "content": "Implement Quality Assurance Procedures" },
+                    { "content": "Conduct Regular Quality Reviews" },
+                    { "content": "Manage Quality Improvement" }
+                ]
+            },
+            {
+                "content": "Communication Planning",
+                "children": [
+                    { "content": "Identify Stakeholder Communication Needs" },
+                    { "content": "Develop Communication Plan" },
+                    { "content": "Establish Communication Channels" },
+                    { "content": "Schedule Regular Updates and Meetings" },
+                    { "content": "Monitor and Adjust Communication Strategies" }
+                ]
+            },
+            {
+                "content": "Stakeholder Management",
+                "children": [
+                    { "content": "Identify Key Stakeholders" },
+                    { "content": "Analyze Stakeholder Influence and Interest" },
+                    { "content": "Develop Stakeholder Engagement Plan" },
+                    { "content": "Manage Stakeholder Expectations" },
+                    { "content": "Maintain Stakeholder Relationships" }
+                ]
+            },
+            {
+                "content": "Reporting",
+                "children": [
+                    { "content": "Develop Reporting Formats and Templates" },
+                    { "content": "Establish Reporting Schedule" },
+                    { "content": "Collect Data for Reports" },
+                    { "content": "Prepare and Distribute Reports" },
+                    { "content": "Review and Adjust Reporting Practices" }
+                ]
+            },
+            {
+                "content": "Project Closure",
+                "children": [
+                    { "content": "Confirm Project Deliverables Completion" },
+                    { "content": "Conduct Project Evaluation" },
+                    { "content": "Document Lessons Learned" },
+                    { "content": "Release Project Resources" },
+                    { "content": "Formalize Project Closure" }
+                ]
+            }
+        ]
+    },
+    {
+        "content": "Product Development",
+        "children": [
+            {
+                "content": "Market Research",
+                "children": [
+                    { "content": "Identify Target Market" },
+                    { "content": "Conduct Competitor Analysis" },
+                    { "content": "Gather Customer Preferences" },
+                    { "content": "Analyze Market Trends" },
+                    { "content": "Determine Market Needs" },
+                    { "content": "Evaluate Market Potential" }
+                ]
+            },
+            {
+                "content": "Concept Development",
+                "children": [
+                    { "content": "Brainstorm Product Ideas" },
+                    { "content": "Select Promising Concepts" },
+                    { "content": "Develop Concept Prototypes" },
+                    { "content": "Conduct Feasibility Studies" }
+                ]
+            },
+            {
+                "content": "Design",
+                "children": [
+                    { "content": "Create Design Specifications" },
+                    { "content": "Develop Initial Designs" },
+                    { "content": "Iterate Design Based on Feedback" },
+                    { "content": "Finalize Product Design" }
+                ]
+            },
+            {
+                "content": "Prototyping",
+                "children": [
+                  { "content":"Build Prototype Models" } ,
+                  { "content":"Test Prototypes Internally" } ,
+                  { "content":"Revise Prototypes Based on Tests" }
+                ]
+            },
+            {
+                "content": "Testing",
+                "children": [
+                    { "content": "Plan Product Testing" },
+                    { "content": "Conduct User Testing Sessions" },
+                    { "content": "Collect and Analyze Feedback" },
+                    { "content": "Implement Changes from Testing" }
+                ]
+            },
+            {
+                "content": "Product Refinement",
+                "children": [
+                  { "content":"Refine Product Design" }, 
+                  { "content":"Update Prototypes" }, 
+                  { "content":"Validate Final Product Design" }
+                ]
+            },
+            {
+                "content": "Supplier Sourcing",
+                "children": [
+                    { "content": "Identify Potential Suppliers" },
+                    { "content": "Evaluate Supplier Capabilities" },
+                    { "content": "Negotiate Supplier Contracts" },
+                    { "content": "Finalize Supplier Agreements" },
+                    { "content": "Establish Quality Control Measures with Suppliers" }
+                ]
+            },
+            {
+                "content": "Production Planning",
+                "children": [
+                    { "content": "Develop Production Schedule" },
+                    { "content": "Plan Production Processes" },
+                    { "content": "Coordinate with Suppliers for Materials" },
+                    { "content": "Prepare Production Facilities" }
+                ]
+            },
+            {
+                "content": "Manufacturing",
+                "children": [
+                  { "content":"Initiate Production Run" },
+                  { "content":"Monitor Production Quality" },
+                  { "content":"Address Production Issues" }
+                ]
+            },
+            {
+                "content": "Quality Assurance",
+                "children": [
+                    { "content": "Develop QA Procedures" },
+                    { "content": "Implement QA Testing" },
+                    { "content": "Analyze QA Results" },
+                    { "content": "Make Adjustments for Quality Improvement" },
+                    { "content": "Ensure Compliance with Standards" }
+                ]
+            }
+        ]
+    },
+    {
+        "content": "Marketing and Sales",
+        "children": [
+            {
+                "content": "Marketing Strategy",
+                "children": [
+                    { "content": "Develop Overall Marketing Goals" },
+                    { "content": "Identify Target Market Segments" },
+                    { "content": "Select Marketing Channels" },
+                    { "content": "Plan Marketing Budget" },
+                    { "content": "Create Marketing Timeline" },
+                    { "content": "Define Key Performance Indicators (KPIs)" }
+                ]
+            },
+            {
+                "content": "Branding",
+                "children": [
+                    { "content": "Develop Brand Identity" },
+                    { "content": "Create Brand Messaging" },
+                    { "content": "Design Brand Logo and Assets" },
+                    { "content": "Establish Brand Guidelines" }
+                ]
+            },
+            {
+                "content": "Advertising",
+                "children": [
+                    { "content": "Develop Advertising Campaign Concepts" },
+                    { "content": "Select Advertising Mediums" },
+                    { "content": "Create Advertisements" },
+                    { "content": "Launch Advertising Campaigns" },
+                    { "content": "Monitor and Analyze Campaign Performance" }
+                ]
+            },
+            {
+                "content": "Online Presence",
+                "children": [
+                    { "content": "Design Company Website" },
+                    { "content": "Implement SEO Strategies" },
+                    { "content": "Manage Social Media Accounts" },
+                    { "content": "Create Online Content Strategy" },
+                    { "content": "Monitor Online Engagement" }
+                ]
+            },
+            {
+                "content": "Customer Outreach",
+                "children": [
+                    { "content": "Identify Outreach Opportunities" },
+                    { "content": "Develop Outreach Plan" },
+                    { "content": "Execute Outreach Activities" },
+                    { "content": "Evaluate Outreach Effectiveness" }
+                ]
+            },
+            {
+                "content": "Sales Strategy",
+                "children": [
+                    { "content": "Define Sales Goals" },
+                    { "content": "Develop Sales Processes" },
+                    { "content": "Train Sales Team" },
+                    { "content": "Implement Sales Tools and Software" }
+                ]
+            },
+            {
+                "content": "Pricing Strategy",
+                "children": [
+                    { "content": "Analyze Market Pricing" },
+                    { "content": "Define Pricing Model" },
+                    { "content": "Set Product Prices" },
+                    { "content": "Review and Adjust Prices as Needed" }
+                ]
+            },
+            {
+                "content": "Distribution Channels",
+                "children": [
+                    { "content": "Identify Potential Distribution Channels" },
+                    { "content": "Evaluate Channel Effectiveness" },
+                    { "content": "Establish Distribution Agreements" },
+                    { "content": "Manage Distribution Logistics" }
+                ]
+            },
+            {
+                "content": "Customer Feedback",
+                "children": [
+                    { "content": "Develop Feedback Collection Methods" },
+                    { "content": "Gather Customer Feedback" },
+                    { "content": "Analyze Feedback for Insights" },
+                    { "content": "Implement Changes Based on Feedback" }
+                ]
+            },
+            {
+                "content": "Sales Analysis",
+                "children": [
+                    { "content": "Track Sales Data" },
+                    { "content": "Analyze Sales Trends" },
+                    { "content": "Report on Sales Performance" },
+                    { "content": "Adjust Sales Strategies Based on Analysis" }
+                ]
+            }
+        ]
+    },
+    {
+        "content": "Customer Support",
+        "children": [
+            {
+                "content": "Support Strategy",
+                "children": [
+                    { "content": "Develop Overall Customer Support Goals" },
+                    { "content": "Identify Key Support Channels" },
+                    { "content": "Define Support Service Levels" },
+                    { "content": "Establish Key Performance Indicators" },
+                    { "content": "Plan Support Staff Training Programs" }
+                ]
+            },
+            {
+                "content": "Customer Service Training",
+                "children": [
+                    { "content": "Develop Training Material" },
+                    { "content": "Conduct Training Sessions" },
+                    { "content": "Evaluate Training Effectiveness" },
+                    { "content": "Implement Continuous Training Programs" }
+                ]
+            },
+            {
+                "content": "Helpdesk Management",
+                "children": [
+                    { "content": "Implement Helpdesk Software" },
+                    { "content": "Train Staff on Helpdesk Tools" },
+                    { "content": "Monitor Helpdesk Performance" },
+                    { "content": "Optimize Helpdesk Processes" }
+                ]
+            },
+            {
+                "content": "Customer Feedback Collection",
+                "children": [
+                    { "content": "Design Feedback Surveys" },
+                    { "content": "Distribute Surveys to Customers" },
+                    { "content": "Analyze Survey Results" },
+                    { "content": "Integrate Feedback into Support Improvements" }
+                ]
+            },
+            {
+                "content": "Issue Resolution",
+                "children": [
+                    { "content": "Develop Issue Resolution Procedures" },
+                    { "content": "Train Staff on Issue Resolution" },
+                    { "content": "Monitor Resolution Efficiency" },
+                    { "content": "Improve Resolution Processes Based on Feedback" }
+                ]
+            },
+            {
+                "content": "Support Metrics Analysis",
+                "children": [
+                    { "content": "Identify Critical Support Metrics" },
+                    { "content": "Implement Metrics Tracking Tools" },
+                    { "content": "Analyze Performance Data" },
+                    { "content": "Report on Support Metrics" }
+                ]
+            },
+            {
+                "content": "Customer Retention Strategies",
+                "children": [
+                    { "content": "Identify Key Factors for Customer Retention" },
+                    { "content": "Develop Retention Programs" },
+                    { "content": "Implement Customer Loyalty Initiatives" },
+                    { "content": "Evaluate Retention Program Effectiveness" }
+                ]
+            },
+            {
+                "content": "Knowledge Base Development",
+                "children": [
+                    { "content": "Create Knowledge Base Content" },
+                    { "content": "Organize Content for Easy Access" },
+                    { "content": "Update Content Regularly" },
+                    { "content": "Promote Knowledge Base Usage" }
+                ]
+            },
+            {
+                "content": "Customer Communication",
+                "children": [
+                    { "content": "Develop Communication Templates" },
+                    { "content": "Train Staff on Effective Communication" },
+                    { "content": "Monitor Customer Interaction Quality" },
+                    { "content": "Implement Automated Communication Systems" }
+                ]
+            },
+            {
+                "content": "Escalation Procedures",
+                "children": [
+                    { "content": "Define Escalation Criteria" },
+                    { "content": "Establish Escalation Processes" },
+                    { "content": "Train Staff on Escalation Protocols" },
+                    { "content": "Review and Optimize Escalation Procedures" }
+                ]
+            }
+        ]
+    },
+    {
+        "content": "Operations and Maintenance",
+        "children": [
+            {
+                "content": "Facility Management",
+                "children": [
+                    { "content": "Conduct Facility Needs Assessment" },
+                    { "content": "Plan Facility Maintenance Schedule" },
+                    { "content": "Implement Energy Efficiency Measures" },
+                    { "content": "Manage Facility Security" },
+                    { "content": "Oversee Facility Cleaning and Upkeep" }
+                ]
+            },
+            {
+                "content": "Equipment Maintenance",
+                "children": [
+                    { "content": "Develop Equipment Inventory" },
+                    { "content": "Schedule Regular Maintenance Checks" },
+                    { "content": "Perform Preventive Maintenance" },
+                    { "content": "Track Equipment Performance" }
+                ]
+            },
+            {
+                "content": "Inventory Management",
+                "children": [
+                    { "content": "Design Inventory Tracking System" },
+                    { "content": "Monitor Inventory Levels" },
+                    { "content": "Optimize Stock Reordering Process" },
+                    { "content": "Conduct Regular Inventory Audits" },
+                    { "content": "Implement Loss Prevention Strategies" }
+                ]
+            },
+            {
+                "content": "Supply Chain Management",
+                "children": [
+                    { "content": "Assess Supply Chain Efficiency" },
+                    { "content": "Develop Supplier Relationships" },
+                    { "content": "Coordinate Logistics and Distribution" },
+                    { "content": "Manage Supply Chain Risks" },
+                    { "content": "Implement Supply Chain Sustainability Practices" }
+                ]
+            },
+            {
+                "content": "Logistics",
+                "children": [
+                    { "content": "Plan Transportation Routes" },
+                    { "content": "Optimize Shipping and Receiving Processes" },
+                    { "content": "Monitor Logistics Performance" },
+                    { "content": "Implement Cost-Effective Logistics Solutions" }
+                ]
+            },
+            {
+                "content": "Compliance and Regulations",
+                "children": [
+                    { "content": "Identify Relevant Legal Requirements" },
+                    { "content": "Ensure Regulatory Compliance" },
+                    { "content": "Conduct Compliance Training" },
+                    { "content": "Prepare for Audits and Inspections" }
+                ]
+            },
+            {
+                "content": "Health and Safety",
+                "children": [
+                    { "content": "Develop Safety Policies and Procedures" },
+                    { "content": "Conduct Safety Training for Employees" },
+                    { "content": "Implement Emergency Response Plans" },
+                    { "content": "Monitor Workplace Safety Compliance" },
+                    { "content": "Address Safety Concerns and Incidents" }
+                ]
+            },
+            {
+                "content": "Energy Management",
+                "children": [
+                    { "content": "Assess Energy Consumption" },
+                    { "content": "Implement Energy-Saving Initiatives" },
+                    { "content": "Monitor Energy Usage" },
+                    { "content": "Explore Renewable Energy Options" }
+                ]
+            },
+            {
+                "content": "Waste Management",
+                "children": [
+                    { "content": "Develop Waste Reduction Strategies" },
+                    { "content": "Implement Recycling Programs" },
+                    { "content": "Manage Hazardous Waste Disposal" },
+                    { "content": "Monitor Waste Management Efficiency" }
+                ]
+            },
+            {
+                "content": "Continuous Improvement",
+                "children": [
+                    { "content": "Identify Improvement Opportunities" },
+                    { "content": "Implement Process Improvement Projects" },
+                    { "content": "Monitor Improvement Efforts" },
+                    { "content": "Foster a Culture of Continuous Improvement" }
+                ]
+            }
+        ]
+    }
+]
