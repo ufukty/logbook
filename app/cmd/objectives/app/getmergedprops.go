@@ -3,27 +3,40 @@ package app
 import (
 	"context"
 	"fmt"
-	"logbook/cmd/objectives/database"
+	"logbook/cmd/objectives/queries"
 	"logbook/models"
 	"logbook/models/owners"
 )
 
 func (a *App) GetMergedProps(ctx context.Context, subject models.Ovid) (owners.ObjectiveMergedProps, error) {
-	obj, err := a.queries.SelectObjective(ctx, database.SelectObjectiveParams{
+	tx, err := a.pool.Begin(ctx)
+	if err != nil {
+		return owners.ObjectiveMergedProps{}, fmt.Errorf("pool.Begin: %w", err)
+	}
+	defer tx.Rollback(ctx)
+	q := queries.New(tx)
+
+	obj, err := q.SelectObjective(ctx, queries.SelectObjectiveParams{
 		Oid: subject.Oid,
 		Vid: subject.Vid,
 	})
 	if err != nil {
 		return owners.ObjectiveMergedProps{}, fmt.Errorf("SelectObjective: %w", err)
 	}
-	props, err := a.queries.SelectProperties(ctx, obj.Pid)
+	props, err := q.SelectProperties(ctx, obj.Pid)
 	if err != nil {
 		return owners.ObjectiveMergedProps{}, fmt.Errorf("SelectProperties: %w", err)
 	}
-	bups, err := a.queries.SelectBottomUpProps(ctx, obj.Bupid)
+	bups, err := q.SelectBottomUpProps(ctx, obj.Bupid)
 	if err != nil {
 		return owners.ObjectiveMergedProps{}, fmt.Errorf("SelectBottomUpProps: %w", err)
 	}
+
+	err = tx.Commit(ctx)
+	if err != nil {
+		return owners.ObjectiveMergedProps{}, fmt.Errorf("commit: %w", err)
+	}
+
 	return owners.ObjectiveMergedProps{
 		Content:          props.Content,
 		Completed:        props.Completed,

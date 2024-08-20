@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
-	"logbook/cmd/objectives/database"
+	"logbook/cmd/objectives/queries"
 	"logbook/models"
 	"logbook/models/columns"
 	"logbook/models/owners"
@@ -22,12 +22,12 @@ func doOverlap(aStart, aEnd, bStart, bEnd int32) bool {
 	return aStart < bEnd && bStart < aEnd
 }
 
-func (a *App) getSubtreeSize(ctx context.Context, viewer columns.UserId, bupid columns.BottomUpPropsId) (int32, error) {
-	bup, err := a.queries.SelectBottomUpProps(ctx, bupid)
+func (a *App) getSubtreeSize(ctx context.Context, q *queries.Queries, viewer columns.UserId, bupid columns.BottomUpPropsId) (int32, error) {
+	bup, err := q.SelectBottomUpProps(ctx, bupid)
 	if err != nil {
 		return 0, fmt.Errorf("SelectBottomUpProps: %w", err)
 	}
-	buptp, err := a.queries.SelectBottomUpPropsThirdPerson(ctx, database.SelectBottomUpPropsThirdPersonParams{
+	buptp, err := q.SelectBottomUpPropsThirdPerson(ctx, queries.SelectBottomUpPropsThirdPersonParams{
 		Bupid:  bupid,
 		Viewer: viewer,
 	})
@@ -41,14 +41,14 @@ func (a *App) getSubtreeSize(ctx context.Context, viewer columns.UserId, bupid c
 }
 
 // TODO: mind permissions
-func (a *App) viewBuilder(ctx context.Context, viewer columns.UserId, subject models.Ovid, start, end int32, depth int) ([]owners.DocumentItem, error) {
+func (a *App) viewBuilder(ctx context.Context, q *queries.Queries, viewer columns.UserId, subject models.Ovid, start, end int32, depth int) ([]owners.DocumentItem, error) {
 	view := []owners.DocumentItem{}
 
 	if end <= start || end < 0 {
 		return view, nil
 	}
 
-	obj, err := a.queries.SelectObjective(ctx, database.SelectObjectiveParams{
+	obj, err := q.SelectObjective(ctx, queries.SelectObjectiveParams{
 		Oid: subject.Oid,
 		Vid: subject.Vid,
 	})
@@ -56,7 +56,7 @@ func (a *App) viewBuilder(ctx context.Context, viewer columns.UserId, subject mo
 		return nil, fmt.Errorf("SelectObjective: %w", err)
 	}
 
-	subtreeSize, err := a.getSubtreeSize(ctx, viewer, obj.Bupid)
+	subtreeSize, err := a.getSubtreeSize(ctx, q, viewer, obj.Bupid)
 	if err != nil {
 		return nil, fmt.Errorf("getSubtreeSize/1: %w", err)
 	}
@@ -65,7 +65,7 @@ func (a *App) viewBuilder(ctx context.Context, viewer columns.UserId, subject mo
 		return view, nil
 	}
 
-	subs, err := a.queries.SelectSubLinks(ctx, database.SelectSubLinksParams{
+	subs, err := q.SelectSubLinks(ctx, queries.SelectSubLinksParams{
 		SupOid: subject.Oid,
 		SupVid: subject.Vid,
 	})
@@ -80,7 +80,7 @@ func (a *App) viewBuilder(ctx context.Context, viewer columns.UserId, subject mo
 		if len(subs) > 0 {
 			objtype = owners.Goal
 		}
-		vp, err := a.queries.SelectObjectiveViewPrefs(ctx, database.SelectObjectiveViewPrefsParams{
+		vp, err := q.SelectObjectiveViewPrefs(ctx, queries.SelectObjectiveViewPrefsParams{
 			Uid: viewer,
 			Oid: subject.Oid,
 		})
@@ -103,20 +103,20 @@ func (a *App) viewBuilder(ctx context.Context, viewer columns.UserId, subject mo
 		cursor += subtreeSize
 	} else {
 		for _, sub := range subs {
-			subobj, err := a.queries.SelectObjective(ctx, database.SelectObjectiveParams{
+			subobj, err := q.SelectObjective(ctx, queries.SelectObjectiveParams{
 				Oid: sub.SubOid,
 				Vid: sub.SubVid,
 			})
 			if err != nil {
 				return nil, fmt.Errorf("SelectObjective: %w", err)
 			}
-			subtreeSize, err := a.getSubtreeSize(ctx, viewer, subobj.Bupid)
+			subtreeSize, err := a.getSubtreeSize(ctx, q, viewer, subobj.Bupid)
 			if err != nil {
 				return nil, fmt.Errorf("subtreeSize/2: %w", err)
 			}
 
 			if doOverlap(start, end, cursor, cursor+subtreeSize+1) {
-				v, err := a.viewBuilder(ctx, viewer, models.Ovid{sub.SubOid, sub.SubVid}, start-cursor, end-cursor, depth+1)
+				v, err := a.viewBuilder(ctx, q, viewer, models.Ovid{sub.SubOid, sub.SubVid}, start-cursor, end-cursor, depth+1)
 				if err != nil {
 					return nil, fmt.Errorf("viewBuilder: %w", err)
 				}
@@ -138,5 +138,22 @@ func (a *App) viewBuilder(ctx context.Context, viewer columns.UserId, subject mo
 //
 // may wrap: [ErrLeftBehind]
 func (a *App) ViewBuilder(ctx context.Context, params ViewBuilderParams) ([]owners.DocumentItem, error) {
-	return a.viewBuilder(ctx, params.Viewer, params.Root, int32(params.Start), int32(params.Start+params.Length), 0)
+	tx, err := a.pool.Begin(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("pool.Begin: %w", err)
+	}
+	defer tx.Rollback(ctx)
+	q := queries.New(tx)
+
+	v, err := a.viewBuilder(ctx, q, params.Viewer, params.Root, int32(params.Start), int32(params.Start+params.Length), 0)
+	if err != nil {
+		return nil, fmt.Errorf("viewBuilder: %w", err)
+	}
+
+	err = tx.Commit(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("commit: %w", err)
+	}
+
+	return v, nil
 }

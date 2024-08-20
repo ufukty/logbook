@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"logbook/cmd/objectives/database"
+	"logbook/cmd/objectives/queries"
 	"logbook/cmd/objectives/service"
 	"logbook/internal/utilities/mapw"
 	"logbook/internal/utilities/slicew/lines"
@@ -16,6 +16,7 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	"golang.org/x/exp/maps"
 )
 
@@ -38,19 +39,18 @@ func TestApp(t *testing.T) {
 	if err != nil {
 		t.Fatal(fmt.Errorf("reading service config: %w", err))
 	}
-	err = database.RunMigration(srvcnf)
+	err = queries.RunMigration(srvcnf)
 	if err != nil {
 		t.Fatal(fmt.Errorf("running migration: %w", err))
 	}
 
-	q, err := database.New(srvcnf.Database.Dsn)
-	if err != nil {
-		t.Fatal(fmt.Errorf("prep, db connect: %w", err))
-	}
-	defer q.Close()
-
-	a := New(q)
 	ctx := context.Background()
+	pool, err := pgxpool.New(ctx, srvcnf.Database.Dsn)
+	if err != nil {
+		t.Fatal(fmt.Errorf("pgxpool.New: %w", err))
+	}
+	defer pool.Close()
+	a := New(pool)
 
 	t.Run("rock", func(t *testing.T) {
 		err = a.RockCreate(ctx, uid)

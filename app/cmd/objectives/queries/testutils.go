@@ -1,4 +1,4 @@
-package database
+package queries
 
 import (
 	"fmt"
@@ -19,7 +19,7 @@ func RunMigration(cfg *service.Config) error {
 	output = run.ExitAfterStderr("psql",
 		"-U", cfg.Database.User,
 		"-d", cfg.Database.Name,
-		"-f", "../database/schema.sql", // working directory is not guaranteed
+		"-f", "../queries/schema.sql", // working directory is not guaranteed
 	)
 	log.Println("building the application database:")
 	fmt.Println(output)

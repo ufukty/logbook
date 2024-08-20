@@ -1,7 +1,7 @@
 package owners
 
 import (
-	"logbook/cmd/objectives/database"
+	"logbook/cmd/objectives/queries"
 	"logbook/models/columns"
 	"time"
 )
@@ -31,7 +31,7 @@ type DocumentItem struct {
 
 type OperationHistoryItem struct {
 	Version   columns.VersionId `json:"version"`
-	Type      database.OpType   `json:"type"`
+	Type      queries.OpType    `json:"type"`
 	CreatedBy columns.UserId    `json:"created_by"`
 	CreatedAt time.Time         `json:"created_at"`
 }

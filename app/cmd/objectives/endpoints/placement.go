@@ -1,7 +1,7 @@
 package endpoints
 
 import (
-	"logbook/cmd/objectives/database"
+	"logbook/cmd/objectives/queries"
 	"net/http"
 )
 
@@ -9,7 +9,7 @@ type GetPlacementArrayRequest struct {
 }
 
 type GetPlacementArrayResponse struct {
-	List []database.Objective
+	List []queries.Objective
 }
 
 func (ep *Endpoints) GetPlacementArray(w http.ResponseWriter, r *http.Request) {

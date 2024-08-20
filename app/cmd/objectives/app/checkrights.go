@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
-	"logbook/cmd/objectives/database"
+	"logbook/cmd/objectives/queries"
 	"logbook/models"
 	"logbook/models/columns"
 
@@ -24,21 +24,28 @@ const (
 )
 
 func (a *App) checkRights(ctx context.Context, params canSeeParams) (Right, error) {
+	tx, err := a.pool.Begin(ctx)
+	if err != nil {
+		return RightNone, fmt.Errorf("pool.Begin: %w", err)
+	}
+	defer tx.Rollback(ctx)
+	q := queries.New(tx)
+
 	ca, err := a.findControlArea(ctx, params.Subject)
 	if err != nil {
 		return RightNone, fmt.Errorf("findControlArea: %w", err)
 	}
 
 	switch ca.ArType {
-	case database.AreaTypeSolo:
-		obj, err := a.queries.SelectObjective(ctx, database.SelectObjectiveParams{
+	case queries.AreaTypeSolo:
+		obj, err := q.SelectObjective(ctx, queries.SelectObjectiveParams{
 			Oid: params.Subject.Oid,
 			Vid: params.Subject.Vid,
 		})
 		if err != nil {
 			return RightNone, fmt.Errorf("SelectObjective: %w", err)
 		}
-		props, err := a.queries.SelectProperties(ctx, obj.Pid)
+		props, err := q.SelectProperties(ctx, obj.Pid)
 		if err != nil {
 			return RightNone, fmt.Errorf("SelectProperties: %w", err)
 		}
@@ -48,13 +55,13 @@ func (a *App) checkRights(ctx context.Context, params canSeeParams) (Right, erro
 			return RightNone, nil
 		}
 
-	case database.AreaTypeCollaboration:
-		co, err := a.queries.SelectCollaborationOnControlArea(ctx, ca.Aid)
+	case queries.AreaTypeCollaboration:
+		co, err := q.SelectCollaborationOnControlArea(ctx, ca.Aid)
 		if err != nil {
 			return RightNone, fmt.Errorf("SelectCollaboration: %w", err)
 		}
 
-		_, err = a.queries.SelectCollaborator(ctx, database.SelectCollaboratorParams{
+		_, err = q.SelectCollaborator(ctx, queries.SelectCollaboratorParams{
 			Cid: co.Cid,
 			Uid: params.Viewer,
 		})
@@ -65,6 +72,11 @@ func (a *App) checkRights(ctx context.Context, params canSeeParams) (Right, erro
 		} else {
 			return RightReadWrite, nil
 		}
+	}
+
+	err = tx.Commit(ctx)
+	if err != nil {
+		return RightNone, fmt.Errorf("commit: %w", err)
 	}
 
 	return RightNone, nil

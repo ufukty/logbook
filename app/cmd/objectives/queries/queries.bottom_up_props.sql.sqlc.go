@@ -3,7 +3,7 @@
 //   sqlc v1.25.0
 // source: queries.bottom_up_props.sql
 
-package database
+package queries
 
 import (
 	"context"

@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
-	"logbook/cmd/objectives/database"
+	"logbook/cmd/objectives/queries"
 	"logbook/models"
 	"logbook/models/columns"
 	"slices"
@@ -19,13 +19,13 @@ type CheckoutParams struct {
 
 var ErrVersionDoesNotExist = fmt.Errorf("given version of the objective doesn't exist")
 
-func (a *App) calculateDeltasForTwoVersions(ctx context.Context, src, dst columns.BottomUpPropsId) (bubblinkDeltaValues, error) {
-	srcbup, err := a.queries.SelectBottomUpProps(ctx, src)
+func (a *App) calculateDeltasForTwoVersions(ctx context.Context, q *queries.Queries, src, dst columns.BottomUpPropsId) (bubblinkDeltaValues, error) {
+	srcbup, err := q.SelectBottomUpProps(ctx, src)
 	if err != nil {
 		return zeroDeltas, fmt.Errorf("SelectBottomUpProps/src: %w", err)
 	}
 
-	dstbup, err := a.queries.SelectBottomUpProps(ctx, dst)
+	dstbup, err := q.SelectBottomUpProps(ctx, dst)
 	if err != nil {
 		return zeroDeltas, fmt.Errorf("SelectBottomUpProps/dst: %w", err)
 	}
@@ -37,25 +37,32 @@ func (a *App) calculateDeltasForTwoVersions(ctx context.Context, src, dst column
 }
 
 func (a *App) Checkout(ctx context.Context, params CheckoutParams) error {
-	activepath, err := a.listActivePathToRock(ctx, params.Subject)
+	tx, err := a.pool.Begin(ctx)
+	if err != nil {
+		return fmt.Errorf("pool.Begin: %w", err)
+	}
+	defer tx.Rollback(ctx)
+	q := queries.New(tx)
+
+	activepath, err := a.listActivePathToRock(ctx, q, params.Subject)
 	if err == ErrLeftBehind {
 		return ErrLeftBehind
 	} else if err != nil {
 		return fmt.Errorf("listActivePathToRock: %w", err)
 	}
 
-	op, err := a.queries.InsertOperation(ctx, database.InsertOperationParams{
+	op, err := q.InsertOperation(ctx, queries.InsertOperationParams{
 		Subjectoid: params.Subject.Oid,
 		Subjectvid: params.Subject.Vid,
 		Actor:      params.User,
-		OpType:     database.OpTypeCheckout,
-		OpStatus:   database.OpStatusAccepted,
+		OpType:     queries.OpTypeCheckout,
+		OpStatus:   queries.OpStatusAccepted,
 	})
 	if err != nil {
 		return fmt.Errorf("InsertOperation: %w", err)
 	}
 
-	_, err = a.queries.InsertOpCheckout(ctx, database.InsertOpCheckoutParams{
+	_, err = q.InsertOpCheckout(ctx, queries.InsertOpCheckoutParams{
 		Opid: op.Opid,
 		To:   params.To,
 	})
@@ -63,7 +70,7 @@ func (a *App) Checkout(ctx context.Context, params CheckoutParams) error {
 		return fmt.Errorf("InsertOpCheckout: %w", err)
 	}
 
-	dstobj, err := a.queries.SelectObjective(ctx, database.SelectObjectiveParams{
+	dstobj, err := q.SelectObjective(ctx, queries.SelectObjectiveParams{
 		Oid: op.Subjectoid,
 		Vid: params.To,
 	})
@@ -73,7 +80,7 @@ func (a *App) Checkout(ctx context.Context, params CheckoutParams) error {
 		return fmt.Errorf("SelectObjective/dst: %w", err)
 	}
 
-	srcobj, err := a.queries.SelectObjective(ctx, database.SelectObjectiveParams{
+	srcobj, err := q.SelectObjective(ctx, queries.SelectObjectiveParams{
 		Oid: op.Subjectoid,
 		Vid: op.Subjectvid,
 	})
@@ -81,7 +88,7 @@ func (a *App) Checkout(ctx context.Context, params CheckoutParams) error {
 		return fmt.Errorf("SelectObjective/src: %w", err)
 	}
 
-	_, err = a.queries.UpdateActiveVidForObjective(ctx, database.UpdateActiveVidForObjectiveParams{
+	_, err = q.UpdateActiveVidForObjective(ctx, queries.UpdateActiveVidForObjectiveParams{
 		Oid: op.Subjectoid,
 		Vid: params.To,
 	})
@@ -89,7 +96,7 @@ func (a *App) Checkout(ctx context.Context, params CheckoutParams) error {
 		return fmt.Errorf("UpdateActiveVidForObjective: %w", err)
 	}
 
-	deltas, err := a.calculateDeltasForTwoVersions(ctx, srcobj.Bupid, dstobj.Bupid)
+	deltas, err := a.calculateDeltasForTwoVersions(ctx, q, srcobj.Bupid, dstobj.Bupid)
 	if err != nil {
 		return fmt.Errorf("calculateDeltasForTwoVersions: %w", err)
 	}
@@ -97,6 +104,11 @@ func (a *App) Checkout(ctx context.Context, params CheckoutParams) error {
 	_, err = a.bubblink(ctx, slices.Insert(activepath, 0, models.Ovid{dstobj.Oid, dstobj.Vid}), op, deltas)
 	if err != nil {
 		return fmt.Errorf("bubblink: %w", err)
+	}
+
+	err = tx.Commit(ctx)
+	if err != nil {
+		return fmt.Errorf("commit: %w", err)
 	}
 
 	return nil

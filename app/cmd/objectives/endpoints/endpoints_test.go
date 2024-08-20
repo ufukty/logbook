@@ -1,10 +1,13 @@
 package endpoints
 
 import (
+	"context"
 	"fmt"
 	"logbook/cmd/objectives/app"
-	"logbook/cmd/objectives/database"
+	"logbook/cmd/objectives/queries"
 	"logbook/cmd/objectives/service"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func getTestDependencies() (*Endpoints, error) {
@@ -12,15 +15,16 @@ func getTestDependencies() (*Endpoints, error) {
 	if err != nil {
 		return nil, fmt.Errorf("reading service config: %w", err)
 	}
-	err = database.RunMigration(srvcnf)
+	err = queries.RunMigration(srvcnf)
 	if err != nil {
 		return nil, fmt.Errorf("running migration: %w", err)
 	}
 
-	q, err := database.New(srvcnf.Database.Dsn)
+	pool, err := pgxpool.New(context.Background(), srvcnf.Database.Dsn)
 	if err != nil {
-		return nil, fmt.Errorf("connecting database: %w", err)
+		return nil, fmt.Errorf("pgxpool.New: %w", err)
 	}
-	app := app.New(q)
-	return New(app), nil
+	app := app.New(pool)
+	ep := New(app)
+	return ep, nil
 }

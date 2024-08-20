@@ -1,15 +1,19 @@
 package app
 
 import (
-	"logbook/cmd/objectives/database"
+	"logbook/cmd/objectives/queries"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type App struct {
-	queries *database.Queries
+	pool    *pgxpool.Pool
+	oneshot *queries.Queries
 }
 
-func New(queries *database.Queries) *App {
+func New(pool *pgxpool.Pool) *App {
 	return &App{
-		queries: queries,
+		pool:    pool,
+		oneshot: queries.New(pool),
 	}
 }

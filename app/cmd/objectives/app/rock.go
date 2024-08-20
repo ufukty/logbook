@@ -3,12 +3,19 @@ package app
 import (
 	"context"
 	"fmt"
-	"logbook/cmd/objectives/database"
+	"logbook/cmd/objectives/queries"
 	"logbook/models/columns"
 )
 
 func (a *App) RockCreate(ctx context.Context, uid columns.UserId) error {
-	props, err := a.queries.InsertProperties(ctx, database.InsertPropertiesParams{
+	tx, err := a.pool.Begin(ctx)
+	if err != nil {
+		return fmt.Errorf("pool.Begin: %w", err)
+	}
+	defer tx.Rollback(ctx)
+	q := queries.New(tx)
+
+	props, err := q.InsertProperties(ctx, queries.InsertPropertiesParams{
 		Content:   "",
 		Completed: false,
 		Creator:   uid,
@@ -18,7 +25,7 @@ func (a *App) RockCreate(ctx context.Context, uid columns.UserId) error {
 		return fmt.Errorf("InsertProperties: %w", err)
 	}
 
-	bup, err := a.queries.InsertBottomUpProps(ctx, database.InsertBottomUpPropsParams{
+	bup, err := q.InsertBottomUpProps(ctx, queries.InsertBottomUpPropsParams{
 		SubtreeSize:      0,
 		SubtreeCompleted: 0,
 	})
@@ -26,7 +33,7 @@ func (a *App) RockCreate(ctx context.Context, uid columns.UserId) error {
 		return fmt.Errorf("InsertBottomUpProps: %w", err)
 	}
 
-	obj, err := a.queries.InsertNewObjective(ctx, database.InsertNewObjectiveParams{
+	obj, err := q.InsertNewObjective(ctx, queries.InsertNewObjectiveParams{
 		CreatedBy: columns.ZeroOperationId,
 		Pid:       props.Pid,
 		Bupid:     bup.Bupid,
@@ -35,7 +42,7 @@ func (a *App) RockCreate(ctx context.Context, uid columns.UserId) error {
 		return fmt.Errorf("InsertNewObjective: %w", err)
 	}
 
-	_, err = a.queries.InsertBookmark(ctx, database.InsertBookmarkParams{
+	_, err = q.InsertBookmark(ctx, queries.InsertBookmarkParams{
 		Uid:    uid,
 		Oid:    obj.Oid,
 		Title:  "",
@@ -45,12 +52,17 @@ func (a *App) RockCreate(ctx context.Context, uid columns.UserId) error {
 		return fmt.Errorf("InsertBookmark: %w", err)
 	}
 
-	_, err = a.queries.InsertActiveVidForObjective(ctx, database.InsertActiveVidForObjectiveParams{
+	_, err = q.InsertActiveVidForObjective(ctx, queries.InsertActiveVidForObjectiveParams{
 		Oid: obj.Oid,
 		Vid: obj.Vid,
 	})
 	if err != nil {
 		return fmt.Errorf("UpdateActiveVidForObjective: %w", err)
+	}
+
+	err = tx.Commit(ctx)
+	if err != nil {
+		return fmt.Errorf("commit: %w", err)
 	}
 
 	return nil

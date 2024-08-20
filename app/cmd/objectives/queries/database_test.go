@@ -1,4 +1,4 @@
-package database
+package queries
 
 import (
 	"context"
@@ -6,6 +6,8 @@ import (
 	"logbook/cmd/objectives/service"
 	"logbook/models/columns"
 	"testing"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func TestMigration(t *testing.T) {
@@ -29,11 +31,12 @@ func TestLogic(t *testing.T) {
 		t.Fatal(fmt.Errorf("running migration: %w", err))
 	}
 
-	q, err := New(srvcnf.Database.Dsn)
+	pool, err := pgxpool.New(context.Background(), srvcnf.Database.Dsn)
 	if err != nil {
-		t.Fatal(fmt.Errorf("prep, db connect: %w", err))
+		t.Fatal(fmt.Errorf("pgxpool.New: %w", err))
 	}
-	defer q.Close()
+	defer pool.Close()
+	q := New(pool)
 
 	uid, err := columns.NewUuidV4[columns.UserId]()
 	if err != nil {

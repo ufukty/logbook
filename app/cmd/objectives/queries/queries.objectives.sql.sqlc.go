@@ -3,7 +3,7 @@
 //   sqlc v1.25.0
 // source: queries.objectives.sql
 
-package database
+package queries
 
 import (
 	"context"

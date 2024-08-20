@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
-	"logbook/cmd/objectives/database"
+	"logbook/cmd/objectives/queries"
 	"logbook/models"
 	"logbook/models/columns"
 )
@@ -20,25 +20,32 @@ var zeroDeltas bubblinkDeltaValues
 // promotes an update to ascendants
 // first item of the activepath should be the source of update promotion, newly updated objective (oid:latestvid)
 // it returns the operation id generated for the transitive update of the uppermost objective in the activepath
-func (a *App) bubblink(ctx context.Context, activepath []models.Ovid, op database.Operation, deltas bubblinkDeltaValues) (columns.OperationId, error) {
+func (a *App) bubblink(ctx context.Context, activepath []models.Ovid, op queries.Operation, deltas bubblinkDeltaValues) (columns.OperationId, error) {
+	tx, err := a.pool.Begin(ctx)
+	if err != nil {
+		return columns.ZeroOperationId, fmt.Errorf("pool.Begin: %w", err)
+	}
+	defer tx.Rollback(ctx)
+	q := queries.New(tx)
+
 	if len(activepath) <= 1 {
 		return columns.ZeroOperationId, nil // no ascendant to promote update
 	}
 	child := activepath[0]
 	cause := op.Opid
 	for _, ascendant := range activepath[1:] {
-		optrs, err := a.queries.InsertOperation(ctx, database.InsertOperationParams{
+		optrs, err := q.InsertOperation(ctx, queries.InsertOperationParams{
 			Subjectoid: ascendant.Oid,
 			Subjectvid: ascendant.Vid,
 			Actor:      columns.ZeroUserId, // inherit user?
-			OpType:     database.OpTypeTransitive,
-			OpStatus:   database.OpStatusAccepted,
+			OpType:     queries.OpTypeTransitive,
+			OpStatus:   queries.OpStatusAccepted,
 		})
 		if err != nil {
 			return columns.ZeroOperationId, fmt.Errorf("InsertOperation(%s): %w", ascendant, err)
 		}
 
-		_, err = a.queries.InsertOpTransitive(ctx, database.InsertOpTransitiveParams{
+		_, err = q.InsertOpTransitive(ctx, queries.InsertOpTransitiveParams{
 			Opid:  optrs.Opid,
 			Cause: cause,
 		})
@@ -46,7 +53,7 @@ func (a *App) bubblink(ctx context.Context, activepath []models.Ovid, op databas
 			return columns.ZeroOperationId, fmt.Errorf("InsertOpTransitive(%s): %w", ascendant, err)
 		}
 
-		obj, err := a.queries.SelectObjective(ctx, database.SelectObjectiveParams{
+		obj, err := q.SelectObjective(ctx, queries.SelectObjectiveParams{
 			Oid: ascendant.Oid,
 			Vid: ascendant.Vid,
 		})
@@ -56,7 +63,7 @@ func (a *App) bubblink(ctx context.Context, activepath []models.Ovid, op databas
 
 		var bupid columns.BottomUpPropsId
 		if deltas != zeroDeltas {
-			bup, err := a.queries.SelectBottomUpProps(ctx, obj.Bupid)
+			bup, err := q.SelectBottomUpProps(ctx, obj.Bupid)
 			if err != nil {
 				return columns.ZeroOperationId, fmt.Errorf("SelectBottomUpProps: %w", err)
 			}
@@ -68,7 +75,7 @@ func (a *App) bubblink(ctx context.Context, activepath []models.Ovid, op databas
 				bup.SubtreeCompleted += deltas.SubtreeCompleted
 			}
 
-			bupUpdated, err := a.queries.InsertBottomUpProps(ctx, database.InsertBottomUpPropsParams{
+			bupUpdated, err := q.InsertBottomUpProps(ctx, queries.InsertBottomUpPropsParams{
 				SubtreeSize:      bup.SubtreeSize,
 				SubtreeCompleted: bup.SubtreeCompleted,
 			})
@@ -80,7 +87,7 @@ func (a *App) bubblink(ctx context.Context, activepath []models.Ovid, op databas
 			bupid = obj.Bupid
 		}
 
-		objasc, err := a.queries.InsertUpdatedObjective(ctx, database.InsertUpdatedObjectiveParams{
+		objasc, err := q.InsertUpdatedObjective(ctx, queries.InsertUpdatedObjectiveParams{
 			Oid:       ascendant.Oid,
 			Based:     ascendant.Vid,
 			CreatedBy: cause,
@@ -91,7 +98,7 @@ func (a *App) bubblink(ctx context.Context, activepath []models.Ovid, op databas
 			return columns.ZeroOperationId, fmt.Errorf("InsertUpdatedObjective: %w", err)
 		}
 
-		_, err = a.queries.InsertLink(ctx, database.InsertLinkParams{
+		_, err = q.InsertLink(ctx, queries.InsertLinkParams{
 			SupOid: objasc.Oid,
 			SupVid: objasc.Vid,
 			SubOid: child.Oid,
@@ -102,7 +109,7 @@ func (a *App) bubblink(ctx context.Context, activepath []models.Ovid, op databas
 		}
 
 		// link unchanged siblings too
-		sublinks, err := a.queries.SelectSubLinks(ctx, database.SelectSubLinksParams{
+		sublinks, err := q.SelectSubLinks(ctx, queries.SelectSubLinksParams{
 			SupOid: ascendant.Oid,
 			SupVid: ascendant.Vid,
 		})
@@ -113,7 +120,7 @@ func (a *App) bubblink(ctx context.Context, activepath []models.Ovid, op databas
 			if sublink.SubOid == objasc.Oid {
 				continue // not sibling but itself's old version
 			}
-			_, err = a.queries.InsertLink(ctx, database.InsertLinkParams{
+			_, err = q.InsertLink(ctx, queries.InsertLinkParams{
 				SupOid: objasc.Oid,
 				SupVid: objasc.Vid,
 				SubOid: sublink.SubOid,
@@ -127,7 +134,7 @@ func (a *App) bubblink(ctx context.Context, activepath []models.Ovid, op databas
 		// TODO: trigger computing props on objasc (async?)
 
 		// TODO: publish an event to notify frontends viewing any objective of active path?
-		_, err = a.queries.UpdateActiveVidForObjective(ctx, database.UpdateActiveVidForObjectiveParams{
+		_, err = q.UpdateActiveVidForObjective(ctx, queries.UpdateActiveVidForObjectiveParams{
 			Oid: objasc.Oid,
 			Vid: objasc.Vid,
 		})
@@ -137,5 +144,11 @@ func (a *App) bubblink(ctx context.Context, activepath []models.Ovid, op databas
 		cause = optrs.Opid
 		child = models.Ovid{Oid: objasc.Oid, Vid: objasc.Vid}
 	}
+
+	err = tx.Commit(ctx)
+	if err != nil {
+		return columns.ZeroOperationId, fmt.Errorf("commit: %w", err)
+	}
+
 	return cause, nil
 }

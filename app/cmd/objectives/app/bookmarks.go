@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
-	"logbook/cmd/objectives/database"
+	"logbook/cmd/objectives/queries"
 	"logbook/models"
 	"logbook/models/columns"
 	"logbook/models/owners"
@@ -16,7 +16,7 @@ type AddBookmarkParams struct {
 }
 
 func (a *App) AddBookmark(ctx context.Context, params AddBookmarkParams) error {
-	_, err := a.queries.InsertBookmark(ctx, database.InsertBookmarkParams{
+	_, err := a.oneshot.InsertBookmark(ctx, queries.InsertBookmarkParams{
 		Uid:    params.Actor,
 		Oid:    params.Subject.Oid,
 		Title:  params.BookmarkName,
@@ -34,7 +34,7 @@ type ListBookmarksParams struct {
 }
 
 func (a *App) ListBookmarks(ctx context.Context, params ListBookmarksParams) ([]owners.Bookmark, error) {
-	bs, err := a.queries.SelectBookmarks(ctx, params.Viewer)
+	bs, err := a.oneshot.SelectBookmarks(ctx, params.Viewer)
 	if err != nil {
 		return nil, fmt.Errorf("selecting bookmarks: %w", err)
 	}

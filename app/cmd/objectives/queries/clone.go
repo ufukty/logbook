@@ -1,4 +1,4 @@
-package database
+package queries
 
 func (o Objective) Clone() *Objective {
 	return &Objective{
