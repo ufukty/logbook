@@ -7,6 +7,7 @@ import (
 	"logbook/internal/web/requests"
 	"logbook/internal/web/validate"
 	"logbook/models"
+	"logbook/models/columns"
 	"net/http"
 )
 
@@ -19,7 +20,9 @@ func (ct CreateObjectiveRequest) validate() error {
 	return validate.RequestFields(ct)
 }
 
-type CreateObjectiveResponse struct{}
+type CreateObjectiveResponse struct {
+	Oid columns.ObjectiveId `json:"oid"`
+}
 
 // TODO: Check user input for script tags in order to prevent XSS attempts
 func (e *Endpoints) CreateObjective(w http.ResponseWriter, r *http.Request) {
@@ -37,7 +40,7 @@ func (e *Endpoints) CreateObjective(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := e.app.CreateSubtask(r.Context(), app.CreateSubtaskParams{
+	oid, err := e.app.CreateSubtask(r.Context(), app.CreateSubtaskParams{
 		Parent:  bq.Parent,
 		Content: string(bq.Content),
 		Creator: "00000000-0000-0000-0000-000000000000", // TODO: check auth header
@@ -48,7 +51,9 @@ func (e *Endpoints) CreateObjective(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	bs := CreateObjectiveResponse{}
+	bs := CreateObjectiveResponse{
+		Oid: oid,
+	}
 	if err := requests.WriteJsonResponse(bs, w); err != nil {
 		log.Println(fmt.Errorf("writing json response: %w", err))
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)

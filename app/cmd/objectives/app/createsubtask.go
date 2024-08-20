@@ -21,12 +21,12 @@ type CreateSubtaskParams struct {
 // TODO: transaction-commit-rollback
 // DONE: bubblink
 // DONE: mark active version for promoted ascendants
-func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) error {
+func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (columns.ObjectiveId, error) {
 	activepath, err := a.listActivePathToRock(ctx, params.Parent)
 	if err == ErrLeftBehind {
-		return ErrLeftBehind
+		return columns.ZeroObjectId, ErrLeftBehind
 	} else if err != nil {
-		return fmt.Errorf("listActivePathToRock: %w", err)
+		return columns.ZeroObjectId, fmt.Errorf("listActivePathToRock: %w", err)
 	}
 
 	op, err := a.queries.InsertOperation(ctx, database.InsertOperationParams{
@@ -37,7 +37,7 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) err
 		OpStatus:   database.OpStatusAccepted,
 	})
 	if err != nil {
-		return fmt.Errorf("InsertOperation: %w", err)
+		return columns.ZeroObjectId, fmt.Errorf("InsertOperation: %w", err)
 	}
 
 	_, err = a.queries.InsertOpObjCreateSubtask(ctx, database.InsertOpObjCreateSubtaskParams{
@@ -45,7 +45,7 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) err
 		Content: params.Content,
 	})
 	if err != nil {
-		return fmt.Errorf("InsertOpObjCreateSubtask: %w", err)
+		return columns.ZeroObjectId, fmt.Errorf("InsertOpObjCreateSubtask: %w", err)
 	}
 
 	props, err := a.queries.InsertProperties(ctx, database.InsertPropertiesParams{
@@ -55,7 +55,7 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) err
 		Owner:     params.Creator,
 	})
 	if err != nil {
-		return fmt.Errorf("InsertProperties row: %w", err)
+		return columns.ZeroObjectId, fmt.Errorf("InsertProperties row: %w", err)
 	}
 
 	bup, err := a.queries.InsertBottomUpProps(ctx, database.InsertBottomUpPropsParams{
@@ -63,7 +63,7 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) err
 		SubtreeCompleted: 0,
 	})
 	if err != nil {
-		return fmt.Errorf("InsertBottomUpProps: %w", err)
+		return columns.ZeroObjectId, fmt.Errorf("InsertBottomUpProps: %w", err)
 	}
 
 	obj, err := a.queries.InsertNewObjective(ctx, database.InsertNewObjectiveParams{
@@ -72,7 +72,7 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) err
 		Bupid:     bup.Bupid,
 	})
 	if err != nil {
-		return fmt.Errorf("InsertNewObjective: %w", err)
+		return columns.ZeroObjectId, fmt.Errorf("InsertNewObjective: %w", err)
 	}
 
 	_, err = a.queries.InsertActiveVidForObjective(ctx, database.InsertActiveVidForObjectiveParams{
@@ -80,13 +80,13 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) err
 		Vid: obj.Vid,
 	})
 	if err != nil {
-		return fmt.Errorf("InsertActiveVidForObjective: %w", err)
+		return columns.ZeroObjectId, fmt.Errorf("InsertActiveVidForObjective: %w", err)
 	}
 
 	_, err = a.bubblink(ctx, slices.Insert(activepath, 0, models.Ovid{obj.Oid, obj.Vid}), op, bubblinkDeltaValues{SubtreeSize: 1})
 	if err != nil {
-		return fmt.Errorf("bubblink: %w", err)
+		return columns.ZeroObjectId, fmt.Errorf("bubblink: %w", err)
 	}
 
-	return nil
+	return obj.Oid, nil
 }
