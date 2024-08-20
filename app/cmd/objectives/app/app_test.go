@@ -29,7 +29,7 @@ func testname(tc map[*testfilenode]*testfilenode) string {
 	return fmt.Sprintf("registering %d objectives on %d parents", len(tc), len(mapw.UniqueValues(tc)))
 }
 
-func TestApp(t *testing.T) {
+func TestAppManual(t *testing.T) {
 	uid, err := columns.NewUuidV4[columns.UserId]()
 	if err != nil {
 		t.Fatal(fmt.Errorf("prep, uid: %w", err))
@@ -124,6 +124,208 @@ func TestApp(t *testing.T) {
 			fmt.Println(e, mps)
 		}
 	})
+}
+
+func TestAppRandomOrderSubtaskCreation(t *testing.T) {
+	uid, err := columns.NewUuidV4[columns.UserId]()
+	if err != nil {
+		t.Fatal(fmt.Errorf("prep, uid: %w", err))
+	}
+
+	srvcnf, err := service.ReadConfig("../local.yml")
+	if err != nil {
+		t.Fatal(fmt.Errorf("reading service config: %w", err))
+	}
+	err = queries.RunMigration(srvcnf)
+	if err != nil {
+		t.Fatal(fmt.Errorf("running migration: %w", err))
+	}
+
+	ctx := context.Background()
+	pool, err := pgxpool.New(ctx, srvcnf.Database.Dsn)
+	if err != nil {
+		t.Fatal(fmt.Errorf("pgxpool.New: %w", err))
+	}
+	defer pool.Close()
+	a := New(pool)
+
+	t.Run("rock", func(t *testing.T) {
+		err = a.RockCreate(ctx, uid)
+		if err != nil {
+			t.Fatal(fmt.Errorf("act 1: %w", err))
+		}
+	})
+
+	var rock models.Ovid
+	t.Run("select bookmarks", func(t *testing.T) {
+		bs, err := a.ListBookmarks(ctx, ListBookmarksParams{Viewer: uid})
+		if err != nil {
+			t.Fatal(fmt.Errorf("listing bookmarks: %w", err))
+		}
+
+		found := false
+		for _, b := range bs {
+			if b.IsRock {
+				rock = models.Ovid{Oid: b.Oid}
+				found = true
+			}
+		}
+		if !found {
+			t.Fatal(fmt.Errorf("assert, expected rock to be found: %v", bs))
+		}
+		rock.Vid, err = a.GetActiveVersion(ctx, rock.Oid)
+		if err != nil {
+			t.Fatal(fmt.Errorf("act, GetActiveVersion: %w", err))
+		}
+	})
+
+	testfile := []testfilenode{}
+	t.Run("reading testdata file", func(t *testing.T) {
+		f, err := os.Open("testdata/company.md.json")
+		if err != nil {
+			t.Fatal(fmt.Errorf("opening: %w", err))
+		}
+		defer f.Close()
+		err = json.NewDecoder(f).Decode(&testfile)
+		if err != nil {
+			t.Fatal(fmt.Errorf("decoding: %w", err))
+		}
+	})
+
+	ordered := map[*testfilenode]*testfilenode{} // []{node:parent}
+	t.Run("randomizing ordering", func(t *testing.T) {
+		visited_waiting := map[*testfilenode]*testfilenode{} // {node:parent}
+		for _, tc := range testfile {
+			visited_waiting[&tc] = nil // nil is for Rock
+		}
+		for len(visited_waiting) > 0 {
+			rnd := rand.IntN(len(visited_waiting))
+			child := maps.Keys(visited_waiting)[rnd]
+			parent := visited_waiting[child]
+
+			ordered[child] = parent
+			for _, grandchild := range child.Children {
+				visited_waiting[&grandchild] = child
+			}
+
+			delete(visited_waiting, child)
+		}
+	})
+
+	store := map[*testfilenode]columns.ObjectiveId{
+		nil: rock.Oid,
+	}
+	for child, parent := range ordered {
+		t.Run(child.Content, func(t *testing.T) {
+			parentOid, ok := store[parent]
+			if !ok {
+				t.Fatal(fmt.Errorf("test is shortcutting the hierarchy"))
+			}
+
+			vid, err := a.GetActiveVersion(context.Background(), parentOid)
+			if err != nil {
+				t.Fatal(fmt.Errorf("GetActiveVersion: %s", err))
+			}
+			oid, err := a.CreateSubtask(context.Background(), CreateSubtaskParams{
+				Creator: columns.ZeroUserId,
+				Parent: models.Ovid{
+					Oid: parentOid,
+					Vid: vid,
+				},
+				Content: child.Content,
+			})
+			if err != nil {
+				t.Fatal(fmt.Errorf("CreateSubtask: %s", err))
+			}
+			store[child] = oid
+		})
+	}
+
+	var document []owners.DocumentItem
+	t.Run("view build", func(t *testing.T) {
+		rock.Vid, err = a.GetActiveVersion(ctx, rock.Oid)
+		if err != nil {
+			t.Fatal(fmt.Errorf("act, GetActiveVersion: %w", err))
+		}
+
+		document, err = a.ViewBuilder(ctx, ViewBuilderParams{
+			Viewer: uid,
+			Root:   rock,
+			Start:  0,
+			Length: 250,
+		})
+		if err != nil {
+			t.Fatal(fmt.Errorf("ViewBuilder: %w", err))
+		}
+
+		if len(document) != 2 {
+			t.Errorf("assert, document length, expected 2 got %d", len(document))
+		}
+	})
+
+	t.Run("merged props", func(t *testing.T) {
+		for _, e := range document {
+			mps, err := a.GetMergedProps(ctx, models.Ovid{Oid: e.Oid, Vid: e.Vid})
+			if err != nil {
+				t.Fatal(fmt.Errorf("act, GetMergedProps: %w", err))
+			}
+			fmt.Println(e, mps)
+		}
+	})
+}
+
+func TestAppRandomOrderSubtaskCreationWithConcurrency(t *testing.T) {
+	uid, err := columns.NewUuidV4[columns.UserId]()
+	if err != nil {
+		t.Fatal(fmt.Errorf("prep, uid: %w", err))
+	}
+
+	srvcnf, err := service.ReadConfig("../local.yml")
+	if err != nil {
+		t.Fatal(fmt.Errorf("reading service config: %w", err))
+	}
+	err = queries.RunMigration(srvcnf)
+	if err != nil {
+		t.Fatal(fmt.Errorf("running migration: %w", err))
+	}
+
+	ctx := context.Background()
+	pool, err := pgxpool.New(ctx, srvcnf.Database.Dsn)
+	if err != nil {
+		t.Fatal(fmt.Errorf("pgxpool.New: %w", err))
+	}
+	defer pool.Close()
+	a := New(pool)
+
+	t.Run("rock", func(t *testing.T) {
+		err = a.RockCreate(ctx, uid)
+		if err != nil {
+			t.Fatal(fmt.Errorf("act 1: %w", err))
+		}
+	})
+
+	var rock models.Ovid
+	t.Run("select bookmarks", func(t *testing.T) {
+		bs, err := a.ListBookmarks(ctx, ListBookmarksParams{Viewer: uid})
+		if err != nil {
+			t.Fatal(fmt.Errorf("listing bookmarks: %w", err))
+		}
+
+		found := false
+		for _, b := range bs {
+			if b.IsRock {
+				rock = models.Ovid{Oid: b.Oid}
+				found = true
+			}
+		}
+		if !found {
+			t.Fatal(fmt.Errorf("assert, expected rock to be found: %v", bs))
+		}
+		rock.Vid, err = a.GetActiveVersion(ctx, rock.Oid)
+		if err != nil {
+			t.Fatal(fmt.Errorf("act, GetActiveVersion: %w", err))
+		}
+	})
 
 	testfile := []testfilenode{}
 	t.Run("reading testdata file", func(t *testing.T) {
@@ -206,7 +408,8 @@ func TestApp(t *testing.T) {
 		})
 	}
 
-	t.Run("view build 2", func(t *testing.T) {
+	var document []owners.DocumentItem
+	t.Run("view build", func(t *testing.T) {
 		rock.Vid, err = a.GetActiveVersion(ctx, rock.Oid)
 		if err != nil {
 			t.Fatal(fmt.Errorf("act, GetActiveVersion: %w", err))
@@ -227,7 +430,7 @@ func TestApp(t *testing.T) {
 		}
 	})
 
-	t.Run("merged props 2", func(t *testing.T) {
+	t.Run("merged props", func(t *testing.T) {
 		for _, e := range document {
 			mps, err := a.GetMergedProps(ctx, models.Ovid{Oid: e.Oid, Vid: e.Vid})
 			if err != nil {
