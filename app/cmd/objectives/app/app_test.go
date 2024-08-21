@@ -52,7 +52,7 @@ func TestAppManual(t *testing.T) {
 	defer pool.Close()
 	a := New(pool)
 
-	t.Run("rock", func(t *testing.T) {
+	t.Run("rock create", func(t *testing.T) {
 		err = a.RockCreate(ctx, uid)
 		if err != nil {
 			t.Fatal(fmt.Errorf("act 1: %w", err))
@@ -60,21 +60,10 @@ func TestAppManual(t *testing.T) {
 	})
 
 	var rock models.Ovid
-	t.Run("select bookmarks", func(t *testing.T) {
-		bs, err := a.ListBookmarks(ctx, ListBookmarksParams{Viewer: uid})
+	t.Run("rock get", func(t *testing.T) {
+		rock.Oid, err = a.RockGet(ctx, uid)
 		if err != nil {
-			t.Fatal(fmt.Errorf("listing bookmarks: %w", err))
-		}
-
-		found := false
-		for _, b := range bs {
-			if b.IsRock {
-				rock = models.Ovid{Oid: b.Oid}
-				found = true
-			}
-		}
-		if !found {
-			t.Fatal(fmt.Errorf("assert, expected rock to be found: %v", bs))
+			t.Fatal(fmt.Errorf("act, RockGet: %w", err))
 		}
 		rock.Vid, err = a.GetActiveVersion(ctx, rock.Oid)
 		if err != nil {
@@ -149,7 +138,7 @@ func TestAppRandomOrderSubtaskCreation(t *testing.T) {
 	defer pool.Close()
 	a := New(pool)
 
-	t.Run("rock", func(t *testing.T) {
+	t.Run("rock create", func(t *testing.T) {
 		err = a.RockCreate(ctx, uid)
 		if err != nil {
 			t.Fatal(fmt.Errorf("act 1: %w", err))
@@ -157,21 +146,10 @@ func TestAppRandomOrderSubtaskCreation(t *testing.T) {
 	})
 
 	var rock models.Ovid
-	t.Run("select bookmarks", func(t *testing.T) {
-		bs, err := a.ListBookmarks(ctx, ListBookmarksParams{Viewer: uid})
+	t.Run("rock get", func(t *testing.T) {
+		rock.Oid, err = a.RockGet(ctx, uid)
 		if err != nil {
-			t.Fatal(fmt.Errorf("listing bookmarks: %w", err))
-		}
-
-		found := false
-		for _, b := range bs {
-			if b.IsRock {
-				rock = models.Ovid{Oid: b.Oid}
-				found = true
-			}
-		}
-		if !found {
-			t.Fatal(fmt.Errorf("assert, expected rock to be found: %v", bs))
+			t.Fatal(fmt.Errorf("act, RockGet: %w", err))
 		}
 		rock.Vid, err = a.GetActiveVersion(ctx, rock.Oid)
 		if err != nil {
@@ -305,7 +283,7 @@ func TestAppRandomOrderSubtaskCreationWithConcurrency(t *testing.T) {
 	defer pool.Close()
 	a := New(pool)
 
-	t.Run("rock", func(t *testing.T) {
+	t.Run("rock create", func(t *testing.T) {
 		err = a.RockCreate(ctx, uid)
 		if err != nil {
 			t.Fatal(fmt.Errorf("act 1: %w", err))
@@ -313,21 +291,10 @@ func TestAppRandomOrderSubtaskCreationWithConcurrency(t *testing.T) {
 	})
 
 	var rock models.Ovid
-	t.Run("select bookmarks", func(t *testing.T) {
-		bs, err := a.ListBookmarks(ctx, ListBookmarksParams{Viewer: uid})
+	t.Run("rock get", func(t *testing.T) {
+		rock.Oid, err = a.RockGet(ctx, uid)
 		if err != nil {
-			t.Fatal(fmt.Errorf("listing bookmarks: %w", err))
-		}
-
-		found := false
-		for _, b := range bs {
-			if b.IsRock {
-				rock = models.Ovid{Oid: b.Oid}
-				found = true
-			}
-		}
-		if !found {
-			t.Fatal(fmt.Errorf("assert, expected rock to be found: %v", bs))
+			t.Fatal(fmt.Errorf("act, RockGet: %w", err))
 		}
 		rock.Vid, err = a.GetActiveVersion(ctx, rock.Oid)
 		if err != nil {

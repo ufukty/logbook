@@ -7,6 +7,7 @@ import (
 	"logbook/cmd/objectives/service"
 	"logbook/models"
 	"logbook/models/columns"
+	"math"
 	"math/rand/v2"
 	"os"
 	"strconv"
@@ -16,6 +17,10 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+func expIntN(n int) int {
+	return int(float64(n) * rand.ExpFloat64() / math.MaxFloat64)
+}
+
 func TestStorageScale(t *testing.T) {
 	uid, err := columns.NewUuidV4[columns.UserId]()
 	if err != nil {
@@ -23,40 +28,36 @@ func TestStorageScale(t *testing.T) {
 	}
 	srvcnf, err := service.ReadConfig("../local.yml")
 	if err != nil {
-		t.Fatal(fmt.Errorf("reading service config: %w", err))
+		t.Fatal(fmt.Errorf("prep, reading service config: %w", err))
 	}
 	err = queries.RunMigration(srvcnf)
 	if err != nil {
-		t.Fatal(fmt.Errorf("running migration: %w", err))
+		t.Fatal(fmt.Errorf("prep, running migration: %w", err))
 	}
 	ctx := context.Background()
 	pool, err := pgxpool.New(ctx, srvcnf.Database.Dsn)
 	if err != nil {
-		t.Fatal(fmt.Errorf("pgxpool.New: %w", err))
+		t.Fatal(fmt.Errorf("prep, pgxpool.New: %w", err))
 	}
 	defer pool.Close()
 	a := New(pool)
-	err = a.RockCreate(ctx, uid)
-	if err != nil {
-		t.Fatal(fmt.Errorf("act 1: %w", err))
-	}
-	var rock models.Ovid
-	bs, err := a.ListBookmarks(ctx, ListBookmarksParams{Viewer: uid})
-	if err != nil {
-		t.Fatal(fmt.Errorf("listing bookmarks: %w", err))
-	}
-	found := false
-	for _, b := range bs {
-		if b.IsRock {
-			rock = models.Ovid{Oid: b.Oid}
-			found = true
-		}
-	}
-	if !found {
-		t.Fatal(fmt.Errorf("assert, expected rock to be found: %v", bs))
-	}
 
-	o, err := os.Create("scale_test.csv")
+	t.Run("rock create", func(t *testing.T) {
+		err = a.RockCreate(ctx, uid)
+		if err != nil {
+			t.Fatal(fmt.Errorf("act, RockCreate: %w", err))
+		}
+	})
+
+	var rock models.Ovid
+	t.Run("rock get", func(t *testing.T) {
+		rock.Oid, err = a.RockGet(ctx, uid)
+		if err != nil {
+			t.Fatal(fmt.Errorf("act, RockGet: %w", err))
+		}
+	})
+
+	o, err := os.Create(fmt.Sprintf("testresults/scale_test_%s.csv", time.Now().Format("20060102_150405")))
 	if err != nil {
 		t.Fatal(fmt.Errorf("os.Create: %w", err))
 	}
@@ -64,7 +65,7 @@ func TestStorageScale(t *testing.T) {
 
 	store := []columns.ObjectiveId{rock.Oid}
 	for i := range 1000 {
-		parent := store[rand.IntN(len(store))]
+		parent := store[expIntN(len(store))]
 		vid, err := a.GetActiveVersion(context.Background(), parent)
 		if err != nil {
 			t.Fatal(fmt.Errorf("GetActiveVersion(%d, %s): %w", i, parent, err))
@@ -89,6 +90,5 @@ func TestStorageScale(t *testing.T) {
 		}
 
 		fmt.Fprintf(o, "%d;%d\n", i, count)
-		time.Sleep(time.Millisecond * 50)
 	}
 }
