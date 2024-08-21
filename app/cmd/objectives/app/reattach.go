@@ -133,11 +133,11 @@ func (a *App) Reattach(ctx context.Context, params ReattachParams) error {
 	}
 
 	apCurrent, apNext, apCommon := popCommonActivePath(apCurrent, apNext)
-	opidCurrent, err := a.bubblink(ctx, apCurrent, opDetach, deltasCurrent)
+	opidCurrent, err := a.bubblink(ctx, q, apCurrent, opDetach, deltasCurrent)
 	if err != nil {
 		return fmt.Errorf("bubblink/current: %w", err)
 	}
-	opidNext, err := a.bubblink(ctx, apNext, opAttach, deltasNext)
+	opidNext, err := a.bubblink(ctx, q, apNext, opAttach, deltasNext)
 	if err != nil {
 		return fmt.Errorf("bubblink/next: %w", err)
 	}
@@ -160,7 +160,7 @@ func (a *App) Reattach(ctx context.Context, params ReattachParams) error {
 		if err != nil {
 			return fmt.Errorf("InsertOpDoubleTransitiveMerger: %w", err)
 		}
-		_, err = a.bubblink(ctx, apCommon, opAttach, zeroDeltas)
+		_, err = a.bubblink(ctx, q, apCommon, opAttach, zeroDeltas)
 		if err != nil {
 			return fmt.Errorf("bubblink: %w", err)
 		}

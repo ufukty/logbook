@@ -90,7 +90,7 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (co
 		return columns.ZeroObjectId, fmt.Errorf("InsertActiveVidForObjective: %w", err)
 	}
 
-	_, err = a.bubblink(ctx, slices.Insert(activepath, 0, models.Ovid{obj.Oid, obj.Vid}), op, bubblinkDeltaValues{SubtreeSize: 1})
+	_, err = a.bubblink(ctx, q, slices.Insert(activepath, 0, models.Ovid{obj.Oid, obj.Vid}), op, bubblinkDeltaValues{SubtreeSize: 1})
 	if err != nil {
 		return columns.ZeroObjectId, fmt.Errorf("bubblink: %w", err)
 	}

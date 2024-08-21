@@ -20,14 +20,7 @@ var zeroDeltas bubblinkDeltaValues
 // promotes an update to ascendants
 // first item of the activepath should be the source of update promotion, newly updated objective (oid:latestvid)
 // it returns the operation id generated for the transitive update of the uppermost objective in the activepath
-func (a *App) bubblink(ctx context.Context, activepath []models.Ovid, op queries.Operation, deltas bubblinkDeltaValues) (columns.OperationId, error) {
-	tx, err := a.pool.Begin(ctx)
-	if err != nil {
-		return columns.ZeroOperationId, fmt.Errorf("pool.Begin: %w", err)
-	}
-	defer tx.Rollback(ctx)
-	q := queries.New(tx)
-
+func (a *App) bubblink(ctx context.Context, q *queries.Queries, activepath []models.Ovid, op queries.Operation, deltas bubblinkDeltaValues) (columns.OperationId, error) {
 	if len(activepath) <= 1 {
 		return columns.ZeroOperationId, nil // no ascendant to promote update
 	}
@@ -143,11 +136,6 @@ func (a *App) bubblink(ctx context.Context, activepath []models.Ovid, op queries
 		}
 		cause = optrs.Opid
 		child = models.Ovid{Oid: objasc.Oid, Vid: objasc.Vid}
-	}
-
-	err = tx.Commit(ctx)
-	if err != nil {
-		return columns.ZeroOperationId, fmt.Errorf("commit: %w", err)
 	}
 
 	return cause, nil

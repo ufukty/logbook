@@ -101,7 +101,7 @@ func (a *App) Checkout(ctx context.Context, params CheckoutParams) error {
 		return fmt.Errorf("calculateDeltasForTwoVersions: %w", err)
 	}
 
-	_, err = a.bubblink(ctx, slices.Insert(activepath, 0, models.Ovid{dstobj.Oid, dstobj.Vid}), op, deltas)
+	_, err = a.bubblink(ctx, q, slices.Insert(activepath, 0, models.Ovid{dstobj.Oid, dstobj.Vid}), op, deltas)
 	if err != nil {
 		return fmt.Errorf("bubblink: %w", err)
 	}

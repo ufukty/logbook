@@ -75,7 +75,7 @@ func (a *App) viewBuilder(ctx context.Context, q *queries.Queries, viewer column
 
 	fold := false
 	cursor := int32(0)
-	if doOverlap(start, end, 0, 1) {
+	if start == 0 {
 		objtype := owners.Task
 		if len(subs) > 0 {
 			objtype = owners.Goal
@@ -99,9 +99,7 @@ func (a *App) viewBuilder(ctx context.Context, q *queries.Queries, viewer column
 	}
 	cursor++
 
-	if fold {
-		cursor += subtreeSize
-	} else {
+	if !fold {
 		for _, sub := range subs {
 			subobj, err := q.SelectObjective(ctx, queries.SelectObjectiveParams{
 				Oid: sub.SubOid,
