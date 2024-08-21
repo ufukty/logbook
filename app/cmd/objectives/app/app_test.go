@@ -215,16 +215,17 @@ func TestAppRandomOrderSubtaskCreation(t *testing.T) {
 	store := map[*testfilenode]columns.ObjectiveId{
 		nil: rock.Oid,
 	}
-	for child, parent := range ordered {
-		t.Run(child.Content, func(t *testing.T) {
+	t.Run("creating subtasks", func(t *testing.T) {
+
+		for child, parent := range ordered {
 			parentOid, ok := store[parent]
 			if !ok {
-				t.Fatal(fmt.Errorf("test is shortcutting the hierarchy"))
+				t.Fatal(fmt.Errorf("registering %q on %q: test is shortcutting the hierarchy", child.Content, parent.Content))
 			}
 
 			vid, err := a.GetActiveVersion(context.Background(), parentOid)
 			if err != nil {
-				t.Fatal(fmt.Errorf("GetActiveVersion: %s", err))
+				t.Fatal(fmt.Errorf("GetActiveVersion: %w", err))
 			}
 			oid, err := a.CreateSubtask(context.Background(), CreateSubtaskParams{
 				Creator: columns.ZeroUserId,
@@ -235,11 +236,11 @@ func TestAppRandomOrderSubtaskCreation(t *testing.T) {
 				Content: child.Content,
 			})
 			if err != nil {
-				t.Fatal(fmt.Errorf("CreateSubtask: %s", err))
+				t.Fatal(fmt.Errorf("CreateSubtask: %w", err))
 			}
 			store[child] = oid
-		})
-	}
+		}
+	})
 
 	var document []owners.DocumentItem
 	t.Run("view build", func(t *testing.T) {
