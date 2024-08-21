@@ -192,7 +192,10 @@ func TestAppRandomOrderSubtaskCreation(t *testing.T) {
 		}
 	})
 
-	ordered := map[*testfilenode]*testfilenode{} // []{node:parent}
+	type run struct {
+		child, parent *testfilenode
+	}
+	ordered := []run{}
 	t.Run("randomizing ordering", func(t *testing.T) {
 		visited_waiting := map[*testfilenode]*testfilenode{} // {node:parent}
 		for _, tc := range testfile {
@@ -202,8 +205,10 @@ func TestAppRandomOrderSubtaskCreation(t *testing.T) {
 			rnd := rand.IntN(len(visited_waiting))
 			child := maps.Keys(visited_waiting)[rnd]
 			parent := visited_waiting[child]
-
-			ordered[child] = parent
+			ordered = append(ordered, run{
+				child:  child,
+				parent: parent,
+			})
 			for _, grandchild := range child.Children {
 				visited_waiting[&grandchild] = child
 			}
@@ -217,10 +222,10 @@ func TestAppRandomOrderSubtaskCreation(t *testing.T) {
 	}
 	t.Run("creating subtasks", func(t *testing.T) {
 
-		for child, parent := range ordered {
-			parentOid, ok := store[parent]
+		for _, r := range ordered {
+			parentOid, ok := store[r.parent]
 			if !ok {
-				t.Fatal(fmt.Errorf("registering %q on %q: test is shortcutting the hierarchy", child.Content, parent.Content))
+				t.Fatal(fmt.Errorf("registering %q on %q: test is shortcutting the hierarchy", r.child.Content, r.parent.Content))
 			}
 
 			vid, err := a.GetActiveVersion(context.Background(), parentOid)
@@ -233,12 +238,12 @@ func TestAppRandomOrderSubtaskCreation(t *testing.T) {
 					Oid: parentOid,
 					Vid: vid,
 				},
-				Content: child.Content,
+				Content: r.child.Content,
 			})
 			if err != nil {
 				t.Fatal(fmt.Errorf("CreateSubtask: %w", err))
 			}
-			store[child] = oid
+			store[r.child] = oid
 		}
 	})
 
