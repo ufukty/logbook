@@ -15,7 +15,7 @@ sql:
     schema: "schema.sql"
     gen:
       go:
-        package: "database"
+        package: "queries"
         out: "."
         sql_package: "pgx/v5"
         output_db_file_name: dbtx.sqlc.go
