@@ -13,3 +13,13 @@ WHERE
     "uid" = $1
 LIMIT 100;
 
+-- name: SelectTheRockForUser :one
+SELECT
+    *
+FROM
+    "bookmark"
+WHERE
+    "uid" = $1
+    AND "is_rock" = TRUE
+LIMIT 1;
+

@@ -80,3 +80,28 @@ func (q *Queries) SelectBookmarks(ctx context.Context, uid columns.UserId) ([]Bo
 	}
 	return items, nil
 }
+
+const selectTheRockForUser = `-- name: SelectTheRockForUser :one
+SELECT
+    bid, uid, oid, title, is_rock, created_at
+FROM
+    "bookmark"
+WHERE
+    "uid" = $1
+    AND "is_rock" = TRUE
+LIMIT 1
+`
+
+func (q *Queries) SelectTheRockForUser(ctx context.Context, uid columns.UserId) (Bookmark, error) {
+	row := q.db.QueryRow(ctx, selectTheRockForUser, uid)
+	var i Bookmark
+	err := row.Scan(
+		&i.Bid,
+		&i.Uid,
+		&i.Oid,
+		&i.Title,
+		&i.IsRock,
+		&i.CreatedAt,
+	)
+	return i, err
+}
