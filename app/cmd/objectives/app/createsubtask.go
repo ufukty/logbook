@@ -9,6 +9,10 @@ import (
 	"slices"
 )
 
+const LimitSubitems = 20
+
+var ErrTooManySubitems = fmt.Errorf("limit for subitems per objective has been reached on the parent")
+
 type CreateSubtaskParams struct {
 	Creator columns.UserId
 	Parent  models.Ovid
@@ -21,6 +25,7 @@ type CreateSubtaskParams struct {
 // DONE: transaction-commit-rollback
 // DONE: bubblink
 // DONE: mark active version for promoted ascendants
+// DONE: enforce 20-subtask limit on the parent
 func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (columns.ObjectiveId, error) {
 	tx, err := a.pool.Begin(ctx)
 	if err != nil {
@@ -34,6 +39,23 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (co
 		return columns.ZeroObjectId, ErrLeftBehind
 	} else if err != nil {
 		return columns.ZeroObjectId, fmt.Errorf("listActivePathToRock: %w", err)
+	}
+
+	pObj, err := q.SelectObjective(ctx, queries.SelectObjectiveParams{
+		Oid: params.Parent.Oid,
+		Vid: params.Parent.Vid,
+	})
+	if err != nil {
+		return columns.ZeroObjectId, fmt.Errorf("SelectObjective: %w", err)
+	}
+
+	pBups, err := q.SelectBottomUpProps(ctx, pObj.Bupid)
+	if err != nil {
+		return columns.ZeroObjectId, fmt.Errorf("SelectBottomUpProps: %w", err)
+	}
+
+	if pBups.Children >= LimitSubitems {
+		return columns.ZeroObjectId, ErrTooManySubitems
 	}
 
 	op, err := q.InsertOperation(ctx, queries.InsertOperationParams{
