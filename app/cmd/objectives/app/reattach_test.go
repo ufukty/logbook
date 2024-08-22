@@ -33,7 +33,7 @@ func TestPopCommonActivePath(t *testing.T) {
 		}
 	)
 
-	l2, r2, c2 := popCommonActivePath(slices.Concat(c, l), slices.Concat(c, r))
+	l2, r2, c2 := popCommonActivePath(slices.Concat(l, c), slices.Concat(r, c))
 
 	if !slices.Equal(l, l2) {
 		t.Errorf("assert l = l2\n\tl=%v\n\tl2=%v", l, l2)
