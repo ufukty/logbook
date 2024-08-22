@@ -8,9 +8,9 @@ import (
 	"logbook/models/columns"
 )
 
-// used to instruct the bubblink for the amount of change in the Bottom Up
-// Properties due to an operation which alters the topology/state of subtree
+// represents the amount of change in the Bottom Up Props of each ascendant
 type bubblinkDeltaValues struct {
+	Children         int32 // only first parent
 	SubtreeCompleted int32
 	SubtreeSize      int32
 }
@@ -18,15 +18,14 @@ type bubblinkDeltaValues struct {
 var zeroDeltas bubblinkDeltaValues
 
 // promotes an update to ascendants
-// first item of the activepath should be the source of update promotion, newly updated objective (oid:latestvid)
-// it returns the operation id generated for the transitive update of the uppermost objective in the activepath
+// returns the uppermost objective's operation id
 func (a *App) bubblink(ctx context.Context, q *queries.Queries, activepath []models.Ovid, op queries.Operation, deltas bubblinkDeltaValues) (columns.OperationId, error) {
 	if len(activepath) <= 1 {
 		return columns.ZeroOperationId, nil // no ascendant to promote update
 	}
 	child := activepath[0]
 	cause := op.Opid
-	for _, ascendant := range activepath[1:] {
+	for i, ascendant := range activepath[1:] {
 		optrs, err := q.InsertOperation(ctx, queries.InsertOperationParams{
 			Subjectoid: ascendant.Oid,
 			Subjectvid: ascendant.Vid,
@@ -61,14 +60,12 @@ func (a *App) bubblink(ctx context.Context, q *queries.Queries, activepath []mod
 				return columns.ZeroOperationId, fmt.Errorf("SelectBottomUpProps: %w", err)
 			}
 
-			if deltas.SubtreeSize != 0 {
-				bup.SubtreeSize += deltas.SubtreeSize
-			}
-			if deltas.SubtreeCompleted != 0 {
-				bup.SubtreeCompleted += deltas.SubtreeCompleted
-			}
+			bup.Children += ternary(i == 0, deltas.Children, 0)
+			bup.SubtreeSize += deltas.SubtreeSize
+			bup.SubtreeCompleted += deltas.SubtreeCompleted
 
 			bupUpdated, err := q.InsertBottomUpProps(ctx, queries.InsertBottomUpPropsParams{
+				Children:         bup.Children,
 				SubtreeSize:      bup.SubtreeSize,
 				SubtreeCompleted: bup.SubtreeCompleted,
 			})
@@ -123,8 +120,6 @@ func (a *App) bubblink(ctx context.Context, q *queries.Queries, activepath []mod
 				return columns.ZeroOperationId, fmt.Errorf("InsertLink/2: %w", err)
 			}
 		}
-
-		// TODO: trigger computing props on objasc (async?)
 
 		// TODO: publish an event to notify frontends viewing any objective of active path?
 		_, err = q.UpdateActiveVidForObjective(ctx, queries.UpdateActiveVidForObjectiveParams{

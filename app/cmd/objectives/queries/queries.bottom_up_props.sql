@@ -1,6 +1,6 @@
 -- name: InsertBottomUpProps :one
-INSERT INTO "bottom_up_props"("subtree_size", "subtree_completed")
-    VALUES ($1, $2)
+INSERT INTO "bottom_up_props"("children", "subtree_size", "subtree_completed")
+    VALUES ($1, $2, $3)
 RETURNING
     *;
 
@@ -14,8 +14,8 @@ WHERE
 LIMIT 1;
 
 -- name: InsertBottomUpPropsThirdPerson :one
-INSERT INTO "bottom_up_props_third_person"("bupid", "viewer", "subtree_size", "subtree_completed")
-    VALUES ($1, $2, $3, $4)
+INSERT INTO "bottom_up_props_third_person"("bupid", "viewer", "children", "subtree_size", "subtree_completed")
+    VALUES ($1, $2, $3, $4, $5)
 RETURNING
     *;
 

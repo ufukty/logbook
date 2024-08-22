@@ -164,6 +164,7 @@ type Bookmark struct {
 
 type BottomUpProps struct {
 	Bupid            columns.BottomUpPropsId
+	Children         int32
 	SubtreeSize      int32
 	SubtreeCompleted int32
 }
@@ -171,6 +172,7 @@ type BottomUpProps struct {
 type BottomUpPropsThirdPerson struct {
 	Bupid            columns.BottomUpPropsId
 	Viewer           columns.UserId
+	Children         int32
 	SubtreeSize      int32
 	SubtreeCompleted int32
 }

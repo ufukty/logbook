@@ -78,6 +78,7 @@ func TestLogic(t *testing.T) {
 		}
 
 		bup, err := q.InsertBottomUpProps(ctx, InsertBottomUpPropsParams{
+			Children:         0,
 			SubtreeSize:      0,
 			SubtreeCompleted: 0,
 		})
@@ -127,6 +128,7 @@ func TestLogic(t *testing.T) {
 		}
 
 		bup, err := q.InsertBottomUpProps(ctx, InsertBottomUpPropsParams{
+			Children:         0,
 			SubtreeSize:      0,
 			SubtreeCompleted: 0,
 		})

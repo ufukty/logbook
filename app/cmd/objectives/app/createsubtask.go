@@ -66,6 +66,7 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (co
 	}
 
 	bup, err := q.InsertBottomUpProps(ctx, queries.InsertBottomUpPropsParams{
+		Children:         0,
 		SubtreeSize:      0,
 		SubtreeCompleted: 0,
 	})
@@ -90,7 +91,7 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (co
 		return columns.ZeroObjectId, fmt.Errorf("InsertActiveVidForObjective: %w", err)
 	}
 
-	_, err = a.bubblink(ctx, q, slices.Insert(activepath, 0, models.Ovid{obj.Oid, obj.Vid}), op, bubblinkDeltaValues{SubtreeSize: 1})
+	_, err = a.bubblink(ctx, q, slices.Insert(activepath, 0, models.Ovid{obj.Oid, obj.Vid}), op, bubblinkDeltaValues{Children: 1, SubtreeSize: 1})
 	if err != nil {
 		return columns.ZeroObjectId, fmt.Errorf("bubblink: %w", err)
 	}
