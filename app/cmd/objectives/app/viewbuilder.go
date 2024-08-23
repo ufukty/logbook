@@ -12,6 +12,8 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
+var ErrGiantViewport = fmt.Errorf("requested portion of document is too big")
+
 type ViewBuilderParams struct {
 	Viewer        columns.UserId
 	Root          models.Ovid
@@ -136,6 +138,10 @@ func (a *App) viewBuilder(ctx context.Context, q *queries.Queries, viewer column
 //
 // may wrap: [ErrLeftBehind]
 func (a *App) ViewBuilder(ctx context.Context, params ViewBuilderParams) ([]owners.DocumentItem, error) {
+	if params.Length > 200 {
+		return nil, ErrGiantViewport
+	}
+
 	tx, err := a.pool.Begin(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("pool.Begin: %w", err)
