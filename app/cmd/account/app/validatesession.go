@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
-	"logbook/cmd/account/app/average"
+	"logbook/internal/average"
 	"logbook/cmd/account/database"
 	"logbook/models/columns"
 	"time"

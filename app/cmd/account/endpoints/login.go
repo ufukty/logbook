@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 	"logbook/cmd/account/app"
-	"logbook/cmd/account/app/average"
+	"logbook/internal/average"
 	"logbook/internal/web/requests"
 	"logbook/internal/web/validate"
 	"logbook/models/columns"
