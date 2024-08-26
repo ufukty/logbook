@@ -107,7 +107,7 @@ func (a *App) bubblink(ctx context.Context, q *queries.Queries, activepath []mod
 			return columns.ZeroOperationId, fmt.Errorf("SelectSubLinks: %w", err)
 		}
 		for _, sublink := range sublinks {
-			if sublink.SubOid == objasc.Oid {
+			if sublink.SubOid == child.Oid {
 				continue // not sibling but itself's old version
 			}
 			_, err = q.InsertLink(ctx, queries.InsertLinkParams{
