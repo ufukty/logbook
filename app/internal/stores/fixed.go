@@ -12,6 +12,15 @@ type FixedSizeKV[K comparable, V any] struct {
 	log   logger.Logger
 }
 
+func NewFixedSizeKV[K comparable, V any](logname string, size int) *FixedSizeKV[K, V] {
+	return &FixedSizeKV[K, V]{
+		Size:  size,
+		store: map[K]V{},
+		mu:    sync.RWMutex{},
+		log:   *logger.NewLogger(logname),
+	}
+}
+
 // TODO: implement LRU cache, if it'll perform better on storing integers (as the timestamps will consume memory too)
 func (f *FixedSizeKV[K, V]) maintainsize() {
 	if len(f.store) < f.Size {
