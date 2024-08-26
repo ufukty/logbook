@@ -12,6 +12,8 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
+var ViewportLimit = 200
+
 var ErrGiantViewport = fmt.Errorf("requested portion of document is too big")
 
 type ViewBuilderParams struct {
@@ -20,116 +22,118 @@ type ViewBuilderParams struct {
 	Start, Length int
 }
 
-func doOverlap(aStart, aEnd, bStart, bEnd int32) bool {
-	return aStart < bEnd && bStart < aEnd
+type line struct{ start, end int32 }
+
+func doOverlap(a, b line) bool {
+	return a.start < b.end && b.start < a.end
 }
 
-func (a *App) getSubtreeSize(ctx context.Context, q *queries.Queries, viewer columns.UserId, bupid columns.BottomUpPropsId) (int32, error) {
-	bup, err := q.SelectBottomUpProps(ctx, bupid)
-	if err != nil {
-		return 0, fmt.Errorf("SelectBottomUpProps: %w", err)
-	}
-	buptp, err := q.SelectBottomUpPropsThirdPerson(ctx, queries.SelectBottomUpPropsThirdPersonParams{
-		Bupid:  bupid,
-		Viewer: viewer,
+func (a *App) isFold(ctx context.Context, q *queries.Queries, viewer columns.UserId, subject columns.ObjectiveId) (bool, error) {
+	vp, err := q.SelectObjectiveViewPrefs(ctx, queries.SelectObjectiveViewPrefsParams{
+		Uid: viewer,
+		Oid: subject,
 	})
-	if err != nil && err != pgx.ErrNoRows {
-		return 0, fmt.Errorf("SelectBottomUpPropsThirdPerson: %w", err)
-	} else if err == pgx.ErrNoRows {
-		return bup.SubtreeSize, nil
+	if err == pgx.ErrNoRows {
+		return false, nil
+	} else if err != nil {
+		return false, fmt.Errorf("SelectObjectiveViewPrefs: %w", err)
 	} else {
-		return bup.SubtreeSize + buptp.SubtreeSize, nil
+		return vp.Fold, nil
 	}
 }
 
-// TODO: mind permissions
-func (a *App) viewBuilder(ctx context.Context, q *queries.Queries, viewer columns.UserId, subject models.Ovid, start, end int32, depth int) ([]owners.DocumentItem, error) {
-	view := []owners.DocumentItem{}
-
-	if end <= start || end < 0 {
-		return view, nil
+// FIXME: apply recursion as permissions allow for solo and collaborated objectives
+func (a *App) getUss(ctx context.Context, q *queries.Queries, viewer columns.UserId, subject models.Ovid) (int32, error) {
+	if cachedsize, ok := a.caches.Uss.Get(usssubject{Viewer: viewer, Object: subject}); ok {
+		return cachedsize, nil
 	}
-
-	obj, err := q.SelectObjective(ctx, queries.SelectObjectiveParams{
-		Oid: subject.Oid,
-		Vid: subject.Vid,
-	})
-	if err != nil {
-		return nil, fmt.Errorf("SelectObjective: %w", err)
-	}
-
-	subtreeSize, err := a.getSubtreeSize(ctx, q, viewer, obj.Bupid)
-	if err != nil {
-		return nil, fmt.Errorf("getSubtreeSize/1: %w", err)
-	}
-
-	if subtreeSize+1 < start { // viewport starts after the subtree
-		return view, nil
-	}
-
-	subs, err := q.SelectSubLinks(ctx, queries.SelectSubLinksParams{
+	subs, err := q.SelectSubLinks(context.Background(), queries.SelectSubLinksParams{
 		SupOid: subject.Oid,
 		SupVid: subject.Vid,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("SelectSubLinks: %w", err)
+		return 0, fmt.Errorf("SelectSubLinks: %w", err)
+	}
+	size := int32(0)
+	for _, sub := range subs {
+		fold, err := a.isFold(ctx, q, viewer, sub.SubOid)
+		if err != nil {
+			return 0, fmt.Errorf("isFold: %w", err)
+		}
+		if fold {
+			size += 1
+		} else {
+			size_, err := a.getUss(ctx, q, viewer, models.Ovid{Oid: sub.SubOid, Vid: sub.SubVid})
+			if err != nil {
+				return 0, fmt.Errorf("getUss(%s): %w", sub.SubOid, err)
+			}
+			size += size_ + 1
+		}
+	}
+	a.caches.Uss.Set(usssubject{Viewer: viewer, Object: subject}, size)
+	return size, nil
+}
+
+// TODO: mind permissions
+func (a *App) viewBuilder(ctx context.Context, q *queries.Queries, viewer columns.UserId, subject models.Ovid, start, end int32, depth int) ([]owners.DocumentItem, error) {
+	doc := []owners.DocumentItem{}
+
+	// if end <= start || end < 0 {
+	// 	return doc, nil
+	// }
+
+	unfoldSubtreeSize, err := a.getUss(ctx, q, viewer, subject)
+	if err != nil {
+		return nil, fmt.Errorf("getUss/1: %w", err)
 	}
 
-	fold := false
-	cursor := int32(0)
-	if start == 0 {
-		objtype := owners.Task
-		if len(subs) > 0 {
-			objtype = owners.Goal
-		}
-		vp, err := q.SelectObjectiveViewPrefs(ctx, queries.SelectObjectiveViewPrefsParams{
-			Uid: viewer,
-			Oid: subject.Oid,
-		})
-		if err != nil && err != pgx.ErrNoRows {
-			return nil, fmt.Errorf("SelectObjectiveViewPrefs: %w", err)
-		} else if err == nil {
-			fold = vp.Fold
-		}
-		view = append(view, owners.DocumentItem{
+	// if unfoldSubtreeSize+1 < start { // viewport starts after the subtree
+	// 	return doc, nil
+	// }
+
+	fold, err := a.isFold(ctx, q, viewer, subject.Oid)
+	if err != nil {
+		return nil, fmt.Errorf("isFold: %w", err)
+	}
+
+	if start <= 0 {
+		doc = append(doc, owners.DocumentItem{
 			Oid:           subject.Oid,
 			Vid:           subject.Vid,
 			Depth:         depth,
-			ObjectiveType: objtype,
+			ObjectiveType: ternary(unfoldSubtreeSize > 0, owners.Goal, owners.Task),
 			Folded:        fold,
 		})
 	}
-	cursor++
 
-	if !fold {
+	if !fold && doOverlap(line{1, unfoldSubtreeSize + 1}, line{start, end}) {
+		subs, err := q.SelectSubLinks(ctx, queries.SelectSubLinksParams{
+			SupOid: subject.Oid,
+			SupVid: subject.Vid,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("SelectSubLinks: %w", err)
+		}
+		passed := int32(1)
 		for _, sub := range subs {
-			subobj, err := q.SelectObjective(ctx, queries.SelectObjectiveParams{
-				Oid: sub.SubOid,
-				Vid: sub.SubVid,
-			})
+			subUss, err := a.getUss(ctx, q, viewer, models.Ovid{Oid: sub.SubOid, Vid: sub.SubVid})
 			if err != nil {
-				return nil, fmt.Errorf("SelectObjective: %w", err)
+				return nil, fmt.Errorf("getUss: %w", err)
 			}
-			subtreeSize, err := a.getSubtreeSize(ctx, q, viewer, subobj.Bupid)
-			if err != nil {
-				return nil, fmt.Errorf("subtreeSize/2: %w", err)
-			}
-
-			if doOverlap(start, end, cursor, cursor+subtreeSize+1) {
-				v, err := a.viewBuilder(ctx, q, viewer, models.Ovid{sub.SubOid, sub.SubVid}, start-cursor, end-cursor, depth+1)
+			if doOverlap(line{passed, passed + subUss + 1}, line{start, end}) {
+				v, err := a.viewBuilder(ctx, q, viewer, models.Ovid{sub.SubOid, sub.SubVid}, start-passed, end-passed, depth+1)
 				if err != nil {
-					return nil, fmt.Errorf("viewBuilder: %w", err)
+					return nil, fmt.Errorf("viewBuilder(%s): %w", sub.SubOid, err)
 				}
-
 				if len(v) > 0 {
-					view = slices.Concat(view, v)
+					doc = slices.Concat(doc, v)
 				}
 			}
-			cursor += subtreeSize + 1
+			passed += subUss + 1
 		}
 	}
 
-	return view, nil
+	return doc, nil
 }
 
 // [App.ViewBuilder] will return an array of [models.Ovid] belong to objectives sit
@@ -138,7 +142,7 @@ func (a *App) viewBuilder(ctx context.Context, q *queries.Queries, viewer column
 //
 // may wrap: [ErrLeftBehind]
 func (a *App) ViewBuilder(ctx context.Context, params ViewBuilderParams) ([]owners.DocumentItem, error) {
-	if params.Length > 200 {
+	if params.Length > ViewportLimit {
 		return nil, ErrGiantViewport
 	}
 

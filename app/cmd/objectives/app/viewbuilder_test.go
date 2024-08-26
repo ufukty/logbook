@@ -18,7 +18,7 @@ func TestDoOverlapPositive(t *testing.T) {
 	}
 	for tn, tc := range tcs {
 		t.Run(tn, func(t *testing.T) {
-			if !doOverlap(tc.a, tc.b, tc.x, tc.y) {
+			if !doOverlap(line{tc.a, tc.b}, line{tc.x, tc.y}) {
 				t.Errorf("returned false for %s", tn)
 			}
 		})
@@ -39,7 +39,7 @@ func TestDoOverlapNegative(t *testing.T) {
 	}
 	for tn, tc := range tcs {
 		t.Run(tn, func(t *testing.T) {
-			if doOverlap(tc.a, tc.b, tc.x, tc.y) {
+			if doOverlap(line{tc.a, tc.b}, line{tc.x, tc.y}) {
 				t.Errorf("returned true for %s", tn)
 			}
 		})

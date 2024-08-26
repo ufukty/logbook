@@ -15,6 +15,7 @@ import (
 	"os"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"golang.org/x/exp/maps"
@@ -227,35 +228,41 @@ func TestAppRandomOrderSubtaskCreation(t *testing.T) {
 
 	var document []owners.DocumentItem
 	t.Run("view build", func(t *testing.T) {
-		registered := len(store)
-
 		rock.Vid, err = a.GetActiveVersion(ctx, rock.Oid)
 		if err != nil {
 			t.Fatal(fmt.Errorf("act, GetActiveVersion: %w", err))
 		}
 
+		ViewportLimit = 9999999
+
 		document, err = a.ViewBuilder(ctx, ViewBuilderParams{
 			Viewer: uid,
 			Root:   rock,
 			Start:  0,
-			Length: registered,
+			Length: ViewportLimit,
 		})
 		if err != nil {
 			t.Fatal(fmt.Errorf("ViewBuilder: %w", err))
 		}
 
-		if len(document) != registered {
-			t.Errorf("assert, document length, expected %d got %d", registered, len(document))
+		if len(document) != len(store) {
+			t.Errorf("assert, document length, expected %d got %d", len(store), len(document))
 		}
 	})
 
-	t.Run("merged props", func(t *testing.T) {
+	t.Run("merged props and print", func(t *testing.T) {
+		o, err := os.Create(fmt.Sprintf("testresults/view_building_%s.txt", time.Now().Format("20060102_150405")))
+		if err != nil {
+			t.Fatal(fmt.Errorf("os.Create: %w", err))
+		}
+		defer o.Close()
+
 		for _, e := range document {
 			mps, err := a.GetMergedProps(ctx, models.Ovid{Oid: e.Oid, Vid: e.Vid})
 			if err != nil {
 				t.Fatal(fmt.Errorf("act, GetMergedProps: %w", err))
 			}
-			fmt.Println(e, mps)
+			fmt.Fprintln(o, e, mps)
 		}
 	})
 }
