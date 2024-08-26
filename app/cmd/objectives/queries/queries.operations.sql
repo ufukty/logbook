@@ -37,6 +37,12 @@ INSERT INTO "op_obj_create_subtask"("opid", "content")
 RETURNING
     *;
 
+-- name: InsertOpObjDeleteSubtask :one
+INSERT INTO "op_obj_delete_subtask"("opid", "doid", "dvid")
+    VALUES ($1, $2, $3)
+RETURNING
+    *;
+
 -- name: InsertOpObjAttach :one
 INSERT INTO "op_obj_attach"("opid", "child")
     VALUES ($1, $2)

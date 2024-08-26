@@ -84,7 +84,7 @@ CREATE TYPE "OpType" AS ENUM(
     'obj_completion',
     'obj_content',
     'obj_create_subtask',
-    'obj_delete',
+    'obj_delete_subtask',
     'obj_attach',
     'obj_detach',
     'obj_reorder',
@@ -131,6 +131,13 @@ CREATE TABLE "op_obj_create_subtask"(
     "id" uuid NOT NULL UNIQUE DEFAULT gen_random_uuid(),
     "opid" "OperationId" NOT NULL,
     "content" text NOT NULL
+);
+
+CREATE TABLE "op_obj_delete_subtask"(
+    "id" uuid NOT NULL UNIQUE DEFAULT gen_random_uuid(),
+    "opid" "OperationId" NOT NULL,
+    "doid" "ObjectiveId" NOT NULL,
+    "dvid" "VersionId" NOT NULL
 );
 
 CREATE TABLE "op_obj_attach"(

@@ -136,6 +136,31 @@ func (q *Queries) InsertOpObjCreateSubtask(ctx context.Context, arg InsertOpObjC
 	return i, err
 }
 
+const insertOpObjDeleteSubtask = `-- name: InsertOpObjDeleteSubtask :one
+INSERT INTO "op_obj_delete_subtask"("opid", "doid", "dvid")
+    VALUES ($1, $2, $3)
+RETURNING
+    id, opid, doid, dvid
+`
+
+type InsertOpObjDeleteSubtaskParams struct {
+	Opid columns.OperationId
+	Doid columns.ObjectiveId
+	Dvid columns.VersionId
+}
+
+func (q *Queries) InsertOpObjDeleteSubtask(ctx context.Context, arg InsertOpObjDeleteSubtaskParams) (OpObjDeleteSubtask, error) {
+	row := q.db.QueryRow(ctx, insertOpObjDeleteSubtask, arg.Opid, arg.Doid, arg.Dvid)
+	var i OpObjDeleteSubtask
+	err := row.Scan(
+		&i.ID,
+		&i.Opid,
+		&i.Doid,
+		&i.Dvid,
+	)
+	return i, err
+}
+
 const insertOpObjDetach = `-- name: InsertOpObjDetach :one
 INSERT INTO "op_obj_detach"("opid", "child")
     VALUES ($1, $2)
