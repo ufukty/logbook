@@ -212,7 +212,7 @@ func TestAppRandomOrderSubtaskCreation(t *testing.T) {
 				t.Fatal(fmt.Errorf("GetActiveVersion: %w", err))
 			}
 			oid, err := a.CreateSubtask(context.Background(), CreateSubtaskParams{
-				Creator: columns.ZeroUserId,
+				Creator: uid,
 				Parent: models.Ovid{
 					Oid: parentOid,
 					Vid: vid,
@@ -369,7 +369,7 @@ func TestAppRandomOrderSubtaskCreationWithConcurrency(t *testing.T) {
 						return
 					}
 					oid, err := a.CreateSubtask(context.Background(), CreateSubtaskParams{
-						Creator: columns.ZeroUserId,
+						Creator: uid,
 						Parent: models.Ovid{
 							Oid: parentOid,
 							Vid: vid,
