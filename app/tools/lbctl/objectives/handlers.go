@@ -140,20 +140,16 @@ func createSubtask() error {
 }
 
 type deleteSubtaskFlags struct {
-	UserId     string
-	ParentOid  string
-	ParentVid  string
-	SubjectOid string
-	SubjectVid string
+	UserId string
+	Oid    string
+	Vid    string
 }
 
 func deleteSubtask() error {
 	var flags deleteSubtaskFlags
 	flag.StringVar(&flags.UserId, "uid", "00000000-0000-0000-0000-000000000000", "")
-	flag.StringVar(&flags.ParentOid, "poid", "", "parent oid")
-	flag.StringVar(&flags.ParentVid, "pvid", "", "parent vid")
-	flag.StringVar(&flags.SubjectOid, "soid", "", "subject oid")
-	flag.StringVar(&flags.SubjectVid, "svid", "", "subject vid")
+	flag.StringVar(&flags.Oid, "oid", "", "subject oid")
+	flag.StringVar(&flags.Vid, "vid", "", "subject vid")
 	flag.Parse()
 
 	if empties := reflux.FindZeroValues(flags); len(empties) > 0 {
@@ -172,8 +168,7 @@ func deleteSubtask() error {
 	a := app.New(pool)
 
 	err = a.DeleteSubtask(context.Background(), app.DeleteSubtaskParams{
-		Parent:  models.Ovid{columns.ObjectiveId(flags.ParentVid), columns.VersionId(flags.ParentOid)},
-		Subject: models.Ovid{columns.ObjectiveId(flags.SubjectOid), columns.VersionId(flags.SubjectVid)},
+		Subject: models.Ovid{columns.ObjectiveId(flags.Oid), columns.VersionId(flags.Vid)},
 		Actor:   columns.UserId(flags.UserId),
 	})
 	if err != nil {
@@ -215,14 +210,14 @@ func getActiveVersion() error {
 }
 
 type getMergedPropsFlags struct {
-	SubjectOid string
-	SubjectVid string
+	Oid string
+	Vid string
 }
 
 func getMergedProps() error {
 	var flags getMergedPropsFlags
-	flag.StringVar(&flags.SubjectOid, "soid", "", "parent oid")
-	flag.StringVar(&flags.SubjectVid, "svid", "", "parent vid")
+	flag.StringVar(&flags.Oid, "oid", "", "parent oid")
+	flag.StringVar(&flags.Vid, "vid", "", "parent vid")
 	flag.Parse()
 
 	if empties := reflux.FindZeroValues(flags); len(empties) > 0 {
@@ -240,7 +235,7 @@ func getMergedProps() error {
 	defer pool.Close()
 	a := app.New(pool)
 
-	mprops, err := a.GetMergedProps(context.Background(), models.Ovid{columns.ObjectiveId(flags.SubjectOid), columns.VersionId(flags.SubjectVid)})
+	mprops, err := a.GetMergedProps(context.Background(), models.Ovid{columns.ObjectiveId(flags.Oid), columns.VersionId(flags.Vid)})
 	if err != nil {
 		return fmt.Errorf("a.GetMergedProps: %w", err)
 	}
@@ -310,12 +305,20 @@ func listBookmarks() error {
 	defer pool.Close()
 	a := app.New(pool)
 
-	bms, err := a.ListBookmarks(context.Background(), app.ListBookmarksParams{})
+	bms, err := a.ListBookmarks(context.Background(), app.ListBookmarksParams{
+		Viewer: columns.UserId(flags.UserId),
+	})
 	if err != nil {
 		return fmt.Errorf("a.ListBookmarks: %w", err)
 	}
 	for _, e := range bms {
-		fmt.Println(e)
+		fmt.Println(
+			"Bid:", e.Bid,
+			"Oid:", e.Oid,
+			"IsRock:", e.IsRock,
+			"Title:", e.Title,
+			"CreatedAt:", e.CreatedAt,
+		)
 	}
 	return nil
 }
@@ -414,7 +417,6 @@ type rockGetFlags struct {
 }
 
 func rockGet() error {
-
 	var flags rockGetFlags
 	flag.StringVar(&flags.UserId, "uid", "00000000-0000-0000-0000-000000000000", "")
 	flag.Parse()
@@ -483,7 +485,13 @@ func viewBuilder() error {
 		return fmt.Errorf("ViewBuilder: %w", err)
 	}
 	for _, e := range d {
-		fmt.Println(e)
+		fmt.Println(
+			"Depth:", e.Depth,
+			"ObjectiveType:", e.ObjectiveType,
+			"Folded:", e.Folded,
+			"Oid:", e.Oid,
+			"Vid:", e.Vid,
+		)
 	}
 	return nil
 }
