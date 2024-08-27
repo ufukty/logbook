@@ -8,16 +8,16 @@ import (
 func findZeroValues(v reflect.Value, path []string) (errs []string) {
 	switch t := v.Type(); t.Kind() {
 	case reflect.Pointer:
-		errs = append(errs, findZeroValues(reflect.Indirect(v), append(path, t.Name()))...)
+		errs = append(errs, findZeroValues(reflect.Indirect(v), path)...)
 	case reflect.Struct:
 		var fields = t.NumField()
 		for i := 0; i < fields; i++ {
 			fv := v.Field(i)
-			errs = append(errs, findZeroValues(fv, append(path, fv.Type().Name()))...)
+			errs = append(errs, findZeroValues(fv, append(path, t.Field(i).Name))...)
 		}
 	default:
 		if v.IsZero() {
-			errs = append(errs, strings.Join(append(path, t.Name()), "."))
+			errs = append(errs, strings.Join(path, "."))
 		}
 	}
 	return
