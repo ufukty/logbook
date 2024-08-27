@@ -9,11 +9,11 @@ import (
 	"logbook/models/owners"
 )
 
-type ObjectiveHistoryParams struct {
+type GetObjectiveHistoryParams struct {
 	Subject models.Ovid
 }
 
-func (a *App) GetObjectiveHistory(ctx context.Context, params ObjectiveHistoryParams) ([]owners.OperationHistoryItem, error) {
+func (a *App) GetObjectiveHistory(ctx context.Context, params GetObjectiveHistoryParams) ([]owners.OperationHistoryItem, error) {
 	tx, err := a.pool.Begin(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("pool.Begin: %w", err)
