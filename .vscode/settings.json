@@ -1,10 +1,13 @@
 {
-    "editor.wordWrap": "off",
-    "runOnSave.commands": [
-        {
-            "match": "\\.(mmd|d2)$",
-            "command": "echo && cd '${fileDirname}' && test -e Makefile && make all && echo",
-            "runningStatusMessage": "make..."
-        }
-    ]
+  "editor.wordWrap": "off",
+  "runOnSave.commands": [
+    {
+      "match": "\\.(mmd|d2)$",
+      "command": "echo && cd '${fileDirname}' && test -e Makefile && make all && echo",
+      "runningStatusMessage": "make..."
+    }
+  ],
+  "go.testEnvVars": {
+    "WORKSPACE": "${workspaceFolder}"
+  }
 }

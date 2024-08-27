@@ -25,6 +25,9 @@
         "-key",
         "../platform/local/tls/localhost.key"
       ],
+      "env": {
+        "WORKSPACE": "${workspaceFolder}"
+      }
     },
     {
       "name": "internal-gateway",
@@ -47,6 +50,9 @@
         "-key",
         "../platform/local/tls/localhost.key"
       ],
+      "env": {
+        "WORKSPACE": "${workspaceFolder}"
+      }
     },
     {
       "name": "registry",
@@ -67,6 +73,9 @@
         "-key",
         "../platform/local/tls/localhost.key"
       ],
+      "env": {
+        "WORKSPACE": "${workspaceFolder}"
+      },
       "preLaunchTask": "accounts-service-migration",
     },
     {
@@ -92,6 +101,9 @@
         "-key",
         "../platform/local/tls/localhost.key"
       ],
+      "env": {
+        "WORKSPACE": "${workspaceFolder}"
+      },
       "preLaunchTask": "accounts-service-migration",
     },
     {
@@ -117,6 +129,9 @@
         "-key",
         "../platform/local/tls/localhost.key"
       ],
+      "env": {
+        "WORKSPACE": "${workspaceFolder}"
+      },
       "preLaunchTask": "objectives-service-migration",
     }
   ],

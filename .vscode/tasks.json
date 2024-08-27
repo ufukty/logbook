@@ -18,6 +18,9 @@
       ],
       "options": {
         "cwd": "${workspaceFolder}/app",
+        "env": {
+          "WORKSPACE": "${workspaceFolder}"
+        }
       },
     },
     {
@@ -37,6 +40,9 @@
       ],
       "options": {
         "cwd": "${workspaceFolder}/app",
+        "env": {
+          "WORKSPACE": "${workspaceFolder}"
+        }
       },
     }
   ]
