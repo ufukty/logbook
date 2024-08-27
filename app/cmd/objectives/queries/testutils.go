@@ -5,7 +5,11 @@ import (
 	"log"
 	"logbook/cmd/objectives/service"
 	"logbook/internal/utilities/run"
+	"os"
+	"path/filepath"
 )
+
+var migrationfile = filepath.Join(os.Getenv("WORKSPACE"), "app/cmd/objectives/queries/schema.sql")
 
 func RunMigration(cfg *service.Config) error {
 	output := run.ExitAfterStderr("psql",
@@ -19,7 +23,7 @@ func RunMigration(cfg *service.Config) error {
 	output = run.ExitAfterStderr("psql",
 		"-U", cfg.Database.User,
 		"-d", cfg.Database.Name,
-		"-f", "../queries/schema.sql", // working directory is not guaranteed
+		"-f", migrationfile,
 	)
 	log.Println("building the application database:")
 	fmt.Println(output)
