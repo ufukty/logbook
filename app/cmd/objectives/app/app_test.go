@@ -226,13 +226,13 @@ func TestAppRandomOrderSubtaskCreation(t *testing.T) {
 		}
 	})
 
+	rock.Vid, err = a.GetActiveVersion(ctx, rock.Oid)
+	if err != nil {
+		t.Fatal(fmt.Errorf("act, GetActiveVersion: %w", err))
+	}
+
 	var document []owners.DocumentItem
 	t.Run("view build", func(t *testing.T) {
-		rock.Vid, err = a.GetActiveVersion(ctx, rock.Oid)
-		if err != nil {
-			t.Fatal(fmt.Errorf("act, GetActiveVersion: %w", err))
-		}
-
 		ViewportLimit = 9999999
 
 		document, err = a.ViewBuilder(ctx, ViewBuilderParams{
@@ -263,6 +263,58 @@ func TestAppRandomOrderSubtaskCreation(t *testing.T) {
 				t.Fatal(fmt.Errorf("act, GetMergedProps: %w", err))
 			}
 			fmt.Fprintln(o, e, mps)
+		}
+	})
+
+	t.Run("list children of root and delete them", func(t *testing.T) {
+		rock.Vid, err = a.GetActiveVersion(ctx, rock.Oid)
+		if err != nil {
+			t.Fatal(fmt.Errorf("act, GetActiveVersion: %w", err))
+		}
+
+		children, err := a.ListChildren(ctx, rock)
+		if err != nil {
+			t.Fatal(fmt.Errorf("ListChildren: %w", err))
+		}
+
+		for _, child := range children {
+			err := a.DeleteSubtask(ctx, DeleteSubtaskParams{
+				Subject: child,
+				Actor:   uid,
+			})
+			if err != nil {
+				t.Fatal(fmt.Errorf("DeleteSubtask: %w", err))
+			}
+
+			rock.Vid, err = a.GetActiveVersion(ctx, rock.Oid)
+			if err != nil {
+				t.Fatal(fmt.Errorf("act, GetActiveVersion: %w", err))
+			}
+
+			props, err := a.GetMergedProps(ctx, rock)
+			if err != nil {
+				t.Fatal(fmt.Errorf("GetMergedProps: %w", err))
+			}
+
+			fmt.Println("subtree size of rock:", props.SubtreeSize)
+
+			document, err = a.ViewBuilder(ctx, ViewBuilderParams{
+				Viewer: uid,
+				Root:   rock,
+				Start:  0,
+				Length: 2,
+			})
+			if err != nil {
+				t.Fatal(fmt.Errorf("ViewBuilder: %w", err))
+			}
+
+			for _, e := range document {
+				mps, err := a.GetMergedProps(ctx, models.Ovid{Oid: e.Oid, Vid: e.Vid})
+				if err != nil {
+					t.Fatal(fmt.Errorf("act, GetMergedProps: %w", err))
+				}
+				fmt.Println(e, mps)
+			}
 		}
 	})
 }
