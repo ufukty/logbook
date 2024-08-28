@@ -26,6 +26,9 @@ type CreateSubtaskParams struct {
 // DONE: bubblink
 // DONE: mark active version for promoted ascendants
 // DONE: enforce 20-subtask limit on the parent
+// TODO: apply auto-merge on non-conflicting concurrent updates
+// TODO: apply detaching from active version on conflicting concurrent updates
+// TODO: invalidate the unfolded subtree size cache for each ascendant and each viewer & trigger recalculation
 func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (columns.ObjectiveId, error) {
 	tx, err := a.pool.Begin(ctx)
 	if err != nil {
