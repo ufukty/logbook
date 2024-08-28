@@ -61,5 +61,15 @@ func (a *App) CreateUser(ctx context.Context, params RegistrationParameters) err
 		return fmt.Errorf("inserting profile information into database: %w", err)
 	}
 
+	r, err := a.objectives.RockCreate(&endpoints.RockCreateRequest{
+		UserId: user.Uid,
+	})
+	if err != nil {
+		return fmt.Errorf("calling objectives service to create the rock for user: %w", err)
+	}
+	if r.StatusCode != 200 {
+		return fmt.Errorf("objectives service returned non-200 status code for the request to create rock for user: %s", r.Body)
+	}
+
 	return nil
 }
