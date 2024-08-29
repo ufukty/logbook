@@ -37,3 +37,12 @@ func (omps ObjectiveMergedProps) String() string {
 		omps.CreatedAt,
 	)
 }
+
+func (hist OperationHistoryItem) String() string {
+	return fmt.Sprintf("(Version:%s) (Type:%s) (CreatedBy:%s) (CreatedAt:%s)",
+		lastsix(hist.Version),
+		hist.Type,
+		lastsix(hist.CreatedBy),
+		hist.CreatedAt,
+	)
+}
