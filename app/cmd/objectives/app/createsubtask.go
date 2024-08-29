@@ -6,7 +6,6 @@ import (
 	"logbook/cmd/objectives/queries"
 	"logbook/models"
 	"logbook/models/columns"
-	"slices"
 )
 
 const LimitSubitems = 20
@@ -54,7 +53,7 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (co
 
 	pBups, err := q.SelectBottomUpProps(ctx, pObj.Bupid)
 	if err != nil {
-		return columns.ZeroObjectId, fmt.Errorf("SelectBottomUpProps: %w", err)
+		return columns.ZeroObjectId, fmt.Errorf("SelectBottomUpProps/parent: %w", err)
 	}
 
 	if pBups.Children >= LimitSubitems {
@@ -69,7 +68,7 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (co
 		OpStatus:   queries.OpStatusAccepted,
 	})
 	if err != nil {
-		return columns.ZeroObjectId, fmt.Errorf("InsertOperation: %w", err)
+		return columns.ZeroObjectId, fmt.Errorf("InsertOperation/child: %w", err)
 	}
 
 	_, err = q.InsertOpObjCreateSubtask(ctx, queries.InsertOpObjCreateSubtaskParams{
@@ -87,7 +86,7 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (co
 		Owner:     params.Creator,
 	})
 	if err != nil {
-		return columns.ZeroObjectId, fmt.Errorf("InsertProperties row: %w", err)
+		return columns.ZeroObjectId, fmt.Errorf("InsertProperties/child: %w", err)
 	}
 
 	bup, err := q.InsertBottomUpProps(ctx, queries.InsertBottomUpPropsParams{
@@ -96,7 +95,7 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (co
 		SubtreeCompleted: 0,
 	})
 	if err != nil {
-		return columns.ZeroObjectId, fmt.Errorf("InsertBottomUpProps: %w", err)
+		return columns.ZeroObjectId, fmt.Errorf("InsertBottomUpProps/child: %w", err)
 	}
 
 	obj, err := q.InsertNewObjective(ctx, queries.InsertNewObjectiveParams{
@@ -116,7 +115,87 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (co
 		return columns.ZeroObjectId, fmt.Errorf("InsertActiveVidForObjective: %w", err)
 	}
 
-	_, err = a.bubblink(ctx, q, slices.Insert(activepath, 0, models.Ovid{obj.Oid, obj.Vid}), op, bubblinkDeltaValues{Children: 1, SubtreeSize: 1})
+	pOp, err := q.InsertOperation(ctx, queries.InsertOperationParams{
+		Subjectoid: pObj.Oid,
+		Subjectvid: pObj.Vid,
+		Actor:      columns.ZeroUserId,
+		OpType:     queries.OpTypeTransitive,
+		OpStatus:   queries.OpStatusAccepted,
+	})
+	if err != nil {
+		return columns.ZeroObjectId, fmt.Errorf("InsertOperation: %w", err)
+	}
+
+	_, err = q.InsertOpTransitive(ctx, queries.InsertOpTransitiveParams{
+		Opid:  pOp.Opid,
+		Cause: op.Opid,
+	})
+	if err != nil {
+		return columns.ZeroObjectId, fmt.Errorf("InsertOpTransitive: %w", err)
+	}
+
+	pBups.Children += 1
+	pBups.SubtreeSize += 1
+	pBupsUpd, err := q.InsertBottomUpProps(ctx, queries.InsertBottomUpPropsParams{
+		Children:         pBups.Children,
+		SubtreeSize:      pBups.SubtreeSize,
+		SubtreeCompleted: pBups.SubtreeCompleted,
+	})
+	if err != nil {
+		return columns.ZeroObjectId, fmt.Errorf("InsertBottomUpProps/parent: %w", err)
+	}
+
+	pObjUpd, err := q.InsertUpdatedObjective(ctx, queries.InsertUpdatedObjectiveParams{
+		Oid:       pObj.Oid,
+		Based:     pObj.Vid,
+		CreatedBy: pOp.Opid,
+		Pid:       pObj.Pid,
+		Bupid:     pBupsUpd.Bupid,
+	})
+	if err != nil {
+		return columns.ZeroObjectId, fmt.Errorf("InsertUpdatedObjective: %w", err)
+	}
+
+	_, err = q.InsertNewLink(ctx, queries.InsertNewLinkParams{
+		SupOid: pObjUpd.Oid,
+		SupVid: pObjUpd.Vid,
+		SubOid: obj.Oid,
+		SubVid: obj.Vid,
+	})
+	if err != nil {
+		return columns.ZeroObjectId, fmt.Errorf("InsertNewLink: %w", err)
+	}
+
+	sublinks, err := q.SelectSubLinks(ctx, queries.SelectSubLinksParams{
+		SupOid: pObj.Oid,
+		SupVid: pObj.Vid,
+	})
+	if err != nil {
+		return columns.ZeroObjectId, fmt.Errorf("SelectSubLinks: %w", err)
+	}
+	for _, sublink := range sublinks {
+		_, err := q.InsertUpdatedLink(ctx, queries.InsertUpdatedLinkParams{
+			SupOid:            pObjUpd.Oid,
+			SupVid:            pObjUpd.Vid,
+			SubOid:            sublink.SubOid,
+			SubVid:            sublink.SubVid,
+			CreatedAtOriginal: sublink.CreatedAtOriginal,
+		})
+		if err != nil {
+			return columns.ZeroObjectId, fmt.Errorf("InsertUpdatedLink: %w", err)
+		}
+	}
+
+	_, err = q.UpdateActiveVidForObjective(ctx, queries.UpdateActiveVidForObjectiveParams{
+		Oid: pObj.Oid,
+		Vid: pObjUpd.Vid,
+	})
+	if err != nil {
+		return columns.ZeroObjectId, fmt.Errorf("UpdateActiveVidForObjective: %w", err)
+	}
+
+	activepath[0].Vid = pObjUpd.Vid
+	_, err = a.bubblink(ctx, q, activepath, op, bubblinkDeltaValues{SubtreeSize: 1})
 	if err != nil {
 		return columns.ZeroObjectId, fmt.Errorf("bubblink: %w", err)
 	}

@@ -53,7 +53,8 @@ CREATE TABLE "link"(
     "sup_oid" "ObjectiveId" NOT NULL,
     "sup_vid" "VersionId" NOT NULL,
     "sub_oid" "ObjectiveId" NOT NULL,
-    "sub_vid" "VersionId" NOT NULL
+    "sub_vid" "VersionId" NOT NULL,
+    "created_at_original" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE "objective_view_prefs"(

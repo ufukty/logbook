@@ -204,10 +204,11 @@ type ControlArea struct {
 }
 
 type Link struct {
-	SupOid columns.ObjectiveId
-	SupVid columns.VersionId
-	SubOid columns.ObjectiveId
-	SubVid columns.VersionId
+	SupOid            columns.ObjectiveId
+	SupVid            columns.VersionId
+	SubOid            columns.ObjectiveId
+	SubVid            columns.VersionId
+	CreatedAtOriginal pgtype.Timestamp
 }
 
 type Objective struct {

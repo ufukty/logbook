@@ -148,7 +148,7 @@ func TestLogic(t *testing.T) {
 
 	var rock2 Objective
 	t.Run("link the task to rock", func(t *testing.T) {
-		_, err := q.InsertLink(ctx, InsertLinkParams{
+		_, err := q.InsertNewLink(ctx, InsertNewLinkParams{
 			SupOid: rock.Oid,
 			SupVid: rock.Vid,
 			SubOid: obj.Oid,

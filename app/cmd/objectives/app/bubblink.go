@@ -45,7 +45,7 @@ func (a *App) bubblink(ctx context.Context, q *queries.Queries, activepath []mod
 			return columns.ZeroOperationId, fmt.Errorf("InsertOpTransitive(%s): %w", ascendant, err)
 		}
 
-		obj, err := q.SelectObjective(ctx, queries.SelectObjectiveParams{
+		objAsc, err := q.SelectObjective(ctx, queries.SelectObjectiveParams{
 			Oid: ascendant.Oid,
 			Vid: ascendant.Vid,
 		})
@@ -55,7 +55,7 @@ func (a *App) bubblink(ctx context.Context, q *queries.Queries, activepath []mod
 
 		var bupid columns.BottomUpPropsId
 		if deltas != zeroDeltas {
-			bup, err := q.SelectBottomUpProps(ctx, obj.Bupid)
+			bup, err := q.SelectBottomUpProps(ctx, objAsc.Bupid)
 			if err != nil {
 				return columns.ZeroOperationId, fmt.Errorf("SelectBottomUpProps: %w", err)
 			}
@@ -74,28 +74,18 @@ func (a *App) bubblink(ctx context.Context, q *queries.Queries, activepath []mod
 			}
 			bupid = bupUpdated.Bupid
 		} else {
-			bupid = obj.Bupid
+			bupid = objAsc.Bupid
 		}
 
-		objasc, err := q.InsertUpdatedObjective(ctx, queries.InsertUpdatedObjectiveParams{
+		objAscUpd, err := q.InsertUpdatedObjective(ctx, queries.InsertUpdatedObjectiveParams{
 			Oid:       ascendant.Oid,
 			Based:     ascendant.Vid,
 			CreatedBy: cause,
-			Pid:       obj.Pid,
+			Pid:       objAsc.Pid,
 			Bupid:     bupid,
 		})
 		if err != nil {
 			return columns.ZeroOperationId, fmt.Errorf("InsertUpdatedObjective: %w", err)
-		}
-
-		_, err = q.InsertLink(ctx, queries.InsertLinkParams{
-			SupOid: objasc.Oid,
-			SupVid: objasc.Vid,
-			SubOid: child.Oid,
-			SubVid: child.Vid,
-		})
-		if err != nil {
-			return columns.ZeroOperationId, fmt.Errorf("InsertLink/1: %w", err)
 		}
 
 		// link unchanged siblings too
@@ -107,30 +97,32 @@ func (a *App) bubblink(ctx context.Context, q *queries.Queries, activepath []mod
 			return columns.ZeroOperationId, fmt.Errorf("SelectSubLinks: %w", err)
 		}
 		for _, sublink := range sublinks {
-			if sublink.SubOid == child.Oid {
-				continue // not sibling but itself's old version
+			vid := sublink.SubVid
+			if sublink.SubOid == child.Oid { // not a sibling, but updated child's old version
+				vid = child.Vid
 			}
-			_, err = q.InsertLink(ctx, queries.InsertLinkParams{
-				SupOid: objasc.Oid,
-				SupVid: objasc.Vid,
-				SubOid: sublink.SubOid,
-				SubVid: sublink.SubVid,
+			_, err = q.InsertUpdatedLink(ctx, queries.InsertUpdatedLinkParams{
+				SupOid:            objAscUpd.Oid,
+				SupVid:            objAscUpd.Vid,
+				SubOid:            sublink.SubOid,
+				SubVid:            vid,
+				CreatedAtOriginal: sublink.CreatedAtOriginal,
 			})
 			if err != nil {
-				return columns.ZeroOperationId, fmt.Errorf("InsertLink/2: %w", err)
+				return columns.ZeroOperationId, fmt.Errorf("InsertUpdatedLink: %w", err)
 			}
 		}
 
 		// TODO: publish an event to notify frontends viewing any objective of active path?
 		_, err = q.UpdateActiveVidForObjective(ctx, queries.UpdateActiveVidForObjectiveParams{
-			Oid: objasc.Oid,
-			Vid: objasc.Vid,
+			Oid: objAscUpd.Oid,
+			Vid: objAscUpd.Vid,
 		})
 		if err != nil {
 			return columns.ZeroOperationId, fmt.Errorf("UpdateActiveVidForObjective: %w", err)
 		}
 		cause = optrs.Opid
-		child = models.Ovid{Oid: objasc.Oid, Vid: objasc.Vid}
+		child = models.Ovid{Oid: objAscUpd.Oid, Vid: objAscUpd.Vid}
 	}
 
 	return cause, nil

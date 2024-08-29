@@ -8,25 +8,26 @@ package queries
 import (
 	"context"
 
+	"github.com/jackc/pgx/v5/pgtype"
 	"logbook/models/columns"
 )
 
-const insertLink = `-- name: InsertLink :one
+const insertNewLink = `-- name: InsertNewLink :one
 INSERT INTO "link"("sup_oid", "sup_vid", "sub_oid", "sub_vid")
     VALUES ($1, $2, $3, $4)
 RETURNING
-    sup_oid, sup_vid, sub_oid, sub_vid
+    sup_oid, sup_vid, sub_oid, sub_vid, created_at_original
 `
 
-type InsertLinkParams struct {
+type InsertNewLinkParams struct {
 	SupOid columns.ObjectiveId
 	SupVid columns.VersionId
 	SubOid columns.ObjectiveId
 	SubVid columns.VersionId
 }
 
-func (q *Queries) InsertLink(ctx context.Context, arg InsertLinkParams) (Link, error) {
-	row := q.db.QueryRow(ctx, insertLink,
+func (q *Queries) InsertNewLink(ctx context.Context, arg InsertNewLinkParams) (Link, error) {
+	row := q.db.QueryRow(ctx, insertNewLink,
 		arg.SupOid,
 		arg.SupVid,
 		arg.SubOid,
@@ -38,18 +39,55 @@ func (q *Queries) InsertLink(ctx context.Context, arg InsertLinkParams) (Link, e
 		&i.SupVid,
 		&i.SubOid,
 		&i.SubVid,
+		&i.CreatedAtOriginal,
+	)
+	return i, err
+}
+
+const insertUpdatedLink = `-- name: InsertUpdatedLink :one
+INSERT INTO "link"("sup_oid", "sup_vid", "sub_oid", "sub_vid", "created_at_original")
+    VALUES ($1, $2, $3, $4, $5)
+RETURNING
+    sup_oid, sup_vid, sub_oid, sub_vid, created_at_original
+`
+
+type InsertUpdatedLinkParams struct {
+	SupOid            columns.ObjectiveId
+	SupVid            columns.VersionId
+	SubOid            columns.ObjectiveId
+	SubVid            columns.VersionId
+	CreatedAtOriginal pgtype.Timestamp
+}
+
+func (q *Queries) InsertUpdatedLink(ctx context.Context, arg InsertUpdatedLinkParams) (Link, error) {
+	row := q.db.QueryRow(ctx, insertUpdatedLink,
+		arg.SupOid,
+		arg.SupVid,
+		arg.SubOid,
+		arg.SubVid,
+		arg.CreatedAtOriginal,
+	)
+	var i Link
+	err := row.Scan(
+		&i.SupOid,
+		&i.SupVid,
+		&i.SubOid,
+		&i.SubVid,
+		&i.CreatedAtOriginal,
 	)
 	return i, err
 }
 
 const selectSubLinks = `-- name: SelectSubLinks :many
 SELECT
-    sup_oid, sup_vid, sub_oid, sub_vid
+    sup_oid, sup_vid, sub_oid, sub_vid, created_at_original
 FROM
     "link"
 WHERE
     "sup_oid" = $1
     AND "sup_vid" = $2
+ORDER BY
+    "created_at_original" ASC
 LIMIT 50
 `
 
@@ -72,6 +110,7 @@ func (q *Queries) SelectSubLinks(ctx context.Context, arg SelectSubLinksParams) 
 			&i.SupVid,
 			&i.SubOid,
 			&i.SubVid,
+			&i.CreatedAtOriginal,
 		); err != nil {
 			return nil, err
 		}
@@ -85,7 +124,7 @@ func (q *Queries) SelectSubLinks(ctx context.Context, arg SelectSubLinksParams) 
 
 const selectUpperLinks = `-- name: SelectUpperLinks :many
 SELECT
-    sup_oid, sup_vid, sub_oid, sub_vid
+    sup_oid, sup_vid, sub_oid, sub_vid, created_at_original
 FROM
     "link"
 WHERE
@@ -113,6 +152,7 @@ func (q *Queries) SelectUpperLinks(ctx context.Context, arg SelectUpperLinksPara
 			&i.SupVid,
 			&i.SubOid,
 			&i.SubVid,
+			&i.CreatedAtOriginal,
 		); err != nil {
 			return nil, err
 		}
