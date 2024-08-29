@@ -35,15 +35,14 @@ func (a *App) GetObjectiveHistory(ctx context.Context, params GetObjectiveHistor
 		if err != nil {
 			return nil, fmt.Errorf("SelectOperation: %w", err)
 		}
-		if op.Actor == columns.ZeroUserId { // bubblink
-			continue
+		if op.Actor != columns.ZeroUserId { // bubblink
+			stack = append(stack, owners.OperationHistoryItem{
+				Version:   cursor,
+				Type:      op.OpType,
+				CreatedBy: op.Actor,
+				CreatedAt: obj.CreatedAt.Time,
+			})
 		}
-		stack = append(stack, owners.OperationHistoryItem{
-			Version:   cursor,
-			Type:      op.OpType,
-			CreatedBy: op.Actor,
-			CreatedAt: obj.CreatedAt.Time,
-		})
 		cursor = obj.Based
 	}
 
