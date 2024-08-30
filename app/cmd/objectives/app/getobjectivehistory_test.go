@@ -67,7 +67,7 @@ func TestGetObjectiveHistory(t *testing.T) {
 	for _, item := range history {
 		fmt.Println(item)
 	}
-	if len(history) != len(grandchildren) {
+	if len(history) != 1+len(grandchildren) {
 		t.Errorf("len(history)=%d <> len(grandchildren)=%d", len(history), len(grandchildren))
 	}
 }

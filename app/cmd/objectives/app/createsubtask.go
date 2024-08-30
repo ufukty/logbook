@@ -118,7 +118,7 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (co
 	pOp, err := q.InsertOperation(ctx, queries.InsertOperationParams{
 		Subjectoid: pObj.Oid,
 		Subjectvid: pObj.Vid,
-		Actor:      columns.ZeroUserId,
+		Actor:      params.Creator,
 		OpType:     queries.OpTypeObjCreateSubtask,
 		OpStatus:   queries.OpStatusAccepted,
 	})
