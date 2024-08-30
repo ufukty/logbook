@@ -55,6 +55,7 @@ func TestGetObjectiveHistory(t *testing.T) {
 		t.Fatal(fmt.Errorf("ListChildren: %w", err))
 	}
 	first := children[0]
+	fmt.Println("choosing the child:", first.Oid, first.Vid)
 	grandchildren, err := a.ListChildren(context.Background(), first)
 	if err != nil {
 		t.Fatal(fmt.Errorf("ListChildren/2: %w", err))

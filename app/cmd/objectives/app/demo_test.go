@@ -34,6 +34,7 @@ func registerObjectives(ctx context.Context, a *App, uid columns.UserId, parent 
 	if err != nil {
 		return columns.ZeroObjectId, fmt.Errorf("CreateSubtask: %w", err)
 	}
+	fmt.Printf("registered %s (%q) on %s %s\n", registered, n.Content, parent, vid)
 	for i := 0; i < len(n.Children); i++ {
 		_, err := registerObjectives(ctx, a, uid, registered, n.Children[i])
 		if err != nil {
