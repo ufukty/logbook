@@ -10,7 +10,8 @@ import (
 )
 
 type GetObjectiveHistoryParams struct {
-	Subject models.Ovid
+	Subject               models.Ovid
+	IncludeAdministrative bool
 }
 
 func (a *App) GetObjectiveHistory(ctx context.Context, params GetObjectiveHistoryParams) ([]owners.OperationHistoryItem, error) {
@@ -35,7 +36,7 @@ func (a *App) GetObjectiveHistory(ctx context.Context, params GetObjectiveHistor
 		if err != nil {
 			return nil, fmt.Errorf("SelectOperation: %w", err)
 		}
-		if op.Actor != columns.ZeroUserId { // bubblink
+		if params.IncludeAdministrative || op.Actor != columns.ZeroUserId { // bubblink
 			stack = append(stack, owners.OperationHistoryItem{
 				Version:   cursor,
 				Type:      op.OpType,

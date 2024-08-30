@@ -59,7 +59,7 @@ func TestGetObjectiveHistory(t *testing.T) {
 	if err != nil {
 		t.Fatal(fmt.Errorf("ListChildren/2: %w", err))
 	}
-	history, err := a.GetObjectiveHistory(context.Background(), GetObjectiveHistoryParams{first})
+	history, err := a.GetObjectiveHistory(context.Background(), GetObjectiveHistoryParams{first, false})
 	if err != nil {
 		t.Fatal(fmt.Errorf("GetObjectiveHistory: %w", err))
 	}
