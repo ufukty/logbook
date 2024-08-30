@@ -80,7 +80,7 @@ func (a *App) bubblink(ctx context.Context, q *queries.Queries, activepath []mod
 		objAscUpd, err := q.InsertUpdatedObjective(ctx, queries.InsertUpdatedObjectiveParams{
 			Oid:       ascendant.Oid,
 			Based:     ascendant.Vid,
-			CreatedBy: cause,
+			CreatedBy: optrs.Opid,
 			Pid:       objAsc.Pid,
 			Bupid:     bupid,
 		})
