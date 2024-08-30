@@ -101,6 +101,7 @@ type OpType string
 
 const (
 	OpTypeCheckout               OpType = "checkout"
+	OpTypeObjInit                OpType = "obj_init"
 	OpTypeObjCompletion          OpType = "obj_completion"
 	OpTypeObjContent             OpType = "obj_content"
 	OpTypeObjCreateSubtask       OpType = "obj_create_subtask"
@@ -260,9 +261,10 @@ type OpObjContent struct {
 }
 
 type OpObjCreateSubtask struct {
-	ID      pgtype.UUID
-	Opid    columns.OperationId
-	Content string
+	ID   pgtype.UUID
+	Opid columns.OperationId
+	Soid columns.ObjectiveId
+	Svid columns.VersionId
 }
 
 type OpObjDeleteSubtask struct {
@@ -277,6 +279,12 @@ type OpObjDetach struct {
 	Opid      columns.OperationId
 	Child     columns.ObjectiveId
 	Newparent columns.ObjectiveId
+}
+
+type OpObjInit struct {
+	ID      pgtype.UUID
+	Opid    columns.OperationId
+	Content string
 }
 
 type OpObjReorder struct {

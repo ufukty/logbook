@@ -82,6 +82,7 @@ CREATE TABLE "bottom_up_props_third_person"(
 
 CREATE TYPE "OpType" AS ENUM(
     'checkout',
+    'obj_init',
     'obj_completion',
     'obj_content',
     'obj_create_subtask',
@@ -128,10 +129,17 @@ CREATE TABLE "op_obj_content"(
     "content" text NOT NULL
 );
 
-CREATE TABLE "op_obj_create_subtask"(
+CREATE TABLE "op_obj_init"(
     "id" uuid NOT NULL UNIQUE DEFAULT gen_random_uuid(),
     "opid" "OperationId" NOT NULL,
     "content" text NOT NULL
+);
+
+CREATE TABLE "op_obj_create_subtask"(
+    "id" uuid NOT NULL UNIQUE DEFAULT gen_random_uuid(),
+    "opid" "OperationId" NOT NULL,
+    "soid" "ObjectiveId" NOT NULL,
+    "svid" "VersionId" NOT NULL
 );
 
 CREATE TABLE "op_obj_delete_subtask"(

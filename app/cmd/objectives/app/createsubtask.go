@@ -25,7 +25,7 @@ type CreateSubtaskParams struct {
 // DONE: bubblink
 // DONE: mark active version for promoted ascendants
 // DONE: enforce 20-subtask limit on the parent
-// TODO: apply auto-merge on non-conflicting concurrent updates
+// TODO: apply auto-merge on non-conflixcting concurrent updates
 // TODO: apply detaching from active version on conflicting concurrent updates
 // TODO: invalidate the unfolded subtree size cache for each ascendant and each viewer & trigger recalculation
 func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (columns.ObjectiveId, error) {
@@ -64,19 +64,19 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (co
 		Subjectoid: params.Parent.Oid,
 		Subjectvid: params.Parent.Vid,
 		Actor:      params.Creator,
-		OpType:     queries.OpTypeObjCreateSubtask,
+		OpType:     queries.OpTypeObjInit,
 		OpStatus:   queries.OpStatusAccepted,
 	})
 	if err != nil {
 		return columns.ZeroObjectId, fmt.Errorf("InsertOperation/child: %w", err)
 	}
 
-	_, err = q.InsertOpObjCreateSubtask(ctx, queries.InsertOpObjCreateSubtaskParams{
+	_, err = q.InsertOpObjInit(ctx, queries.InsertOpObjInitParams{
 		Opid:    op.Opid,
 		Content: params.Content,
 	})
 	if err != nil {
-		return columns.ZeroObjectId, fmt.Errorf("InsertOpObjCreateSubtask: %w", err)
+		return columns.ZeroObjectId, fmt.Errorf("InsertOpObjInit: %w", err)
 	}
 
 	props, err := q.InsertProperties(ctx, queries.InsertPropertiesParams{
@@ -119,19 +119,20 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (co
 		Subjectoid: pObj.Oid,
 		Subjectvid: pObj.Vid,
 		Actor:      columns.ZeroUserId,
-		OpType:     queries.OpTypeTransitive,
+		OpType:     queries.OpTypeObjCreateSubtask,
 		OpStatus:   queries.OpStatusAccepted,
 	})
 	if err != nil {
 		return columns.ZeroObjectId, fmt.Errorf("InsertOperation: %w", err)
 	}
 
-	_, err = q.InsertOpTransitive(ctx, queries.InsertOpTransitiveParams{
-		Opid:  pOp.Opid,
-		Cause: op.Opid,
+	_, err = q.InsertOpObjCreateSubtask(ctx, queries.InsertOpObjCreateSubtaskParams{
+		Opid: pOp.Opid,
+		Soid: obj.Oid,
+		Svid: obj.Vid,
 	})
 	if err != nil {
-		return columns.ZeroObjectId, fmt.Errorf("InsertOpTransitive: %w", err)
+		return columns.ZeroObjectId, fmt.Errorf("InsertOpObjCreateSubtask: %w", err)
 	}
 
 	pBups.Children += 1
@@ -195,7 +196,7 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (co
 	}
 
 	activepath[0].Vid = pObjUpd.Vid
-	_, err = a.bubblink(ctx, q, activepath, op, bubblinkDeltaValues{SubtreeSize: 1})
+	_, err = a.bubblink(ctx, q, activepath, pOp, bubblinkDeltaValues{SubtreeSize: 1})
 	if err != nil {
 		return columns.ZeroObjectId, fmt.Errorf("bubblink: %w", err)
 	}

@@ -118,21 +118,27 @@ func (q *Queries) InsertOpObjContent(ctx context.Context, arg InsertOpObjContent
 }
 
 const insertOpObjCreateSubtask = `-- name: InsertOpObjCreateSubtask :one
-INSERT INTO "op_obj_create_subtask"("opid", "content")
-    VALUES ($1, $2)
+INSERT INTO "op_obj_create_subtask"("opid", "soid", "svid")
+    VALUES ($1, $2, $3)
 RETURNING
-    id, opid, content
+    id, opid, soid, svid
 `
 
 type InsertOpObjCreateSubtaskParams struct {
-	Opid    columns.OperationId
-	Content string
+	Opid columns.OperationId
+	Soid columns.ObjectiveId
+	Svid columns.VersionId
 }
 
 func (q *Queries) InsertOpObjCreateSubtask(ctx context.Context, arg InsertOpObjCreateSubtaskParams) (OpObjCreateSubtask, error) {
-	row := q.db.QueryRow(ctx, insertOpObjCreateSubtask, arg.Opid, arg.Content)
+	row := q.db.QueryRow(ctx, insertOpObjCreateSubtask, arg.Opid, arg.Soid, arg.Svid)
 	var i OpObjCreateSubtask
-	err := row.Scan(&i.ID, &i.Opid, &i.Content)
+	err := row.Scan(
+		&i.ID,
+		&i.Opid,
+		&i.Soid,
+		&i.Svid,
+	)
 	return i, err
 }
 
@@ -182,6 +188,25 @@ func (q *Queries) InsertOpObjDetach(ctx context.Context, arg InsertOpObjDetachPa
 		&i.Child,
 		&i.Newparent,
 	)
+	return i, err
+}
+
+const insertOpObjInit = `-- name: InsertOpObjInit :one
+INSERT INTO "op_obj_init"("opid", "content")
+    VALUES ($1, $2)
+RETURNING
+    id, opid, content
+`
+
+type InsertOpObjInitParams struct {
+	Opid    columns.OperationId
+	Content string
+}
+
+func (q *Queries) InsertOpObjInit(ctx context.Context, arg InsertOpObjInitParams) (OpObjInit, error) {
+	row := q.db.QueryRow(ctx, insertOpObjInit, arg.Opid, arg.Content)
+	var i OpObjInit
+	err := row.Scan(&i.ID, &i.Opid, &i.Content)
 	return i, err
 }
 

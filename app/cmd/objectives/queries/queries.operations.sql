@@ -31,9 +31,15 @@ INSERT INTO "op_obj_content"("opid", "content")
 RETURNING
     *;
 
--- name: InsertOpObjCreateSubtask :one
-INSERT INTO "op_obj_create_subtask"("opid", "content")
+-- name: InsertOpObjInit :one
+INSERT INTO "op_obj_init"("opid", "content")
     VALUES ($1, $2)
+RETURNING
+    *;
+
+-- name: InsertOpObjCreateSubtask :one
+INSERT INTO "op_obj_create_subtask"("opid", "soid", "svid")
+    VALUES ($1, $2, $3)
 RETURNING
     *;
 
