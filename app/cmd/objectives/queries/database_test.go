@@ -102,14 +102,14 @@ func TestLogic(t *testing.T) {
 			Subjectoid: rock.Oid,
 			Subjectvid: rock.Vid,
 			Actor:      uid,
-			OpType:     OpTypeObjCreateSubtask,
+			OpType:     OpTypeObjInit,
 			OpStatus:   OpStatusReceived,
 		})
 		if err != nil {
 			t.Fatal(fmt.Errorf("act 1, insert row to 'operation' table: %w", err))
 		}
 
-		_, err = q.InsertOpObjCreateSubtask(ctx, InsertOpObjCreateSubtaskParams{
+		_, err = q.InsertOpObjInit(ctx, InsertOpObjInitParams{
 			Opid:    op.Opid,
 			Content: "Hello world",
 		})
@@ -182,5 +182,4 @@ func TestLogic(t *testing.T) {
 	if rock != rock2 {
 		t.Fatal(fmt.Errorf("assert 2,\n\trock1=%v\n\trock2=%v", rock, rock2))
 	}
-
 }
