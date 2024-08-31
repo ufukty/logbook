@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"logbook/cmd/objectives/queries"
 	"logbook/cmd/objectives/service"
-	"logbook/models"
 	"logbook/models/columns"
 	"testing"
 
@@ -41,14 +40,9 @@ func TestGetObjectiveHistory(t *testing.T) {
 	}
 	defer a.pool.Close()
 
-	var rock models.Ovid
-	rock.Oid, err = loadDemo(context.Background(), a, uid, true)
+	rock, err := loadDemo(context.Background(), a, uid, true)
 	if err != nil {
 		t.Fatal(fmt.Errorf("prep, CreateDemoFileInDfsOrder: %w", err))
-	}
-	rock.Vid, err = a.GetActiveVersion(context.Background(), rock.Oid)
-	if err != nil {
-		t.Fatal(fmt.Errorf("GetActiveVersion: %w", err))
 	}
 	children, err := a.ListChildren(context.Background(), rock)
 	if err != nil {

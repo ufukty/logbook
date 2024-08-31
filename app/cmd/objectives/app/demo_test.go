@@ -49,27 +49,33 @@ func registerObjectives(ctx context.Context, a *App, uid columns.UserId, parent 
 	return registered, nil
 }
 
-func loadDemo(ctx context.Context, a *App, uid columns.UserId, debug bool) (columns.ObjectiveId, error) {
-	rock, err := createRock(ctx, a, uid, debug)
+func loadDemo(ctx context.Context, a *App, uid columns.UserId, debug bool) (models.Ovid, error) {
+	var rock models.Ovid
+	var err error
+	rock.Oid, err = createRock(ctx, a, uid, debug)
 	if err != nil {
-		return columns.ZeroObjectId, fmt.Errorf("createRock: %w", err)
+		return models.ZeroOvid, fmt.Errorf("createRock: %w", err)
 	}
 	testfile := []testfilenode{}
 	// reading testdata file
 	f, err := os.Open("testdata/company.md.json")
 	if err != nil {
-		return columns.ZeroObjectId, fmt.Errorf("opening: %w", err)
+		return models.ZeroOvid, fmt.Errorf("opening: %w", err)
 	}
 	defer f.Close()
 	err = json.NewDecoder(f).Decode(&testfile)
 	if err != nil {
-		return columns.ZeroObjectId, fmt.Errorf("decoding: %w", err)
+		return models.ZeroOvid, fmt.Errorf("decoding: %w", err)
 	}
 	for i, n := range testfile {
-		_, err := registerObjectives(ctx, a, uid, rock, n, debug)
+		_, err := registerObjectives(ctx, a, uid, rock.Oid, n, debug)
 		if err != nil {
-			return columns.ZeroObjectId, fmt.Errorf("register(rock/%d): %w", i, err)
+			return models.ZeroOvid, fmt.Errorf("register(rock/%d): %w", i, err)
 		}
+	}
+	rock.Vid, err = a.GetActiveVersion(context.Background(), rock.Oid)
+	if err != nil {
+		return models.ZeroOvid, fmt.Errorf("GetActiveVersion: %w", err)
 	}
 	return rock, nil
 }

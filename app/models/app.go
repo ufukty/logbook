@@ -12,6 +12,8 @@ type Ovid struct {
 	Vid columns.VersionId   `json:"vid"`
 }
 
+var ZeroOvid = Ovid{Oid: columns.ZeroObjectId, Vid: columns.ZeroVersionId}
+
 func (ovid Ovid) String() string {
 	return fmt.Sprintf("(Oid: %q, Vid: %q)", ovid.Oid, ovid.Vid)
 }
