@@ -42,7 +42,7 @@ func TestGetObjectiveHistory(t *testing.T) {
 	defer a.pool.Close()
 
 	var rock models.Ovid
-	rock.Oid, err = loadDemo(context.Background(), a, uid)
+	rock.Oid, err = loadDemo(context.Background(), a, uid, true)
 	if err != nil {
 		t.Fatal(fmt.Errorf("prep, CreateDemoFileInDfsOrder: %w", err))
 	}
