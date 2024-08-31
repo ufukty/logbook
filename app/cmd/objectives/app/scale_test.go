@@ -81,7 +81,7 @@ func TestStorageScale(t *testing.T) {
 		if err != nil {
 			t.Fatal(fmt.Errorf("CreateSubtask(%d, %s, %s): %w", i, parent, vid, err))
 		}
-		store = append(store, oid)
+		store = append(store, oid.Oid)
 
 		r := pool.QueryRow(ctx, `SELECT count(*) FROM "objective"`)
 		var count int

@@ -40,7 +40,7 @@ func (e *Endpoints) CreateObjective(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	oid, err := e.app.CreateSubtask(r.Context(), app.CreateSubtaskParams{
+	obj, err := e.app.CreateSubtask(r.Context(), app.CreateSubtaskParams{
 		Parent:  bq.Parent,
 		Content: string(bq.Content),
 		Creator: "00000000-0000-0000-0000-000000000000", // TODO: check auth header
@@ -52,7 +52,7 @@ func (e *Endpoints) CreateObjective(w http.ResponseWriter, r *http.Request) {
 	}
 
 	bs := CreateObjectiveResponse{
-		Oid: oid,
+		Oid: obj.Oid,
 	}
 	if err := requests.WriteJsonResponse(bs, w); err != nil {
 		log.Println(fmt.Errorf("writing json response: %w", err))

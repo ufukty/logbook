@@ -28,19 +28,19 @@ type CreateSubtaskParams struct {
 // TODO: apply auto-merge on non-conflixcting concurrent updates
 // TODO: apply detaching from active version on conflicting concurrent updates
 // TODO: invalidate the unfolded subtree size cache for each ascendant and each viewer & trigger recalculation
-func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (columns.ObjectiveId, error) {
+func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (models.Ovid, error) {
 	tx, err := a.pool.Begin(ctx)
 	if err != nil {
-		return columns.ZeroObjectId, fmt.Errorf("pool.Begin: %w", err)
+		return models.ZeroOvid, fmt.Errorf("pool.Begin: %w", err)
 	}
 	defer tx.Rollback(ctx)
 	q := queries.New(tx)
 
 	activepath, err := a.listActivePathToRock(ctx, q, params.Parent)
 	if err == ErrLeftBehind {
-		return columns.ZeroObjectId, ErrLeftBehind
+		return models.ZeroOvid, ErrLeftBehind
 	} else if err != nil {
-		return columns.ZeroObjectId, fmt.Errorf("listActivePathToRock: %w", err)
+		return models.ZeroOvid, fmt.Errorf("listActivePathToRock: %w", err)
 	}
 
 	pObj, err := q.SelectObjective(ctx, queries.SelectObjectiveParams{
@@ -48,16 +48,16 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (co
 		Vid: params.Parent.Vid,
 	})
 	if err != nil {
-		return columns.ZeroObjectId, fmt.Errorf("SelectObjective: %w", err)
+		return models.ZeroOvid, fmt.Errorf("SelectObjective: %w", err)
 	}
 
 	pBups, err := q.SelectBottomUpProps(ctx, pObj.Bupid)
 	if err != nil {
-		return columns.ZeroObjectId, fmt.Errorf("SelectBottomUpProps/parent: %w", err)
+		return models.ZeroOvid, fmt.Errorf("SelectBottomUpProps/parent: %w", err)
 	}
 
 	if pBups.Children >= LimitSubitems {
-		return columns.ZeroObjectId, ErrTooManySubitems
+		return models.ZeroOvid, ErrTooManySubitems
 	}
 
 	op, err := q.InsertOperation(ctx, queries.InsertOperationParams{
@@ -68,7 +68,7 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (co
 		OpStatus:   queries.OpStatusAccepted,
 	})
 	if err != nil {
-		return columns.ZeroObjectId, fmt.Errorf("InsertOperation/child: %w", err)
+		return models.ZeroOvid, fmt.Errorf("InsertOperation/child: %w", err)
 	}
 
 	_, err = q.InsertOpObjInit(ctx, queries.InsertOpObjInitParams{
@@ -76,7 +76,7 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (co
 		Content: params.Content,
 	})
 	if err != nil {
-		return columns.ZeroObjectId, fmt.Errorf("InsertOpObjInit: %w", err)
+		return models.ZeroOvid, fmt.Errorf("InsertOpObjInit: %w", err)
 	}
 
 	props, err := q.InsertProperties(ctx, queries.InsertPropertiesParams{
@@ -86,7 +86,7 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (co
 		Owner:     params.Creator,
 	})
 	if err != nil {
-		return columns.ZeroObjectId, fmt.Errorf("InsertProperties/child: %w", err)
+		return models.ZeroOvid, fmt.Errorf("InsertProperties/child: %w", err)
 	}
 
 	bup, err := q.InsertBottomUpProps(ctx, queries.InsertBottomUpPropsParams{
@@ -95,7 +95,7 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (co
 		SubtreeCompleted: 0,
 	})
 	if err != nil {
-		return columns.ZeroObjectId, fmt.Errorf("InsertBottomUpProps/child: %w", err)
+		return models.ZeroOvid, fmt.Errorf("InsertBottomUpProps/child: %w", err)
 	}
 
 	obj, err := q.InsertNewObjective(ctx, queries.InsertNewObjectiveParams{
@@ -104,7 +104,7 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (co
 		Bupid:     bup.Bupid,
 	})
 	if err != nil {
-		return columns.ZeroObjectId, fmt.Errorf("InsertNewObjective: %w", err)
+		return models.ZeroOvid, fmt.Errorf("InsertNewObjective: %w", err)
 	}
 
 	_, err = q.InsertActiveVidForObjective(ctx, queries.InsertActiveVidForObjectiveParams{
@@ -112,7 +112,7 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (co
 		Vid: obj.Vid,
 	})
 	if err != nil {
-		return columns.ZeroObjectId, fmt.Errorf("InsertActiveVidForObjective: %w", err)
+		return models.ZeroOvid, fmt.Errorf("InsertActiveVidForObjective: %w", err)
 	}
 
 	pOp, err := q.InsertOperation(ctx, queries.InsertOperationParams{
@@ -123,7 +123,7 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (co
 		OpStatus:   queries.OpStatusAccepted,
 	})
 	if err != nil {
-		return columns.ZeroObjectId, fmt.Errorf("InsertOperation: %w", err)
+		return models.ZeroOvid, fmt.Errorf("InsertOperation: %w", err)
 	}
 
 	_, err = q.InsertOpObjCreateSubtask(ctx, queries.InsertOpObjCreateSubtaskParams{
@@ -132,7 +132,7 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (co
 		Svid: obj.Vid,
 	})
 	if err != nil {
-		return columns.ZeroObjectId, fmt.Errorf("InsertOpObjCreateSubtask: %w", err)
+		return models.ZeroOvid, fmt.Errorf("InsertOpObjCreateSubtask: %w", err)
 	}
 
 	pBups.Children += 1
@@ -143,7 +143,7 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (co
 		SubtreeCompleted: pBups.SubtreeCompleted,
 	})
 	if err != nil {
-		return columns.ZeroObjectId, fmt.Errorf("InsertBottomUpProps/parent: %w", err)
+		return models.ZeroOvid, fmt.Errorf("InsertBottomUpProps/parent: %w", err)
 	}
 
 	pObjUpd, err := q.InsertUpdatedObjective(ctx, queries.InsertUpdatedObjectiveParams{
@@ -154,7 +154,7 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (co
 		Bupid:     pBupsUpd.Bupid,
 	})
 	if err != nil {
-		return columns.ZeroObjectId, fmt.Errorf("InsertUpdatedObjective: %w", err)
+		return models.ZeroOvid, fmt.Errorf("InsertUpdatedObjective: %w", err)
 	}
 
 	_, err = q.InsertNewLink(ctx, queries.InsertNewLinkParams{
@@ -164,7 +164,7 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (co
 		SubVid: obj.Vid,
 	})
 	if err != nil {
-		return columns.ZeroObjectId, fmt.Errorf("InsertNewLink: %w", err)
+		return models.ZeroOvid, fmt.Errorf("InsertNewLink: %w", err)
 	}
 
 	sublinks, err := q.SelectSubLinks(ctx, queries.SelectSubLinksParams{
@@ -172,7 +172,7 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (co
 		SupVid: pObj.Vid,
 	})
 	if err != nil {
-		return columns.ZeroObjectId, fmt.Errorf("SelectSubLinks: %w", err)
+		return models.ZeroOvid, fmt.Errorf("SelectSubLinks: %w", err)
 	}
 	for _, sublink := range sublinks {
 		_, err := q.InsertUpdatedLink(ctx, queries.InsertUpdatedLinkParams{
@@ -183,7 +183,7 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (co
 			CreatedAtOriginal: sublink.CreatedAtOriginal,
 		})
 		if err != nil {
-			return columns.ZeroObjectId, fmt.Errorf("InsertUpdatedLink: %w", err)
+			return models.ZeroOvid, fmt.Errorf("InsertUpdatedLink: %w", err)
 		}
 	}
 
@@ -192,19 +192,19 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (co
 		Vid: pObjUpd.Vid,
 	})
 	if err != nil {
-		return columns.ZeroObjectId, fmt.Errorf("UpdateActiveVidForObjective: %w", err)
+		return models.ZeroOvid, fmt.Errorf("UpdateActiveVidForObjective: %w", err)
 	}
 
 	activepath[0].Vid = pObjUpd.Vid
 	_, err = a.bubblink(ctx, q, activepath, pOp, bubblinkDeltaValues{SubtreeSize: 1})
 	if err != nil {
-		return columns.ZeroObjectId, fmt.Errorf("bubblink: %w", err)
+		return models.ZeroOvid, fmt.Errorf("bubblink: %w", err)
 	}
 
 	err = tx.Commit(ctx)
 	if err != nil {
-		return columns.ZeroObjectId, fmt.Errorf("commit: %w", err)
+		return models.ZeroOvid, fmt.Errorf("commit: %w", err)
 	}
 
-	return obj.Oid, nil
+	return models.Ovid{Oid: obj.Oid, Vid: obj.Vid}, nil
 }

@@ -228,7 +228,7 @@ func TestAppRandomOrderSubtaskCreationWithConcurrency(t *testing.T) {
 						errs = append(errs, fmt.Sprintf("CreateSubtask: %s", err.Error()))
 						return
 					}
-					store[child] = oid
+					store[child] = oid.Oid
 				}()
 			}
 			wg.Wait()

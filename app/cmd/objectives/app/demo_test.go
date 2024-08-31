@@ -41,12 +41,12 @@ func registerObjectives(ctx context.Context, a *App, uid columns.UserId, parent 
 		fmt.Printf("registered %s (%q) on %s %s\n", registered, n.Content, parent, vid)
 	}
 	for i := 0; i < len(n.Children); i++ {
-		_, err := registerObjectives(ctx, a, uid, registered, n.Children[i], debug)
+		_, err := registerObjectives(ctx, a, uid, registered.Oid, n.Children[i], debug)
 		if err != nil {
 			return columns.ZeroObjectId, fmt.Errorf("register(%s/%d): %w", parent, i, err)
 		}
 	}
-	return registered, nil
+	return registered.Oid, nil
 }
 
 func loadDemo(ctx context.Context, a *App, uid columns.UserId, debug bool) (models.Ovid, error) {

@@ -127,7 +127,7 @@ func createSubtask() error {
 	defer pool.Close()
 	a := app.New(pool)
 
-	oid, err := a.CreateSubtask(context.Background(), app.CreateSubtaskParams{
+	obj, err := a.CreateSubtask(context.Background(), app.CreateSubtaskParams{
 		Creator: columns.UserId(flags.UserId),
 		Parent:  models.Ovid{columns.ObjectiveId(flags.ParentOid), columns.VersionId(flags.ParentVid)},
 		Content: flags.Content,
@@ -135,7 +135,7 @@ func createSubtask() error {
 	if err != nil {
 		return fmt.Errorf("a.CreateSubtask: %w", err)
 	}
-	fmt.Println(oid)
+	fmt.Println(obj)
 	return nil
 }
 
