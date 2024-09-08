@@ -29,6 +29,9 @@ func registerObjectives(ctx context.Context, a *App, uid columns.UserId, parent 
 	if err != nil {
 		return columns.ZeroObjectId, fmt.Errorf("GetActiveVersion: %w", err)
 	}
+	if debug {
+		fmt.Printf("registering (%s %s) <- (%s)\n", parent, vid, n.Content)
+	}
 	registered, err := a.CreateSubtask(ctx, CreateSubtaskParams{
 		Creator: uid,
 		Parent:  models.Ovid{parent, vid},
@@ -38,7 +41,7 @@ func registerObjectives(ctx context.Context, a *App, uid columns.UserId, parent 
 		return columns.ZeroObjectId, fmt.Errorf("CreateSubtask: %w", err)
 	}
 	if debug {
-		fmt.Printf("registered %s (%q) on %s %s\n", registered, n.Content, parent, vid)
+		fmt.Printf("registered: %s\n", registered)
 	}
 	for i := 0; i < len(n.Children); i++ {
 		_, err := registerObjectives(ctx, a, uid, registered.Oid, n.Children[i], debug)

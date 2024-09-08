@@ -163,3 +163,46 @@ func (q *Queries) SelectUpperLinks(ctx context.Context, arg SelectUpperLinksPara
 	}
 	return items, nil
 }
+
+const selectUpperLinksToActiveObjectives = `-- name: SelectUpperLinksToActiveObjectives :many
+SELECT
+    "sup_oid",
+    "sup_vid"
+FROM
+    "link" AS l
+    INNER JOIN "active" AS a ON l."sup_oid" = a."oid"
+        AND l."sup_vid" = a."vid"
+WHERE
+    l."sub_oid" = $1
+    AND l."sub_vid" = $2
+`
+
+type SelectUpperLinksToActiveObjectivesParams struct {
+	SubOid columns.ObjectiveId
+	SubVid columns.VersionId
+}
+
+type SelectUpperLinksToActiveObjectivesRow struct {
+	SupOid columns.ObjectiveId
+	SupVid columns.VersionId
+}
+
+func (q *Queries) SelectUpperLinksToActiveObjectives(ctx context.Context, arg SelectUpperLinksToActiveObjectivesParams) ([]SelectUpperLinksToActiveObjectivesRow, error) {
+	rows, err := q.db.Query(ctx, selectUpperLinksToActiveObjectives, arg.SubOid, arg.SubVid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []SelectUpperLinksToActiveObjectivesRow
+	for rows.Next() {
+		var i SelectUpperLinksToActiveObjectivesRow
+		if err := rows.Scan(&i.SupOid, &i.SupVid); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

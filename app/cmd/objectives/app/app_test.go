@@ -15,6 +15,7 @@ import (
 	"os"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"golang.org/x/exp/maps"
@@ -111,6 +112,136 @@ func TestAppManual(t *testing.T) {
 				t.Fatal(fmt.Errorf("act, GetMergedProps: %w", err))
 			}
 			fmt.Println(e, mps)
+		}
+	})
+}
+
+const testFileNodes = 275 + 1 // number of nodes in the test file + rock
+
+func TestDemoFile(t *testing.T) {
+	a, uid, err := testdeps()
+	if err != nil {
+		t.Fatal(fmt.Errorf("prep, testdeps: %w", err))
+	}
+	defer a.pool.Close()
+
+	rock, err := loadDemo(context.Background(), a, uid, true)
+	if err != nil {
+		t.Fatal(fmt.Errorf("prep, CreateDemoFileInDfsOrder: %w", err))
+	}
+	fmt.Println("rock:", rock)
+
+	var firstGrandGrandChild models.Ovid // should be "Define Project Scope"
+	t.Run("children", func(t *testing.T) {
+		firstGrandGrandChild = rock
+		for generation := range 3 {
+			children, err := a.ListChildren(context.Background(), firstGrandGrandChild)
+			if err != nil {
+				t.Fatal(fmt.Errorf("ListChildren: %w", err))
+			}
+			if len(children) == 0 {
+				t.Fatalf("no children from gen %d", generation)
+			}
+			fmt.Println("number of children:", len(children))
+			firstGrandGrandChild = children[0]
+		}
+	})
+
+	t.Run("active path", func(t *testing.T) {
+		ap, err := a.listActivePathToRock(context.Background(), a.oneshot, firstGrandGrandChild)
+		if err != nil {
+			t.Fatal(fmt.Errorf("listActivePathToRock: %w", err))
+		}
+		expected := 3 + 1
+		if len(ap) != expected {
+			t.Errorf("assert, expected %d got %d", expected, len(ap))
+		}
+	})
+
+	var document []owners.DocumentItem
+	t.Run("view build", func(t *testing.T) {
+		ViewportLimit = 9999999
+
+		document, err = a.ViewBuilder(context.Background(), ViewBuilderParams{
+			Viewer: uid,
+			Root:   rock,
+			Start:  0,
+			Length: ViewportLimit,
+		})
+		if err != nil {
+			t.Fatal(fmt.Errorf("ViewBuilder: %w", err))
+		}
+
+		if len(document) != testFileNodes {
+			t.Errorf("assert, document length, expected %d got %d", testFileNodes, len(document))
+		}
+	})
+
+	t.Run("merged props and print", func(t *testing.T) {
+		o, err := os.Create(fmt.Sprintf("testresults/view_building_%s.txt", time.Now().Format("20060102_150405")))
+		if err != nil {
+			t.Fatal(fmt.Errorf("os.Create: %w", err))
+		}
+		defer o.Close()
+
+		for _, e := range document {
+			mps, err := a.GetMergedProps(context.Background(), models.Ovid{Oid: e.Oid, Vid: e.Vid})
+			if err != nil {
+				t.Fatal(fmt.Errorf("act, GetMergedProps: %w", err))
+			}
+			fmt.Fprintln(o, e, mps)
+		}
+	})
+
+	t.Run("list children of root and delete them", func(t *testing.T) {
+		rock.Vid, err = a.GetActiveVersion(context.Background(), rock.Oid)
+		if err != nil {
+			t.Fatal(fmt.Errorf("act, GetActiveVersion: %w", err))
+		}
+
+		children, err := a.ListChildren(context.Background(), rock)
+		if err != nil {
+			t.Fatal(fmt.Errorf("ListChildren: %w", err))
+		}
+
+		for _, child := range children {
+			err := a.DeleteSubtask(context.Background(), DeleteSubtaskParams{
+				Subject: child,
+				Actor:   uid,
+			})
+			if err != nil {
+				t.Fatal(fmt.Errorf("DeleteSubtask: %w", err))
+			}
+
+			rock.Vid, err = a.GetActiveVersion(context.Background(), rock.Oid)
+			if err != nil {
+				t.Fatal(fmt.Errorf("act, GetActiveVersion: %w", err))
+			}
+
+			props, err := a.GetMergedProps(context.Background(), rock)
+			if err != nil {
+				t.Fatal(fmt.Errorf("GetMergedProps: %w", err))
+			}
+
+			fmt.Println("subtree size of rock:", props.SubtreeSize)
+
+			document, err = a.ViewBuilder(context.Background(), ViewBuilderParams{
+				Viewer: uid,
+				Root:   rock,
+				Start:  0,
+				Length: 2,
+			})
+			if err != nil {
+				t.Fatal(fmt.Errorf("ViewBuilder: %w", err))
+			}
+
+			for _, e := range document {
+				mps, err := a.GetMergedProps(context.Background(), models.Ovid{Oid: e.Oid, Vid: e.Vid})
+				if err != nil {
+					t.Fatal(fmt.Errorf("act, GetMergedProps: %w", err))
+				}
+				fmt.Println(e, mps)
+			}
 		}
 	})
 }

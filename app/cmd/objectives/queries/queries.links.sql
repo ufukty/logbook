@@ -20,6 +20,18 @@ WHERE
     AND "sub_vid" = $2
 LIMIT 50;
 
+-- name: SelectUpperLinksToActiveObjectives :many
+SELECT
+    "sup_oid",
+    "sup_vid"
+FROM
+    "link" AS l
+    INNER JOIN "active" AS a ON l."sup_oid" = a."oid"
+        AND l."sup_vid" = a."vid"
+WHERE
+    l."sub_oid" = $1
+    AND l."sub_vid" = $2;
+
 -- name: InsertNewLink :one
 INSERT INTO "link"("sup_oid", "sup_vid", "sub_oid", "sub_vid")
     VALUES ($1, $2, $3, $4)
