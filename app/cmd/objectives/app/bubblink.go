@@ -10,7 +10,6 @@ import (
 
 // represents the amount of change in the Bottom Up Props of each ascendant
 type bubblinkDeltaValues struct {
-	Children         int32 // only first parent
 	SubtreeCompleted int32
 	SubtreeSize      int32
 }
@@ -25,7 +24,7 @@ func (a *App) bubblink(ctx context.Context, q *queries.Queries, activepath []mod
 	}
 	child := activepath[0]
 	cause := op.Opid
-	for i, ascendant := range activepath[1:] {
+	for _, ascendant := range activepath[1:] {
 		optrs, err := q.InsertOperation(ctx, queries.InsertOperationParams{
 			Subjectoid: ascendant.Oid,
 			Subjectvid: ascendant.Vid,
@@ -60,7 +59,6 @@ func (a *App) bubblink(ctx context.Context, q *queries.Queries, activepath []mod
 				return columns.ZeroOperationId, fmt.Errorf("SelectBottomUpProps: %w", err)
 			}
 
-			bup.Children += ternary(i == 0, deltas.Children, 0)
 			bup.SubtreeSize += deltas.SubtreeSize
 			bup.SubtreeCompleted += deltas.SubtreeCompleted
 
