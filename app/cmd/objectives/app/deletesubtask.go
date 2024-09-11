@@ -96,13 +96,15 @@ func (a *App) DeleteSubtask(ctx context.Context, params DeleteSubtaskParams) err
 		return fmt.Errorf("InsertBottomUpProps: %w", err)
 	}
 
-	parentNew, err := q.InsertNewObjective(ctx, queries.InsertNewObjectiveParams{
+	parentNew, err := q.InsertUpdatedObjective(ctx, queries.InsertUpdatedObjectiveParams{
+		Oid:       parent.Oid,
+		Based:     parent.Vid,
 		CreatedBy: op.Opid,
 		Pid:       parent.Pid,
 		Bupid:     parentNewBups.Bupid,
 	})
 	if err != nil {
-		return fmt.Errorf("InsertNewObjective: %w", err)
+		return fmt.Errorf("InsertUpdatedObjective: %w", err)
 	}
 
 	_, err = q.UpdateActiveVidForObjective(ctx, queries.UpdateActiveVidForObjectiveParams{
