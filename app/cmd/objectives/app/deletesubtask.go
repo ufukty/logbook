@@ -81,7 +81,7 @@ func (a *App) DeleteSubtask(ctx context.Context, params DeleteSubtaskParams) err
 
 	deltas := bubblinkDeltaValues{
 		SubtreeCompleted: -1 * (subjectbups.SubtreeCompleted + ternary(subjectprops.Completed, int32(1), int32(0))),
-		SubtreeSize:      -1 * (subjectbups.SubtreeSize),
+		SubtreeSize:      -1 * (subjectbups.SubtreeSize + 1),
 	}
 	parentbups.Children += -1
 	parentbups.SubtreeCompleted += deltas.SubtreeCompleted

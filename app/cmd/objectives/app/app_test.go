@@ -147,6 +147,22 @@ func TestDemoFile(t *testing.T) {
 		}
 	})
 
+	t.Run("checking props and bups of rock after loading document", func(t *testing.T) {
+		rock.Vid, err = a.GetActiveVersion(context.Background(), rock.Oid)
+		if err != nil {
+			t.Fatal(fmt.Errorf("act, GetActiveVersion: %w", err))
+		}
+
+		mp, err := a.GetMergedProps(context.Background(), rock)
+		if err != nil {
+			t.Fatal(fmt.Errorf("a.GetMergedProps: %w", err))
+		}
+
+		if mp.SubtreeSize == 0 {
+			t.Fatal(fmt.Errorf("mp.SubtreeSize is expected to be bigger than 0"))
+		}
+	})
+
 	t.Run("active path", func(t *testing.T) {
 		ap, err := a.listActivePathToRock(context.Background(), a.oneshot, firstGrandGrandChild)
 		if err != nil {
@@ -205,6 +221,7 @@ func TestDemoFile(t *testing.T) {
 		}
 
 		for _, child := range children {
+			fmt.Println("deleting subtask:", child)
 			err := a.DeleteSubtask(context.Background(), DeleteSubtaskParams{
 				Subject: child,
 				Actor:   uid,
@@ -242,6 +259,22 @@ func TestDemoFile(t *testing.T) {
 				}
 				fmt.Println(e, mps)
 			}
+		}
+	})
+
+	t.Run("checking props and bups of rock after deleting document", func(t *testing.T) {
+		rock.Vid, err = a.GetActiveVersion(context.Background(), rock.Oid)
+		if err != nil {
+			t.Fatal(fmt.Errorf("act, GetActiveVersion: %w", err))
+		}
+
+		mp, err := a.GetMergedProps(context.Background(), rock)
+		if err != nil {
+			t.Fatal(fmt.Errorf("a.GetMergedProps: %w", err))
+		}
+
+		if mp.SubtreeSize != 0 {
+			t.Fatal(fmt.Errorf("mp.SubtreeSize expected to be 0"))
 		}
 	})
 }
