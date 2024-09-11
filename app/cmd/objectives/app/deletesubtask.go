@@ -107,6 +107,29 @@ func (a *App) DeleteSubtask(ctx context.Context, params DeleteSubtaskParams) err
 		return fmt.Errorf("InsertUpdatedObjective: %w", err)
 	}
 
+	sublinks, err := q.SelectSubLinks(ctx, queries.SelectSubLinksParams{
+		SupOid: parent.Oid,
+		SupVid: parent.Vid,
+	})
+	if err != nil {
+		return fmt.Errorf("SelectSubLinks: %w", err)
+	}
+	for _, sublink := range sublinks {
+		if sublink.SubOid == params.Subject.Oid { // deleted
+			continue
+		}
+		_, err := q.InsertUpdatedLink(ctx, queries.InsertUpdatedLinkParams{
+			SupOid:            parentNew.Oid,
+			SupVid:            parentNew.Vid,
+			SubOid:            sublink.SubOid,
+			SubVid:            sublink.SubVid,
+			CreatedAtOriginal: sublink.CreatedAtOriginal,
+		})
+		if err != nil {
+			return fmt.Errorf("InsertUpdatedLink: %w", err)
+		}
+	}
+
 	_, err = q.UpdateActiveVidForObjective(ctx, queries.UpdateActiveVidForObjectiveParams{
 		Oid: parent.Oid,
 		Vid: parentNew.Vid,
