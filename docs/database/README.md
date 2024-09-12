@@ -2,7 +2,7 @@
 
 ## Document model: Versioned objectives
 
-![](simplified.png)
+![](objectives.png)
 
 Design constraints
 
