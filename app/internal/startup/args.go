@@ -1,4 +1,4 @@
-package cliargs
+package startup
 
 import (
 	"flag"
@@ -15,7 +15,7 @@ type ServiceArgs struct {
 	TlsCertificate   string
 }
 
-func Service() (ServiceArgs, error) {
+func parseServiceArgs() (ServiceArgs, error) {
 	var args ServiceArgs
 	flag.StringVar(&args.PrivateNetworkIp,
 		"ip", "", "Host's IP in the private network, which will be used to register the service into service registry")
@@ -46,7 +46,7 @@ type ApiGatewayArgs struct {
 	TlsCertificate  string
 }
 
-func ApiGateway() (ApiGatewayArgs, error) {
+func parseApiGatewayArgs() (ApiGatewayArgs, error) {
 	var args ApiGatewayArgs
 	flag.StringVar(&args.EnvMode,
 		"e", "", "either from [ local | stage | production ]")
@@ -73,7 +73,7 @@ type InternalGatewayArgs struct {
 	TlsCertificate  string
 }
 
-func InternalGateway() (InternalGatewayArgs, error) {
+func parseInternalGatewayArgs() (InternalGatewayArgs, error) {
 	var args InternalGatewayArgs
 	flag.StringVar(&args.EnvMode,
 		"e", "", "either from [ local | stage | production ]")

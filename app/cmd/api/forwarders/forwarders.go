@@ -4,7 +4,7 @@ import (
 	registry "logbook/cmd/registry/client"
 	"logbook/config/api"
 	"logbook/config/deployment"
-	"logbook/internal/cliargs"
+	"logbook/internal/startup"
 	"logbook/internal/web/balancer"
 	"logbook/internal/web/forwarder"
 	"logbook/internal/web/registryfile"
@@ -19,7 +19,7 @@ type Forwarders struct {
 	Objectives        *forwarder.LoadBalancedReverseProxy
 }
 
-func New(args *cliargs.ApiGatewayArgs, deplcfg *deployment.Config, apicfg *api.Config) (*Forwarders, error) {
+func New(args *startup.ApiGatewayArgs, deplcfg *deployment.Config, apicfg *api.Config) (*Forwarders, error) {
 	internalsd := registryfile.NewFileReader(args.InternalGateway, deplcfg.ServiceDiscovery.UpdatePeriod, registryfile.ServiceParams{
 		Port: deplcfg.Ports.Internal,
 		Tls:  true,

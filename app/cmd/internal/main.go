@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"log"
-	"logbook/cmd/internal/startup"
 	"logbook/config/api"
+	"logbook/internal/startup"
 	"logbook/internal/web/forwarder"
 	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router"
@@ -14,7 +14,7 @@ import (
 )
 
 func mainerr() error {
-	args, deplcfg, apicfg, err := startup.Everything()
+	args, deplcfg, apicfg, err := startup.EverythingForInternalGateway()
 	if err != nil {
 		return fmt.Errorf("reading configs: %w", err)
 	}

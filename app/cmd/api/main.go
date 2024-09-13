@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"log"
 	"logbook/cmd/api/forwarders"
-	"logbook/cmd/api/startup"
+	"logbook/internal/startup"
 	"logbook/internal/web/router"
 
 	"github.com/gorilla/mux"
 )
 
 func mainerr() error {
-	args, deplcfg, apicfg, err := startup.Everything()
+	args, deplcfg, apicfg, err := startup.EverythingForApiGateway()
 	if err != nil {
 		return fmt.Errorf("reading configs: %w", err)
 	}

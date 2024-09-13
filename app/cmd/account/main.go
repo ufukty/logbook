@@ -6,10 +6,11 @@ import (
 	"logbook/cmd/account/app"
 	"logbook/cmd/account/database"
 	"logbook/cmd/account/endpoints"
-	"logbook/cmd/account/startup"
+	"logbook/cmd/account/service"
 	objectives "logbook/cmd/objectives/client"
 	registry "logbook/cmd/registry/client"
 	"logbook/config/api"
+	"logbook/internal/startup"
 	"logbook/internal/web/balancer"
 	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router"
@@ -20,7 +21,7 @@ import (
 )
 
 func Main() error {
-	flags, srvcfg, deplcfg, apicfg, err := startup.Everything()
+	args, srvcfg, deplcfg, apicfg, err := startup.EverythingForServiceWithCustomServiceConfig(service.ReadConfig)
 	if err != nil {
 		return fmt.Errorf("reading configs: %w", err)
 	}
@@ -31,7 +32,7 @@ func Main() error {
 	}
 	defer db.Close()
 
-	internalsd := registryfile.NewFileReader(flags.InternalGateway, deplcfg.ServiceDiscovery.UpdatePeriod, registryfile.ServiceParams{
+	internalsd := registryfile.NewFileReader(args.InternalGateway, deplcfg.ServiceDiscovery.UpdatePeriod, registryfile.ServiceParams{
 		Port: deplcfg.Ports.Internal,
 		Tls:  true,
 	})
@@ -50,11 +51,11 @@ func Main() error {
 	// TODO: tls between services needs certs per host(name)
 	router.StartServerWithEndpoints(router.ServerParameters{
 		Router:  deplcfg.Router,
-		Address: flags.PrivateNetworkIp,
+		Address: args.PrivateNetworkIp,
 		Port:    deplcfg.Ports.Accounts,
 		Sidecar: sc,
-		TlsCrt:  flags.TlsCertificate,
-		TlsKey:  flags.TlsKey,
+		TlsCrt:  args.TlsCertificate,
+		TlsKey:  args.TlsKey,
 	}, map[api.Endpoint]http.HandlerFunc{
 		s.Endpoints.Create:        em.CreateUser,
 		s.Endpoints.CreateProfile: em.CreateProfile,

@@ -7,8 +7,9 @@ import (
 	"logbook/cmd/tags/app"
 	"logbook/cmd/tags/database"
 	"logbook/cmd/tags/endpoints"
-	"logbook/cmd/tags/startup"
+	"logbook/cmd/tags/service"
 	"logbook/config/api"
+	"logbook/internal/startup"
 	"logbook/internal/web/balancer"
 	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router"
@@ -19,7 +20,7 @@ import (
 )
 
 func Main() error {
-	args, srvcfg, deplcfg, apicfg, err := startup.Everything()
+	args, srvcfg, deplcfg, apicfg, err := startup.EverythingForServiceWithCustomServiceConfig(service.ReadConfig)
 	if err != nil {
 		return fmt.Errorf("reading configs: %w", err)
 	}

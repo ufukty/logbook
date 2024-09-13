@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"logbook/cmd/objectives/app"
 	"logbook/cmd/objectives/endpoints"
-	"logbook/cmd/objectives/startup"
+	"logbook/cmd/objectives/service"
 	registry "logbook/cmd/registry/client"
 	"logbook/config/api"
+	"logbook/internal/startup"
 	"logbook/internal/web/balancer"
 	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router"
@@ -20,7 +21,7 @@ import (
 )
 
 func Main() error {
-	args, srvcfg, deplcfg, apicfg, err := startup.Everything()
+	args, srvcfg, deplcfg, apicfg, err := startup.EverythingForServiceWithCustomServiceConfig(service.ReadConfig)
 	if err != nil {
 		return fmt.Errorf("reading configs: %w", err)
 	}

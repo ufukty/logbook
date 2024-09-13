@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"logbook/cmd/registry/app"
 	"logbook/cmd/registry/endpoints"
-	"logbook/cmd/registry/startup"
 	"logbook/config/api"
+	"logbook/internal/startup"
 	"logbook/internal/web/router"
 	"net/http"
 	"os"
@@ -13,7 +13,7 @@ import (
 )
 
 func Main() error {
-	args, deplycfg, apicfg, err := startup.Everything()
+	args, deplycfg, apicfg, err := startup.EverythingForService()
 	if err != nil {
 		return fmt.Errorf("reading config: %w", err)
 	}
