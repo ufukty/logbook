@@ -11,7 +11,7 @@ type DeleteLoginParameters struct {
 }
 
 func (a *App) DeleteLoginByLid(ctx context.Context, params DeleteLoginParameters) error {
-	err := a.queries.DeleteLoginByLid(ctx, params.Lid)
+	err := a.oneshot.DeleteLoginByLid(ctx, params.Lid)
 	if err != nil {
 		return fmt.Errorf("marking login information as deleted in database: %w", err)
 	}

@@ -5,18 +5,23 @@ import (
 	"logbook/cmd/account/database"
 	objectives "logbook/cmd/objectives/client"
 	"logbook/config/api"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type App struct {
-	authz      *authz.Authorization
-	queries    *database.Queries
+	authz   *authz.Authorization
+	pool    *pgxpool.Pool
+	oneshot *database.Queries
+
 	objectives *objectives.Client
 }
 
-func New(queries *database.Queries, apicfg *api.Config, objectivesctl *objectives.Client) *App {
+func New(pool *pgxpool.Pool, apicfg *api.Config, objectivesctl *objectives.Client) *App {
 	return &App{
-		authz:      authz.New(queries),
-		queries:    queries,
+		authz:      authz.New(database.New(pool)),
+		pool:       pool,
+		oneshot:    database.New(pool),
 		objectives: objectivesctl,
 	}
 }

@@ -1,11 +1,14 @@
 package endpoints
 
 import (
+	"context"
 	"fmt"
 	"logbook/cmd/account/app"
 	"logbook/cmd/account/database"
 	"logbook/cmd/account/service"
 	"logbook/config/api"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func getTestDependencies() (*Endpoints, error) {
@@ -22,10 +25,12 @@ func getTestDependencies() (*Endpoints, error) {
 		return nil, fmt.Errorf("running migration: %w", err)
 	}
 
-	q, err := database.New(srvcnf.Database.Dsn)
+	pool, err := pgxpool.New(context.Background(), srvcnf.Database.Dsn)
 	if err != nil {
 		return nil, fmt.Errorf("connecting database: %w", err)
 	}
-	a := app.New(q, apicfg, nil) // FIXME: mock objectives service?
+	defer pool.Close()
+
+	a := app.New(pool, apicfg, nil) // FIXME: mock objectives service?
 	return New(a), nil
 }

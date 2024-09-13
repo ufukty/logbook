@@ -1,10 +1,10 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"logbook/cmd/account/app"
-	"logbook/cmd/account/database"
 	"logbook/cmd/account/endpoints"
 	"logbook/cmd/account/service"
 	objectives "logbook/cmd/objectives/client"
@@ -18,6 +18,8 @@ import (
 	"logbook/models"
 	"net/http"
 	"time"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func Main() error {
@@ -26,11 +28,11 @@ func Main() error {
 		return fmt.Errorf("reading configs: %w", err)
 	}
 
-	db, err := database.New(srvcfg.Database.Dsn)
+	pool, err := pgxpool.New(context.Background(), srvcfg.Database.Dsn)
 	if err != nil {
-		return fmt.Errorf("creating database instance: %w", err)
+		return fmt.Errorf("pgxpool.New: %w", err)
 	}
-	defer db.Close()
+	defer pool.Close()
 
 	internalsd := registryfile.NewFileReader(args.InternalGateway, deplcfg.ServiceDiscovery.UpdatePeriod, registryfile.ServiceParams{
 		Port: deplcfg.Ports.Internal,
@@ -44,7 +46,7 @@ func Main() error {
 
 	objectivesctl := objectives.NewClient(balancer.New(sc.InstanceSource(models.Objectives)), apicfg)
 
-	app := app.New(db, apicfg, objectivesctl)
+	app := app.New(pool, apicfg, objectivesctl)
 	em := endpoints.New(app)
 	s := apicfg.Public.Services.Account
 

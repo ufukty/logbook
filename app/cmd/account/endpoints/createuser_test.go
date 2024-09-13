@@ -1,6 +1,7 @@
 package endpoints
 
 import (
+	"context"
 	"fmt"
 	"logbook/cmd/account/app"
 	"logbook/cmd/account/database"
@@ -12,6 +13,8 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type MockInstanceSource []models.Instance
@@ -49,12 +52,13 @@ func TestCreateUser(t *testing.T) {
 	r.Header.Add("Content-Type", mime.TypeByExtension(".json"))
 	w := httptest.NewRecorder()
 
-	q, err := database.New(srvcfg.Database.Dsn)
+	pool, err := pgxpool.New(context.Background(), srvcfg.Database.Dsn)
 	if err != nil {
 		t.Fatal(fmt.Errorf("opening database connection: %w", err))
 	}
+	defer pool.Close()
 
-	a := app.New(q, apicfg, nil) // FIXME: mock objectives service?
+	a := app.New(pool, apicfg, nil) // FIXME: mock objectives service?
 	ep := New(a)
 
 	ep.CreateUser(w, r)

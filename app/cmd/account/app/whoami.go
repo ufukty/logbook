@@ -17,7 +17,7 @@ var (
 )
 
 func (a App) WhoAmI(ctx context.Context, token columns.SessionToken) (*database.Profile, error) {
-	session, err := a.queries.SelectSessionByToken(ctx, token)
+	session, err := a.oneshot.SelectSessionByToken(ctx, token)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, ErrSessionNotFound
@@ -34,7 +34,7 @@ func (a App) WhoAmI(ctx context.Context, token columns.SessionToken) (*database.
 		return nil, ErrExpiredSession
 	}
 
-	user, err := a.queries.SelectUserByUserId(ctx, session.Uid)
+	user, err := a.oneshot.SelectUserByUserId(ctx, session.Uid)
 	if err != nil {
 		return nil, fmt.Errorf("fetch user details from database: %w", err)
 	}
@@ -43,7 +43,7 @@ func (a App) WhoAmI(ctx context.Context, token columns.SessionToken) (*database.
 		return nil, ErrUserNotFound
 	}
 
-	profile, err := a.queries.SelectLatestProfileByUid(ctx, session.Uid)
+	profile, err := a.oneshot.SelectLatestProfileByUid(ctx, session.Uid)
 	if err != nil {
 		return nil, ErrProfileNotFound
 	}

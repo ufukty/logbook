@@ -6,8 +6,8 @@ import (
 	"encoding/base64"
 	"fmt"
 	"log"
-	"logbook/internal/average"
 	"logbook/cmd/account/database"
+	"logbook/internal/average"
 	"logbook/models/columns"
 	"time"
 
@@ -56,7 +56,7 @@ func renewHash(q *database.Queries, ctx context.Context, login database.Login, p
 
 // TODO: send email
 func (a *App) Login(ctx context.Context, params CreateSessionParameters) (database.SessionStandard, error) {
-	login, err := a.queries.SelectLatestLoginByEmail(ctx, params.Email)
+	login, err := a.oneshot.SelectLatestLoginByEmail(ctx, params.Email)
 	if err != nil {
 		return database.SessionStandard{}, fmt.Errorf("selecting latest hash from database: %w", err)
 	}
@@ -71,7 +71,7 @@ func (a *App) Login(ctx context.Context, params CreateSessionParameters) (databa
 	}
 
 	if time.Now().Sub(login.CreatedAt.Time) > average.Month {
-		if err := renewHash(a.queries, ctx, login, params); err != nil {
+		if err := renewHash(a.oneshot, ctx, login, params); err != nil {
 			log.Println(fmt.Errorf("could not renew hash for user (uid: %q, old hash date %s): %w\n", login.Uid, login.CreatedAt.Time, err))
 		}
 	}
@@ -81,7 +81,7 @@ func (a *App) Login(ctx context.Context, params CreateSessionParameters) (databa
 		return database.SessionStandard{}, fmt.Errorf("generating session token: %w", err)
 	}
 
-	session, err := a.queries.InsertSession(ctx, database.InsertSessionParams{
+	session, err := a.oneshot.InsertSession(ctx, database.InsertSessionParams{
 		Uid:   login.Uid,
 		Token: tok,
 	})

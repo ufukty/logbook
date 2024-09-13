@@ -3,8 +3,8 @@ package app
 import (
 	"context"
 	"fmt"
-	"logbook/internal/average"
 	"logbook/cmd/account/database"
+	"logbook/internal/average"
 	"logbook/models/columns"
 	"time"
 )
@@ -16,7 +16,7 @@ func hasSessionExpired(session database.SessionStandard) bool {
 }
 
 func (a *App) ValidateSession(ctx context.Context, token columns.SessionToken) error {
-	session, err := a.queries.SelectSessionByToken(ctx, token)
+	session, err := a.oneshot.SelectSessionByToken(ctx, token)
 	if err != nil {
 		return fmt.Errorf("checking database: %w", err)
 	}

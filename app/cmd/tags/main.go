@@ -1,11 +1,11 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	registry "logbook/cmd/registry/client"
 	"logbook/cmd/tags/app"
-	"logbook/cmd/tags/database"
 	"logbook/cmd/tags/endpoints"
 	"logbook/cmd/tags/service"
 	"logbook/config/api"
@@ -17,6 +17,8 @@ import (
 	"logbook/models"
 	"net/http"
 	"time"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func Main() error {
@@ -25,11 +27,11 @@ func Main() error {
 		return fmt.Errorf("reading configs: %w", err)
 	}
 
-	db, err := database.New(srvcfg.Database.Dsn)
+	pool, err := pgxpool.New(context.Background(), srvcfg.Database.Dsn)
 	if err != nil {
-		return fmt.Errorf("creating database instance: %w", err)
+		return fmt.Errorf("pgxpool.New: %w", err)
 	}
-	defer db.Close()
+	defer pool.Close()
 
 	internalsd := registryfile.NewFileReader(args.InternalGateway, deplcfg.ServiceDiscovery.UpdatePeriod, registryfile.ServiceParams{
 		Port: deplcfg.Ports.Internal,
@@ -39,7 +41,7 @@ func Main() error {
 	sc := sidecar.New(registry.NewClient(balancer.New(internalsd), apicfg, true), time.Second, []models.Service{})
 	defer sc.Stop()
 
-	app := app.New(db, apicfg, internalsd)
+	app := app.New(pool, apicfg, internalsd)
 	eps := endpoints.New(app)
 
 	// TODO: tls between services needs certs per host(name)

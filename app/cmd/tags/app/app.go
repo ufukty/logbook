@@ -4,16 +4,20 @@ import (
 	"logbook/cmd/tags/database"
 	"logbook/config/api"
 	"logbook/internal/web/registryfile"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type App struct {
-	db         *database.Queries
+	pool       *pgxpool.Pool
+	oneshot    *database.Queries
 	internalsd *registryfile.FileReader
 }
 
-func New(db *database.Queries, apicfg *api.Config, internalsd *registryfile.FileReader) *App {
+func New(pool *pgxpool.Pool, apicfg *api.Config, internalsd *registryfile.FileReader) *App {
 	return &App{
-		db:         db,
+		pool:       pool,
+		oneshot:    database.New(pool),
 		internalsd: internalsd,
 	}
 }

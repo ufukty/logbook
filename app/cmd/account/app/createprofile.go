@@ -20,7 +20,7 @@ func (a App) CreateProfile(ctx context.Context, params CreateProfileParams) erro
 		return fmt.Errorf("checking authorization: %w", err)
 	}
 
-	_, err = a.queries.InsertProfileInformation(ctx, database.InsertProfileInformationParams{
+	_, err = a.oneshot.InsertProfileInformation(ctx, database.InsertProfileInformationParams{
 		Uid:       params.Uid,
 		Firstname: string(params.Firstname),
 		Lastname:  string(params.Lastname),

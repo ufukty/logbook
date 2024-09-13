@@ -28,12 +28,12 @@ type RegistrationParameters struct {
 var ErrEmailExists = fmt.Errorf("email in use")
 
 func (a *App) CreateUser(ctx context.Context, params RegistrationParameters) error {
-	_, err := a.queries.SelectLatestLoginByEmail(ctx, string(params.Email))
+	_, err := a.oneshot.SelectLatestLoginByEmail(ctx, string(params.Email))
 	if err == nil {
 		return ErrEmailExists
 	}
 
-	user, err := a.queries.InsertUser(ctx)
+	user, err := a.oneshot.InsertUser(ctx)
 	if err != nil {
 		return fmt.Errorf("inserting record to database: %w", err)
 	}
@@ -43,7 +43,7 @@ func (a *App) CreateUser(ctx context.Context, params RegistrationParameters) err
 		return fmt.Errorf("generating hash: %w", err)
 	}
 
-	_, err = a.queries.InsertLogin(ctx, database.InsertLoginParams{
+	_, err = a.oneshot.InsertLogin(ctx, database.InsertLoginParams{
 		Uid:   user.Uid,
 		Email: string(params.Email),
 		Hash:  hash,
@@ -52,7 +52,7 @@ func (a *App) CreateUser(ctx context.Context, params RegistrationParameters) err
 		return fmt.Errorf("inserting login information into database: %w", err)
 	}
 
-	_, err = a.queries.InsertProfileInformation(ctx, database.InsertProfileInformationParams{
+	_, err = a.oneshot.InsertProfileInformation(ctx, database.InsertProfileInformationParams{
 		Uid:       user.Uid,
 		Firstname: string(params.Firstname),
 		Lastname:  string(params.Lastname),
