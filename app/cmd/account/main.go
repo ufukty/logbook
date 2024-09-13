@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"log"
 	"logbook/cmd/account/app"
-	"logbook/cmd/account/cfgs"
 	"logbook/cmd/account/database"
 	"logbook/cmd/account/endpoints"
+	"logbook/cmd/account/startup"
 	objectives "logbook/cmd/objectives/client"
 	registry "logbook/cmd/registry/client"
 	"logbook/config/api"
@@ -20,7 +20,7 @@ import (
 )
 
 func Main() error {
-	flags, srvcfg, deplcfg, apicfg, err := cfgs.Read()
+	flags, srvcfg, deplcfg, apicfg, err := startup.Everything()
 	if err != nil {
 		return fmt.Errorf("reading configs: %w", err)
 	}

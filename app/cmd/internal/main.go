@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
-	"logbook/cmd/internal/cfgs"
+	"logbook/cmd/internal/startup"
 	"logbook/config/api"
 	"logbook/internal/web/forwarder"
 	"logbook/internal/web/registryfile"
@@ -14,12 +14,12 @@ import (
 )
 
 func mainerr() error {
-	flags, deplcfg, apicfg, err := cfgs.Read()
+	args, deplcfg, apicfg, err := startup.Everything()
 	if err != nil {
 		return fmt.Errorf("reading configs: %w", err)
 	}
 
-	registrysd := registryfile.NewFileReader(flags.RegistryService, deplcfg.ServiceDiscovery.UpdatePeriod, registryfile.ServiceParams{
+	registrysd := registryfile.NewFileReader(args.RegistryService, deplcfg.ServiceDiscovery.UpdatePeriod, registryfile.ServiceParams{
 		Port: deplcfg.Ports.Registry,
 		Tls:  false,
 	})
@@ -30,8 +30,8 @@ func mainerr() error {
 	router.StartServer(router.ServerParameters{
 		Router: deplcfg.Router,
 		Port:   deplcfg.Ports.Internal,
-		TlsCrt: flags.TlsCertificate,
-		TlsKey: flags.TlsKey,
+		TlsCrt: args.TlsCertificate,
+		TlsKey: args.TlsKey,
 	}, func(r *mux.Router) {
 		r = r.UseEncodedPath()
 		sub := r.PathPrefix(apicfg.Internal.Path).Subrouter()

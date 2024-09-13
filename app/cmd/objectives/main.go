@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"logbook/cmd/objectives/app"
-	"logbook/cmd/objectives/cfgs"
 	"logbook/cmd/objectives/endpoints"
+	"logbook/cmd/objectives/startup"
 	registry "logbook/cmd/registry/client"
 	"logbook/config/api"
 	"logbook/internal/web/balancer"
@@ -20,7 +20,7 @@ import (
 )
 
 func Main() error {
-	flags, srvcfg, deplcfg, apicfg, err := cfgs.Read()
+	args, srvcfg, deplcfg, apicfg, err := startup.Everything()
 	if err != nil {
 		return fmt.Errorf("reading configs: %w", err)
 	}
@@ -32,7 +32,7 @@ func Main() error {
 	}
 	defer pool.Close()
 
-	internalsd := registryfile.NewFileReader(flags.InternalGateway, deplcfg.ServiceDiscovery.UpdatePeriod, registryfile.ServiceParams{
+	internalsd := registryfile.NewFileReader(args.InternalGateway, deplcfg.ServiceDiscovery.UpdatePeriod, registryfile.ServiceParams{
 		Port: deplcfg.Ports.Internal,
 		Tls:  true,
 	})
@@ -46,11 +46,11 @@ func Main() error {
 	s := apicfg.Public.Services.Objectives
 	router.StartServerWithEndpoints(router.ServerParameters{
 		Router:  deplcfg.Router,
-		Address: flags.PrivateNetworkIp,
+		Address: args.PrivateNetworkIp,
 		Port:    deplcfg.Ports.Objectives,
 		Sidecar: sc,
-		TlsCrt:  flags.TlsCertificate,
-		TlsKey:  flags.TlsKey,
+		TlsCrt:  args.TlsCertificate,
+		TlsKey:  args.TlsKey,
 	}, map[api.Endpoint]http.HandlerFunc{
 		s.Endpoints.Attach:     eps.ReattachObjective,
 		s.Endpoints.Create:     eps.CreateObjective,

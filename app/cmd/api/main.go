@@ -3,27 +3,30 @@ package main
 import (
 	"fmt"
 	"log"
-	"logbook/cmd/api/cfgs"
 	"logbook/cmd/api/forwarders"
+	"logbook/cmd/api/startup"
 	"logbook/internal/web/router"
 
 	"github.com/gorilla/mux"
 )
 
 func mainerr() error {
-	flags, deplcfg, apicfg, err := cfgs.Read()
+	args, deplcfg, apicfg, err := startup.Everything()
 	if err != nil {
 		return fmt.Errorf("reading configs: %w", err)
 	}
 
-	fws, err := forwarders.New(flags, deplcfg, apicfg)
+	fws, err := forwarders.New(args, deplcfg, apicfg)
+	if err != nil {
+		return fmt.Errorf("forwarders.New: %w", err)
+	}
 	defer fws.Stop()
 
 	router.StartServer(router.ServerParameters{
 		Router: deplcfg.Router,
 		Port:   deplcfg.Ports.Gateway,
-		TlsCrt: flags.TlsCertificate,
-		TlsKey: flags.TlsKey,
+		TlsCrt: args.TlsCertificate,
+		TlsKey: args.TlsKey,
 	}, func(r *mux.Router) {
 		r = r.UseEncodedPath()
 		sub := r.PathPrefix(apicfg.Public.Path).Subrouter()

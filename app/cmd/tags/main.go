@@ -5,9 +5,9 @@ import (
 	"log"
 	registry "logbook/cmd/registry/client"
 	"logbook/cmd/tags/app"
-	"logbook/cmd/tags/cfgs"
 	"logbook/cmd/tags/database"
 	"logbook/cmd/tags/endpoints"
+	"logbook/cmd/tags/startup"
 	"logbook/config/api"
 	"logbook/internal/web/balancer"
 	"logbook/internal/web/registryfile"
@@ -19,7 +19,7 @@ import (
 )
 
 func Main() error {
-	flags, srvcfg, deplcfg, apicfg, err := cfgs.Read()
+	args, srvcfg, deplcfg, apicfg, err := startup.Everything()
 	if err != nil {
 		return fmt.Errorf("reading configs: %w", err)
 	}
@@ -30,7 +30,7 @@ func Main() error {
 	}
 	defer db.Close()
 
-	internalsd := registryfile.NewFileReader(flags.InternalGateway, deplcfg.ServiceDiscovery.UpdatePeriod, registryfile.ServiceParams{
+	internalsd := registryfile.NewFileReader(args.InternalGateway, deplcfg.ServiceDiscovery.UpdatePeriod, registryfile.ServiceParams{
 		Port: deplcfg.Ports.Internal,
 		Tls:  true,
 	})
@@ -45,11 +45,11 @@ func Main() error {
 	s := apicfg.Public.Services.Tags
 	router.StartServerWithEndpoints(router.ServerParameters{
 		Router:  deplcfg.Router,
-		Address: flags.PrivateNetworkIp,
+		Address: args.PrivateNetworkIp,
 		Port:    deplcfg.Ports.Tags,
 		Sidecar: sc,
-		TlsCrt:  flags.TlsCertificate,
-		TlsKey:  flags.TlsKey,
+		TlsCrt:  args.TlsCertificate,
+		TlsKey:  args.TlsKey,
 	}, map[api.Endpoint]http.HandlerFunc{
 		s.Endpoints.Assign:   eps.TagAssign,
 		s.Endpoints.Creation: eps.TagCreation,
