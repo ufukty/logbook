@@ -1,0 +1,21 @@
+member: {
+  shape: sql_table
+
+  gid: GroupId
+  uid: UserId
+  
+  created_at: timestamp
+  deleted_at: timestamp?
+}
+
+group: {
+  shape: sql_table
+
+  gid: GroupId
+  title: string
+
+  created_at: timestamp
+  deleted_at: timestamp?
+}
+
+member.gid -- group.gid

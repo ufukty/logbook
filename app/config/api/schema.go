@@ -3,9 +3,9 @@
 package api
 
 import (
-	"gopkg.in/yaml.v3"
 	"os"
 	"fmt"
+	"gopkg.in/yaml.v3"
 )
 
 type Account struct {
@@ -17,6 +17,11 @@ type Document struct {
 	Endpoints documentEndpoints `yaml:"endpoints"`
 	Path      string            `yaml:"path"`
 	Parent    *publicServices   `yaml:"-"`
+}
+type Groups struct {
+	Endpoints groupsEndpoints `yaml:"endpoints"`
+	Path      string          `yaml:"path"`
+	Parent    *publicServices `yaml:"-"`
 }
 type Internal struct {
 	Path     string   `yaml:"path"`
@@ -90,9 +95,13 @@ type endpoints struct {
 	Parent           *Registry        `yaml:"-"`
 }
 type endpointsCreate struct {
-	Method string               `yaml:"method"`
-	Path   string               `yaml:"path"`
-	Parent *objectivesEndpoints `yaml:"-"`
+	Method string           `yaml:"method"`
+	Path   string           `yaml:"path"`
+	Parent *groupsEndpoints `yaml:"-"`
+}
+type groupsEndpoints struct {
+	Create endpointsCreate `yaml:"create"`
+	Parent *Groups         `yaml:"-"`
 }
 type list struct {
 	Method string             `yaml:"method"`
@@ -120,13 +129,18 @@ type mark struct {
 	Parent *objectivesEndpoints `yaml:"-"`
 }
 type objectivesEndpoints struct {
-	Attach     attach          `yaml:"attach"`
-	Create     endpointsCreate `yaml:"create"`
-	Delete     delete          `yaml:"delete"`
-	Mark       mark            `yaml:"mark"`
-	Placement  placement       `yaml:"placement"`
-	RockCreate rockCreate      `yaml:"rock-create"`
-	Parent     *Objectives     `yaml:"-"`
+	Attach     attach                    `yaml:"attach"`
+	Create     objectivesEndpointsCreate `yaml:"create"`
+	Delete     delete                    `yaml:"delete"`
+	Mark       mark                      `yaml:"mark"`
+	Placement  placement                 `yaml:"placement"`
+	RockCreate rockCreate                `yaml:"rock-create"`
+	Parent     *Objectives               `yaml:"-"`
+}
+type objectivesEndpointsCreate struct {
+	Method string               `yaml:"method"`
+	Path   string               `yaml:"path"`
+	Parent *objectivesEndpoints `yaml:"-"`
 }
 type placement struct {
 	Method string               `yaml:"method"`
@@ -136,6 +150,7 @@ type placement struct {
 type publicServices struct {
 	Account    Account    `yaml:"account"`
 	Document   Document   `yaml:"document"`
+	Groups     Groups     `yaml:"groups"`
 	Objectives Objectives `yaml:"objectives"`
 	Tags       Tags       `yaml:"tags"`
 	Parent     *Public    `yaml:"-"`
@@ -192,6 +207,9 @@ func parentRefAssignments(c *Config) {
 	c.Public.Services.Document.Parent = &c.Public.Services
 	c.Public.Services.Document.Endpoints.Parent = &c.Public.Services.Document
 	c.Public.Services.Document.Endpoints.List.Parent = &c.Public.Services.Document.Endpoints
+	c.Public.Services.Groups.Parent = &c.Public.Services
+	c.Public.Services.Groups.Endpoints.Parent = &c.Public.Services.Groups
+	c.Public.Services.Groups.Endpoints.Create.Parent = &c.Public.Services.Groups.Endpoints
 	c.Public.Services.Objectives.Parent = &c.Public.Services
 	c.Public.Services.Objectives.Endpoints.Parent = &c.Public.Services.Objectives
 	c.Public.Services.Objectives.Endpoints.Attach.Parent = &c.Public.Services.Objectives.Endpoints
@@ -236,6 +254,15 @@ func (d Document) GetPath() string {
 }
 func (d *Document) SetPath(v string) {
 	d.Path = v
+}
+func (g Groups) GetParent() any {
+	return g.Parent
+}
+func (g Groups) GetPath() string {
+	return g.Path
+}
+func (g *Groups) SetPath(v string) {
+	g.Path = v
 }
 func (i Internal) GetPath() string {
 	return i.Path
@@ -390,6 +417,9 @@ func (e *endpointsCreate) SetMethod(v string) {
 func (e *endpointsCreate) SetPath(v string) {
 	e.Path = v
 }
+func (g groupsEndpoints) GetParent() any {
+	return g.Parent
+}
 func (l list) GetMethod() string {
 	return l.Method
 }
@@ -467,6 +497,21 @@ func (m *mark) SetPath(v string) {
 }
 func (o objectivesEndpoints) GetParent() any {
 	return o.Parent
+}
+func (o objectivesEndpointsCreate) GetMethod() string {
+	return o.Method
+}
+func (o objectivesEndpointsCreate) GetParent() any {
+	return o.Parent
+}
+func (o objectivesEndpointsCreate) GetPath() string {
+	return o.Path
+}
+func (o *objectivesEndpointsCreate) SetMethod(v string) {
+	o.Method = v
+}
+func (o *objectivesEndpointsCreate) SetPath(v string) {
+	o.Path = v
 }
 func (p placement) GetMethod() string {
 	return p.Method

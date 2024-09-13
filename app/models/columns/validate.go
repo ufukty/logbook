@@ -20,6 +20,7 @@ func (v AreaId) Validate() error {
 func (v BookmarkId) Validate() error {
 	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
 }
+
 func (v BottomUpPropsId) Validate() error {
 	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
 }
@@ -30,6 +31,18 @@ func (v CollaborationId) Validate() error {
 
 func (v Email) Validate() error {
 	return validate.StringBasics(string(v), min_length_email, max_length_email, regexp_email)
+}
+
+func (v GroupId) Validate() error {
+	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
+}
+
+func (v GroupInviteId) Validate() error {
+	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
+}
+
+func (v GroupName) Validate() error {
+	return validate.StringBasics(string(v), min_length_group_title, max_length_group_title, regexp_group_title)
 }
 
 func (v HumanName) Validate() error {

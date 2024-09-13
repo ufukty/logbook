@@ -15,6 +15,11 @@ public:
       endpoints:
         list: { method: GET, path: "/list/{root}" }
 
+    groups:
+      path: /groups
+      endpoints:
+        create: { method: POST, path: "group" }
+
     objectives:
       path: /tasks
       endpoints:

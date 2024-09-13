@@ -17,6 +17,13 @@ type (
 	Username     string
 )
 
+// groups
+type (
+	GroupId       string
+	GroupInviteId string
+	GroupName     string
+)
+
 // objectives
 type (
 	AreaId          string

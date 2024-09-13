@@ -1,6 +1,11 @@
 all: \
+	groups.png \
 	objectives.png \
 	transactions.png
+
+groups.png: groups.d2
+	d2 --layout elk "groups.d2" "groups.png"
+	magick groups.png -channel RGB -negate -brightness-contrast -10x-30  groups.dark.png
 
 objectives.png: objectives.d2
 	d2 --layout elk "objectives.d2" "objectives.png"

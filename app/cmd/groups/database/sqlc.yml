@@ -1,0 +1,30 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    queries:
+      - "queries.*.sql"
+    schema: "schema.sql"
+    gen:
+      go:
+        package: database
+        out: "."
+        sql_package: "pgx/v5"
+        output_db_file_name: dbtx.sqlc.go
+        output_models_file_name: models.sqlc.go
+        output_files_suffix: .sqlc
+        emit_exact_table_names: true
+        overrides:
+          - db_type: GroupId
+            go_type:
+              import: "logbook/models/columns"
+              type: GroupId
+
+          - db_type: GroupInviteId
+            go_type:
+              import: "logbook/models/columns"
+              type: GroupInviteId
+
+          - db_type: UserId
+            go_type:
+              import: "logbook/models/columns"
+              type: UserId

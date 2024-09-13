@@ -12,6 +12,7 @@ var (
 	regexp_human_name   = regexp.MustCompile(`^\p{L}+([ '-]\p{L}+)*$`)
 	regexp_numeric      = regexp.MustCompile(`^[1-9][0-9]*$`)
 	regexp_phone_number = regexp.MustCompile(`^\+?(\d{1,3})?[ -]?(\d{3})[ -]?(\d{3})[ -]?(\d{4})$`)
+	regexp_group_title  = regexp.MustCompile(`[\p{L} ]+`)
 	regexp_text         = regexp.MustCompile(`^[\p{L}0-9 ,.?!'’“”-]+$`)
 	regexp_url          = regexp.MustCompile(`^[\p{L}0-9._%+-]+@[\p{L}0-9.-]+\.[\p{L}]{2,}$`)
 	regexp_username     = regexp.MustCompile(`^[a-zA-Z]+[a-zA-Z0-9\_\.\-]*$`)
@@ -20,6 +21,7 @@ var (
 
 var (
 	max_length_email         = 150
+	max_length_group_title   = 100
 	max_length_human_name    = 100
 	max_length_session_token = 256
 	max_length_username      = 20
@@ -28,6 +30,7 @@ var (
 
 var (
 	min_length_email         = 6
+	min_length_group_title   = 2
 	min_length_human_name    = 6
 	min_length_session_token = 256
 	min_length_username      = 6
