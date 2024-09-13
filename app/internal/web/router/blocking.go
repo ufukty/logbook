@@ -21,11 +21,11 @@ import (
 )
 
 type ServerParameters struct {
-	Sidecar *sidecar.Sidecar
-	Service models.Service
 	Address string
-	Router  deployment.Router
 	Port    int
+	Router  deployment.Router
+	Service models.Service
+	Sidecar *sidecar.Sidecar
 	TlsCrt  string
 	TlsKey  string
 }

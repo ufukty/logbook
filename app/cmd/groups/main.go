@@ -46,9 +46,10 @@ func Main() error {
 
 	s := apicfg.Public.Services.Groups
 	router.StartServerWithEndpoints(router.ServerParameters{
-		Router:  deplcfg.Router,
 		Address: args.PrivateNetworkIp,
 		Port:    deplcfg.Ports.Objectives,
+		Router:  deplcfg.Router,
+		Service: models.Groups,
 		Sidecar: sc,
 		TlsCrt:  args.TlsCertificate,
 		TlsKey:  args.TlsKey,

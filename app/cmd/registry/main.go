@@ -24,10 +24,10 @@ func Main() error {
 
 	s := apicfg.Internal.Services.Registry
 	router.StartServerWithEndpoints(router.ServerParameters{
-		Router: deplycfg.Router,
-		Port:   deplycfg.Ports.Registry,
-		TlsCrt: args.TlsCertificate,
-		TlsKey: args.TlsKey,
+		Port:    deplycfg.Ports.Registry,
+		Router:  deplycfg.Router,
+		TlsCrt:  args.TlsCertificate,
+		TlsKey:  args.TlsKey,
 	}, map[api.Endpoint]http.HandlerFunc{
 		s.Endpoints.ListInstances:    eps.ListInstances,
 		s.Endpoints.RecheckInstance:  eps.RecheckInstance,

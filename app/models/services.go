@@ -7,18 +7,21 @@ type Service string
 var (
 	Account    = Service("account")
 	Discovery  = Service("discovery")
+	Groups     = Service("groups")
 	Internal   = Service("internal")
 	Objectives = Service("objectives")
-	Groups     = Service("groups")
+	Tags       = Service("tags")
 )
 
 func (s *Service) Set(v string) error {
 	switch v {
-	case string(Account),
+	case
+		string(Account),
 		string(Discovery),
+		string(Groups),
 		string(Internal),
 		string(Objectives),
-		string(Groups):
+		string(Tags):
 		*s = Service(v)
 	default:
 		return fmt.Errorf("invalid service name: %s", v)

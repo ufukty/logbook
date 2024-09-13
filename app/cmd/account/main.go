@@ -50,9 +50,10 @@ func Main() error {
 
 	// TODO: tls between services needs certs per host(name)
 	router.StartServerWithEndpoints(router.ServerParameters{
-		Router:  deplcfg.Router,
 		Address: args.PrivateNetworkIp,
 		Port:    deplcfg.Ports.Accounts,
+		Router:  deplcfg.Router,
+		Service: models.Account,
 		Sidecar: sc,
 		TlsCrt:  args.TlsCertificate,
 		TlsKey:  args.TlsKey,
