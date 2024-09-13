@@ -28,12 +28,19 @@ type RegistrationParameters struct {
 var ErrEmailExists = fmt.Errorf("email in use")
 
 func (a *App) CreateUser(ctx context.Context, params RegistrationParameters) error {
-	_, err := a.oneshot.SelectLatestLoginByEmail(ctx, string(params.Email))
+	tx, err := a.pool.Begin(ctx)
+	if err != nil {
+		return fmt.Errorf("pool.Begin: %w", err)
+	}
+	defer tx.Rollback(ctx)
+	q := database.New(tx)
+
+	_, err = q.SelectLatestLoginByEmail(ctx, string(params.Email))
 	if err == nil {
 		return ErrEmailExists
 	}
 
-	user, err := a.oneshot.InsertUser(ctx)
+	user, err := q.InsertUser(ctx)
 	if err != nil {
 		return fmt.Errorf("inserting record to database: %w", err)
 	}
@@ -43,7 +50,7 @@ func (a *App) CreateUser(ctx context.Context, params RegistrationParameters) err
 		return fmt.Errorf("generating hash: %w", err)
 	}
 
-	_, err = a.oneshot.InsertLogin(ctx, database.InsertLoginParams{
+	_, err = q.InsertLogin(ctx, database.InsertLoginParams{
 		Uid:   user.Uid,
 		Email: string(params.Email),
 		Hash:  hash,
@@ -52,7 +59,7 @@ func (a *App) CreateUser(ctx context.Context, params RegistrationParameters) err
 		return fmt.Errorf("inserting login information into database: %w", err)
 	}
 
-	_, err = a.oneshot.InsertProfileInformation(ctx, database.InsertProfileInformationParams{
+	_, err = q.InsertProfileInformation(ctx, database.InsertProfileInformationParams{
 		Uid:       user.Uid,
 		Firstname: string(params.Firstname),
 		Lastname:  string(params.Lastname),
@@ -71,5 +78,9 @@ func (a *App) CreateUser(ctx context.Context, params RegistrationParameters) err
 		return fmt.Errorf("objectives service returned non-200 status code for the request to create rock for user: %s", r.Body)
 	}
 
+	err = tx.Commit(ctx)
+	if err != nil {
+		return fmt.Errorf("tx.Commit: %w", err)
+	}
 	return nil
 }
