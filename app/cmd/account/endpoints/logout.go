@@ -2,13 +2,13 @@ package endpoints
 
 import (
 	"fmt"
-	database "logbook/models/columns"
+	"logbook/models/columns"
 	"net/http"
 )
 
 // TODO: add anti-CSRF token checks
 func (e Endpoints) Logout(w http.ResponseWriter, r *http.Request) {
-	st := database.SessionToken(r.Header.Get("session_token"))
+	st := columns.SessionToken(r.Header.Get("session_token"))
 
 	if err := st.Validate(); err != nil {
 		e.l.Println(fmt.Errorf("invalid session_token: %w", err))

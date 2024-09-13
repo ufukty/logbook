@@ -5,14 +5,14 @@ import (
 	"log"
 	"logbook/cmd/account/app"
 	"logbook/internal/web/requests"
-	database "logbook/models/columns"
+	"logbook/models/columns"
 	"net/http"
 
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type WhoAmIResponse struct {
-	Uid       database.UserId  `json:"uid"`
+	Uid       columns.UserId   `json:"uid"`
 	Firstname string           `json:"firstname"`
 	Lastname  string           `json:"lastname"`
 	CreatedAt pgtype.Timestamp `json:"created_at"`
@@ -27,7 +27,7 @@ func (e Endpoints) WhoAmI(w http.ResponseWriter, r *http.Request) {
 
 	sessionToken := cookie.Value
 
-	profile, err := e.app.WhoAmI(r.Context(), database.SessionToken(sessionToken))
+	profile, err := e.app.WhoAmI(r.Context(), columns.SessionToken(sessionToken))
 	if err != nil {
 		log.Println(fmt.Errorf("app.WhoAmI: %w", err))
 		switch err {

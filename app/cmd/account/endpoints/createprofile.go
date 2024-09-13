@@ -6,15 +6,15 @@ import (
 	"logbook/cmd/account/app"
 	"logbook/internal/web/requests"
 	"logbook/internal/web/validate"
-	database "logbook/models/columns"
+	"logbook/models/columns"
 	"net/http"
 )
 
 type CreateProfileRequest struct {
-	SessionToken requests.Cookie[database.SessionToken] `cookie:"session_token"`
-	Uid          database.UserId                        `json:"uid"`
-	Firstname    database.HumanName                     `json:"firstname"`
-	Lastname     database.HumanName                     `json:"lastname"`
+	SessionToken requests.Cookie[columns.SessionToken] `cookie:"session_token"`
+	Uid          columns.UserId                        `json:"uid"`
+	Firstname    columns.HumanName                     `json:"firstname"`
+	Lastname     columns.HumanName                     `json:"lastname"`
 }
 
 func (params CreateProfileRequest) Validate() error {

@@ -5,15 +5,15 @@ import (
 	"logbook/cmd/account/app"
 	"logbook/internal/web/requests"
 	"logbook/internal/web/validate"
-	database "logbook/models/columns"
+	"logbook/models/columns"
 	"net/http"
 )
 
 type CreateUserRequest struct {
-	Email     database.Email     `json:"email"`
-	Password  string             `json:"password"`
-	Firstname database.HumanName `json:"firstname"`
-	Lastname  database.HumanName `json:"lastname"`
+	Email     columns.Email     `json:"email"`
+	Password  string            `json:"password"`
+	Firstname columns.HumanName `json:"firstname"`
+	Lastname  columns.HumanName `json:"lastname"`
 }
 
 func (bq CreateUserRequest) validate() error {
