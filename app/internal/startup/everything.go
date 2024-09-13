@@ -8,7 +8,7 @@ import (
 	"logbook/internal/web/logger"
 )
 
-func EverythingForApiGateway() (*ApiGatewayArgs, *deployment.Config, *api.Config, error) {
+func ApiGateway() (*ApiGatewayArgs, *deployment.Config, *api.Config, error) {
 	args, err := parseApiGatewayArgs()
 	if err != nil {
 		return nil, nil, nil, fmt.Errorf("parsing args: %w", err)
@@ -32,7 +32,7 @@ func EverythingForApiGateway() (*ApiGatewayArgs, *deployment.Config, *api.Config
 	return &args, deplcfg, apicfg, nil
 }
 
-func EverythingForInternalGateway() (*InternalGatewayArgs, *deployment.Config, *api.Config, error) {
+func InternalGateway() (*InternalGatewayArgs, *deployment.Config, *api.Config, error) {
 	args, err := parseInternalGatewayArgs()
 	if err != nil {
 		return nil, nil, nil, fmt.Errorf("parsing args: %w", err)
@@ -56,7 +56,7 @@ func EverythingForInternalGateway() (*InternalGatewayArgs, *deployment.Config, *
 	return &args, deplcfg, apicfg, nil
 }
 
-func EverythingForService() (*ServiceArgs, *deployment.Config, *api.Config, error) {
+func Service() (*ServiceArgs, *deployment.Config, *api.Config, error) {
 	args, err := parseServiceArgs()
 	if err != nil {
 		return nil, nil, nil, fmt.Errorf("parsing args: %w", err)
@@ -83,7 +83,7 @@ func EverythingForService() (*ServiceArgs, *deployment.Config, *api.Config, erro
 type ServiceConfigReader[Config any] func(path string) (*Config, error)
 
 // with custom service config
-func EverythingForServiceWithCustomServiceConfig[C any](serviceConfigReader ServiceConfigReader[C]) (*ServiceArgs, *C, *deployment.Config, *api.Config, error) {
+func ServiceWithCustomConfig[C any](serviceConfigReader ServiceConfigReader[C]) (*ServiceArgs, *C, *deployment.Config, *api.Config, error) {
 	args, err := parseServiceArgs()
 	if err != nil {
 		return nil, nil, nil, nil, fmt.Errorf("parsing args: %w", err)

@@ -14,7 +14,7 @@ import (
 )
 
 func mainerr() error {
-	args, deplcfg, apicfg, err := startup.EverythingForInternalGateway()
+	args, deplcfg, apicfg, err := startup.InternalGateway()
 	if err != nil {
 		return fmt.Errorf("reading configs: %w", err)
 	}

@@ -13,7 +13,7 @@ import (
 )
 
 func Main() error {
-	args, deplycfg, apicfg, err := startup.EverythingForService()
+	args, deplycfg, apicfg, err := startup.Service()
 	if err != nil {
 		return fmt.Errorf("reading config: %w", err)
 	}
