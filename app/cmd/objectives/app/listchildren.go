@@ -3,12 +3,12 @@ package app
 import (
 	"context"
 	"fmt"
-	"logbook/cmd/objectives/queries"
+	"logbook/cmd/objectives/database"
 	"logbook/models"
 )
 
 func (a *App) ListChildren(ctx context.Context, parent models.Ovid) ([]models.Ovid, error) {
-	subs, err := a.oneshot.SelectSubLinks(ctx, queries.SelectSubLinksParams{
+	subs, err := a.oneshot.SelectSubLinks(ctx, database.SelectSubLinksParams{
 		SupOid: parent.Oid,
 		SupVid: parent.Vid,
 	})

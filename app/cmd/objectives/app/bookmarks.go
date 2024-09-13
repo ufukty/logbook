@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
-	"logbook/cmd/objectives/queries"
+	"logbook/cmd/objectives/database"
 	"logbook/models"
 	"logbook/models/columns"
 	"logbook/models/owners"
@@ -16,7 +16,7 @@ type AddBookmarkParams struct {
 }
 
 func (a *App) AddBookmark(ctx context.Context, params AddBookmarkParams) error {
-	_, err := a.oneshot.InsertBookmark(ctx, queries.InsertBookmarkParams{
+	_, err := a.oneshot.InsertBookmark(ctx, database.InsertBookmarkParams{
 		Uid:    params.Actor,
 		Oid:    params.Subject.Oid,
 		Title:  params.BookmarkName,

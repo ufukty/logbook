@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
-	"logbook/cmd/objectives/queries"
+	"logbook/cmd/objectives/database"
 	"logbook/models"
 	"logbook/models/columns"
 )
@@ -32,7 +32,7 @@ func popCommonActivePath(l, r []models.Ovid) ([]models.Ovid, []models.Ovid, []mo
 	return l[:lc+1], r[:rc+1], common
 }
 
-func (a *App) deltaValuesForReattachment(ctx context.Context, q *queries.Queries, obj queries.Objective) (bubblinkDeltaValues, bubblinkDeltaValues, error) {
+func (a *App) deltaValuesForReattachment(ctx context.Context, q *database.Queries, obj database.Objective) (bubblinkDeltaValues, bubblinkDeltaValues, error) {
 	deltasCurrent := bubblinkDeltaValues{}
 	deltasNext := bubblinkDeltaValues{}
 	props, err := q.SelectProperties(ctx, obj.Pid)
@@ -64,7 +64,7 @@ func (a *App) Reattach(ctx context.Context, params ReattachParams) error {
 		return fmt.Errorf("pool.Begin: %w", err)
 	}
 	defer tx.Rollback(ctx)
-	q := queries.New(tx)
+	q := database.New(tx)
 
 	apCurrent, err := a.listActivePathToRock(ctx, q, params.CurrentParent)
 	if err != nil {
@@ -76,18 +76,18 @@ func (a *App) Reattach(ctx context.Context, params ReattachParams) error {
 		return fmt.Errorf("listActivePathToRock/next: %w", err)
 	}
 
-	opDetach, err := q.InsertOperation(ctx, queries.InsertOperationParams{
+	opDetach, err := q.InsertOperation(ctx, database.InsertOperationParams{
 		Subjectoid: params.CurrentParent.Oid,
 		Subjectvid: params.CurrentParent.Vid,
 		Actor:      params.Actor,
-		OpType:     queries.OpTypeObjDetach,
-		OpStatus:   queries.OpStatusAccepted,
+		OpType:     database.OpTypeObjDetach,
+		OpStatus:   database.OpStatusAccepted,
 	})
 	if err != nil {
 		return fmt.Errorf("InsertOperation: %w", err)
 	}
 
-	_, err = q.InsertOpObjDetach(ctx, queries.InsertOpObjDetachParams{
+	_, err = q.InsertOpObjDetach(ctx, database.InsertOpObjDetachParams{
 		Opid:  opDetach.Opid,
 		Child: params.CurrentParent.Oid,
 	})
@@ -95,18 +95,18 @@ func (a *App) Reattach(ctx context.Context, params ReattachParams) error {
 		return fmt.Errorf("InsertOpObjDetach: %w", err)
 	}
 
-	opAttach, err := q.InsertOperation(ctx, queries.InsertOperationParams{
+	opAttach, err := q.InsertOperation(ctx, database.InsertOperationParams{
 		Subjectoid: params.NextParent.Oid,
 		Subjectvid: params.NextParent.Vid,
 		Actor:      opDetach.Actor,
-		OpType:     queries.OpTypeObjAttach,
-		OpStatus:   queries.OpStatusAccepted,
+		OpType:     database.OpTypeObjAttach,
+		OpStatus:   database.OpStatusAccepted,
 	})
 	if err != nil {
 		return fmt.Errorf("InsertOperation: %w", err)
 	}
 
-	_, err = q.InsertOpObjAttach(ctx, queries.InsertOpObjAttachParams{
+	_, err = q.InsertOpObjAttach(ctx, database.InsertOpObjAttachParams{
 		Opid:  opAttach.Opid,
 		Child: params.NextParent.Oid,
 	})
@@ -119,7 +119,7 @@ func (a *App) Reattach(ctx context.Context, params ReattachParams) error {
 		return fmt.Errorf("SelectActive: %w", err)
 	}
 
-	obj, err := q.SelectObjective(ctx, queries.SelectObjectiveParams{
+	obj, err := q.SelectObjective(ctx, database.SelectObjectiveParams{
 		Oid: params.Subject,
 		Vid: active.Vid,
 	})
@@ -142,17 +142,17 @@ func (a *App) Reattach(ctx context.Context, params ReattachParams) error {
 		return fmt.Errorf("bubblink/next: %w", err)
 	}
 	if len(apCommon) > 0 {
-		opMerg, err := q.InsertOperation(ctx, queries.InsertOperationParams{
+		opMerg, err := q.InsertOperation(ctx, database.InsertOperationParams{
 			Subjectoid: apCommon[len(apCommon)-1].Oid,
 			Subjectvid: apCommon[len(apCommon)-1].Vid,
 			Actor:      columns.ZeroUserId,
-			OpType:     queries.OpTypeDoubleTransitiveMerger,
-			OpStatus:   queries.OpStatusAccepted,
+			OpType:     database.OpTypeDoubleTransitiveMerger,
+			OpStatus:   database.OpStatusAccepted,
 		})
 		if err != nil {
 			return fmt.Errorf("InsertOperation/merge: %w", err)
 		}
-		_, err = q.InsertOpDoubleTransitiveMerger(ctx, queries.InsertOpDoubleTransitiveMergerParams{
+		_, err = q.InsertOpDoubleTransitiveMerger(ctx, database.InsertOpDoubleTransitiveMergerParams{
 			Opid:   opMerg.Opid,
 			First:  opidCurrent,
 			Second: opidNext,

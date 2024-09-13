@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
-	"logbook/cmd/objectives/queries"
+	"logbook/cmd/objectives/database"
 	"logbook/models"
 	"logbook/models/columns"
 	"logbook/models/owners"
@@ -28,8 +28,8 @@ func doOverlap(a, b line) bool {
 	return a.start < b.end && b.start < a.end
 }
 
-func (a *App) isFold(ctx context.Context, q *queries.Queries, viewer columns.UserId, subject columns.ObjectiveId) (bool, error) {
-	vp, err := q.SelectObjectiveViewPrefs(ctx, queries.SelectObjectiveViewPrefsParams{
+func (a *App) isFold(ctx context.Context, q *database.Queries, viewer columns.UserId, subject columns.ObjectiveId) (bool, error) {
+	vp, err := q.SelectObjectiveViewPrefs(ctx, database.SelectObjectiveViewPrefsParams{
 		Uid: viewer,
 		Oid: subject,
 	})
@@ -43,11 +43,11 @@ func (a *App) isFold(ctx context.Context, q *queries.Queries, viewer columns.Use
 }
 
 // FIXME: apply recursion as permissions allow for solo and collaborated objectives
-func (a *App) getUss(ctx context.Context, q *queries.Queries, viewer columns.UserId, subject models.Ovid) (int32, error) {
+func (a *App) getUss(ctx context.Context, q *database.Queries, viewer columns.UserId, subject models.Ovid) (int32, error) {
 	if cachedsize, ok := a.caches.Uss.Get(usssubject{Viewer: viewer, Object: subject}); ok {
 		return cachedsize, nil
 	}
-	subs, err := q.SelectSubLinks(context.Background(), queries.SelectSubLinksParams{
+	subs, err := q.SelectSubLinks(context.Background(), database.SelectSubLinksParams{
 		SupOid: subject.Oid,
 		SupVid: subject.Vid,
 	})
@@ -75,7 +75,7 @@ func (a *App) getUss(ctx context.Context, q *queries.Queries, viewer columns.Use
 }
 
 // TODO: mind permissions
-func (a *App) viewBuilder(ctx context.Context, q *queries.Queries, viewer columns.UserId, subject models.Ovid, start, end int32, depth int) ([]owners.DocumentItem, error) {
+func (a *App) viewBuilder(ctx context.Context, q *database.Queries, viewer columns.UserId, subject models.Ovid, start, end int32, depth int) ([]owners.DocumentItem, error) {
 	doc := []owners.DocumentItem{}
 
 	// if end <= start || end < 0 {
@@ -107,7 +107,7 @@ func (a *App) viewBuilder(ctx context.Context, q *queries.Queries, viewer column
 	}
 
 	if !fold && doOverlap(line{1, unfoldSubtreeSize + 1}, line{start, end}) {
-		subs, err := q.SelectSubLinks(ctx, queries.SelectSubLinksParams{
+		subs, err := q.SelectSubLinks(ctx, database.SelectSubLinksParams{
 			SupOid: subject.Oid,
 			SupVid: subject.Vid,
 		})
@@ -151,7 +151,7 @@ func (a *App) ViewBuilder(ctx context.Context, params ViewBuilderParams) ([]owne
 		return nil, fmt.Errorf("pool.Begin: %w", err)
 	}
 	defer tx.Rollback(ctx)
-	q := queries.New(tx)
+	q := database.New(tx)
 
 	v, err := a.viewBuilder(ctx, q, params.Viewer, params.Root, int32(params.Start), int32(params.Start+params.Length), 0)
 	if err != nil {

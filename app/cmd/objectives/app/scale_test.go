@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
-	"logbook/cmd/objectives/queries"
+	"logbook/cmd/objectives/database"
 	"logbook/cmd/objectives/service"
 	"logbook/models"
 	"logbook/models/columns"
@@ -30,7 +30,7 @@ func TestStorageScale(t *testing.T) {
 	if err != nil {
 		t.Fatal(fmt.Errorf("prep, reading service config: %w", err))
 	}
-	err = queries.RunMigration(srvcnf)
+	err = database.RunMigration(srvcnf)
 	if err != nil {
 		t.Fatal(fmt.Errorf("prep, running migration: %w", err))
 	}

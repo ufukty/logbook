@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
-	"logbook/cmd/objectives/queries"
+	"logbook/cmd/objectives/database"
 	"logbook/models"
 	"logbook/models/columns"
 )
@@ -34,7 +34,7 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (mo
 		return models.ZeroOvid, fmt.Errorf("pool.Begin: %w", err)
 	}
 	defer tx.Rollback(ctx)
-	q := queries.New(tx)
+	q := database.New(tx)
 
 	activepath, err := a.listActivePathToRock(ctx, q, params.Parent)
 	if err == ErrLeftBehind {
@@ -43,7 +43,7 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (mo
 		return models.ZeroOvid, fmt.Errorf("listActivePathToRock: %w", err)
 	}
 
-	pObj, err := q.SelectObjective(ctx, queries.SelectObjectiveParams{
+	pObj, err := q.SelectObjective(ctx, database.SelectObjectiveParams{
 		Oid: params.Parent.Oid,
 		Vid: params.Parent.Vid,
 	})
@@ -60,18 +60,18 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (mo
 		return models.ZeroOvid, ErrTooManySubitems
 	}
 
-	op, err := q.InsertOperation(ctx, queries.InsertOperationParams{
+	op, err := q.InsertOperation(ctx, database.InsertOperationParams{
 		Subjectoid: params.Parent.Oid,
 		Subjectvid: params.Parent.Vid,
 		Actor:      params.Creator,
-		OpType:     queries.OpTypeObjInit,
-		OpStatus:   queries.OpStatusAccepted,
+		OpType:     database.OpTypeObjInit,
+		OpStatus:   database.OpStatusAccepted,
 	})
 	if err != nil {
 		return models.ZeroOvid, fmt.Errorf("InsertOperation/child: %w", err)
 	}
 
-	_, err = q.InsertOpObjInit(ctx, queries.InsertOpObjInitParams{
+	_, err = q.InsertOpObjInit(ctx, database.InsertOpObjInitParams{
 		Opid:    op.Opid,
 		Content: params.Content,
 	})
@@ -79,7 +79,7 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (mo
 		return models.ZeroOvid, fmt.Errorf("InsertOpObjInit: %w", err)
 	}
 
-	props, err := q.InsertProperties(ctx, queries.InsertPropertiesParams{
+	props, err := q.InsertProperties(ctx, database.InsertPropertiesParams{
 		Content:   params.Content,
 		Completed: false,
 		Creator:   params.Creator,
@@ -89,7 +89,7 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (mo
 		return models.ZeroOvid, fmt.Errorf("InsertProperties/child: %w", err)
 	}
 
-	bup, err := q.InsertBottomUpProps(ctx, queries.InsertBottomUpPropsParams{
+	bup, err := q.InsertBottomUpProps(ctx, database.InsertBottomUpPropsParams{
 		Children:         0,
 		SubtreeSize:      0,
 		SubtreeCompleted: 0,
@@ -98,7 +98,7 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (mo
 		return models.ZeroOvid, fmt.Errorf("InsertBottomUpProps/child: %w", err)
 	}
 
-	obj, err := q.InsertNewObjective(ctx, queries.InsertNewObjectiveParams{
+	obj, err := q.InsertNewObjective(ctx, database.InsertNewObjectiveParams{
 		CreatedBy: op.Opid,
 		Pid:       props.Pid,
 		Bupid:     bup.Bupid,
@@ -107,7 +107,7 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (mo
 		return models.ZeroOvid, fmt.Errorf("InsertNewObjective: %w", err)
 	}
 
-	_, err = q.InsertActiveVidForObjective(ctx, queries.InsertActiveVidForObjectiveParams{
+	_, err = q.InsertActiveVidForObjective(ctx, database.InsertActiveVidForObjectiveParams{
 		Oid: obj.Oid,
 		Vid: obj.Vid,
 	})
@@ -115,18 +115,18 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (mo
 		return models.ZeroOvid, fmt.Errorf("InsertActiveVidForObjective: %w", err)
 	}
 
-	pOp, err := q.InsertOperation(ctx, queries.InsertOperationParams{
+	pOp, err := q.InsertOperation(ctx, database.InsertOperationParams{
 		Subjectoid: pObj.Oid,
 		Subjectvid: pObj.Vid,
 		Actor:      params.Creator,
-		OpType:     queries.OpTypeObjCreateSubtask,
-		OpStatus:   queries.OpStatusAccepted,
+		OpType:     database.OpTypeObjCreateSubtask,
+		OpStatus:   database.OpStatusAccepted,
 	})
 	if err != nil {
 		return models.ZeroOvid, fmt.Errorf("InsertOperation: %w", err)
 	}
 
-	_, err = q.InsertOpObjCreateSubtask(ctx, queries.InsertOpObjCreateSubtaskParams{
+	_, err = q.InsertOpObjCreateSubtask(ctx, database.InsertOpObjCreateSubtaskParams{
 		Opid: pOp.Opid,
 		Soid: obj.Oid,
 		Svid: obj.Vid,
@@ -137,7 +137,7 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (mo
 
 	pBups.Children += 1
 	pBups.SubtreeSize += 1
-	pBupsUpd, err := q.InsertBottomUpProps(ctx, queries.InsertBottomUpPropsParams{
+	pBupsUpd, err := q.InsertBottomUpProps(ctx, database.InsertBottomUpPropsParams{
 		Children:         pBups.Children,
 		SubtreeSize:      pBups.SubtreeSize,
 		SubtreeCompleted: pBups.SubtreeCompleted,
@@ -146,7 +146,7 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (mo
 		return models.ZeroOvid, fmt.Errorf("InsertBottomUpProps/parent: %w", err)
 	}
 
-	pObjUpd, err := q.InsertUpdatedObjective(ctx, queries.InsertUpdatedObjectiveParams{
+	pObjUpd, err := q.InsertUpdatedObjective(ctx, database.InsertUpdatedObjectiveParams{
 		Oid:       pObj.Oid,
 		Based:     pObj.Vid,
 		CreatedBy: pOp.Opid,
@@ -157,7 +157,7 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (mo
 		return models.ZeroOvid, fmt.Errorf("InsertUpdatedObjective: %w", err)
 	}
 
-	_, err = q.InsertNewLink(ctx, queries.InsertNewLinkParams{
+	_, err = q.InsertNewLink(ctx, database.InsertNewLinkParams{
 		SupOid: pObjUpd.Oid,
 		SupVid: pObjUpd.Vid,
 		SubOid: obj.Oid,
@@ -167,7 +167,7 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (mo
 		return models.ZeroOvid, fmt.Errorf("InsertNewLink: %w", err)
 	}
 
-	sublinks, err := q.SelectSubLinks(ctx, queries.SelectSubLinksParams{
+	sublinks, err := q.SelectSubLinks(ctx, database.SelectSubLinksParams{
 		SupOid: pObj.Oid,
 		SupVid: pObj.Vid,
 	})
@@ -175,7 +175,7 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (mo
 		return models.ZeroOvid, fmt.Errorf("SelectSubLinks: %w", err)
 	}
 	for _, sublink := range sublinks {
-		_, err := q.InsertUpdatedLink(ctx, queries.InsertUpdatedLinkParams{
+		_, err := q.InsertUpdatedLink(ctx, database.InsertUpdatedLinkParams{
 			SupOid:            pObjUpd.Oid,
 			SupVid:            pObjUpd.Vid,
 			SubOid:            sublink.SubOid,
@@ -187,7 +187,7 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (mo
 		}
 	}
 
-	_, err = q.UpdateActiveVidForObjective(ctx, queries.UpdateActiveVidForObjectiveParams{
+	_, err = q.UpdateActiveVidForObjective(ctx, database.UpdateActiveVidForObjectiveParams{
 		Oid: pObj.Oid,
 		Vid: pObjUpd.Vid,
 	})

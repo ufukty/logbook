@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
-	"logbook/cmd/objectives/queries"
+	"logbook/cmd/objectives/database"
 	"logbook/models"
 	"logbook/models/columns"
 	"logbook/models/owners"
@@ -20,12 +20,12 @@ func (a *App) GetObjectiveHistory(ctx context.Context, params GetObjectiveHistor
 		return nil, fmt.Errorf("pool.Begin: %w", err)
 	}
 	defer tx.Rollback(ctx)
-	q := queries.New(tx)
+	q := database.New(tx)
 
 	cursor := params.Subject.Vid
 	stack := []owners.OperationHistoryItem{}
 	for cursor != columns.ZeroVersionId {
-		obj, err := q.SelectObjective(ctx, queries.SelectObjectiveParams{
+		obj, err := q.SelectObjective(ctx, database.SelectObjectiveParams{
 			Oid: params.Subject.Oid,
 			Vid: cursor,
 		})

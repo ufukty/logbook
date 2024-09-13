@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
-	"logbook/cmd/objectives/queries"
+	"logbook/cmd/objectives/database"
 	"logbook/cmd/objectives/service"
 	"logbook/models/columns"
 	"testing"
@@ -20,7 +20,7 @@ func testdeps() (*App, columns.UserId, error) {
 	if err != nil {
 		return nil, columns.ZeroUserId, fmt.Errorf("reading service config: %w", err)
 	}
-	err = queries.RunMigration(srvcnf)
+	err = database.RunMigration(srvcnf)
 	if err != nil {
 		return nil, columns.ZeroUserId, fmt.Errorf("running migration: %w", err)
 	}

@@ -3,7 +3,7 @@
 //   sqlc v1.25.0
 // source: queries.collaboration.sql
 
-package queries
+package database
 
 import (
 	"context"

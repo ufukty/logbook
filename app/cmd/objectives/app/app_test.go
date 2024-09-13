@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"logbook/cmd/objectives/queries"
+	"logbook/cmd/objectives/database"
 	"logbook/cmd/objectives/service"
 	"logbook/internal/utilities/mapw"
 	"logbook/internal/utilities/slicew/lines"
@@ -40,7 +40,7 @@ func TestAppManual(t *testing.T) {
 	if err != nil {
 		t.Fatal(fmt.Errorf("reading service config: %w", err))
 	}
-	err = queries.RunMigration(srvcnf)
+	err = database.RunMigration(srvcnf)
 	if err != nil {
 		t.Fatal(fmt.Errorf("running migration: %w", err))
 	}
@@ -289,7 +289,7 @@ func TestAppRandomOrderSubtaskCreationWithConcurrency(t *testing.T) {
 	if err != nil {
 		t.Fatal(fmt.Errorf("reading service config: %w", err))
 	}
-	err = queries.RunMigration(srvcnf)
+	err = database.RunMigration(srvcnf)
 	if err != nil {
 		t.Fatal(fmt.Errorf("running migration: %w", err))
 	}

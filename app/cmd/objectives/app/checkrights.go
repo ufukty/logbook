@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
-	"logbook/cmd/objectives/queries"
+	"logbook/cmd/objectives/database"
 	"logbook/models"
 	"logbook/models/columns"
 
@@ -29,7 +29,7 @@ func (a *App) checkRights(ctx context.Context, params canSeeParams) (Right, erro
 		return RightNone, fmt.Errorf("pool.Begin: %w", err)
 	}
 	defer tx.Rollback(ctx)
-	q := queries.New(tx)
+	q := database.New(tx)
 
 	ca, err := a.findControlArea(ctx, params.Subject)
 	if err != nil {
@@ -37,8 +37,8 @@ func (a *App) checkRights(ctx context.Context, params canSeeParams) (Right, erro
 	}
 
 	switch ca.ArType {
-	case queries.AreaTypeSolo:
-		obj, err := q.SelectObjective(ctx, queries.SelectObjectiveParams{
+	case database.AreaTypeSolo:
+		obj, err := q.SelectObjective(ctx, database.SelectObjectiveParams{
 			Oid: params.Subject.Oid,
 			Vid: params.Subject.Vid,
 		})
@@ -55,13 +55,13 @@ func (a *App) checkRights(ctx context.Context, params canSeeParams) (Right, erro
 			return RightNone, nil
 		}
 
-	case queries.AreaTypeCollaboration:
+	case database.AreaTypeCollaboration:
 		co, err := q.SelectCollaborationOnControlArea(ctx, ca.Aid)
 		if err != nil {
 			return RightNone, fmt.Errorf("SelectCollaboration: %w", err)
 		}
 
-		_, err = q.SelectCollaborator(ctx, queries.SelectCollaboratorParams{
+		_, err = q.SelectCollaborator(ctx, database.SelectCollaboratorParams{
 			Cid: co.Cid,
 			Uid: params.Viewer,
 		})

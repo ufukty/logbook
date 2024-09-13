@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
-	"logbook/cmd/objectives/queries"
+	"logbook/cmd/objectives/database"
 	"logbook/models/columns"
 )
 
@@ -13,9 +13,9 @@ func (a *App) RockCreate(ctx context.Context, uid columns.UserId) error {
 		return fmt.Errorf("pool.Begin: %w", err)
 	}
 	defer tx.Rollback(ctx)
-	q := queries.New(tx)
+	q := database.New(tx)
 
-	props, err := q.InsertProperties(ctx, queries.InsertPropertiesParams{
+	props, err := q.InsertProperties(ctx, database.InsertPropertiesParams{
 		Content:   "",
 		Completed: false,
 		Creator:   uid,
@@ -25,7 +25,7 @@ func (a *App) RockCreate(ctx context.Context, uid columns.UserId) error {
 		return fmt.Errorf("InsertProperties: %w", err)
 	}
 
-	bup, err := q.InsertBottomUpProps(ctx, queries.InsertBottomUpPropsParams{
+	bup, err := q.InsertBottomUpProps(ctx, database.InsertBottomUpPropsParams{
 		Children:         0,
 		SubtreeSize:      0,
 		SubtreeCompleted: 0,
@@ -34,7 +34,7 @@ func (a *App) RockCreate(ctx context.Context, uid columns.UserId) error {
 		return fmt.Errorf("InsertBottomUpProps: %w", err)
 	}
 
-	obj, err := q.InsertNewObjective(ctx, queries.InsertNewObjectiveParams{
+	obj, err := q.InsertNewObjective(ctx, database.InsertNewObjectiveParams{
 		CreatedBy: columns.ZeroOperationId,
 		Pid:       props.Pid,
 		Bupid:     bup.Bupid,
@@ -43,7 +43,7 @@ func (a *App) RockCreate(ctx context.Context, uid columns.UserId) error {
 		return fmt.Errorf("InsertNewObjective: %w", err)
 	}
 
-	_, err = q.InsertBookmark(ctx, queries.InsertBookmarkParams{
+	_, err = q.InsertBookmark(ctx, database.InsertBookmarkParams{
 		Uid:    uid,
 		Oid:    obj.Oid,
 		Title:  "",
@@ -53,7 +53,7 @@ func (a *App) RockCreate(ctx context.Context, uid columns.UserId) error {
 		return fmt.Errorf("InsertBookmark: %w", err)
 	}
 
-	_, err = q.InsertActiveVidForObjective(ctx, queries.InsertActiveVidForObjectiveParams{
+	_, err = q.InsertActiveVidForObjective(ctx, database.InsertActiveVidForObjectiveParams{
 		Oid: obj.Oid,
 		Vid: obj.Vid,
 	})

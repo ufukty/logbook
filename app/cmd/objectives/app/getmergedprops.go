@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
-	"logbook/cmd/objectives/queries"
+	"logbook/cmd/objectives/database"
 	"logbook/models"
 	"logbook/models/owners"
 )
@@ -14,9 +14,9 @@ func (a *App) GetMergedProps(ctx context.Context, subject models.Ovid) (owners.O
 		return owners.ObjectiveMergedProps{}, fmt.Errorf("pool.Begin: %w", err)
 	}
 	defer tx.Rollback(ctx)
-	q := queries.New(tx)
+	q := database.New(tx)
 
-	obj, err := q.SelectObjective(ctx, queries.SelectObjectiveParams{
+	obj, err := q.SelectObjective(ctx, database.SelectObjectiveParams{
 		Oid: subject.Oid,
 		Vid: subject.Vid,
 	})

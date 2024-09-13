@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
-	"logbook/cmd/objectives/queries"
+	"logbook/cmd/objectives/database"
 	"logbook/models"
 	"logbook/models/columns"
 )
@@ -18,25 +18,25 @@ var zeroDeltas bubblinkDeltaValues
 
 // promotes an update to ascendants
 // returns the uppermost objective's operation id
-func (a *App) bubblink(ctx context.Context, q *queries.Queries, activepath []models.Ovid, op queries.Operation, deltas bubblinkDeltaValues) (columns.OperationId, error) {
+func (a *App) bubblink(ctx context.Context, q *database.Queries, activepath []models.Ovid, op database.Operation, deltas bubblinkDeltaValues) (columns.OperationId, error) {
 	if len(activepath) <= 1 {
 		return columns.ZeroOperationId, nil // no ascendant to promote update
 	}
 	child := activepath[0]
 	cause := op.Opid
 	for _, ascendant := range activepath[1:] {
-		optrs, err := q.InsertOperation(ctx, queries.InsertOperationParams{
+		optrs, err := q.InsertOperation(ctx, database.InsertOperationParams{
 			Subjectoid: ascendant.Oid,
 			Subjectvid: ascendant.Vid,
 			Actor:      columns.ZeroUserId, // inherit user?
-			OpType:     queries.OpTypeTransitive,
-			OpStatus:   queries.OpStatusAccepted,
+			OpType:     database.OpTypeTransitive,
+			OpStatus:   database.OpStatusAccepted,
 		})
 		if err != nil {
 			return columns.ZeroOperationId, fmt.Errorf("InsertOperation(%s): %w", ascendant, err)
 		}
 
-		_, err = q.InsertOpTransitive(ctx, queries.InsertOpTransitiveParams{
+		_, err = q.InsertOpTransitive(ctx, database.InsertOpTransitiveParams{
 			Opid:  optrs.Opid,
 			Cause: cause,
 		})
@@ -44,7 +44,7 @@ func (a *App) bubblink(ctx context.Context, q *queries.Queries, activepath []mod
 			return columns.ZeroOperationId, fmt.Errorf("InsertOpTransitive(%s): %w", ascendant, err)
 		}
 
-		objAsc, err := q.SelectObjective(ctx, queries.SelectObjectiveParams{
+		objAsc, err := q.SelectObjective(ctx, database.SelectObjectiveParams{
 			Oid: ascendant.Oid,
 			Vid: ascendant.Vid,
 		})
@@ -62,7 +62,7 @@ func (a *App) bubblink(ctx context.Context, q *queries.Queries, activepath []mod
 			bup.SubtreeSize += deltas.SubtreeSize
 			bup.SubtreeCompleted += deltas.SubtreeCompleted
 
-			bupUpdated, err := q.InsertBottomUpProps(ctx, queries.InsertBottomUpPropsParams{
+			bupUpdated, err := q.InsertBottomUpProps(ctx, database.InsertBottomUpPropsParams{
 				Children:         bup.Children,
 				SubtreeSize:      bup.SubtreeSize,
 				SubtreeCompleted: bup.SubtreeCompleted,
@@ -75,7 +75,7 @@ func (a *App) bubblink(ctx context.Context, q *queries.Queries, activepath []mod
 			bupid = objAsc.Bupid
 		}
 
-		objAscUpd, err := q.InsertUpdatedObjective(ctx, queries.InsertUpdatedObjectiveParams{
+		objAscUpd, err := q.InsertUpdatedObjective(ctx, database.InsertUpdatedObjectiveParams{
 			Oid:       ascendant.Oid,
 			Based:     ascendant.Vid,
 			CreatedBy: optrs.Opid,
@@ -87,7 +87,7 @@ func (a *App) bubblink(ctx context.Context, q *queries.Queries, activepath []mod
 		}
 
 		// link unchanged siblings too
-		sublinks, err := q.SelectSubLinks(ctx, queries.SelectSubLinksParams{
+		sublinks, err := q.SelectSubLinks(ctx, database.SelectSubLinksParams{
 			SupOid: ascendant.Oid,
 			SupVid: ascendant.Vid,
 		})
@@ -99,7 +99,7 @@ func (a *App) bubblink(ctx context.Context, q *queries.Queries, activepath []mod
 			if sublink.SubOid == child.Oid { // not a sibling, but updated child's old version
 				vid = child.Vid
 			}
-			_, err = q.InsertUpdatedLink(ctx, queries.InsertUpdatedLinkParams{
+			_, err = q.InsertUpdatedLink(ctx, database.InsertUpdatedLinkParams{
 				SupOid:            objAscUpd.Oid,
 				SupVid:            objAscUpd.Vid,
 				SubOid:            sublink.SubOid,
@@ -112,7 +112,7 @@ func (a *App) bubblink(ctx context.Context, q *queries.Queries, activepath []mod
 		}
 
 		// TODO: publish an event to notify frontends viewing any objective of active path?
-		_, err = q.UpdateActiveVidForObjective(ctx, queries.UpdateActiveVidForObjectiveParams{
+		_, err = q.UpdateActiveVidForObjective(ctx, database.UpdateActiveVidForObjectiveParams{
 			Oid: objAscUpd.Oid,
 			Vid: objAscUpd.Vid,
 		})

@@ -2,7 +2,7 @@ package objectives
 
 import (
 	"fmt"
-	"logbook/cmd/objectives/queries"
+	"logbook/cmd/objectives/database"
 	"logbook/cmd/objectives/service"
 	"logbook/internal/utilities/slicew/lines"
 	"os"
@@ -18,7 +18,7 @@ func migrate() error {
 	if err != nil {
 		return fmt.Errorf("service.ReadConfig: %w", err)
 	}
-	err = queries.RunMigration(srvcfg)
+	err = database.RunMigration(srvcfg)
 	if err != nil {
 		return fmt.Errorf("queries.RunMigration: %w", err)
 	}

@@ -1,7 +1,7 @@
 package app
 
 import (
-	"logbook/cmd/objectives/queries"
+	"logbook/cmd/objectives/database"
 	"logbook/internal/stores"
 	"logbook/models"
 	"logbook/models/columns"
@@ -26,14 +26,14 @@ func newCacheStore() *caches {
 
 type App struct {
 	pool    *pgxpool.Pool
-	oneshot *queries.Queries
+	oneshot *database.Queries
 	caches  *caches
 }
 
 func New(pool *pgxpool.Pool) *App {
 	return &App{
 		pool:    pool,
-		oneshot: queries.New(pool),
+		oneshot: database.New(pool),
 		caches:  newCacheStore(),
 	}
 }

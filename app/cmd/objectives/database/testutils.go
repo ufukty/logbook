@@ -1,4 +1,4 @@
-package queries
+package database
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 )
 
-var migrationfile = filepath.Join(os.Getenv("WORKSPACE"), "app/cmd/objectives/queries/schema.sql")
+var migrationfile = filepath.Join(os.Getenv("WORKSPACE"), "app/cmd/objectives/database/schema.sql")
 
 func RunMigration(cfg *service.Config) error {
 	output := run.ExitAfterStderr("psql",

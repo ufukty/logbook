@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
-	"logbook/cmd/objectives/queries"
+	"logbook/cmd/objectives/database"
 	"logbook/models"
 	"logbook/models/columns"
 	"slices"
@@ -19,7 +19,7 @@ type CheckoutParams struct {
 
 var ErrVersionDoesNotExist = fmt.Errorf("given version of the objective doesn't exist")
 
-func (a *App) calculateDeltasForTwoVersions(ctx context.Context, q *queries.Queries, src, dst columns.BottomUpPropsId) (bubblinkDeltaValues, error) {
+func (a *App) calculateDeltasForTwoVersions(ctx context.Context, q *database.Queries, src, dst columns.BottomUpPropsId) (bubblinkDeltaValues, error) {
 	srcbup, err := q.SelectBottomUpProps(ctx, src)
 	if err != nil {
 		return zeroDeltas, fmt.Errorf("SelectBottomUpProps/src: %w", err)
@@ -42,7 +42,7 @@ func (a *App) Checkout(ctx context.Context, params CheckoutParams) error {
 		return fmt.Errorf("pool.Begin: %w", err)
 	}
 	defer tx.Rollback(ctx)
-	q := queries.New(tx)
+	q := database.New(tx)
 
 	activepath, err := a.listActivePathToRock(ctx, q, params.Subject)
 	if err == ErrLeftBehind {
@@ -51,18 +51,18 @@ func (a *App) Checkout(ctx context.Context, params CheckoutParams) error {
 		return fmt.Errorf("listActivePathToRock: %w", err)
 	}
 
-	op, err := q.InsertOperation(ctx, queries.InsertOperationParams{
+	op, err := q.InsertOperation(ctx, database.InsertOperationParams{
 		Subjectoid: params.Subject.Oid,
 		Subjectvid: params.Subject.Vid,
 		Actor:      params.User,
-		OpType:     queries.OpTypeCheckout,
-		OpStatus:   queries.OpStatusAccepted,
+		OpType:     database.OpTypeCheckout,
+		OpStatus:   database.OpStatusAccepted,
 	})
 	if err != nil {
 		return fmt.Errorf("InsertOperation: %w", err)
 	}
 
-	_, err = q.InsertOpCheckout(ctx, queries.InsertOpCheckoutParams{
+	_, err = q.InsertOpCheckout(ctx, database.InsertOpCheckoutParams{
 		Opid: op.Opid,
 		To:   params.To,
 	})
@@ -70,7 +70,7 @@ func (a *App) Checkout(ctx context.Context, params CheckoutParams) error {
 		return fmt.Errorf("InsertOpCheckout: %w", err)
 	}
 
-	dstobj, err := q.SelectObjective(ctx, queries.SelectObjectiveParams{
+	dstobj, err := q.SelectObjective(ctx, database.SelectObjectiveParams{
 		Oid: op.Subjectoid,
 		Vid: params.To,
 	})
@@ -80,7 +80,7 @@ func (a *App) Checkout(ctx context.Context, params CheckoutParams) error {
 		return fmt.Errorf("SelectObjective/dst: %w", err)
 	}
 
-	srcobj, err := q.SelectObjective(ctx, queries.SelectObjectiveParams{
+	srcobj, err := q.SelectObjective(ctx, database.SelectObjectiveParams{
 		Oid: op.Subjectoid,
 		Vid: op.Subjectvid,
 	})
@@ -88,7 +88,7 @@ func (a *App) Checkout(ctx context.Context, params CheckoutParams) error {
 		return fmt.Errorf("SelectObjective/src: %w", err)
 	}
 
-	_, err = q.UpdateActiveVidForObjective(ctx, queries.UpdateActiveVidForObjectiveParams{
+	_, err = q.UpdateActiveVidForObjective(ctx, database.UpdateActiveVidForObjectiveParams{
 		Oid: op.Subjectoid,
 		Vid: params.To,
 	})

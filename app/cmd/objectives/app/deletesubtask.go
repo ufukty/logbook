@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
-	"logbook/cmd/objectives/queries"
+	"logbook/cmd/objectives/database"
 	"logbook/models"
 	"logbook/models/columns"
 )
@@ -20,7 +20,7 @@ func (a *App) DeleteSubtask(ctx context.Context, params DeleteSubtaskParams) err
 		return fmt.Errorf("pool.Begin: %w", err)
 	}
 	defer tx.Rollback(ctx)
-	q := queries.New(tx)
+	q := database.New(tx)
 
 	ap, err := a.listActivePathToRock(ctx, q, params.Subject)
 	if err != nil {
@@ -28,7 +28,7 @@ func (a *App) DeleteSubtask(ctx context.Context, params DeleteSubtaskParams) err
 	}
 	parentOvid := ap[1]
 
-	parent, err := q.SelectObjective(ctx, queries.SelectObjectiveParams{
+	parent, err := q.SelectObjective(ctx, database.SelectObjectiveParams{
 		Oid: parentOvid.Oid,
 		Vid: parentOvid.Vid,
 	})
@@ -36,18 +36,18 @@ func (a *App) DeleteSubtask(ctx context.Context, params DeleteSubtaskParams) err
 		return fmt.Errorf("SelectObjective/parent: %w", err)
 	}
 
-	op, err := q.InsertOperation(ctx, queries.InsertOperationParams{
+	op, err := q.InsertOperation(ctx, database.InsertOperationParams{
 		Subjectoid: parent.Oid,
 		Subjectvid: parent.Vid,
 		Actor:      params.Actor,
-		OpType:     queries.OpTypeObjDeleteSubtask,
-		OpStatus:   queries.OpStatusAccepted,
+		OpType:     database.OpTypeObjDeleteSubtask,
+		OpStatus:   database.OpStatusAccepted,
 	})
 	if err != nil {
 		return fmt.Errorf("InsertOperation: %w", err)
 	}
 
-	_, err = q.InsertOpObjDeleteSubtask(ctx, queries.InsertOpObjDeleteSubtaskParams{
+	_, err = q.InsertOpObjDeleteSubtask(ctx, database.InsertOpObjDeleteSubtaskParams{
 		Opid: op.Opid,
 		Doid: params.Subject.Oid,
 		Dvid: params.Subject.Vid,
@@ -56,7 +56,7 @@ func (a *App) DeleteSubtask(ctx context.Context, params DeleteSubtaskParams) err
 		return fmt.Errorf("InsertOpObjDeleteSubtask: %w", err)
 	}
 
-	subject, err := q.SelectObjective(ctx, queries.SelectObjectiveParams{
+	subject, err := q.SelectObjective(ctx, database.SelectObjectiveParams{
 		Oid: params.Subject.Oid,
 		Vid: params.Subject.Vid,
 	})
@@ -87,7 +87,7 @@ func (a *App) DeleteSubtask(ctx context.Context, params DeleteSubtaskParams) err
 	parentbups.SubtreeCompleted += deltas.SubtreeCompleted
 	parentbups.SubtreeSize += deltas.SubtreeSize
 
-	parentNewBups, err := q.InsertBottomUpProps(ctx, queries.InsertBottomUpPropsParams{
+	parentNewBups, err := q.InsertBottomUpProps(ctx, database.InsertBottomUpPropsParams{
 		Children:         parentbups.Children,
 		SubtreeSize:      parentbups.SubtreeSize,
 		SubtreeCompleted: parentbups.SubtreeCompleted,
@@ -96,7 +96,7 @@ func (a *App) DeleteSubtask(ctx context.Context, params DeleteSubtaskParams) err
 		return fmt.Errorf("InsertBottomUpProps: %w", err)
 	}
 
-	parentNew, err := q.InsertUpdatedObjective(ctx, queries.InsertUpdatedObjectiveParams{
+	parentNew, err := q.InsertUpdatedObjective(ctx, database.InsertUpdatedObjectiveParams{
 		Oid:       parent.Oid,
 		Based:     parent.Vid,
 		CreatedBy: op.Opid,
@@ -107,7 +107,7 @@ func (a *App) DeleteSubtask(ctx context.Context, params DeleteSubtaskParams) err
 		return fmt.Errorf("InsertUpdatedObjective: %w", err)
 	}
 
-	sublinks, err := q.SelectSubLinks(ctx, queries.SelectSubLinksParams{
+	sublinks, err := q.SelectSubLinks(ctx, database.SelectSubLinksParams{
 		SupOid: parent.Oid,
 		SupVid: parent.Vid,
 	})
@@ -118,7 +118,7 @@ func (a *App) DeleteSubtask(ctx context.Context, params DeleteSubtaskParams) err
 		if sublink.SubOid == params.Subject.Oid { // deleted
 			continue
 		}
-		_, err := q.InsertUpdatedLink(ctx, queries.InsertUpdatedLinkParams{
+		_, err := q.InsertUpdatedLink(ctx, database.InsertUpdatedLinkParams{
 			SupOid:            parentNew.Oid,
 			SupVid:            parentNew.Vid,
 			SubOid:            sublink.SubOid,
@@ -130,7 +130,7 @@ func (a *App) DeleteSubtask(ctx context.Context, params DeleteSubtaskParams) err
 		}
 	}
 
-	_, err = q.UpdateActiveVidForObjective(ctx, queries.UpdateActiveVidForObjectiveParams{
+	_, err = q.UpdateActiveVidForObjective(ctx, database.UpdateActiveVidForObjectiveParams{
 		Oid: parent.Oid,
 		Vid: parentNew.Vid,
 	})

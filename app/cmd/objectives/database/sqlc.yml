@@ -1,21 +1,11 @@
 version: "2"
 sql:
   - engine: "postgresql"
-    queries:
-      - "queries.bookmark.sql"
-      - "queries.bottom_up_props.sql"
-      - "queries.collaboration.sql"
-      - "queries.controlarea.sql"
-      - "queries.links.sql"
-      - "queries.objectives.sql"
-      - "queries.operations.sql"
-      - "queries.properties.sql"
-      - "queries.versions.sql"
-      - "queries.viewprefs.sql"
+    queries: "queries.*.sql"
     schema: "schema.sql"
     gen:
       go:
-        package: "queries"
+        package: "database"
         out: "."
         sql_package: "pgx/v5"
         output_db_file_name: dbtx.sqlc.go

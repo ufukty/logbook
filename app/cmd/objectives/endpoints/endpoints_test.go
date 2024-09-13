@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"logbook/cmd/objectives/app"
-	"logbook/cmd/objectives/queries"
+	"logbook/cmd/objectives/database"
 	"logbook/cmd/objectives/service"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -15,7 +15,7 @@ func getTestDependencies() (*Endpoints, error) {
 	if err != nil {
 		return nil, fmt.Errorf("reading service config: %w", err)
 	}
-	err = queries.RunMigration(srvcnf)
+	err = database.RunMigration(srvcnf)
 	if err != nil {
 		return nil, fmt.Errorf("running migration: %w", err)
 	}

@@ -3,14 +3,14 @@ package app
 import (
 	"context"
 	"fmt"
-	"logbook/cmd/objectives/queries"
+	"logbook/cmd/objectives/database"
 	"logbook/models"
 	"slices"
 )
 
 var ErrLeftBehind = fmt.Errorf("the objective is either directly or eventually linked to an objective which its version is left behind")
 
-func helperListActivePathToRock(ctx context.Context, q *queries.Queries, subject models.Ovid) ([]models.Ovid, error) {
+func helperListActivePathToRock(ctx context.Context, q *database.Queries, subject models.Ovid) ([]models.Ovid, error) {
 	active, err := q.SelectActive(ctx, subject.Oid)
 	if err != nil {
 		return nil, fmt.Errorf("SelectActive(%s): %w", subject.Oid, err)
@@ -19,7 +19,7 @@ func helperListActivePathToRock(ctx context.Context, q *queries.Queries, subject
 		return nil, ErrLeftBehind
 	}
 
-	activeparents, err := q.SelectUpperLinksToActiveObjectives(ctx, queries.SelectUpperLinksToActiveObjectivesParams{
+	activeparents, err := q.SelectUpperLinksToActiveObjectives(ctx, database.SelectUpperLinksToActiveObjectivesParams{
 		SubOid: subject.Oid,
 		SubVid: subject.Vid,
 	})
@@ -51,7 +51,7 @@ func helperListActivePathToRock(ctx context.Context, q *queries.Queries, subject
 }
 
 // returns a path from the node to the root: [subject, active-ascendants..., rock] or [ErrLeftBehind]
-func (a *App) listActivePathToRock(ctx context.Context, q *queries.Queries, subject models.Ovid) ([]models.Ovid, error) {
+func (a *App) listActivePathToRock(ctx context.Context, q *database.Queries, subject models.Ovid) ([]models.Ovid, error) {
 	ap, err := helperListActivePathToRock(ctx, q, subject)
 	if err != nil {
 		return nil, fmt.Errorf("helperListActivePathToRock: %w", err)
