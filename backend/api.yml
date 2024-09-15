@@ -21,7 +21,7 @@ public:
         create: { method: POST, path: "group" }
 
     objectives:
-      path: /tasks
+      path: /objectives
       endpoints:
         attach: { method: POST, path: "/attach" }
         create: { method: POST, path: "/" }
