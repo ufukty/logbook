@@ -2,7 +2,7 @@
 
 ### Get rock
 
-GET {{api}}/user/rock HTTP/1.1
+GET {{api}}/objectives/rock HTTP/1.1
 
 ?? status == 200
 ?? body id exists
