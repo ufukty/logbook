@@ -2,7 +2,6 @@ package forwarder
 
 import (
 	"fmt"
-	"log"
 	"logbook/internal/web/balancer"
 	"logbook/internal/web/logger"
 	"logbook/models"
@@ -49,7 +48,7 @@ func (lbrp *LoadBalancedReverseProxy) next() (*httputil.ReverseProxy, error) {
 				// )
 			},
 			ErrorHandler: func(w http.ResponseWriter, r *http.Request, err error) {
-				log.Printf("proxy error: %v, method=%s, url=%s, remoteAddr=%s\n", err, r.Method, r.URL.String(), r.RemoteAddr)
+				lbrp.log.Printf("proxy error: %v, method=%s, url=%s, remoteAddr=%s\n", err, r.Method, r.URL.String(), r.RemoteAddr)
 				http.Error(w, "Bad Gateway", http.StatusBadGateway)
 			},
 		}
@@ -63,6 +62,7 @@ func (lbrp *LoadBalancedReverseProxy) next() (*httputil.ReverseProxy, error) {
 func (lbrp *LoadBalancedReverseProxy) Handler(w http.ResponseWriter, r *http.Request) {
 	forwarder, err := lbrp.next()
 	if err != nil {
+		lbrp.log.Println(fmt.Errorf("lbrp.next: %w", err))
 		http.Error(w, "Service you want to access is not available at the moment. Please try again later.", http.StatusBadGateway)
 		return
 	}
@@ -71,7 +71,7 @@ func (lbrp *LoadBalancedReverseProxy) Handler(w http.ResponseWriter, r *http.Req
 
 func New(is balancer.InstanceSource, service models.Service, servicepath string) *LoadBalancedReverseProxy {
 	return &LoadBalancedReverseProxy{
-		log:         logger.NewLogger("reverse proxy"),
+		log:         logger.NewLogger("LoadBalancedReverseProxy"),
 		pool:        map[*models.Instance]*httputil.ReverseProxy{},
 		lb:          balancer.New(is),
 		servicepath: servicepath,
