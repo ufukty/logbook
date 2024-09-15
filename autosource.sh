@@ -47,14 +47,14 @@ build() {
     set -o pipefail
 
     PROGRAM_NAMES="$@"
-    test "$PROGRAM_NAMES" || PROGRAM_NAMES="$(cd "$WORKSPACE/app/cmd" && find . -name 'main.go' | cut -d '/' -f 2 | sort | uniq)"
+    test "$PROGRAM_NAMES" || PROGRAM_NAMES="$(cd "${WORKSPACE}/backend/cmd" && find . -name 'main.go' | cut -d '/' -f 2 | sort | uniq)"
 
     VERSION="$(version)"
     mkdir -p "${WORKSPACE}/build/${VERSION}/"{darwin,linux}
     echo "${VERSION}" | blue
 
     set +E
-    cd "${WORKSPACE}/app"
+    cd "${WORKSPACE}/backend"
     for PROGRAM_NAME in $PROGRAM_NAMES; do
         echo "${PROGRAM_NAME}" | green
         GOOS=darwin GOARCH=amd64 go build -o "${WORKSPACE}/build/${VERSION}/darwin/$PROGRAM_NAME" "./cmd/$PROGRAM_NAME"
@@ -76,7 +76,7 @@ lastbuildpath() {
     PROGRAM_NAME="$1" && shift
     ARCH="${1:-"darwin"}" && shift
     PROGRAM_LAST_BUILD="$(lastbuild $PROGRAM_NAME)"
-    echo "app/build/$PROGRAM_LAST_BUILD/$ARCH/$PROGRAM_NAME"
+    echo "be/build/$PROGRAM_LAST_BUILD/$ARCH/$PROGRAM_NAME"
 }
 
 # MARK: Re-Deployment (only binaries for one server kind)
@@ -95,7 +95,7 @@ build-redeploy() {
 # MARK: API
 
 api-summary() {
-    cat app/api.http | grep HTTP/1.1 |
+    cat be/api.http | grep HTTP/1.1 |
         cut -d ' ' -f 1-2 | awk '{ print $2, $1 }' |
         sort | awk '{ print $2, "\t", $1 }' |
         sed -E 's/(.*){{api}}(.*)/\1 \2/'
@@ -103,7 +103,7 @@ api-summary() {
 
 api-update() {
     API_GATEWAY_IP_ADDRESS="$(cat platform/stage/artifacts/deployment/service_discovery.json | jq -r '.digitalocean.fra1.services["api-gateway"][0].ipv4_address')"
-    gsed --in-place "s;^@api.*;@api = http://${API_GATEWAY_IP_ADDRESS}:8080/api/v1.0.0;" app/api.http
+    gsed --in-place "s;^@api.*;@api = http://${API_GATEWAY_IP_ADDRESS}:8080/api/v1.0.0;" be/api.http
 }
 
 ip-of() {

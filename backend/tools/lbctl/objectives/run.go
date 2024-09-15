@@ -11,7 +11,7 @@ import (
 	"golang.org/x/exp/maps"
 )
 
-var configpath = filepath.Join(os.Getenv("WORKSPACE"), "app/cmd/objectives/local.yml")
+var configpath = filepath.Join(os.Getenv("WORKSPACE"), "backend/cmd/objectives/local.yml")
 
 func migrate() error {
 	srvcfg, err := service.ReadConfig(configpath)

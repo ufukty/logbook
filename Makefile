@@ -1,11 +1,11 @@
 all: \
-	app/config/deployment/config.go
-	$(MAKE) -C app
+	backend/config/deployment/config.go
+	$(MAKE) -C backend
 	$(MAKE) -C docs
 
-app/config/deployment/config.go: platform/local/deployment.yml app/config/deployment/directives.yml
+backend/config/deployment/config.go: platform/local/deployment.yml backend/config/deployment/directives.yml
 	gonfique generate \
 		-pkg deployment \
-		-directives app/config/deployment/directives.yml \
+		-directives backend/config/deployment/directives.yml \
 		-in platform/local/deployment.yml \
-		-out app/config/deployment/config.go
+		-out backend/config/deployment/config.go

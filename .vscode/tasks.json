@@ -17,7 +17,7 @@
         "1",
       ],
       "options": {
-        "cwd": "${workspaceFolder}/app",
+        "cwd": "${workspaceFolder}/backend",
         "env": {
           "WORKSPACE": "${workspaceFolder}"
         }
@@ -39,7 +39,7 @@
         "1",
       ],
       "options": {
-        "cwd": "${workspaceFolder}/app",
+        "cwd": "${workspaceFolder}/backend",
         "env": {
           "WORKSPACE": "${workspaceFolder}"
         }

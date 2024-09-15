@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 )
 
-var migrationfile = filepath.Join(os.Getenv("WORKSPACE"), "app/cmd/groups/database/schema.sql")
+var migrationfile = filepath.Join(os.Getenv("WORKSPACE"), "backend/cmd/groups/database/schema.sql")
 
 func Migrate(cfg *service.Config) error {
 	output := run.ExitAfterStderr("psql",
