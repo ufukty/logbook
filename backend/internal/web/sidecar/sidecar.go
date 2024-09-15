@@ -16,7 +16,7 @@ import (
 //   - Pass the list of all services that will be needed through runtime into [New]
 //   - [Sidecar] will periodically fetch the list of instances of services and cache them
 //   - [Sidecar] will periodically recheck the instance with registry after [Sidecar.SetInstanceDetails] called
-//   - [Sidecar] uses [registry.Sidecar] to periodically query the registry service,
+//   - [Sidecar] uses [registry.Client] to periodically query the registry service,
 //   - [Sidecar.InstanceSource] returns a struct which conforms [balancer.InstanceSource]
 type Sidecar struct {
 	ctl      *registry.Client
