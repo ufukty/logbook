@@ -56,6 +56,7 @@ func (d *Sidecar) Stop() {
 
 func (d *Sidecar) queryserver() error {
 	for _, service := range d.services {
+		d.l.Printf("queryserver for %s\n", service)
 		bs, err := d.ctl.ListInstances(&endpoints.ListInstancesRequest{Service: service})
 		if err != nil {
 			return fmt.Errorf("sending listing request: %w", err)
@@ -66,6 +67,7 @@ func (d *Sidecar) queryserver() error {
 }
 
 func (d *Sidecar) recheck() error {
+	d.l.Println("recheck")
 	if d.iid == app.InstanceId("") {
 		return nil
 	}
