@@ -41,7 +41,7 @@ func New(ctl *registry.Client, period time.Duration, services []models.Service) 
 		store:    map[models.Service][]models.Instance{},
 		services: services,
 
-		l:      *logger.NewLogger("Service Discovery Client"),
+		l:      *logger.NewLogger("Sidecar"),
 		reload: period,
 		ctx:    ctx,
 		cancel: cancel,
@@ -115,6 +115,7 @@ func (c *Sidecar) InstanceSource(s models.Service) *source {
 }
 
 func (c *Sidecar) SetInstanceDetails(s models.Service, i models.Instance) error {
+	c.l.Printf("registering the instance: %s -> %s\n", s, i)
 	r, err := c.ctl.RegisterInstance(&endpoints.RegisterInstanceRequest{
 		Service: s,
 		TLS:     i.Tls,
