@@ -1,7 +1,7 @@
 package logger
 
 import (
-	"crypto/md5"
+	"crypto/sha512"
 	"fmt"
 	"log"
 )
@@ -32,7 +32,8 @@ type Logger struct {
 }
 
 func NewLogger(name string) *Logger {
-	var color = colors[md5.Sum([]byte(name))[0]%12]
+	sum := sha512.Sum512([]byte(name))
+	var color = colors[sum[len(sum)-1]%12]
 	return &Logger{
 		name: fmt.Sprintf("%s%s:%s", color, name, colorReset),
 	}
