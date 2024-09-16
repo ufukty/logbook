@@ -67,10 +67,10 @@ func (d *Sidecar) queryserver() error {
 }
 
 func (d *Sidecar) recheck() error {
-	d.l.Println("recheck")
-	if d.iid == app.InstanceId("") {
+	if d.iid == app.InstanceId("") { // sidecar without registration (eg. "api-gateway")
 		return nil
 	}
+	d.l.Println("recheck")
 	r, err := d.ctl.RecheckInstance(&endpoints.RecheckInstanceRequest{
 		InstanceId: d.iid,
 	})
