@@ -1,12 +1,11 @@
 package objectives
 
 import (
-	"fmt"
 	"logbook/cmd/objectives/endpoints"
 	"logbook/config/api"
-	"logbook/internal/utilities/urls"
 	"logbook/internal/web/balancer"
 	"logbook/internal/web/requests"
+	"net/http"
 )
 
 type Client struct {
@@ -24,57 +23,21 @@ func NewClient(lb *balancer.LoadBalancer, apicfg *api.Config) *Client {
 }
 
 func (c *Client) MarkComplete(bq *endpoints.MarkCompleteRequest) (*endpoints.MarkCompleteResponse, error) {
-	instance, err := c.lb.Next()
-	if err != nil {
-		return nil, fmt.Errorf("LoadBalancer.Next: %w", err)
-	}
-	url := urls.Join(instance.String(), c.servicepath, c.servicecfg.Endpoints.Mark.Path)
-	bs := &endpoints.MarkCompleteResponse{}
-	err = requests.Send(url, c.servicecfg.Endpoints.Mark.Method, bq, bs)
-	if err != nil {
-		return nil, fmt.Errorf("requests.Send: %w", err)
-	}
-	return bs, err
+	return requests.BalancedSend(c.lb, c.servicepath, c.servicecfg.Endpoints.Mark, bq, &endpoints.MarkCompleteResponse{})
 }
 
 func (c *Client) CreateObjective(bq *endpoints.CreateObjectiveRequest) (*endpoints.CreateObjectiveResponse, error) {
-	instance, err := c.lb.Next()
-	if err != nil {
-		return nil, fmt.Errorf("LoadBalancer.Next: %w", err)
-	}
-	url := urls.Join(instance.String(), c.servicepath, c.servicecfg.Endpoints.Create.Path)
-	bs := &endpoints.CreateObjectiveResponse{}
-	err = requests.Send(url, c.servicecfg.Endpoints.Create.Method, bq, bs)
-	if err != nil {
-		return nil, fmt.Errorf("requests.Send: %w", err)
-	}
-	return bs, err
+	return requests.BalancedSend(c.lb, c.servicepath, c.servicecfg.Endpoints.Create, bq, &endpoints.CreateObjectiveResponse{})
 }
 
 func (c *Client) ReattachObjective(bq *endpoints.ReattachObjectiveRequest) (*endpoints.ReattachObjectiveResponse, error) {
-	instance, err := c.lb.Next()
-	if err != nil {
-		return nil, fmt.Errorf("LoadBalancer.Next: %w", err)
-	}
-	url := urls.Join(instance.String(), c.servicepath, c.servicecfg.Endpoints.Attach.Path)
-	bs := &endpoints.ReattachObjectiveResponse{}
-	err = requests.Send(url, c.servicecfg.Endpoints.Attach.Method, bq, bs)
-	if err != nil {
-		return nil, fmt.Errorf("requests.Send: %w", err)
-	}
-	return bs, err
+	return requests.BalancedSend(c.lb, c.servicepath, c.servicecfg.Endpoints.Attach, bq, &endpoints.ReattachObjectiveResponse{})
 }
 
 func (c *Client) GetPlacementArray(bq *endpoints.GetPlacementArrayRequest) (*endpoints.GetPlacementArrayResponse, error) {
-	instance, err := c.lb.Next()
-	if err != nil {
-		return nil, fmt.Errorf("LoadBalancer.Next: %w", err)
-	}
-	url := urls.Join(instance.String(), c.servicepath, c.servicecfg.Endpoints.Placement.Path)
-	bs := &endpoints.GetPlacementArrayResponse{}
-	err = requests.Send(url, c.servicecfg.Endpoints.Placement.Method, bq, bs)
-	if err != nil {
-		return nil, fmt.Errorf("requests.Send: %w", err)
-	}
-	return bs, err
+	return requests.BalancedSend(c.lb, c.servicepath, c.servicecfg.Endpoints.Placement, bq, &endpoints.GetPlacementArrayResponse{})
+}
+
+func (c *Client) RockCreate(bq *endpoints.RockCreateRequest) (*http.Response, error) {
+	return requests.BalancedSendRaw(c.lb, c.servicepath, c.servicecfg.Endpoints.RockCreate, bq)
 }

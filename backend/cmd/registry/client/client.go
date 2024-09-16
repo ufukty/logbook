@@ -1,10 +1,8 @@
 package registry
 
 import (
-	"fmt"
 	"logbook/cmd/registry/endpoints"
 	"logbook/config/api"
-	"logbook/internal/utilities/urls"
 	"logbook/internal/web/balancer"
 	"logbook/internal/web/requests"
 	"net/http"
@@ -30,42 +28,13 @@ func NewClient(lb *balancer.LoadBalancer, apicfg *api.Config, throughgateway boo
 }
 
 func (c *Client) RegisterInstance(bq *endpoints.RegisterInstanceRequest) (*endpoints.RegisterInstanceResponse, error) {
-	instance, err := c.lb.Next()
-	if err != nil {
-		return nil, fmt.Errorf("LoadBalancer.Next: %w", err)
-	}
-	url := urls.Join(instance.String(), c.servicepath, c.servicecfg.Endpoints.RegisterInstance.Path)
-	bs := &endpoints.RegisterInstanceResponse{}
-	err = requests.Send(url, c.servicecfg.Endpoints.RegisterInstance.Method, bq, bs)
-	if err != nil {
-		return nil, fmt.Errorf("requests.Send: %w", err)
-	}
-	return bs, err
+	return requests.BalancedSend(c.lb, c.servicepath, c.servicecfg.Endpoints.RegisterInstance, bq, &endpoints.RegisterInstanceResponse{})
 }
 
 func (c *Client) RecheckInstance(bq *endpoints.RecheckInstanceRequest) (*http.Response, error) {
-	instance, err := c.lb.Next()
-	if err != nil {
-		return nil, fmt.Errorf("LoadBalancer.Next: %w", err)
-	}
-	url := urls.Join(instance.String(), c.servicepath, c.servicecfg.Endpoints.RecheckInstance.Path)
-	rs, err := requests.SendRaw(url, c.servicecfg.Endpoints.RecheckInstance.Method, bq)
-	if err != nil {
-		return nil, fmt.Errorf("requests.SendRaw: %w", err)
-	}
-	return rs, nil
+	return requests.BalancedSendRaw(c.lb, c.servicepath, c.servicecfg.Endpoints.RecheckInstance, bq)
 }
 
 func (c *Client) ListInstances(bq *endpoints.ListInstancesRequest) (*endpoints.ListInstancesResponse, error) {
-	instance, err := c.lb.Next()
-	if err != nil {
-		return nil, fmt.Errorf("LoadBalancer.Next: %w", err)
-	}
-	url := urls.Join(instance.String(), c.servicepath, c.servicecfg.Endpoints.ListInstances.Path)
-	bs := &endpoints.ListInstancesResponse{}
-	err = requests.Send(url, c.servicecfg.Endpoints.ListInstances.Method, bq, bs)
-	if err != nil {
-		return nil, fmt.Errorf("requests.Send: %w", err)
-	}
-	return bs, err
+	return requests.BalancedSend(c.lb, c.servicepath, c.servicecfg.Endpoints.ListInstances, bq, &endpoints.ListInstancesResponse{})
 }
