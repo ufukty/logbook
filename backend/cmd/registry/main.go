@@ -9,7 +9,6 @@ import (
 	"logbook/internal/web/router"
 	"net/http"
 	"os"
-	"time"
 )
 
 func Main() error {
@@ -18,16 +17,16 @@ func Main() error {
 		return fmt.Errorf("reading config: %w", err)
 	}
 
-	a := app.New(time.Minute, 2*time.Minute)
+	a := app.New(deplycfg)
 	defer a.Stop()
 	eps := endpoints.New(a)
 
 	s := apicfg.Internal.Services.Registry
 	router.StartServerWithEndpoints(router.ServerParameters{
-		Port:    deplycfg.Ports.Registry,
-		Router:  deplycfg.Router,
-		TlsCrt:  args.TlsCertificate,
-		TlsKey:  args.TlsKey,
+		Port:   deplycfg.Ports.Registry,
+		Router: deplycfg.Router,
+		TlsCrt: args.TlsCertificate,
+		TlsKey: args.TlsKey,
 	}, map[api.Endpoint]http.HandlerFunc{
 		s.Endpoints.ListInstances:    eps.ListInstances,
 		s.Endpoints.RecheckInstance:  eps.RecheckInstance,

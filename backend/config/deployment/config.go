@@ -3,10 +3,10 @@
 package deployment
 
 import (
+	"gopkg.in/yaml.v3"
 	"os"
 	"time"
 	"fmt"
-	"gopkg.in/yaml.v3"
 )
 
 type Router struct {
@@ -25,12 +25,16 @@ type Config struct {
 		Registry   int `yaml:"registry"`
 		Tags       int `yaml:"tags"`
 	} `yaml:"ports"`
+	Registry struct {
+		ClearanceDelay  time.Duration `yaml:"clearance-delay"`
+		ClearancePeriod time.Duration `yaml:"clearance-period"`
+		InstanceTimeout time.Duration `yaml:"instance-timeout"`
+	} `yaml:"registry"`
 	Router           Router `yaml:"router"`
 	ServiceDiscovery struct {
 		UpdatePeriod time.Duration `yaml:"update-period"`
 	} `yaml:"service-discovery"`
 	Sidecar struct {
-		QueryPeriod  time.Duration `yaml:"query-period"`
 		TickerDelay  time.Duration `yaml:"ticker-delay"`
 		TickerPeriod time.Duration `yaml:"ticker-period"`
 	} `yaml:"sidecar"`

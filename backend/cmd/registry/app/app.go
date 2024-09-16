@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"logbook/config/deployment"
+	"logbook/internal/web/logger"
 	"logbook/models"
 	"sync"
 	"time"
@@ -14,8 +16,8 @@ import (
 type InstanceId string
 
 type App struct {
-	instanceTimeout time.Duration
-	clearancePeriod time.Duration
+	deplycfg *deployment.Config
+	l        *logger.Logger
 
 	instances map[models.Service]*Set[InstanceId]
 	details   map[InstanceId]models.Instance
@@ -27,17 +29,17 @@ type App struct {
 	cancel context.CancelFunc
 }
 
-func New(instanceTimeout, clearancePeriod time.Duration) *App {
+func New(deplycfg *deployment.Config) *App {
 	ctx, cancel := context.WithCancel(context.Background())
 	a := &App{
-		instanceTimeout: instanceTimeout,
-		clearancePeriod: clearancePeriod,
-		instances:       map[models.Service]*Set[InstanceId]{},
-		details:         map[InstanceId]models.Instance{},
-		checks:          map[InstanceId]time.Time{},
-		cache:           map[models.Service][]models.Instance{},
-		ctx:             ctx,
-		cancel:          cancel,
+		deplycfg:  deplycfg,
+		l:         logger.NewLogger("App"),
+		instances: map[models.Service]*Set[InstanceId]{},
+		details:   map[InstanceId]models.Instance{},
+		checks:    map[InstanceId]time.Time{},
+		cache:     map[models.Service][]models.Instance{},
+		ctx:       ctx,
+		cancel:    cancel,
 	}
 	go a.ticker()
 	return a
@@ -91,9 +93,10 @@ func (a *App) ListInstances(s models.Service) ([]models.Instance, error) {
 }
 
 func (a *App) ticker() {
-	ticker := time.NewTicker(a.clearancePeriod)
+	time.Sleep(a.deplycfg.Registry.ClearanceDelay)
+	ticker := time.NewTicker(a.deplycfg.Registry.ClearancePeriod)
 	defer ticker.Stop()
-
+	a.clearOutdated()
 	for {
 		select {
 		case <-ticker.C:
@@ -107,12 +110,12 @@ func (a *App) ticker() {
 func (a *App) clearOutdated() {
 	a.mu.Lock()
 	defer a.mu.Unlock()
-
+	a.l.Println("clearOutdated")
 	t := time.Now()
 	for s, instanceSet := range a.instances {
 		toClear := []InstanceId{}
 		for _, iid := range instanceSet.Items() {
-			if t.Sub(a.checks[iid]) > a.instanceTimeout {
+			if t.Sub(a.checks[iid]) > a.deplycfg.Registry.InstanceTimeout {
 				toClear = append(toClear, iid)
 			}
 		}

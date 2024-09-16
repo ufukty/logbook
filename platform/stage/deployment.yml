@@ -11,6 +11,11 @@ router:
 service-discovery:
   update-period: 1s
 
+registry:
+  instance-timeout: 5s
+  clearance-period: 2s
+  clearance-delay: 2s
+
 sidecar:
   ticker-delay: 500ms
   ticker-period: 1s

@@ -1,13 +1,25 @@
 package app
 
 import (
+	"logbook/config/deployment"
 	"logbook/models"
 	"testing"
 	"time"
 )
 
+var deplycfg = &deployment.Config{
+	Registry: struct {
+		ClearanceDelay  time.Duration "yaml:\"clearance-delay\""
+		ClearancePeriod time.Duration "yaml:\"clearance-period\""
+		InstanceTimeout time.Duration "yaml:\"instance-timeout\""
+	}{
+		ClearanceDelay:  50 * time.Microsecond,
+		ClearancePeriod: 100 * time.Millisecond,
+		InstanceTimeout: 200 * time.Millisecond,
+	}}
+
 func TestRegisterInstance(t *testing.T) {
-	app := New(100*time.Millisecond, 200*time.Millisecond)
+	app := New(deplycfg)
 	defer app.Stop()
 	service := models.Service("test-service")
 	instance := models.Instance{Tls: true, Address: "127.0.0.1", Port: 8080}
@@ -22,7 +34,7 @@ func TestRegisterInstance(t *testing.T) {
 }
 
 func TestRecheckInstance(t *testing.T) {
-	app := New(100*time.Millisecond, 200*time.Millisecond)
+	app := New(deplycfg)
 	defer app.Stop()
 	service := models.Service("test-service")
 	instance := models.Instance{Tls: true, Address: "127.0.0.1", Port: 8080}
@@ -39,7 +51,7 @@ func TestRecheckInstance(t *testing.T) {
 }
 
 func TestClearOutdated(t *testing.T) {
-	app := New(100*time.Millisecond, 200*time.Millisecond)
+	app := New(deplycfg)
 	defer app.Stop()
 	service := models.Service("test-service")
 	instance := models.Instance{Tls: true, Address: "127.0.0.1", Port: 8080}
@@ -67,7 +79,7 @@ func TestClearOutdated(t *testing.T) {
 }
 
 func TestBuildCache(t *testing.T) {
-	app := New(100*time.Millisecond, 200*time.Millisecond)
+	app := New(deplycfg)
 	defer app.Stop()
 	service := models.Service("test-service")
 	instance := models.Instance{Tls: true, Address: "127.0.0.1", Port: 8080}
@@ -94,7 +106,7 @@ func TestBuildCache(t *testing.T) {
 }
 
 func TestListInstances(t *testing.T) {
-	app := New(100*time.Millisecond, 200*time.Millisecond)
+	app := New(deplycfg)
 	defer app.Stop()
 	service := models.Service("test-service")
 	instance := models.Instance{Tls: true, Address: "127.0.0.1", Port: 8080}
@@ -117,7 +129,7 @@ func TestListInstances(t *testing.T) {
 }
 
 func TestTickerClearOutdated(t *testing.T) {
-	app := New(100*time.Millisecond, 200*time.Millisecond)
+	app := New(deplycfg)
 	defer app.Stop()
 	service := models.Service("test-service")
 	instance := models.Instance{Tls: true, Address: "127.0.0.1", Port: 8080}

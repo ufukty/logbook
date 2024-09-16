@@ -8,9 +8,14 @@ router:
 service-discovery:
   update-period: 1m
 
+registry:
+  instance-timeout: 99999s # needless in local environment which spans the definitive set of instance at the start
+  clearance-period: 99999s # """
+  clearance-delay: 2s # builds the cache at first iteration of clearance
+
 sidecar:
   ticker-delay: 500ms
-  ticker-period: 30m # needless in local environment which spans the definitive set of instance at the start
+  ticker-period: 88888s # only needs to be smaller than registry.instance-timeout
 
 ports:
   accounts: 0
