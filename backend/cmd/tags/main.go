@@ -37,7 +37,7 @@ func Main() error {
 		Tls:  true,
 	})
 	defer internalsd.Stop()
-	sc := sidecar.New(registry.NewClient(balancer.New(internalsd), apicfg, true), deplcfg.ServiceDiscovery.UpdatePeriod, []models.Service{})
+	sc := sidecar.New(registry.NewClient(balancer.New(internalsd), apicfg, true), deplcfg, []models.Service{})
 	defer sc.Stop()
 
 	app := app.New(pool, apicfg, internalsd)

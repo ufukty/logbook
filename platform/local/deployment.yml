@@ -6,7 +6,11 @@ router:
   grace-period: 1s
 
 service-discovery:
-  update-period: 1s
+  update-period: 1m
+
+sidecar:
+  ticker-delay: 500ms
+  ticker-period: 30m # needless in local environment which spans the definitive set of instance at the start
 
 ports:
   accounts: 0

@@ -3,10 +3,10 @@
 package deployment
 
 import (
+	"os"
 	"time"
 	"fmt"
 	"gopkg.in/yaml.v3"
-	"os"
 )
 
 type Router struct {
@@ -29,6 +29,11 @@ type Config struct {
 	ServiceDiscovery struct {
 		UpdatePeriod time.Duration `yaml:"update-period"`
 	} `yaml:"service-discovery"`
+	Sidecar struct {
+		QueryPeriod  time.Duration `yaml:"query-period"`
+		TickerDelay  time.Duration `yaml:"ticker-delay"`
+		TickerPeriod time.Duration `yaml:"ticker-period"`
+	} `yaml:"sidecar"`
 }
 
 func ReadConfig(path string) (*Config, error) {

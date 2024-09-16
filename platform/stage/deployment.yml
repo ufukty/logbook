@@ -11,6 +11,10 @@ router:
 service-discovery:
   update-period: 1s
 
+sidecar:
+  ticker-delay: 500ms
+  ticker-period: 1s
+
 ports:
   internal: 8080 # fixed
   registry: 8080 # fixed

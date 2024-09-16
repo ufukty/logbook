@@ -27,7 +27,7 @@ func Main() error {
 		Tls:  true,
 	})
 	// NOTE: service registry needs to be accessed through internal gateway
-	sc := sidecar.New(registry.NewClient(balancer.New(internalsd), apicfg, true), deplcfg.ServiceDiscovery.UpdatePeriod, []models.Service{
+	sc := sidecar.New(registry.NewClient(balancer.New(internalsd), apicfg, true), deplcfg, []models.Service{
 		models.Account,
 		models.Objectives,
 	})

@@ -6,6 +6,7 @@ import (
 	"logbook/cmd/registry/app"
 	registry "logbook/cmd/registry/client"
 	"logbook/cmd/registry/endpoints"
+	"logbook/config/deployment"
 	"logbook/internal/web/logger"
 	"logbook/models"
 	"sync"
@@ -20,7 +21,7 @@ import (
 //   - [Sidecar.InstanceSource] returns a struct which conforms [balancer.InstanceSource]
 type Sidecar struct {
 	ctl      *registry.Client
-	reload   time.Duration
+	deplycfg *deployment.Config
 	services []models.Service
 
 	l      logger.Logger
@@ -34,17 +35,17 @@ type Sidecar struct {
 	iidmu sync.RWMutex
 }
 
-func New(ctl *registry.Client, period time.Duration, services []models.Service) *Sidecar {
+func New(ctl *registry.Client, deplycfg *deployment.Config, services []models.Service) *Sidecar {
 	ctx, cancel := context.WithCancel(context.Background())
 	d := &Sidecar{
 		ctl:      ctl,
 		store:    map[models.Service][]models.Instance{},
 		services: services,
 
-		l:      *logger.NewLogger("Sidecar"),
-		reload: period,
-		ctx:    ctx,
-		cancel: cancel,
+		l:        *logger.NewLogger("Sidecar"),
+		deplycfg: deplycfg,
+		ctx:      ctx,
+		cancel:   cancel,
 	}
 	go d.tick()
 	return d
@@ -83,23 +84,29 @@ func (d *Sidecar) recheck() error {
 	return nil
 }
 
+func (d *Sidecar) update() {
+	d.storemu.Lock()
+	if err := d.queryserver(); err != nil {
+		d.l.Println(fmt.Errorf("tick: queryserver: %w", err))
+	}
+	d.storemu.Unlock()
+
+	d.iidmu.RLock()
+	if err := d.recheck(); err != nil {
+		d.l.Println(fmt.Errorf("tick: recheck: %w", err))
+	}
+	d.iidmu.RUnlock()
+}
+
 func (d *Sidecar) tick() {
-	t := time.NewTicker(d.reload)
+	time.Sleep(d.deplycfg.Sidecar.TickerDelay)
+	t := time.NewTicker(d.deplycfg.Sidecar.TickerPeriod)
+	d.update() // before the first tick
 	defer t.Stop()
 	for {
 		select {
 		case <-t.C:
-			d.storemu.Lock()
-			if err := d.queryserver(); err != nil {
-				d.l.Println(fmt.Errorf("tick: queryserver: %w", err))
-			}
-			d.storemu.Unlock()
-
-			d.iidmu.RLock()
-			if err := d.recheck(); err != nil {
-				d.l.Println(fmt.Errorf("tick: recheck: %w", err))
-			}
-			d.iidmu.RUnlock()
+			d.update()
 		case <-d.ctx.Done():
 			return
 		}
