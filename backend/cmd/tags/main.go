@@ -16,7 +16,6 @@ import (
 	"logbook/internal/web/sidecar"
 	"logbook/models"
 	"net/http"
-	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -38,7 +37,7 @@ func Main() error {
 		Tls:  true,
 	})
 	defer internalsd.Stop()
-	sc := sidecar.New(registry.NewClient(balancer.New(internalsd), apicfg, true), time.Second, []models.Service{})
+	sc := sidecar.New(registry.NewClient(balancer.New(internalsd), apicfg, true), deplcfg.ServiceDiscovery.UpdatePeriod, []models.Service{})
 	defer sc.Stop()
 
 	app := app.New(pool, apicfg, internalsd)
