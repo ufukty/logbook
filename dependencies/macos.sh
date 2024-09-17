@@ -25,6 +25,8 @@ which d2 ||
 
 test -f "/usr/local/bin/bash" ||
   brew install "bash"
+which gsed ||
+  brew install coreutils
 which psql ||
   (brew install "postgresql@15" && brew services start "postgresql@15")
 which doctl ||
