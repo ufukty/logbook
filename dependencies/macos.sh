@@ -3,11 +3,10 @@
 set -e # exit on error
 
 test -f "$HOME/venv/bin/activate" ||
-  python -m venv "$HOME/venv"
+  python3 -m venv "$HOME/venv"
 source "$HOME/venv/bin/activate"
 
-test "$WORKSPACE" ||
-  exit 1
+: "${WORKSPACE:?}"
 
 which make ||
   xcode-select --install
