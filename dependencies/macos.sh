@@ -14,13 +14,13 @@ which make ||
 which go ||
   (open "https://go.dev/dl" && exit 1)
 
-which stringer ||
+which stringer || # backend
   go install "golang.org/x/tools/cmd/stringer"
-which gonfique ||
+which gonfique || # backend
   go install "github.com/ufukty/gonfique@v1.3.1"
-which sqlc ||
+which sqlc || # backend
   go install "github.com/sqlc-dev/sqlc/cmd/sqlc@latest"
-which d2 ||
+which d2 || # docs
   go install "oss.terrastruct.com/d2@v0.6.3"
 
 test -f "/usr/local/bin/bash" ||
@@ -39,13 +39,13 @@ which packer ||
   brew install "hashicorp/tap/packer"
 which openvpn ||
   brew install "openvpn"
-which easyrsa ||
+which easyrsa || # maintain PKI
   (open "https://github.com/OpenVPN/easy-rsa" && exit 1)
-which jq ||
+which jq || # platform
   brew install jq
-which unbuffer ||
+which unbuffer || # run.sh (to trick Chi logger to print colors)
   brew install expect
-which magick ||
+which magick || # docs (dark versions of schemas)
   brew install imagemagick
 
 (which ansible && which qr) ||
@@ -56,5 +56,5 @@ which argon2 ||
 
 which npm ||
   (open "https://nodejs.org/en/download" && exit 1)
-which mmdc ||
+which mmdc || # docs
   npm install -g "@mermaid-js/mermaid-cli"
