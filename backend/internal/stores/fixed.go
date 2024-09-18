@@ -44,6 +44,13 @@ func (f *FixedSizeKV[K, V]) Len(k K, v V) int {
 	return len(f.store)
 }
 
+func (f *FixedSizeKV[K, V]) Has(k K) bool {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	_, ok := f.store[k]
+	return ok
+}
+
 func (f *FixedSizeKV[K, V]) Set(k K, v V) {
 	f.maintainsize()
 	f.mu.Lock()

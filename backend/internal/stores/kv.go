@@ -25,6 +25,13 @@ func (f *KV[K, V]) Len(k K, v V) int {
 	return len(f.store)
 }
 
+func (f *KV[K, V]) Has(k K) bool {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	_, ok := f.store[k]
+	return ok
+}
+
 func (f *KV[K, V]) Set(k K, v V) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
