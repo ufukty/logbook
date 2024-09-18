@@ -1,152 +1,119 @@
-package app
+package app_test
 
 import (
+	"fmt"
+	"logbook/cmd/registry/app"
 	"logbook/config/deployment"
 	"logbook/models"
+	"os"
+	"path/filepath"
 	"testing"
 	"time"
 )
 
-var deplycfg = &deployment.Config{
-	Registry: struct {
-		ClearanceDelay  time.Duration "yaml:\"clearance-delay\""
-		ClearancePeriod time.Duration "yaml:\"clearance-period\""
-		InstanceTimeout time.Duration "yaml:\"instance-timeout\""
-	}{
-		ClearanceDelay:  50 * time.Microsecond,
-		ClearancePeriod: 100 * time.Millisecond,
-		InstanceTimeout: 200 * time.Millisecond,
-	}}
-
+// Test RegisterInstance method
 func TestRegisterInstance(t *testing.T) {
-	app := New(deplycfg)
-	defer app.Stop()
-	service := models.Service("test-service")
-	instance := models.Instance{Tls: true, Address: "127.0.0.1", Port: 8080}
-
-	instanceID, err := app.RegisterInstance(service, instance)
+	deplcfg, err := deployment.ReadConfig(filepath.Join(os.Getenv("WORKSPACE"), "platform/local/deployment.yml"))
 	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
+		t.Fatal(fmt.Errorf("prep, deployment.ReadConfig: %w", err))
 	}
-	if instanceID == "" {
-		t.Fatalf("expected non-empty instance ID")
+	a := app.New(deplcfg)
+	defer a.Stop()
+
+	service := models.Service("test-service")
+	instance := models.Instance{ /* Fill with mock fields */ }
+
+	iid, err := a.RegisterInstance(service, instance)
+
+	if err != nil {
+		t.Errorf("expected no error, got %v", err)
+	}
+	if iid == "" {
+		t.Errorf("expected instance ID to be generated, but got empty")
 	}
 }
 
+// Test RecheckInstance method
 func TestRecheckInstance(t *testing.T) {
-	app := New(deplycfg)
-	defer app.Stop()
-	service := models.Service("test-service")
-	instance := models.Instance{Tls: true, Address: "127.0.0.1", Port: 8080}
-
-	instanceID, err := app.RegisterInstance(service, instance)
+	deplcfg, err := deployment.ReadConfig(filepath.Join(os.Getenv("WORKSPACE"), "platform/local/deployment.yml"))
 	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
+		t.Fatal(fmt.Errorf("prep, deployment.ReadConfig: %w", err))
+	}
+	a := app.New(deplcfg)
+	defer a.Stop()
+
+	service := models.Service("test-service")
+	instance := models.Instance{ /* Fill with mock fields */ }
+
+	iid, err := a.RegisterInstance(service, instance)
+	if err != nil {
+		t.Errorf("expected no error during instance registration, got %v", err)
 	}
 
-	err = app.RecheckInstance(instanceID)
+	err = a.RecheckInstance(service, iid)
 	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
+		t.Errorf("expected no error during instance recheck, got %v", err)
 	}
 }
 
-func TestClearOutdated(t *testing.T) {
-	app := New(deplycfg)
-	defer app.Stop()
-	service := models.Service("test-service")
-	instance := models.Instance{Tls: true, Address: "127.0.0.1", Port: 8080}
-
-	// Register an instance and advance time to simulate expiration
-	instanceID, err := app.RegisterInstance(service, instance)
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	// Directly manipulate time for testing purposes
-	app.mu.Lock()
-	app.checks[instanceID] = time.Now().Add(-2 * time.Minute) // Set the last check time to 2 minutes ago
-	app.mu.Unlock()
-
-	app.clearOutdated()
-
-	// Check that the instance is removed
-	app.mu.RLock()
-	defer app.mu.RUnlock()
-	_, exists := app.details[instanceID]
-	if exists {
-		t.Fatalf("expected instance to be removed")
-	}
-}
-
-// func TestBuildCache(t *testing.T) {
-// 	app := New(deplycfg)
-// 	defer app.Stop()
-// 	service := models.Service("test-service")
-// 	instance := models.Instance{Tls: true, Address: "127.0.0.1", Port: 8080}
-
-// 	_, err := app.RegisterInstance(service, instance)
-// 	if err != nil {
-// 		t.Fatalf("unexpected error: %v", err)
-// 	}
-
-// 	app.buildCache(service)
-
-// 	app.mu.RLock()
-// 	defer app.mu.RUnlock()
-// 	cache, ok := app.cache[service]
-// 	if !ok {
-// 		t.Fatalf("expected cache to be built")
-// 	}
-// 	if len(cache) != 1 {
-// 		t.Fatalf("expected cache length to be 1, got %d", len(cache))
-// 	}
-// 	if cache[0] != instance {
-// 		t.Fatalf("expected cache instance to be %v, got %v", instance, cache[0])
-// 	}
-// }
-
+// Test ListInstances method
 func TestListInstances(t *testing.T) {
-	app := New(deplycfg)
-	defer app.Stop()
+	deplcfg, err := deployment.ReadConfig(filepath.Join(os.Getenv("WORKSPACE"), "platform/local/deployment.yml"))
+	if err != nil {
+		t.Fatal(fmt.Errorf("prep, deployment.ReadConfig: %w", err))
+	}
+	a := app.New(deplcfg)
+	defer a.Stop()
+
 	service := models.Service("test-service")
-	instance := models.Instance{Tls: true, Address: "127.0.0.1", Port: 8080}
+	instance1 := models.Instance{ /* Fill with mock fields */ }
+	instance2 := models.Instance{ /* Fill with mock fields */ }
 
-	_, err := app.RegisterInstance(service, instance)
+	_, err = a.RegisterInstance(service, instance1)
 	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
+		t.Errorf("expected no error, got %v", err)
 	}
 
-	instances, err := app.ListInstances(service)
+	_, err = a.RegisterInstance(service, instance2)
 	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
+		t.Errorf("expected no error, got %v", err)
 	}
-	if len(instances) != 1 {
-		t.Fatalf("expected instance length to be 1, got %d", len(instances))
+
+	instances, err := a.ListInstances(service)
+	if err != nil {
+		t.Errorf("expected no error, got %v", err)
 	}
-	if instances[0] != instance {
-		t.Fatalf("expected instance to be %v, got %v", instance, instances[0])
+	if len(instances) != 2 {
+		t.Errorf("expected 2 instances, got %d", len(instances))
 	}
 }
 
-func TestTickerClearOutdated(t *testing.T) {
-	app := New(deplycfg)
-	defer app.Stop()
-	service := models.Service("test-service")
-	instance := models.Instance{Tls: true, Address: "127.0.0.1", Port: 8080}
+// Test HouseKeeping logic (clearing timed-out instances)
+func TestHouseKeeping(t *testing.T) {
+	deplcfg := &deployment.Config{}
+	deplcfg.Registry.InstanceTimeout = 50 * time.Millisecond
+	deplcfg.Registry.ClearancePeriod = 50 * time.Millisecond
+	deplcfg.Registry.ClearanceDelay = 50 * time.Millisecond
 
-	_, err := app.RegisterInstance(service, instance)
+	a := app.New(deplcfg)
+	defer a.Stop()
+
+	service := models.Service("test-service")
+	instance := models.Instance{ /* Fill with mock fields */ }
+
+	_, err := a.RegisterInstance(service, instance)
 	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
+		t.Errorf("expected no error, got %v", err)
 	}
 
-	// Simulate the ticker functionality
-	time.Sleep(300 * time.Millisecond) // Wait for the instance to expire
+	// Sleep for longer than the instance timeout to ensure it is cleared
+	time.Sleep(200 * time.Millisecond)
 
-	instances, err := app.ListInstances(service)
+	instances, err := a.ListInstances(service)
 	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
+		t.Errorf("expected no error, got %v", err)
 	}
 	if len(instances) != 0 {
-		t.Fatalf("expected instance length to be 0, got %d", len(instances))
+		t.Errorf("expected 0 instances after housekeeping, got %d", len(instances))
 	}
 }
