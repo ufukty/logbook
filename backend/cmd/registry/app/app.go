@@ -114,6 +114,7 @@ func (sr *serviceRegistry) houseKeeping() {
 			i, _ := sr.instances.Get(iid)
 			sr.l.Printf("instance timeout: %s (%s)\n", iid, i)
 			sr.instances.Delete(iid)
+			sr.checks.Delete(iid)
 		}
 		sr.cache = []models.Instance{}
 		for _, i := range sr.instances.Iter() {
