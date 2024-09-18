@@ -1,23 +1,20 @@
 package stores
 
 import (
-	"logbook/internal/web/logger"
 	"sync"
 )
 
 type KV[K comparable, V any] struct {
 	store map[K]V
 	mu    sync.RWMutex
-	log   logger.Logger
 }
 
 var _ Stores[any, any] = &KV[any, any]{}
 
-func NewKV[K comparable, V any](logname string) *KV[K, V] {
+func NewKV[K comparable, V any]() *KV[K, V] {
 	return &KV[K, V]{
 		store: map[K]V{},
 		mu:    sync.RWMutex{},
-		log:   *logger.NewLogger(logname),
 	}
 }
 
