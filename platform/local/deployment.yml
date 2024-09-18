@@ -23,5 +23,5 @@ ports:
   tags: 0
 
   gateway: 8080
-  internal: 8090
-  registry: 8091
+  internal: 8081
+  registry: 8082
