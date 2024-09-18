@@ -22,6 +22,8 @@ import (
 type Sidecar struct {
 	ctl      *registry.Client
 	deplycfg *deployment.Config
+
+	service  models.Service
 	services []models.Service
 
 	l      logger.Logger
@@ -68,11 +70,12 @@ func (d *Sidecar) queryserver() error {
 }
 
 func (d *Sidecar) recheck() error {
-	if d.iid == app.InstanceId("") { // sidecar without registration (eg. "api-gateway")
+	if d.iid == app.InstanceId("") || d.service == "" { // sidecar without registration (eg. "api-gateway")
 		return nil
 	}
-	d.l.Println("recheck")
+	d.l.Println("rechecking...")
 	r, err := d.ctl.RecheckInstance(&endpoints.RecheckInstanceRequest{
+		Service:    d.service,
 		InstanceId: d.iid,
 	})
 	if err != nil {
@@ -124,6 +127,7 @@ func (c *Sidecar) InstanceSource(s models.Service) *source {
 }
 
 func (c *Sidecar) SetInstanceDetails(s models.Service, i models.Instance) error {
+	c.service = s
 	c.l.Printf("registering the instance: %s -> %s\n", s, i)
 	r, err := c.ctl.RegisterInstance(&endpoints.RegisterInstanceRequest{
 		Service: s,

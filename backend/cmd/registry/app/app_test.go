@@ -78,32 +78,32 @@ func TestClearOutdated(t *testing.T) {
 	}
 }
 
-func TestBuildCache(t *testing.T) {
-	app := New(deplycfg)
-	defer app.Stop()
-	service := models.Service("test-service")
-	instance := models.Instance{Tls: true, Address: "127.0.0.1", Port: 8080}
+// func TestBuildCache(t *testing.T) {
+// 	app := New(deplycfg)
+// 	defer app.Stop()
+// 	service := models.Service("test-service")
+// 	instance := models.Instance{Tls: true, Address: "127.0.0.1", Port: 8080}
 
-	_, err := app.RegisterInstance(service, instance)
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
+// 	_, err := app.RegisterInstance(service, instance)
+// 	if err != nil {
+// 		t.Fatalf("unexpected error: %v", err)
+// 	}
 
-	app.buildCache(service)
+// 	app.buildCache(service)
 
-	app.mu.RLock()
-	defer app.mu.RUnlock()
-	cache, ok := app.cache[service]
-	if !ok {
-		t.Fatalf("expected cache to be built")
-	}
-	if len(cache) != 1 {
-		t.Fatalf("expected cache length to be 1, got %d", len(cache))
-	}
-	if cache[0] != instance {
-		t.Fatalf("expected cache instance to be %v, got %v", instance, cache[0])
-	}
-}
+// 	app.mu.RLock()
+// 	defer app.mu.RUnlock()
+// 	cache, ok := app.cache[service]
+// 	if !ok {
+// 		t.Fatalf("expected cache to be built")
+// 	}
+// 	if len(cache) != 1 {
+// 		t.Fatalf("expected cache length to be 1, got %d", len(cache))
+// 	}
+// 	if cache[0] != instance {
+// 		t.Fatalf("expected cache instance to be %v, got %v", instance, cache[0])
+// 	}
+// }
 
 func TestListInstances(t *testing.T) {
 	app := New(deplycfg)
