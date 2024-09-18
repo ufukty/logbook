@@ -12,6 +12,8 @@ type FixedSizeKV[K comparable, V any] struct {
 	log   logger.Logger
 }
 
+var _ Stores[any, any] = &FixedSizeKV[any, any]{}
+
 func NewFixedSizeKV[K comparable, V any](logname string, size int) *FixedSizeKV[K, V] {
 	return &FixedSizeKV[K, V]{
 		Size:  size,
@@ -36,6 +38,10 @@ func (f *FixedSizeKV[K, V]) maintainsize() {
 	for _, key := range keys[:int(f.Size/2)] {
 		delete(f.store, key)
 	}
+}
+
+func (f *FixedSizeKV[K, V]) Len(k K, v V) int {
+	return len(f.store)
 }
 
 func (f *FixedSizeKV[K, V]) Set(k K, v V) {
