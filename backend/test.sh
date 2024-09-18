@@ -9,6 +9,6 @@ done
 set +e
 
 echo "starting tests..." | prefix "$YELLOW" test
-unbuffer httpyac tests/api/discovery.http --all --insecure 2>&1 | prefix "$YELLOW" test discovery
-unbuffer httpyac tests/api/accounts.http --all --insecure 2>&1 | prefix "$YELLOW" test accounts
-unbuffer httpyac tests/api/objectives.http --all --insecure 2>&1 | prefix "$YELLOW" test objectives
+unbuffer httpyac tests/api/discovery.http --all --insecure 2>&1 | prefix "$CYAN" discovery
+unbuffer httpyac tests/api/accounts.http --all --insecure 2>&1 | prefix "$BLUE" accounts
+unbuffer httpyac tests/api/objectives.http --all --insecure 2>&1 | prefix "$MAGENTA" objectives
