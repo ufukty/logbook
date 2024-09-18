@@ -1,6 +1,7 @@
 package stores
 
 import (
+	"iter"
 	"sync"
 )
 
@@ -48,6 +49,8 @@ func (f *KV[K, V]) Delete(k K) {
 	delete(f.store, k)
 }
 
+// non-blocking
+// instable ordering
 func (f *KV[K, V]) Keys() []K {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
@@ -56,4 +59,18 @@ func (f *KV[K, V]) Keys() []K {
 		keys = append(keys, key)
 	}
 	return keys
+}
+
+// blocking function
+// instable ordering
+func (f *KV[K, V]) Iter() iter.Seq2[K, V] {
+	f.mu.RLock()
+	defer f.mu.RUnlock()
+	return func(yield func(K, V) bool) {
+		for k, v := range f.store {
+			if !yield(k, v) {
+				return
+			}
+		}
+	}
 }
