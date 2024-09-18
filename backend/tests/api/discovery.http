@@ -6,10 +6,11 @@ POST {{service}}/register HTTP/1.1
 Content-Type: application/json
 
 {
+  "tls":true,
   "service": "objectives",
   "address": "127.0.0.1",
-  "port": "8081"
-}'
+  "port": 8081
+}
 
 ?? status == 200
 ?? body includes instance-id
