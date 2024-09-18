@@ -17,8 +17,10 @@ registry:
   clearance-delay: 2s
 
 sidecar:
-  ticker-delay: 500ms
-  ticker-period: 1s
+  recheking-ticker-delay: 500ms
+  recheking-ticker-period: 1s # only needs to be smaller than registry.instance-timeout
+  querying-ticker-delay: 1s
+  querying-ticker-period: 1s # only needs to be smaller than registry.instance-timeout
 
 ports:
   internal: 8080 # fixed

@@ -14,8 +14,10 @@ registry:
   clearance-delay: 2s # builds the cache at first iteration of clearance
 
 sidecar:
-  ticker-delay: 500ms
-  ticker-period: 88888s # only needs to be smaller than registry.instance-timeout
+  recheking-ticker-delay: 0s
+  recheking-ticker-period: 88888s # only needs to be smaller than registry.instance-timeout
+  querying-ticker-delay: 2s
+  querying-ticker-period: 88888s # only needs to be smaller than registry.instance-timeout
 
 ports:
   accounts: 0

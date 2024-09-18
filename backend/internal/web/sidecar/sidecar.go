@@ -49,7 +49,7 @@ func New(ctl *registry.Client, deplycfg *deployment.Config, services []models.Se
 		ctx:      ctx,
 		cancel:   cancel,
 	}
-	go d.tick()
+	go d.queryingTicker()
 	return d
 }
 
@@ -58,58 +58,32 @@ func (d *Sidecar) Stop() {
 }
 
 func (d *Sidecar) queryserver() error {
+	d.storemu.Lock()
+	defer d.storemu.Unlock()
 	for _, service := range d.services {
 		d.l.Printf("queryserver for %s\n", service)
 		bs, err := d.ctl.ListInstances(&endpoints.ListInstancesRequest{Service: service})
 		if err != nil {
-			return fmt.Errorf("sending listing request: %w", err)
+			return fmt.Errorf("ListInstances: %w", err)
 		}
 		d.store[service] = bs.Instances
 	}
 	return nil
 }
 
-func (d *Sidecar) recheck() error {
-	if d.iid == app.InstanceId("") || d.service == "" { // sidecar without registration (eg. "api-gateway")
-		return nil
-	}
-	d.l.Println("rechecking...")
-	r, err := d.ctl.RecheckInstance(&endpoints.RecheckInstanceRequest{
-		Service:    d.service,
-		InstanceId: d.iid,
-	})
-	if err != nil {
-		return fmt.Errorf("registry.Client.RecheckInstance: %w", err)
-	}
-	if r.StatusCode != 200 {
-		return fmt.Errorf("registry service returned non-200 status code: %d", r.StatusCode)
-	}
-	return nil
-}
-
-func (d *Sidecar) update() {
-	d.storemu.Lock()
+func (d *Sidecar) queryingTicker() {
+	time.Sleep(d.deplycfg.Sidecar.QueryingTickerDelay)
+	t := time.NewTicker(d.deplycfg.Sidecar.QueryingTickerPeriod)
 	if err := d.queryserver(); err != nil {
 		d.l.Println(fmt.Errorf("tick: queryserver: %w", err))
 	}
-	d.storemu.Unlock()
-
-	d.iidmu.RLock()
-	if err := d.recheck(); err != nil {
-		d.l.Println(fmt.Errorf("tick: recheck: %w", err))
-	}
-	d.iidmu.RUnlock()
-}
-
-func (d *Sidecar) tick() {
-	time.Sleep(d.deplycfg.Sidecar.TickerDelay)
-	t := time.NewTicker(d.deplycfg.Sidecar.TickerPeriod)
-	d.update() // before the first tick
 	defer t.Stop()
 	for {
 		select {
 		case <-t.C:
-			d.update()
+			if err := d.queryserver(); err != nil {
+				d.l.Println(fmt.Errorf("tick: queryserver: %w", err))
+			}
 		case <-d.ctx.Done():
 			return
 		}
@@ -126,6 +100,42 @@ func (c *Sidecar) InstanceSource(s models.Service) *source {
 	return newServiceStore(c, s)
 }
 
+func (d *Sidecar) recheck() error {
+	d.iidmu.RLock()
+	defer d.iidmu.RUnlock()
+	if d.iid == app.InstanceId("") || d.service == "" { // sidecar without registration (eg. "api-gateway")
+		return nil
+	}
+	d.l.Println("rechecking...")
+	r, err := d.ctl.RecheckInstance(&endpoints.RecheckInstanceRequest{
+		Service:    d.service,
+		InstanceId: d.iid,
+	})
+	if err != nil {
+		return fmt.Errorf("RecheckInstance: %w", err)
+	}
+	if r.StatusCode != 200 {
+		return fmt.Errorf("registry service returned non-200 status code: %d", r.StatusCode)
+	}
+	return nil
+}
+
+func (d *Sidecar) recheckingTicker() {
+	time.Sleep(d.deplycfg.Sidecar.RechekingTickerDelay)
+	t := time.NewTicker(d.deplycfg.Sidecar.RechekingTickerPeriod)
+	defer t.Stop()
+	for {
+		select {
+		case <-t.C:
+			if err := d.recheck(); err != nil {
+				d.l.Println(fmt.Errorf("tick: recheck: %w", err))
+			}
+		case <-d.ctx.Done():
+			return
+		}
+	}
+}
+
 func (c *Sidecar) SetInstanceDetails(s models.Service, i models.Instance) error {
 	c.service = s
 	c.l.Printf("registering the instance: %s -> %s\n", s, i)
@@ -136,10 +146,11 @@ func (c *Sidecar) SetInstanceDetails(s models.Service, i models.Instance) error 
 		Port:    i.Port,
 	})
 	if err != nil {
-		return fmt.Errorf("registry.Client.RegisterInstance: %w", err)
+		return fmt.Errorf("RegisterInstance: %w", err)
 	}
 	c.iidmu.Lock()
 	defer c.iidmu.Unlock()
 	c.iid = r.InstanceId
+	go c.recheckingTicker()
 	return nil
 }

@@ -3,10 +3,10 @@
 package deployment
 
 import (
+	"fmt"
 	"gopkg.in/yaml.v3"
 	"os"
 	"time"
-	"fmt"
 )
 
 type Router struct {
@@ -35,8 +35,10 @@ type Config struct {
 		UpdatePeriod time.Duration `yaml:"update-period"`
 	} `yaml:"service-discovery"`
 	Sidecar struct {
-		TickerDelay  time.Duration `yaml:"ticker-delay"`
-		TickerPeriod time.Duration `yaml:"ticker-period"`
+		QueryingTickerDelay   time.Duration `yaml:"querying-ticker-delay"`
+		QueryingTickerPeriod  time.Duration `yaml:"querying-ticker-period"`
+		RechekingTickerDelay  time.Duration `yaml:"recheking-ticker-delay"`
+		RechekingTickerPeriod time.Duration `yaml:"recheking-ticker-period"`
 	} `yaml:"sidecar"`
 }
 
