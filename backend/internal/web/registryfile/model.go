@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"logbook/config/deployment"
 	"logbook/internal/web/balancer"
 	"logbook/internal/web/logger"
 	"logbook/models"
@@ -31,14 +32,14 @@ type ServiceParams struct {
 // interface
 var _ balancer.InstanceSource = &FileReader{}
 
-func NewFileReader(filepath string, reload time.Duration, params ServiceParams) *FileReader {
+func NewFileReader(filepath string, deplycfg *deployment.Config, params ServiceParams) *FileReader {
 	ctx, cancel := context.WithCancel(context.Background())
 	fr := &FileReader{
 		l:        logger.NewLogger("FileReader"),
 		filepath: filepath,
 		ctx:      ctx,
 		cancel:   cancel,
-		reload:   reload,
+		reload:   deplycfg.ServiceDiscovery.UpdatePeriod,
 		params:   params,
 	}
 	fr.readfile()

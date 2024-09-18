@@ -19,7 +19,7 @@ func mainerr() error {
 		return fmt.Errorf("reading configs: %w", err)
 	}
 
-	registrysd := registryfile.NewFileReader(args.RegistryService, deplcfg.ServiceDiscovery.UpdatePeriod, registryfile.ServiceParams{
+	registrysd := registryfile.NewFileReader(args.RegistryService, deplcfg, registryfile.ServiceParams{
 		Port: deplcfg.Ports.Registry,
 		Tls:  false,
 	})
