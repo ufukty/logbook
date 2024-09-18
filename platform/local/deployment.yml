@@ -5,7 +5,7 @@ router:
   idle-timeout: 1s
   grace-period: 1s
 
-service-discovery:
+registry-file:
   update-period: 1m
 
 registry:

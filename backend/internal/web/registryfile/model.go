@@ -39,7 +39,7 @@ func NewFileReader(filepath string, deplycfg *deployment.Config, params ServiceP
 		filepath: filepath,
 		ctx:      ctx,
 		cancel:   cancel,
-		reload:   deplycfg.ServiceDiscovery.UpdatePeriod,
+		reload:   deplycfg.RegistryFile.UpdatePeriod,
 		params:   params,
 	}
 	fr.readfile()

@@ -30,10 +30,10 @@ type Config struct {
 		ClearancePeriod time.Duration `yaml:"clearance-period"`
 		InstanceTimeout time.Duration `yaml:"instance-timeout"`
 	} `yaml:"registry"`
-	Router           Router `yaml:"router"`
-	ServiceDiscovery struct {
+	RegistryFile struct {
 		UpdatePeriod time.Duration `yaml:"update-period"`
-	} `yaml:"service-discovery"`
+	} `yaml:"registry-file"`
+	Router  Router `yaml:"router"`
 	Sidecar struct {
 		QueryingTickerDelay   time.Duration `yaml:"querying-ticker-delay"`
 		QueryingTickerPeriod  time.Duration `yaml:"querying-ticker-period"`

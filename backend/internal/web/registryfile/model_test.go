@@ -8,11 +8,13 @@ import (
 )
 
 func TestFileReader(t *testing.T) {
-	deplycfg := &deployment.Config{ServiceDiscovery: struct {
-		UpdatePeriod time.Duration "yaml:\"update-period\""
-	}{
-		UpdatePeriod: time.Second,
-	}}
+	deplycfg := &deployment.Config{
+		RegistryFile: struct {
+			UpdatePeriod time.Duration "yaml:\"update-period\""
+		}{
+			UpdatePeriod: time.Second,
+		},
+	}
 	fr := NewFileReader("testdata/file.json", deplycfg, ServiceParams{8080, true})
 	instances, err := fr.Instances()
 	defer fr.Stop()
