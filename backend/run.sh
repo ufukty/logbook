@@ -19,6 +19,7 @@ function service() {
   fi
   unbuffer go run "logbook/cmd/${SERVICENAME}" \
     -e local \
+    -ip localhost \
     -api api.yml \
     -service "cmd/${SERVICENAME}/local.yml" \
     -deployment "../platform/local/deployment.yml" \
