@@ -16,7 +16,7 @@ registry:
 sidecar:
   recheking-ticker-delay: 0s
   recheking-ticker-period: 88888s # only needs to be smaller than registry.instance-timeout
-  querying-ticker-delay: 2s
+  querying-ticker-delay: 4s
   querying-ticker-period: 88888s # only needs to be smaller than registry.instance-timeout
 
 ports:
