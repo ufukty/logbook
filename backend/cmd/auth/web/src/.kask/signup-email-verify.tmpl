@@ -1,0 +1,18 @@
+{{define "signup-email-verify"}}
+<div data-nav-handle="signup-email-verify" class="story-page">
+    <div class="title-desc-wrapper">
+        <div class="title">Email verification</div>
+    </div>
+    <div class="input-fledge">
+        <div class="labeled-input">
+            <input id="signup-field-email" name="email" type="email" autofill="email" autofocus="off" required>
+            <label for="signup-field-email">Code</label>
+        </div>
+    </div>
+    <div class="signup-nav-buttons">
+        <button type="button" class="nav-button blue" data-nav-target="signup-mfa">Continue</button>
+        <button type="button" class="nav-button gray" data-nav-target="back">Back</button>
+    </div>
+
+</div>
+{{end}}

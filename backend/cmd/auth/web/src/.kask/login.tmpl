@@ -1,0 +1,19 @@
+{{define "login"}}
+<div data-nav-handle="login" class="story-page">
+    <div class="title">Login to your account</div>
+    <form>
+        <div class="labeled-input">
+            <input id="username" name="username" type="text" autocomplete="off" autofocus="off" required>
+            <label for="username">Login username</label>
+        </div>
+        <div class="labeled-input">
+            <input id="new-password" name="password" type="password" autofill="new-password" autofocus="off" required>
+            <label for="new-password">Password</label>
+        </div>
+        <div class="signup-nav-buttons">
+            <button type="button" class="nav-button blue">Continue</button>
+            <button type="button" class="nav-button gray" data-nav-target="back">Back</button>
+        </div>
+    </form>
+</div>
+{{end}}

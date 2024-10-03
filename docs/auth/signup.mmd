@@ -1,0 +1,53 @@
+sequenceDiagram
+autoNumber
+
+actor u as User
+participant c as Client
+participant mua as MUA
+participant sms as SMS
+participant s as Server
+
+u ->> c: <name> <bday> <country>
+
+rect rgba(0,0,0,0.03)
+    u ->> c: <username> <pass>
+    c ->> s: is <username> unique?
+    s ->> c: true*
+end
+
+rect rgba(0,0,0,0.03)
+    u ->> c: <phone>
+    c ->> s: <username> <phone>
+    note over s: CORS
+    note over s: check if <phone><br>is already used
+    note over s: rate limit on<br><username> <phone> IP, region
+    s ->> sms: <phone> <code1>
+    sms ->> u: <code1>
+    u ->> c: <code1>
+    c ->> s: <code1>
+    note over s: compare
+    s ->> c: <grant1>
+end
+
+rect rgba(0,0,0,0.03)
+    u ->> c: <email>
+    c ->> s: <username> <phone> <email>
+    note over s: CORS
+    note over s: check if <email><br>is already used
+    note over s: rate limit on<br><username> <phone> <email> IP, region
+    s ->> mua: <email> <code2>
+    mua ->> u: <code2>
+    u ->> c: <code2>
+    c ->> s: <code2>
+    note over s: compare
+    s ->> c: <grant2>
+end
+
+rect rgba(0,0,0,0.03)
+    c ->> s: <name> <bday> <country> <username> <pass> <phone> <grant1> <email> <grant2>
+    note over s: validates grants
+    note over s: hashes password
+    note over s: stores
+    note over s: generates <userid>
+    s ->> c: <userid>
+end

@@ -1,0 +1,20 @@
+{{define "signup-email"}}
+<div data-nav-handle="signup-email" class="story-page">
+    <div class="title-desc-wrapper">
+        <div class="title">Email address</div>
+    </div>
+    <div class="input-fledge">
+        <div class="labeled-input">
+            <input id="signup-field-email" name="email" type="email" autofill="email" autofocus="off" required>
+            <label for="signup-field-email">E-mail address</label>
+        </div>
+        <div class="explanation">Your email helps with account verification, communication, and password recovery.</div>
+        <div class="privacy-notice">This won't be shared with other users by default.</div>
+    </div>
+    <div class="signup-nav-buttons">
+        <button type="button" class="nav-button blue" data-nav-target="signup-email-verify">Continue</button>
+        <button type="button" class="nav-button gray" data-nav-target="back">Back</button>
+    </div>
+
+</div>
+{{end}}

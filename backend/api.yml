@@ -1,6 +1,15 @@
 public:
   path: /api/v1.0.0
   services:
+    auth:
+      path: /auth
+      endpoints:
+        reserve_username: { method: POST, path: "/registration/reserve_username" }
+        verify_phone: { method: POST, path: "/registration/verify/phone" }
+        verify_email: { method: POST, path: "/registration/verify/email" }
+        register: { method: "POST", path: "/registration/register" }
+        totp: { method: "POST", path: "/registration/totp" }
+
     account:
       path: /account
       endpoints:

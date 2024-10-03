@@ -1,0 +1,32 @@
+{{define "signup-mfa"}}
+<div id="signup-mfa" data-nav-handle="signup-mfa" class="story-page">
+    <div class="title">Enable Multi-Factor Authentication</div>
+
+    <div class="desc">You can force the usage of an authenticator app on login requests to further improve your account's security against take over attempts.</div>
+
+    <div id="qr-container"></div>
+
+    <div id="totp-secret-container">
+        <div id="totp-secret"></div>
+        <div id="totp-copy">Copy</div>
+    </div>
+
+    <script>
+        let secretContainer = document.getElementById("totp-secret")
+        let copyButton = document.getElementById("totp-copy")
+        copyButton.addEventListener("click", () => {
+            navigator.clipboard.writeText(secretContainer.innerText)
+            copyButton.innerText = "Copied"
+            setTimeout(() => {
+                copyButton.innerText = "Copy"
+            }, 500)
+        })
+    </script>
+
+    <div class="signup-nav-buttons">
+        <button type="button" class="nav-button blue" data-nav-target="signup-email-verify">Continue</button>
+        <button type="button" class="nav-button gray" data-nav-target="back">Back</button>
+    </div>
+
+</div>
+{{end}}

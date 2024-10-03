@@ -13,6 +13,11 @@ type Account struct {
 	Path      string           `yaml:"path"`
 	Parent    *publicServices  `yaml:"-"`
 }
+type Auth struct {
+	Endpoints authEndpoints   `yaml:"endpoints"`
+	Path      string          `yaml:"path"`
+	Parent    *publicServices `yaml:"-"`
+}
 type Document struct {
 	Endpoints documentEndpoints `yaml:"endpoints"`
 	Path      string            `yaml:"path"`
@@ -63,6 +68,14 @@ type attach struct {
 	Method string               `yaml:"method"`
 	Path   string               `yaml:"path"`
 	Parent *objectivesEndpoints `yaml:"-"`
+}
+type authEndpoints struct {
+	Register        register        `yaml:"register"`
+	ReserveUsername reserveUsername `yaml:"reserve_username"`
+	Totp            totp            `yaml:"totp"`
+	VerifyEmail     verifyEmail     `yaml:"verify_email"`
+	VerifyPhone     verifyPhone     `yaml:"verify_phone"`
+	Parent          *Auth           `yaml:"-"`
 }
 type create struct {
 	Method string            `yaml:"method"`
@@ -149,6 +162,7 @@ type placement struct {
 }
 type publicServices struct {
 	Account    Account    `yaml:"account"`
+	Auth       Auth       `yaml:"auth"`
 	Document   Document   `yaml:"document"`
 	Groups     Groups     `yaml:"groups"`
 	Objectives Objectives `yaml:"objectives"`
@@ -160,10 +174,20 @@ type recheckInstance struct {
 	Path   string     `yaml:"path"`
 	Parent *endpoints `yaml:"-"`
 }
+type register struct {
+	Method string         `yaml:"method"`
+	Path   string         `yaml:"path"`
+	Parent *authEndpoints `yaml:"-"`
+}
 type registerInstance struct {
 	Method string     `yaml:"method"`
 	Path   string     `yaml:"path"`
 	Parent *endpoints `yaml:"-"`
+}
+type reserveUsername struct {
+	Method string         `yaml:"method"`
+	Path   string         `yaml:"path"`
+	Parent *authEndpoints `yaml:"-"`
 }
 type rockCreate struct {
 	Method string               `yaml:"method"`
@@ -178,6 +202,21 @@ type tagsEndpoints struct {
 	Assign   assign   `yaml:"assign"`
 	Creation creation `yaml:"creation"`
 	Parent   *Tags    `yaml:"-"`
+}
+type totp struct {
+	Method string         `yaml:"method"`
+	Path   string         `yaml:"path"`
+	Parent *authEndpoints `yaml:"-"`
+}
+type verifyEmail struct {
+	Method string         `yaml:"method"`
+	Path   string         `yaml:"path"`
+	Parent *authEndpoints `yaml:"-"`
+}
+type verifyPhone struct {
+	Method string         `yaml:"method"`
+	Path   string         `yaml:"path"`
+	Parent *authEndpoints `yaml:"-"`
 }
 type whoami struct {
 	Method string            `yaml:"method"`
@@ -204,6 +243,13 @@ func parentRefAssignments(c *Config) {
 	c.Public.Services.Account.Endpoints.Login.Parent = &c.Public.Services.Account.Endpoints
 	c.Public.Services.Account.Endpoints.Logout.Parent = &c.Public.Services.Account.Endpoints
 	c.Public.Services.Account.Endpoints.Whoami.Parent = &c.Public.Services.Account.Endpoints
+	c.Public.Services.Auth.Parent = &c.Public.Services
+	c.Public.Services.Auth.Endpoints.Parent = &c.Public.Services.Auth
+	c.Public.Services.Auth.Endpoints.Register.Parent = &c.Public.Services.Auth.Endpoints
+	c.Public.Services.Auth.Endpoints.ReserveUsername.Parent = &c.Public.Services.Auth.Endpoints
+	c.Public.Services.Auth.Endpoints.Totp.Parent = &c.Public.Services.Auth.Endpoints
+	c.Public.Services.Auth.Endpoints.VerifyEmail.Parent = &c.Public.Services.Auth.Endpoints
+	c.Public.Services.Auth.Endpoints.VerifyPhone.Parent = &c.Public.Services.Auth.Endpoints
 	c.Public.Services.Document.Parent = &c.Public.Services
 	c.Public.Services.Document.Endpoints.Parent = &c.Public.Services.Document
 	c.Public.Services.Document.Endpoints.List.Parent = &c.Public.Services.Document.Endpoints
@@ -244,6 +290,15 @@ func (a Account) GetPath() string {
 	return a.Path
 }
 func (a *Account) SetPath(v string) {
+	a.Path = v
+}
+func (a Auth) GetParent() any {
+	return a.Parent
+}
+func (a Auth) GetPath() string {
+	return a.Path
+}
+func (a *Auth) SetPath(v string) {
 	a.Path = v
 }
 func (d Document) GetParent() any {
@@ -335,6 +390,9 @@ func (a *attach) SetMethod(v string) {
 }
 func (a *attach) SetPath(v string) {
 	a.Path = v
+}
+func (a authEndpoints) GetParent() any {
+	return a.Parent
 }
 func (c create) GetMethod() string {
 	return c.Method
@@ -546,6 +604,21 @@ func (r *recheckInstance) SetMethod(v string) {
 func (r *recheckInstance) SetPath(v string) {
 	r.Path = v
 }
+func (r register) GetMethod() string {
+	return r.Method
+}
+func (r register) GetParent() any {
+	return r.Parent
+}
+func (r register) GetPath() string {
+	return r.Path
+}
+func (r *register) SetMethod(v string) {
+	r.Method = v
+}
+func (r *register) SetPath(v string) {
+	r.Path = v
+}
 func (r registerInstance) GetMethod() string {
 	return r.Method
 }
@@ -559,6 +632,21 @@ func (r *registerInstance) SetMethod(v string) {
 	r.Method = v
 }
 func (r *registerInstance) SetPath(v string) {
+	r.Path = v
+}
+func (r reserveUsername) GetMethod() string {
+	return r.Method
+}
+func (r reserveUsername) GetParent() any {
+	return r.Parent
+}
+func (r reserveUsername) GetPath() string {
+	return r.Path
+}
+func (r *reserveUsername) SetMethod(v string) {
+	r.Method = v
+}
+func (r *reserveUsername) SetPath(v string) {
 	r.Path = v
 }
 func (r rockCreate) GetMethod() string {
@@ -581,6 +669,51 @@ func (s services) GetParent() any {
 }
 func (t tagsEndpoints) GetParent() any {
 	return t.Parent
+}
+func (t totp) GetMethod() string {
+	return t.Method
+}
+func (t totp) GetParent() any {
+	return t.Parent
+}
+func (t totp) GetPath() string {
+	return t.Path
+}
+func (t *totp) SetMethod(v string) {
+	t.Method = v
+}
+func (t *totp) SetPath(v string) {
+	t.Path = v
+}
+func (v verifyEmail) GetMethod() string {
+	return v.Method
+}
+func (v verifyEmail) GetParent() any {
+	return v.Parent
+}
+func (v verifyEmail) GetPath() string {
+	return v.Path
+}
+func (v *verifyEmail) SetMethod(v string) {
+	v.Method = v
+}
+func (v *verifyEmail) SetPath(v string) {
+	v.Path = v
+}
+func (v verifyPhone) GetMethod() string {
+	return v.Method
+}
+func (v verifyPhone) GetParent() any {
+	return v.Parent
+}
+func (v verifyPhone) GetPath() string {
+	return v.Path
+}
+func (v *verifyPhone) SetMethod(v string) {
+	v.Method = v
+}
+func (v *verifyPhone) SetPath(v string) {
+	v.Path = v
 }
 func (w whoami) GetMethod() string {
 	return w.Method
