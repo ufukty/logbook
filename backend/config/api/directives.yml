@@ -14,5 +14,6 @@
   parent: Parent
 
 "*.services.*.endpoints.*":
+  declare: endpoint
   accessors: [path, method]
   parent: Parent

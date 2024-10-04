@@ -3,30 +3,30 @@
 package api
 
 import (
-	"os"
 	"fmt"
 	"gopkg.in/yaml.v3"
+	"os"
 )
 
 type Account struct {
 	Endpoints accountEndpoints `yaml:"endpoints"`
 	Path      string           `yaml:"path"`
-	Parent    *publicServices  `yaml:"-"`
+	Parent    any              `yaml:"-"`
 }
 type Auth struct {
-	Endpoints authEndpoints   `yaml:"endpoints"`
-	Path      string          `yaml:"path"`
-	Parent    *publicServices `yaml:"-"`
+	Endpoints authEndpoints `yaml:"endpoints"`
+	Path      string        `yaml:"path"`
+	Parent    any           `yaml:"-"`
 }
 type Document struct {
 	Endpoints documentEndpoints `yaml:"endpoints"`
 	Path      string            `yaml:"path"`
-	Parent    *publicServices   `yaml:"-"`
+	Parent    any               `yaml:"-"`
 }
 type Groups struct {
 	Endpoints groupsEndpoints `yaml:"endpoints"`
 	Path      string          `yaml:"path"`
-	Parent    *publicServices `yaml:"-"`
+	Parent    any             `yaml:"-"`
 }
 type Internal struct {
 	Path     string   `yaml:"path"`
@@ -35,7 +35,7 @@ type Internal struct {
 type Objectives struct {
 	Endpoints objectivesEndpoints `yaml:"endpoints"`
 	Path      string              `yaml:"path"`
-	Parent    *publicServices     `yaml:"-"`
+	Parent    any                 `yaml:"-"`
 }
 type Public struct {
 	Path     string         `yaml:"path"`
@@ -44,121 +44,56 @@ type Public struct {
 type Registry struct {
 	Endpoints endpoints `yaml:"endpoints"`
 	Path      string    `yaml:"path"`
-	Parent    *services `yaml:"-"`
+	Parent    any       `yaml:"-"`
 }
 type Tags struct {
-	Endpoints tagsEndpoints   `yaml:"endpoints"`
-	Path      string          `yaml:"path"`
-	Parent    *publicServices `yaml:"-"`
+	Endpoints tagsEndpoints `yaml:"endpoints"`
+	Path      string        `yaml:"path"`
+	Parent    any           `yaml:"-"`
 }
 type accountEndpoints struct {
-	Create        create        `yaml:"create"`
-	CreateProfile createProfile `yaml:"create_profile"`
-	Login         login         `yaml:"login"`
-	Logout        logout        `yaml:"logout"`
-	Whoami        whoami        `yaml:"whoami"`
-	Parent        *Account      `yaml:"-"`
-}
-type assign struct {
-	Method string         `yaml:"method"`
-	Path   string         `yaml:"path"`
-	Parent *tagsEndpoints `yaml:"-"`
-}
-type attach struct {
-	Method string               `yaml:"method"`
-	Path   string               `yaml:"path"`
-	Parent *objectivesEndpoints `yaml:"-"`
+	Create        endpoint `yaml:"create"`
+	CreateProfile endpoint `yaml:"create_profile"`
+	Login         endpoint `yaml:"login"`
+	Logout        endpoint `yaml:"logout"`
+	Whoami        endpoint `yaml:"whoami"`
+	Parent        any      `yaml:"-"`
 }
 type authEndpoints struct {
-	Register        register        `yaml:"register"`
-	ReserveUsername reserveUsername `yaml:"reserve_username"`
-	Totp            totp            `yaml:"totp"`
-	VerifyEmail     verifyEmail     `yaml:"verify_email"`
-	VerifyPhone     verifyPhone     `yaml:"verify_phone"`
-	Parent          *Auth           `yaml:"-"`
-}
-type create struct {
-	Method string            `yaml:"method"`
-	Path   string            `yaml:"path"`
-	Parent *accountEndpoints `yaml:"-"`
-}
-type createProfile struct {
-	Method string            `yaml:"method"`
-	Path   string            `yaml:"path"`
-	Parent *accountEndpoints `yaml:"-"`
-}
-type creation struct {
-	Method string         `yaml:"method"`
-	Path   string         `yaml:"path"`
-	Parent *tagsEndpoints `yaml:"-"`
-}
-type delete struct {
-	Method string               `yaml:"method"`
-	Path   string               `yaml:"path"`
-	Parent *objectivesEndpoints `yaml:"-"`
+	Register        endpoint `yaml:"register"`
+	ReserveUsername endpoint `yaml:"reserve_username"`
+	Totp            endpoint `yaml:"totp"`
+	VerifyEmail     endpoint `yaml:"verify_email"`
+	VerifyPhone     endpoint `yaml:"verify_phone"`
+	Parent          any      `yaml:"-"`
 }
 type documentEndpoints struct {
-	List   list      `yaml:"list"`
-	Parent *Document `yaml:"-"`
+	List   endpoint `yaml:"list"`
+	Parent any      `yaml:"-"`
+}
+type endpoint struct {
+	Method string `yaml:"method"`
+	Path   string `yaml:"path"`
+	Parent any    `yaml:"-"`
 }
 type endpoints struct {
-	ListInstances    listInstances    `yaml:"list-instances"`
-	RecheckInstance  recheckInstance  `yaml:"recheck-instance"`
-	RegisterInstance registerInstance `yaml:"register-instance"`
-	Parent           *Registry        `yaml:"-"`
-}
-type endpointsCreate struct {
-	Method string           `yaml:"method"`
-	Path   string           `yaml:"path"`
-	Parent *groupsEndpoints `yaml:"-"`
+	ListInstances    endpoint `yaml:"list-instances"`
+	RecheckInstance  endpoint `yaml:"recheck-instance"`
+	RegisterInstance endpoint `yaml:"register-instance"`
+	Parent           any      `yaml:"-"`
 }
 type groupsEndpoints struct {
-	Create endpointsCreate `yaml:"create"`
-	Parent *Groups         `yaml:"-"`
-}
-type list struct {
-	Method string             `yaml:"method"`
-	Path   string             `yaml:"path"`
-	Parent *documentEndpoints `yaml:"-"`
-}
-type listInstances struct {
-	Method string     `yaml:"method"`
-	Path   string     `yaml:"path"`
-	Parent *endpoints `yaml:"-"`
-}
-type login struct {
-	Method string            `yaml:"method"`
-	Path   string            `yaml:"path"`
-	Parent *accountEndpoints `yaml:"-"`
-}
-type logout struct {
-	Method string            `yaml:"method"`
-	Path   string            `yaml:"path"`
-	Parent *accountEndpoints `yaml:"-"`
-}
-type mark struct {
-	Method string               `yaml:"method"`
-	Path   string               `yaml:"path"`
-	Parent *objectivesEndpoints `yaml:"-"`
+	Create endpoint `yaml:"create"`
+	Parent any      `yaml:"-"`
 }
 type objectivesEndpoints struct {
-	Attach     attach                    `yaml:"attach"`
-	Create     objectivesEndpointsCreate `yaml:"create"`
-	Delete     delete                    `yaml:"delete"`
-	Mark       mark                      `yaml:"mark"`
-	Placement  placement                 `yaml:"placement"`
-	RockCreate rockCreate                `yaml:"rock-create"`
-	Parent     *Objectives               `yaml:"-"`
-}
-type objectivesEndpointsCreate struct {
-	Method string               `yaml:"method"`
-	Path   string               `yaml:"path"`
-	Parent *objectivesEndpoints `yaml:"-"`
-}
-type placement struct {
-	Method string               `yaml:"method"`
-	Path   string               `yaml:"path"`
-	Parent *objectivesEndpoints `yaml:"-"`
+	Attach     endpoint `yaml:"attach"`
+	Create     endpoint `yaml:"create"`
+	Delete     endpoint `yaml:"delete"`
+	Mark       endpoint `yaml:"mark"`
+	Placement  endpoint `yaml:"placement"`
+	RockCreate endpoint `yaml:"rock-create"`
+	Parent     any      `yaml:"-"`
 }
 type publicServices struct {
 	Account    Account    `yaml:"account"`
@@ -167,61 +102,16 @@ type publicServices struct {
 	Groups     Groups     `yaml:"groups"`
 	Objectives Objectives `yaml:"objectives"`
 	Tags       Tags       `yaml:"tags"`
-	Parent     *Public    `yaml:"-"`
-}
-type recheckInstance struct {
-	Method string     `yaml:"method"`
-	Path   string     `yaml:"path"`
-	Parent *endpoints `yaml:"-"`
-}
-type register struct {
-	Method string         `yaml:"method"`
-	Path   string         `yaml:"path"`
-	Parent *authEndpoints `yaml:"-"`
-}
-type registerInstance struct {
-	Method string     `yaml:"method"`
-	Path   string     `yaml:"path"`
-	Parent *endpoints `yaml:"-"`
-}
-type reserveUsername struct {
-	Method string         `yaml:"method"`
-	Path   string         `yaml:"path"`
-	Parent *authEndpoints `yaml:"-"`
-}
-type rockCreate struct {
-	Method string               `yaml:"method"`
-	Path   string               `yaml:"path"`
-	Parent *objectivesEndpoints `yaml:"-"`
+	Parent     any        `yaml:"-"`
 }
 type services struct {
-	Registry Registry  `yaml:"registry"`
-	Parent   *Internal `yaml:"-"`
+	Registry Registry `yaml:"registry"`
+	Parent   any      `yaml:"-"`
 }
 type tagsEndpoints struct {
-	Assign   assign   `yaml:"assign"`
-	Creation creation `yaml:"creation"`
-	Parent   *Tags    `yaml:"-"`
-}
-type totp struct {
-	Method string         `yaml:"method"`
-	Path   string         `yaml:"path"`
-	Parent *authEndpoints `yaml:"-"`
-}
-type verifyEmail struct {
-	Method string         `yaml:"method"`
-	Path   string         `yaml:"path"`
-	Parent *authEndpoints `yaml:"-"`
-}
-type verifyPhone struct {
-	Method string         `yaml:"method"`
-	Path   string         `yaml:"path"`
-	Parent *authEndpoints `yaml:"-"`
-}
-type whoami struct {
-	Method string            `yaml:"method"`
-	Path   string            `yaml:"path"`
-	Parent *accountEndpoints `yaml:"-"`
+	Assign   endpoint `yaml:"assign"`
+	Creation endpoint `yaml:"creation"`
+	Parent   any      `yaml:"-"`
 }
 type Config struct {
 	Internal Internal `yaml:"internal"`
@@ -361,372 +251,42 @@ func (t *Tags) SetPath(v string) {
 func (a accountEndpoints) GetParent() any {
 	return a.Parent
 }
-func (a assign) GetMethod() string {
-	return a.Method
-}
-func (a assign) GetParent() any {
-	return a.Parent
-}
-func (a assign) GetPath() string {
-	return a.Path
-}
-func (a *assign) SetMethod(v string) {
-	a.Method = v
-}
-func (a *assign) SetPath(v string) {
-	a.Path = v
-}
-func (a attach) GetMethod() string {
-	return a.Method
-}
-func (a attach) GetParent() any {
-	return a.Parent
-}
-func (a attach) GetPath() string {
-	return a.Path
-}
-func (a *attach) SetMethod(v string) {
-	a.Method = v
-}
-func (a *attach) SetPath(v string) {
-	a.Path = v
-}
 func (a authEndpoints) GetParent() any {
 	return a.Parent
-}
-func (c create) GetMethod() string {
-	return c.Method
-}
-func (c create) GetParent() any {
-	return c.Parent
-}
-func (c create) GetPath() string {
-	return c.Path
-}
-func (c *create) SetMethod(v string) {
-	c.Method = v
-}
-func (c *create) SetPath(v string) {
-	c.Path = v
-}
-func (c createProfile) GetMethod() string {
-	return c.Method
-}
-func (c createProfile) GetParent() any {
-	return c.Parent
-}
-func (c createProfile) GetPath() string {
-	return c.Path
-}
-func (c *createProfile) SetMethod(v string) {
-	c.Method = v
-}
-func (c *createProfile) SetPath(v string) {
-	c.Path = v
-}
-func (c creation) GetMethod() string {
-	return c.Method
-}
-func (c creation) GetParent() any {
-	return c.Parent
-}
-func (c creation) GetPath() string {
-	return c.Path
-}
-func (c *creation) SetMethod(v string) {
-	c.Method = v
-}
-func (c *creation) SetPath(v string) {
-	c.Path = v
-}
-func (d delete) GetMethod() string {
-	return d.Method
-}
-func (d delete) GetParent() any {
-	return d.Parent
-}
-func (d delete) GetPath() string {
-	return d.Path
-}
-func (d *delete) SetMethod(v string) {
-	d.Method = v
-}
-func (d *delete) SetPath(v string) {
-	d.Path = v
 }
 func (d documentEndpoints) GetParent() any {
 	return d.Parent
 }
-func (e endpoints) GetParent() any {
-	return e.Parent
-}
-func (e endpointsCreate) GetMethod() string {
+func (e endpoint) GetMethod() string {
 	return e.Method
 }
-func (e endpointsCreate) GetParent() any {
+func (e endpoint) GetParent() any {
 	return e.Parent
 }
-func (e endpointsCreate) GetPath() string {
+func (e endpoint) GetPath() string {
 	return e.Path
 }
-func (e *endpointsCreate) SetMethod(v string) {
+func (e *endpoint) SetMethod(v string) {
 	e.Method = v
 }
-func (e *endpointsCreate) SetPath(v string) {
+func (e *endpoint) SetPath(v string) {
 	e.Path = v
+}
+func (e endpoints) GetParent() any {
+	return e.Parent
 }
 func (g groupsEndpoints) GetParent() any {
 	return g.Parent
 }
-func (l list) GetMethod() string {
-	return l.Method
-}
-func (l list) GetParent() any {
-	return l.Parent
-}
-func (l list) GetPath() string {
-	return l.Path
-}
-func (l *list) SetMethod(v string) {
-	l.Method = v
-}
-func (l *list) SetPath(v string) {
-	l.Path = v
-}
-func (l listInstances) GetMethod() string {
-	return l.Method
-}
-func (l listInstances) GetParent() any {
-	return l.Parent
-}
-func (l listInstances) GetPath() string {
-	return l.Path
-}
-func (l *listInstances) SetMethod(v string) {
-	l.Method = v
-}
-func (l *listInstances) SetPath(v string) {
-	l.Path = v
-}
-func (l login) GetMethod() string {
-	return l.Method
-}
-func (l login) GetParent() any {
-	return l.Parent
-}
-func (l login) GetPath() string {
-	return l.Path
-}
-func (l *login) SetMethod(v string) {
-	l.Method = v
-}
-func (l *login) SetPath(v string) {
-	l.Path = v
-}
-func (l logout) GetMethod() string {
-	return l.Method
-}
-func (l logout) GetParent() any {
-	return l.Parent
-}
-func (l logout) GetPath() string {
-	return l.Path
-}
-func (l *logout) SetMethod(v string) {
-	l.Method = v
-}
-func (l *logout) SetPath(v string) {
-	l.Path = v
-}
-func (m mark) GetMethod() string {
-	return m.Method
-}
-func (m mark) GetParent() any {
-	return m.Parent
-}
-func (m mark) GetPath() string {
-	return m.Path
-}
-func (m *mark) SetMethod(v string) {
-	m.Method = v
-}
-func (m *mark) SetPath(v string) {
-	m.Path = v
-}
 func (o objectivesEndpoints) GetParent() any {
 	return o.Parent
 }
-func (o objectivesEndpointsCreate) GetMethod() string {
-	return o.Method
-}
-func (o objectivesEndpointsCreate) GetParent() any {
-	return o.Parent
-}
-func (o objectivesEndpointsCreate) GetPath() string {
-	return o.Path
-}
-func (o *objectivesEndpointsCreate) SetMethod(v string) {
-	o.Method = v
-}
-func (o *objectivesEndpointsCreate) SetPath(v string) {
-	o.Path = v
-}
-func (p placement) GetMethod() string {
-	return p.Method
-}
-func (p placement) GetParent() any {
-	return p.Parent
-}
-func (p placement) GetPath() string {
-	return p.Path
-}
-func (p *placement) SetMethod(v string) {
-	p.Method = v
-}
-func (p *placement) SetPath(v string) {
-	p.Path = v
-}
 func (p publicServices) GetParent() any {
 	return p.Parent
-}
-func (r recheckInstance) GetMethod() string {
-	return r.Method
-}
-func (r recheckInstance) GetParent() any {
-	return r.Parent
-}
-func (r recheckInstance) GetPath() string {
-	return r.Path
-}
-func (r *recheckInstance) SetMethod(v string) {
-	r.Method = v
-}
-func (r *recheckInstance) SetPath(v string) {
-	r.Path = v
-}
-func (r register) GetMethod() string {
-	return r.Method
-}
-func (r register) GetParent() any {
-	return r.Parent
-}
-func (r register) GetPath() string {
-	return r.Path
-}
-func (r *register) SetMethod(v string) {
-	r.Method = v
-}
-func (r *register) SetPath(v string) {
-	r.Path = v
-}
-func (r registerInstance) GetMethod() string {
-	return r.Method
-}
-func (r registerInstance) GetParent() any {
-	return r.Parent
-}
-func (r registerInstance) GetPath() string {
-	return r.Path
-}
-func (r *registerInstance) SetMethod(v string) {
-	r.Method = v
-}
-func (r *registerInstance) SetPath(v string) {
-	r.Path = v
-}
-func (r reserveUsername) GetMethod() string {
-	return r.Method
-}
-func (r reserveUsername) GetParent() any {
-	return r.Parent
-}
-func (r reserveUsername) GetPath() string {
-	return r.Path
-}
-func (r *reserveUsername) SetMethod(v string) {
-	r.Method = v
-}
-func (r *reserveUsername) SetPath(v string) {
-	r.Path = v
-}
-func (r rockCreate) GetMethod() string {
-	return r.Method
-}
-func (r rockCreate) GetParent() any {
-	return r.Parent
-}
-func (r rockCreate) GetPath() string {
-	return r.Path
-}
-func (r *rockCreate) SetMethod(v string) {
-	r.Method = v
-}
-func (r *rockCreate) SetPath(v string) {
-	r.Path = v
 }
 func (s services) GetParent() any {
 	return s.Parent
 }
 func (t tagsEndpoints) GetParent() any {
 	return t.Parent
-}
-func (t totp) GetMethod() string {
-	return t.Method
-}
-func (t totp) GetParent() any {
-	return t.Parent
-}
-func (t totp) GetPath() string {
-	return t.Path
-}
-func (t *totp) SetMethod(v string) {
-	t.Method = v
-}
-func (t *totp) SetPath(v string) {
-	t.Path = v
-}
-func (v verifyEmail) GetMethod() string {
-	return v.Method
-}
-func (v verifyEmail) GetParent() any {
-	return v.Parent
-}
-func (v verifyEmail) GetPath() string {
-	return v.Path
-}
-func (v *verifyEmail) SetMethod(v string) {
-	v.Method = v
-}
-func (v *verifyEmail) SetPath(v string) {
-	v.Path = v
-}
-func (v verifyPhone) GetMethod() string {
-	return v.Method
-}
-func (v verifyPhone) GetParent() any {
-	return v.Parent
-}
-func (v verifyPhone) GetPath() string {
-	return v.Path
-}
-func (v *verifyPhone) SetMethod(v string) {
-	v.Method = v
-}
-func (v *verifyPhone) SetPath(v string) {
-	v.Path = v
-}
-func (w whoami) GetMethod() string {
-	return w.Method
-}
-func (w whoami) GetParent() any {
-	return w.Parent
-}
-func (w whoami) GetPath() string {
-	return w.Path
-}
-func (w *whoami) SetMethod(v string) {
-	w.Method = v
-}
-func (w *whoami) SetPath(v string) {
-	w.Path = v
 }
