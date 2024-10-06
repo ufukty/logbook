@@ -7,7 +7,7 @@ import (
 	registry "logbook/cmd/registry/client"
 	"logbook/cmd/registry/endpoints"
 	"logbook/config/deployment"
-	"logbook/internal/web/logger"
+	"logbook/internal/logger"
 	"logbook/models"
 	"sync"
 	"time"

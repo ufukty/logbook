@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"logbook/config/api"
 	"logbook/config/deployment"
+	"logbook/internal/logger"
 	"logbook/internal/utils/reflux"
-	"logbook/internal/web/logger"
 )
 
 func ApiGateway() (*ApiGatewayArgs, *deployment.Config, *api.Config, error) {

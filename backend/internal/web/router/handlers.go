@@ -3,7 +3,7 @@ package router
 import (
 	"fmt"
 	"log"
-	"logbook/internal/web/logger"
+	"logbook/internal/logger"
 	"net/http"
 	"net/http/httputil"
 	"strings"

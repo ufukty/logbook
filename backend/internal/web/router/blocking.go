@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 	"logbook/config/deployment"
-	"logbook/internal/web/logger"
+	"logbook/internal/logger"
 	"logbook/internal/web/sidecar"
 	"logbook/models"
 	"net"

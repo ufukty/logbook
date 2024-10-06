@@ -2,7 +2,7 @@ package endpoints
 
 import (
 	"logbook/cmd/objectives/app"
-	"logbook/internal/web/logger"
+	"logbook/internal/logger"
 )
 
 type Endpoints struct {

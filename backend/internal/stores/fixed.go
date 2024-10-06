@@ -1,7 +1,7 @@
 package stores
 
 import (
-	"logbook/internal/web/logger"
+	"logbook/internal/logger"
 	"sync"
 )
 

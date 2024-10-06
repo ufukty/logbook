@@ -25,13 +25,13 @@ type RegistrationParameters struct {
 	Firstname columns.HumanName
 	Lastname  columns.HumanName
 	Birthday  time.Time
-	Country   columns.Country
+	// Country   columns.Country
 
-	Email      columns.Email
-	EmailGrant columns.EmailGrant
+	Email columns.Email
+	// EmailGrant columns.EmailGrant
 
-	Phone      columns.Phone
-	PhoneGrant columns.PhoneGrant
+	// Phone      columns.Phone
+	// PhoneGrant columns.PhoneGrant
 
 	Password string
 }

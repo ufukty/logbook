@@ -2,8 +2,8 @@ package forwarder
 
 import (
 	"fmt"
+	"logbook/internal/logger"
 	"logbook/internal/web/balancer"
-	"logbook/internal/web/logger"
 	"logbook/models"
 	"net/http"
 	"net/http/httputil"

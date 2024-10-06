@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"logbook/config/deployment"
+	"logbook/internal/logger"
 	"logbook/internal/stores"
-	"logbook/internal/web/logger"
 	"logbook/models"
 	"logbook/models/columns"
 	"sync"
@@ -81,7 +81,7 @@ func (sr *serviceRegistry) RecheckInstance(iid InstanceId) error {
 func (sr *serviceRegistry) ListInstances() ([]models.Instance, error) {
 	sr.mu.RLock()
 	defer sr.mu.RUnlock()
-	
+
 	return sr.cache, nil
 }
 

@@ -1,7 +1,7 @@
 package router
 
 import (
-	"logbook/internal/web/logger"
+	"logbook/internal/logger"
 	"net/http"
 	"time"
 )
