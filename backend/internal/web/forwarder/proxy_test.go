@@ -1,6 +1,7 @@
 package forwarder
 
 import (
+	"logbook/internal/logger"
 	"logbook/internal/web/balancer"
 	"logbook/models"
 	"sync"
@@ -22,7 +23,7 @@ func TestConcurrentMapWrites(t *testing.T) {
 	service := models.Service("test-service")
 	servicepath := "/test"
 
-	proxy := New(is, service, servicepath)
+	proxy := New(is, service, servicepath, logger.New("test"))
 
 	var wg sync.WaitGroup
 	concurrentGoroutines := 100

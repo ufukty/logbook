@@ -2,6 +2,7 @@ package app
 
 import (
 	"logbook/cmd/objectives/database"
+	"logbook/internal/logger"
 	"logbook/internal/stores"
 	"logbook/models"
 	"logbook/models/columns"
@@ -28,12 +29,15 @@ type App struct {
 	pool    *pgxpool.Pool
 	oneshot *database.Queries
 	caches  *caches
+
+	l *logger.Logger
 }
 
-func New(pool *pgxpool.Pool) *App {
+func New(pool *pgxpool.Pool, l *logger.Logger) *App {
 	return &App{
 		pool:    pool,
 		oneshot: database.New(pool),
 		caches:  newCacheStore(),
+		l:       l.Sub("App"),
 	}
 }

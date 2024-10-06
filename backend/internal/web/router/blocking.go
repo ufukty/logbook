@@ -28,9 +28,9 @@ type ServerParameters struct {
 	TlsKey  string
 }
 
-func StartServer(params ServerParameters, endpointRegisterer func(r *mux.Router)) {
+func StartServer(params ServerParameters, endpointRegisterer func(r *mux.Router), l *logger.Logger) {
 	tls := params.TlsKey != "" && params.TlsCrt != ""
-	l := logger.New("Router")
+	l = l.Sub("Router")
 
 	r := mux.NewRouter()
 	endpointRegisterer(r)

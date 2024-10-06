@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"logbook/cmd/objectives/database"
 	"logbook/cmd/objectives/service"
+	"logbook/internal/logger"
 	"logbook/models/columns"
 	"testing"
 
@@ -12,6 +13,8 @@ import (
 )
 
 func testdeps() (*App, columns.UserId, error) {
+	l := logger.New("test")
+
 	uid, err := columns.NewUuidV4[columns.UserId]()
 	if err != nil {
 		return nil, columns.ZeroUserId, fmt.Errorf("prep, uid: %w", err)
@@ -29,7 +32,7 @@ func testdeps() (*App, columns.UserId, error) {
 	if err != nil {
 		return nil, columns.ZeroUserId, fmt.Errorf("pgxpool.New: %w", err)
 	}
-	a := New(pool)
+	a := New(pool, l)
 	return a, uid, nil
 }
 

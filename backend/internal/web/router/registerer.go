@@ -28,6 +28,7 @@ type EndpointDetails struct {
 }
 
 func registerer(r *mux.Router, details map[api.Endpoint]EndpointDetails, l *logger.Logger) {
+	l = l.Sub("registerer")
 	r = r.UseEncodedPath()
 
 	l.Println("registering routes in the order:")
@@ -46,9 +47,9 @@ func registerer(r *mux.Router, details map[api.Endpoint]EndpointDetails, l *logg
 	}
 }
 
-func StartServerWithEndpoints(params ServerParameters, details map[api.Endpoint]EndpointDetails) {
-	l := logger.New("StartServerWithEndpoints")
+func StartServerWithEndpoints(params ServerParameters, details map[api.Endpoint]EndpointDetails, l *logger.Logger) {
+	l = l.Sub("StartServerWithEndpoints")
 	StartServer(params, func(r *mux.Router) {
 		registerer(r, details, l)
-	})
+	}, l)
 }

@@ -16,7 +16,7 @@ func (e Endpoints) Logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := e.app.Logout(r.Context(), st)
+	err := e.a.Logout(r.Context(), st)
 	if err != nil {
 		e.l.Println(fmt.Errorf("saving session deletion to database: %w", err))
 		http.Error(w, redact(err), http.StatusInternalServerError)

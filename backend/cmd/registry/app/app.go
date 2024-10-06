@@ -28,11 +28,11 @@ type serviceRegistry struct {
 	mu        sync.RWMutex
 }
 
-func newServiceRegistry(deplycfg *deployment.Config, logname string) *serviceRegistry {
+func newServiceRegistry(deplycfg *deployment.Config, l *logger.Logger) *serviceRegistry {
 	ctx, cancel := context.WithCancel(context.Background())
 	sr := &serviceRegistry{
 		deplycfg: deplycfg,
-		l:        logger.New(logname),
+		l:        l,
 
 		ctx:    ctx,
 		cancel: cancel,
@@ -136,10 +136,10 @@ type App struct {
 	registries *stores.KV[models.Service, *serviceRegistry]
 }
 
-func New(deplycfg *deployment.Config) *App {
+func New(deplycfg *deployment.Config, l *logger.Logger) *App {
 	a := &App{
 		deplycfg:   deplycfg,
-		l:          logger.New("Hub"),
+		l:          l.Sub("App"),
 		registries: stores.NewKV[models.Service, *serviceRegistry](),
 	}
 	return a
@@ -154,7 +154,7 @@ func (a *App) Stop() {
 func (a *App) RegisterInstance(s models.Service, i models.Instance) (InstanceId, error) {
 	if !a.registries.Has(s) {
 		a.l.Println("service registry has generated for:", s)
-		a.registries.Set(s, newServiceRegistry(a.deplycfg, fmt.Sprintf("ServiceRegistry(%s)", s)))
+		a.registries.Set(s, newServiceRegistry(a.deplycfg, a.l.Sub(fmt.Sprintf("ServiceRegistry(%s)", s))))
 	}
 	sr, _ := a.registries.Get(s)
 	return sr.RegisterInstance(i)

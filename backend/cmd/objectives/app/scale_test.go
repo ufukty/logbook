@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"logbook/cmd/objectives/database"
 	"logbook/cmd/objectives/service"
+	"logbook/internal/logger"
 	"logbook/models"
 	"logbook/models/columns"
 	"math"
@@ -22,6 +23,8 @@ func expIntN(n int) int {
 }
 
 func TestStorageScale(t *testing.T) {
+	l := logger.New("test")
+
 	uid, err := columns.NewUuidV4[columns.UserId]()
 	if err != nil {
 		t.Fatal(fmt.Errorf("prep, uid: %w", err))
@@ -40,7 +43,7 @@ func TestStorageScale(t *testing.T) {
 		t.Fatal(fmt.Errorf("prep, pgxpool.New: %w", err))
 	}
 	defer pool.Close()
-	a := New(pool)
+	a := New(pool, l)
 
 	t.Run("rock create", func(t *testing.T) {
 		err = a.RockCreate(ctx, uid)

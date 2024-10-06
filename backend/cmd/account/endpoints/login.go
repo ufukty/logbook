@@ -2,7 +2,6 @@ package endpoints
 
 import (
 	"fmt"
-	"log"
 	"logbook/cmd/account/app"
 	"logbook/internal/average"
 	"logbook/internal/web/requests"
@@ -37,12 +36,12 @@ func (e Endpoints) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	session, err := e.app.Login(r.Context(), app.CreateSessionParameters{
+	session, err := e.a.Login(r.Context(), app.CreateSessionParameters{
 		Email:    string(bq.Email),
 		Password: string(bq.Password),
 	})
 	if err != nil {
-		log.Println(fmt.Errorf("app.CreateSession: %w", err))
+		e.l.Println(fmt.Errorf("Login: %w", err))
 		http.Error(w, redact(err), http.StatusInternalServerError)
 		return
 	}

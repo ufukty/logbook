@@ -7,6 +7,7 @@ import (
 	"logbook/cmd/account/database"
 	"logbook/cmd/account/service"
 	"logbook/config/api"
+	"logbook/internal/logger"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -32,5 +33,5 @@ func getTestDependencies() (*Endpoints, error) {
 	defer pool.Close()
 
 	a := app.New(pool, apicfg, nil) // FIXME: mock objectives service?
-	return New(a), nil
+	return New(a, logger.New("test")), nil
 }

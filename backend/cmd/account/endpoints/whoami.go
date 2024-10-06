@@ -2,7 +2,6 @@ package endpoints
 
 import (
 	"fmt"
-	"log"
 	"logbook/cmd/account/app"
 	"logbook/internal/web/requests"
 	"logbook/models/columns"
@@ -27,9 +26,9 @@ func (e Endpoints) WhoAmI(w http.ResponseWriter, r *http.Request) {
 
 	sessionToken := cookie.Value
 
-	profile, err := e.app.WhoAmI(r.Context(), columns.SessionToken(sessionToken))
+	profile, err := e.a.WhoAmI(r.Context(), columns.SessionToken(sessionToken))
 	if err != nil {
-		log.Println(fmt.Errorf("app.WhoAmI: %w", err))
+		e.l.Println(fmt.Errorf("app.WhoAmI: %w", err))
 		switch err {
 		case
 			app.ErrProfileNotFound,

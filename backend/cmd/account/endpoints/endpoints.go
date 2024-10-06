@@ -6,13 +6,13 @@ import (
 )
 
 type Endpoints struct {
-	app *app.App
-	l   logger.Logger
+	a *app.App
+	l *logger.Logger
 }
 
-func New(a *app.App) *Endpoints {
+func New(a *app.App, l *logger.Logger) *Endpoints {
 	return &Endpoints{
-		app: a,
-		l:   *logger.New("Endpoints"),
+		a: a,
+		l: l.Sub("Endpoints"),
 	}
 }

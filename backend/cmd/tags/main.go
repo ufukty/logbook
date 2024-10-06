@@ -9,6 +9,7 @@ import (
 	"logbook/cmd/tags/endpoints"
 	"logbook/cmd/tags/service"
 	"logbook/config/api"
+	"logbook/internal/logger"
 	"logbook/internal/startup"
 	"logbook/internal/web/balancer"
 	"logbook/internal/web/registryfile"
@@ -20,7 +21,9 @@ import (
 )
 
 func Main() error {
-	args, srvcfg, deplcfg, apicfg, err := startup.ServiceWithCustomConfig(service.ReadConfig)
+	l := logger.New("tags")
+
+	args, srvcfg, deplcfg, apicfg, err := startup.ServiceWithCustomConfig(service.ReadConfig, l)
 	if err != nil {
 		return fmt.Errorf("reading configs: %w", err)
 	}
@@ -34,13 +37,13 @@ func Main() error {
 	internalsd := registryfile.NewFileReader(args.InternalGateway, deplcfg, registryfile.ServiceParams{
 		Port: deplcfg.Ports.Internal,
 		Tls:  true,
-	})
+	}, l)
 	defer internalsd.Stop()
-	sc := sidecar.New(registry.NewClient(balancer.New(internalsd), apicfg, true), deplcfg, []models.Service{})
+	sc := sidecar.New(registry.NewClient(balancer.New(internalsd), apicfg, true), deplcfg, []models.Service{}, l)
 	defer sc.Stop()
 
 	app := app.New(pool, apicfg, internalsd)
-	eps := endpoints.New(app)
+	eps := endpoints.New(app, l)
 
 	// TODO: tls between services needs certs per host(name)
 	s := apicfg.Public.Services.Tags
@@ -55,7 +58,7 @@ func Main() error {
 	}, map[api.Endpoint]router.EndpointDetails{
 		s.Endpoints.Assign:   {Handler: eps.TagAssign},
 		s.Endpoints.Creation: {Handler: eps.TagCreation},
-	})
+	}, l)
 
 	return nil
 }

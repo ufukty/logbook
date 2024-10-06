@@ -3,6 +3,7 @@ package registryfile
 import (
 	"fmt"
 	"logbook/config/deployment"
+	"logbook/internal/logger"
 	"testing"
 	"time"
 )
@@ -15,7 +16,7 @@ func TestFileReader(t *testing.T) {
 			UpdatePeriod: time.Second,
 		},
 	}
-	fr := NewFileReader("testdata/file.json", deplycfg, ServiceParams{8080, true})
+	fr := NewFileReader("testdata/file.json", deplycfg, ServiceParams{8080, true}, logger.New("test"))
 	instances, err := fr.Instances()
 	defer fr.Stop()
 	if err != nil {

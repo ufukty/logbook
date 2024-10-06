@@ -10,6 +10,7 @@ import (
 	objectives "logbook/cmd/objectives/client"
 	registry "logbook/cmd/registry/client"
 	"logbook/config/api"
+	"logbook/internal/logger"
 	"logbook/internal/startup"
 	"logbook/internal/web/balancer"
 	"logbook/internal/web/registryfile"
@@ -23,7 +24,9 @@ import (
 )
 
 func Main() error {
-	args, srvcfg, deplcfg, apicfg, err := startup.ServiceWithCustomConfig(service.ReadConfig)
+	l := logger.New("account")
+
+	args, srvcfg, deplcfg, apicfg, err := startup.ServiceWithCustomConfig(service.ReadConfig, l)
 	if err != nil {
 		return fmt.Errorf("reading configs: %w", err)
 	}
@@ -37,17 +40,17 @@ func Main() error {
 	internalsd := registryfile.NewFileReader(args.InternalGateway, deplcfg, registryfile.ServiceParams{
 		Port: deplcfg.Ports.Internal,
 		Tls:  true,
-	})
+	}, l)
 	defer internalsd.Stop()
 	sc := sidecar.New(registry.NewClient(balancer.New(internalsd), apicfg, true), deplcfg, []models.Service{
 		models.Objectives,
-	})
+	}, l)
 	defer sc.Stop()
 
 	objectivesctl := objectives.NewClient(balancer.New(sc.InstanceSource(models.Objectives)), apicfg)
 
 	app := app.New(pool, apicfg, objectivesctl)
-	em := endpoints.New(app)
+	em := endpoints.New(app, l)
 	s := apicfg.Public.Services.Account
 
 	origin, err := url.JoinPath(deplcfg.Router.Cors.AllowOrigin)
@@ -70,7 +73,7 @@ func Main() error {
 		s.Endpoints.Login:         {em.Login, c},
 		s.Endpoints.Logout:        {em.Logout, c},
 		s.Endpoints.Whoami:        {em.WhoAmI, c},
-	})
+	}, l)
 
 	return nil
 }

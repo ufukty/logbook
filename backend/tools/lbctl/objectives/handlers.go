@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"logbook/cmd/objectives/app"
 	"logbook/cmd/objectives/service"
+	"logbook/internal/logger"
 	"logbook/internal/utils/reflux"
 	"logbook/models"
 	"logbook/models/columns"
@@ -42,7 +43,7 @@ func addBookmark() error {
 		return fmt.Errorf("pgxpool.New: %w", err)
 	}
 	defer pool.Close()
-	a := app.New(pool)
+	a := app.New(pool, logger.New("addBookmark"))
 
 	err = a.AddBookmark(context.Background(), app.AddBookmarkParams{
 		Actor:        columns.UserId(flags.UserId),
@@ -83,7 +84,7 @@ func checkout() error {
 		return fmt.Errorf("pgxpool.New: %w", err)
 	}
 	defer pool.Close()
-	a := app.New(pool)
+	a := app.New(pool, logger.New("checkout"))
 
 	err = a.Checkout(context.Background(), app.CheckoutParams{
 		User:    columns.UserId(flags.UserId),
@@ -125,7 +126,7 @@ func createSubtask() error {
 		return fmt.Errorf("pgxpool.New: %w", err)
 	}
 	defer pool.Close()
-	a := app.New(pool)
+	a := app.New(pool, logger.New("createSubtask"))
 
 	obj, err := a.CreateSubtask(context.Background(), app.CreateSubtaskParams{
 		Creator: columns.UserId(flags.UserId),
@@ -165,7 +166,7 @@ func deleteSubtask() error {
 		return fmt.Errorf("pgxpool.New: %w", err)
 	}
 	defer pool.Close()
-	a := app.New(pool)
+	a := app.New(pool, logger.New("deleteSubtask"))
 
 	err = a.DeleteSubtask(context.Background(), app.DeleteSubtaskParams{
 		Subject: models.Ovid{columns.ObjectiveId(flags.Oid), columns.VersionId(flags.Vid)},
@@ -199,7 +200,7 @@ func getActiveVersion() error {
 		return fmt.Errorf("pgxpool.New: %w", err)
 	}
 	defer pool.Close()
-	a := app.New(pool)
+	a := app.New(pool, logger.New("getActiveVersion"))
 
 	vid, err := a.GetActiveVersion(context.Background(), columns.ObjectiveId(flags.Oid))
 	if err != nil {
@@ -233,7 +234,7 @@ func getMergedProps() error {
 		return fmt.Errorf("pgxpool.New: %w", err)
 	}
 	defer pool.Close()
-	a := app.New(pool)
+	a := app.New(pool, logger.New("getMergedProps"))
 
 	mprops, err := a.GetMergedProps(context.Background(), models.Ovid{columns.ObjectiveId(flags.Oid), columns.VersionId(flags.Vid)})
 	if err != nil {
@@ -267,7 +268,7 @@ func getObjectiveHistory() error {
 		return fmt.Errorf("pgxpool.New: %w", err)
 	}
 	defer pool.Close()
-	a := app.New(pool)
+	a := app.New(pool, logger.New("getObjectiveHistory"))
 
 	hist, err := a.GetObjectiveHistory(context.Background(), app.GetObjectiveHistoryParams{
 		Subject: models.Ovid{Oid: columns.ObjectiveId(flags.Oid), Vid: columns.VersionId(flags.Vid)},
@@ -303,7 +304,7 @@ func listBookmarks() error {
 		return fmt.Errorf("pgxpool.New: %w", err)
 	}
 	defer pool.Close()
-	a := app.New(pool)
+	a := app.New(pool, logger.New("listBookmarks"))
 
 	bms, err := a.ListBookmarks(context.Background(), app.ListBookmarksParams{
 		Viewer: columns.UserId(flags.UserId),
@@ -403,7 +404,7 @@ func rockCreate() error {
 		return fmt.Errorf("pgxpool.New: %w", err)
 	}
 	defer pool.Close()
-	a := app.New(pool)
+	a := app.New(pool, logger.New("rockCreate"))
 
 	err = a.RockCreate(context.Background(), columns.UserId(flags.UserId))
 	if err != nil {
@@ -434,7 +435,7 @@ func rockGet() error {
 		return fmt.Errorf("pgxpool.New: %w", err)
 	}
 	defer pool.Close()
-	a := app.New(pool)
+	a := app.New(pool, logger.New("rockGet"))
 
 	oid, err := a.RockGet(context.Background(), columns.UserId(flags.UserId))
 	if err != nil {
@@ -473,7 +474,7 @@ func viewBuilder() error {
 		return fmt.Errorf("pgxpool.New: %w", err)
 	}
 	defer pool.Close()
-	a := app.New(pool)
+	a := app.New(pool, logger.New("viewBuilder"))
 
 	d, err := a.ViewBuilder(context.Background(), app.ViewBuilderParams{
 		Viewer: columns.UserId(flags.UserId),

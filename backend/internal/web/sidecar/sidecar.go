@@ -26,7 +26,7 @@ type Sidecar struct {
 	service  models.Service
 	services []models.Service
 
-	l      logger.Logger
+	l      *logger.Logger
 	ctx    context.Context
 	cancel context.CancelFunc
 
@@ -37,14 +37,14 @@ type Sidecar struct {
 	iidmu sync.RWMutex
 }
 
-func New(ctl *registry.Client, deplycfg *deployment.Config, services []models.Service) *Sidecar {
+func New(ctl *registry.Client, deplycfg *deployment.Config, services []models.Service, l *logger.Logger) *Sidecar {
 	ctx, cancel := context.WithCancel(context.Background())
 	d := &Sidecar{
 		ctl:      ctl,
 		store:    map[models.Service][]models.Instance{},
 		services: services,
 
-		l:        *logger.New("Sidecar"),
+		l:        l.Sub("Sidecar"),
 		deplycfg: deplycfg,
 		ctx:      ctx,
 		cancel:   cancel,

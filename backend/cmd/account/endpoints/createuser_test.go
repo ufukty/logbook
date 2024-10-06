@@ -7,6 +7,7 @@ import (
 	"logbook/cmd/account/database"
 	"logbook/cmd/account/service"
 	"logbook/config/api"
+	"logbook/internal/logger"
 	"logbook/models"
 	"mime"
 	"net/http"
@@ -59,7 +60,7 @@ func TestCreateUser(t *testing.T) {
 	defer pool.Close()
 
 	a := app.New(pool, apicfg, nil) // FIXME: mock objectives service?
-	ep := New(a)
+	ep := New(a, logger.New("test"))
 
 	ep.CreateUser(w, r)
 

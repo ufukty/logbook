@@ -4,13 +4,14 @@ import (
 	"context"
 	"fmt"
 	"logbook/cmd/objectives/database"
+	"logbook/internal/logger"
 	"logbook/models"
 	"slices"
 )
 
 var ErrLeftBehind = fmt.Errorf("the objective is either directly or eventually linked to an objective which its version is left behind")
 
-func helperListActivePathToRock(ctx context.Context, q *database.Queries, subject models.Ovid) ([]models.Ovid, error) {
+func helperListActivePathToRock(ctx context.Context, q *database.Queries, subject models.Ovid, l *logger.Logger) ([]models.Ovid, error) {
 	active, err := q.SelectActive(ctx, subject.Oid)
 	if err != nil {
 		return nil, fmt.Errorf("SelectActive(%s): %w", subject.Oid, err)
@@ -30,7 +31,7 @@ func helperListActivePathToRock(ctx context.Context, q *database.Queries, subjec
 		return []models.Ovid{subject}, nil // assuming it is the rock or an orphaned subtree
 	}
 	if len(activeparents) == 50 {
-		fmt.Println("caution: helperListActivePathToRock has reached to the limit of 50 for selecting upper links")
+		l.Println("caution: helperListActivePathToRock has reached to the limit of 50 for selecting upper links")
 	}
 
 	for _, activeparent := range activeparents {
@@ -38,7 +39,7 @@ func helperListActivePathToRock(ctx context.Context, q *database.Queries, subjec
 			Oid: activeparent.SupOid,
 			Vid: activeparent.SupVid,
 		}
-		path, err := helperListActivePathToRock(ctx, q, activeparentovid)
+		path, err := helperListActivePathToRock(ctx, q, activeparentovid, l)
 		if err == ErrLeftBehind {
 			continue
 		} else if err != nil {
@@ -52,7 +53,7 @@ func helperListActivePathToRock(ctx context.Context, q *database.Queries, subjec
 
 // returns a path from the node to the root: [subject, active-ascendants..., rock] or [ErrLeftBehind]
 func (a *App) listActivePathToRock(ctx context.Context, q *database.Queries, subject models.Ovid) ([]models.Ovid, error) {
-	ap, err := helperListActivePathToRock(ctx, q, subject)
+	ap, err := helperListActivePathToRock(ctx, q, subject, a.l)
 	if err != nil {
 		return nil, fmt.Errorf("helperListActivePathToRock: %w", err)
 	}

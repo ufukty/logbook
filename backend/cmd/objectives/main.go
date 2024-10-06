@@ -8,6 +8,7 @@ import (
 	"logbook/cmd/objectives/service"
 	registry "logbook/cmd/registry/client"
 	"logbook/config/api"
+	"logbook/internal/logger"
 	"logbook/internal/startup"
 	"logbook/internal/web/balancer"
 	"logbook/internal/web/registryfile"
@@ -19,7 +20,9 @@ import (
 )
 
 func Main() error {
-	args, srvcfg, deplcfg, apicfg, err := startup.ServiceWithCustomConfig(service.ReadConfig)
+	l := logger.New("objectives")
+
+	args, srvcfg, deplcfg, apicfg, err := startup.ServiceWithCustomConfig(service.ReadConfig, l)
 	if err != nil {
 		return fmt.Errorf("reading configs: %w", err)
 	}
@@ -34,13 +37,13 @@ func Main() error {
 	internalsd := registryfile.NewFileReader(args.InternalGateway, deplcfg, registryfile.ServiceParams{
 		Port: deplcfg.Ports.Internal,
 		Tls:  true,
-	})
+	}, l)
 	defer internalsd.Stop()
-	sc := sidecar.New(registry.NewClient(balancer.New(internalsd), apicfg, true), deplcfg, []models.Service{})
+	sc := sidecar.New(registry.NewClient(balancer.New(internalsd), apicfg, true), deplcfg, []models.Service{}, l)
 	defer sc.Stop()
 
-	app := app.New(pool)
-	eps := endpoints.New(app)
+	app := app.New(pool, l)
+	eps := endpoints.New(app, l)
 
 	s := apicfg.Public.Services.Objectives
 	router.StartServerWithEndpoints(router.ServerParameters{
@@ -57,7 +60,7 @@ func Main() error {
 		s.Endpoints.Mark:       {Handler: eps.MarkComplete},
 		s.Endpoints.Placement:  {Handler: eps.GetPlacementArray},
 		s.Endpoints.RockCreate: {Handler: eps.RockCreate},
-	})
+	}, l)
 
 	return nil
 }

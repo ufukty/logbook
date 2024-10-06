@@ -2,7 +2,6 @@ package endpoints
 
 import (
 	"fmt"
-	"log"
 	"logbook/internal/web/requests"
 	"net/http"
 )
@@ -24,13 +23,13 @@ func (e *Endpoints) ReattachObjective(w http.ResponseWriter, r *http.Request) {
 	bq := &ReattachObjectiveRequest{}
 
 	if err := requests.ParseRequest(w, r, bq); err != nil {
-		log.Println(fmt.Errorf("parsing request: %w", err))
+		e.l.Println(fmt.Errorf("parsing request: %w", err))
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
 
 	if err := bq.validate(); err != nil {
-		log.Println(fmt.Errorf("validating request parameters: %w", err))
+		e.l.Println(fmt.Errorf("validating request parameters: %w", err))
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
@@ -39,7 +38,7 @@ func (e *Endpoints) ReattachObjective(w http.ResponseWriter, r *http.Request) {
 
 	bs := ReattachObjectiveResponse{} // TODO:
 	if err := requests.WriteJsonResponse(bs, w); err != nil {
-		log.Println(fmt.Errorf("writing json response: %w", err))
+		e.l.Println(fmt.Errorf("writing json response: %w", err))
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}

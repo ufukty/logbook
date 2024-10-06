@@ -32,10 +32,10 @@ type ServiceParams struct {
 // interface
 var _ balancer.InstanceSource = &FileReader{}
 
-func NewFileReader(filepath string, deplycfg *deployment.Config, params ServiceParams) *FileReader {
+func NewFileReader(filepath string, deplycfg *deployment.Config, params ServiceParams, l *logger.Logger) *FileReader {
 	ctx, cancel := context.WithCancel(context.Background())
 	fr := &FileReader{
-		l:        logger.New("FileReader"),
+		l:        l.Sub("FileReader"),
 		filepath: filepath,
 		ctx:      ctx,
 		cancel:   cancel,

@@ -5,20 +5,23 @@ import (
 	"logbook/cmd/registry/app"
 	"logbook/cmd/registry/endpoints"
 	"logbook/config/api"
+	"logbook/internal/logger"
 	"logbook/internal/startup"
 	"logbook/internal/web/router"
 	"os"
 )
 
 func Main() error {
+	l := logger.New("registry")
+
 	args, deplycfg, apicfg, err := startup.Service()
 	if err != nil {
 		return fmt.Errorf("reading config: %w", err)
 	}
 
-	a := app.New(deplycfg)
+	a := app.New(deplycfg, l)
 	defer a.Stop()
-	eps := endpoints.New(a)
+	eps := endpoints.New(a, l)
 
 	s := apicfg.Internal.Services.Registry
 	router.StartServerWithEndpoints(router.ServerParameters{
@@ -30,7 +33,7 @@ func Main() error {
 		s.Endpoints.ListInstances:    {Handler: eps.ListInstances},
 		s.Endpoints.RecheckInstance:  {Handler: eps.RecheckInstance},
 		s.Endpoints.RegisterInstance: {Handler: eps.RegisterInstance},
-	})
+	}, l)
 
 	return nil
 }

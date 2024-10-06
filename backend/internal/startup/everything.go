@@ -8,12 +8,12 @@ import (
 	"logbook/internal/utils/reflux"
 )
 
-func ApiGateway() (*ApiGatewayArgs, *deployment.Config, *api.Config, error) {
+func ApiGateway(l *logger.Logger) (*ApiGatewayArgs, *deployment.Config, *api.Config, error) {
+	l = l.Sub("ApiGateway")
 	args, err := parseApiGatewayArgs()
 	if err != nil {
 		return nil, nil, nil, fmt.Errorf("parsing args: %w", err)
 	}
-	l := logger.New("readConfigs")
 
 	deplcfg, err := deployment.ReadConfig(args.Deployment)
 	if err != nil {
@@ -32,12 +32,13 @@ func ApiGateway() (*ApiGatewayArgs, *deployment.Config, *api.Config, error) {
 	return &args, deplcfg, apicfg, nil
 }
 
-func InternalGateway() (*InternalGatewayArgs, *deployment.Config, *api.Config, error) {
+func InternalGateway(l *logger.Logger) (*InternalGatewayArgs, *deployment.Config, *api.Config, error) {
+	l = l.Sub("InternalGateway")
+
 	args, err := parseInternalGatewayArgs()
 	if err != nil {
 		return nil, nil, nil, fmt.Errorf("parsing args: %w", err)
 	}
-	l := logger.New("readConfigs")
 
 	deplcfg, err := deployment.ReadConfig(args.Deployment)
 	if err != nil {
@@ -83,12 +84,13 @@ func Service() (*ServiceArgs, *deployment.Config, *api.Config, error) {
 type ServiceConfigReader[Config any] func(path string) (*Config, error)
 
 // with custom service config
-func ServiceWithCustomConfig[C any](serviceConfigReader ServiceConfigReader[C]) (*ServiceArgs, *C, *deployment.Config, *api.Config, error) {
+func ServiceWithCustomConfig[C any](serviceConfigReader ServiceConfigReader[C], l *logger.Logger) (*ServiceArgs, *C, *deployment.Config, *api.Config, error) {
+	l = l.Sub("startup.ServiceWithCustomConfig")
+
 	args, err := parseServiceArgs()
 	if err != nil {
 		return nil, nil, nil, nil, fmt.Errorf("parsing args: %w", err)
 	}
-	l := logger.New("readConfigs")
 
 	srvcfg, err := serviceConfigReader(args.Service)
 	if err != nil {

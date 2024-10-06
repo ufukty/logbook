@@ -2,7 +2,6 @@ package endpoints
 
 import (
 	"fmt"
-	"log"
 	"logbook/cmd/registry/app"
 	"logbook/internal/web/requests"
 	"logbook/models"
@@ -38,13 +37,13 @@ func (e *Endpoints) RegisterInstance(w http.ResponseWriter, r *http.Request) {
 	bq := &RegisterInstanceRequest{}
 
 	if err := requests.ParseRequest(w, r, bq); err != nil {
-		log.Println(fmt.Errorf("parsing request: %w", err))
+		e.l.Println(fmt.Errorf("parsing request: %w", err))
 		http.Error(w, redact(err), http.StatusBadRequest)
 		return
 	}
 
 	if err := bq.validate(); err != nil {
-		log.Println(fmt.Errorf("validating request parameters: %w", err))
+		e.l.Println(fmt.Errorf("validating request parameters: %w", err))
 		http.Error(w, redact(err), http.StatusBadRequest)
 		return
 	}
@@ -55,7 +54,7 @@ func (e *Endpoints) RegisterInstance(w http.ResponseWriter, r *http.Request) {
 		Port:    bq.Port,
 	})
 	if err != nil {
-		log.Println(fmt.Errorf("performing request: %w", err))
+		e.l.Println(fmt.Errorf("performing request: %w", err))
 		http.Error(w, redact(err), http.StatusInternalServerError)
 		return
 	}
@@ -64,7 +63,7 @@ func (e *Endpoints) RegisterInstance(w http.ResponseWriter, r *http.Request) {
 		InstanceId: iid,
 	}
 	if err := requests.WriteJsonResponse(bs, w); err != nil {
-		log.Println(fmt.Errorf("writing json response: %w", err))
+		e.l.Println(fmt.Errorf("writing json response: %w", err))
 		http.Error(w, redact(err), http.StatusInternalServerError)
 		return
 	}

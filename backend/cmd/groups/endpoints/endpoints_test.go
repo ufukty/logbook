@@ -6,6 +6,7 @@ import (
 	"logbook/cmd/groups/app"
 	"logbook/cmd/groups/database"
 	"logbook/cmd/groups/service"
+	"logbook/internal/logger"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -25,6 +26,6 @@ func getTestDependencies() (*Endpoints, error) {
 		return nil, fmt.Errorf("pgxpool.New: %w", err)
 	}
 	app := app.New(pool)
-	ep := New(app)
+	ep := New(app, logger.New("test"))
 	return ep, nil
 }

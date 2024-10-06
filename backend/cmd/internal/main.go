@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"logbook/config/api"
+	"logbook/internal/logger"
 	"logbook/internal/startup"
 	"logbook/internal/web/forwarder"
 	"logbook/internal/web/registryfile"
@@ -14,7 +15,9 @@ import (
 )
 
 func mainerr() error {
-	args, deplcfg, apicfg, err := startup.InternalGateway()
+	l := logger.New("internal-gateway")
+
+	args, deplcfg, apicfg, err := startup.InternalGateway(l)
 	if err != nil {
 		return fmt.Errorf("reading configs: %w", err)
 	}
@@ -22,10 +25,10 @@ func mainerr() error {
 	registrysd := registryfile.NewFileReader(args.RegistryService, deplcfg, registryfile.ServiceParams{
 		Port: deplcfg.Ports.Registry,
 		Tls:  false,
-	})
+	}, l)
 	defer registrysd.Stop()
 
-	registryfwd := forwarder.New(registrysd, models.Discovery, api.PathFromInternet(apicfg.Internal.Services.Registry))
+	registryfwd := forwarder.New(registrysd, models.Discovery, api.PathFromInternet(apicfg.Internal.Services.Registry), l)
 
 	router.StartServer(router.ServerParameters{
 		Router: deplcfg.Router,
@@ -36,7 +39,7 @@ func mainerr() error {
 		r = r.UseEncodedPath()
 		sub := r.PathPrefix(apicfg.Internal.Path).Subrouter()
 		sub.PathPrefix(apicfg.Internal.Services.Registry.Path).HandlerFunc(registryfwd.Handler)
-	})
+	}, l)
 
 	return nil
 }

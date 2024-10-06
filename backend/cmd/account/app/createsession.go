@@ -5,7 +5,6 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"fmt"
-	"log"
 	"logbook/cmd/account/database"
 	"logbook/internal/average"
 	"logbook/models/columns"
@@ -72,7 +71,7 @@ func (a *App) Login(ctx context.Context, params CreateSessionParameters) (databa
 
 	if time.Now().Sub(login.CreatedAt.Time) > average.Month {
 		if err := renewHash(a.oneshot, ctx, login, params); err != nil {
-			log.Println(fmt.Errorf("could not renew hash for user (uid: %q, old hash date %s): %w\n", login.Uid, login.CreatedAt.Time, err))
+			return database.SessionStandard{}, fmt.Errorf("could not renew hash for user (uid: %q, old hash date %s): %w", login.Uid, login.CreatedAt.Time, err)
 		}
 	}
 

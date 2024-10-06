@@ -1,64 +1,63 @@
 package logger
 
 import (
-	"crypto/sha512"
 	"fmt"
 	"log"
+	"os"
+	"slices"
 )
 
-func init() {
-	log.SetFlags(log.LstdFlags | log.LUTC)
+type logger interface {
+	Print(args ...any)
+	Println(args ...any)
+	Printf(format string, args ...any)
+	Fatal(args ...any)
+	Fatalln(args ...any)
+	Fatalf(format string, args ...any)
 }
-
-var colors = []string{
-	"\033[31m", // Red
-	"\033[32m", // Green
-	"\033[33m", // Yellow
-	"\033[34m", // Blue
-	"\033[35m", // Magenta
-	"\033[36m", // Cyan
-	"\033[91m", // LightRed
-	"\033[92m", // LightGreen
-	"\033[93m", // LightYellow
-	"\033[94m", // LightBlue
-	"\033[95m", // LightMagenta
-	"\033[96m", // LightCyan
-}
-
-const colorReset = "\033[0m"
 
 type Logger struct {
-	name string
+	name   string
+	parent logger
 }
 
 func New(name string) *Logger {
-	sum := sha512.Sum512([]byte(name))
-	var color = colors[sum[len(sum)-1]%12]
 	return &Logger{
-		name: fmt.Sprintf("%s%s:%s", color, name, colorReset),
+		name:   fmt.Sprintf("%s%s:%s", m.pickcolor(name), name, colorReset),
+		parent: log.New(os.Stdout, "", log.LstdFlags|log.LUTC),
 	}
 }
 
+func (l *Logger) Sub(name string) *Logger {
+	s := New(name)
+	s.parent = l
+	return s
+}
+
+func (l Logger) prefix(args []any) []any {
+	return slices.Insert[[]any, any](args, 0, l.name)
+}
+
 func (l Logger) Print(args ...any) {
-	log.Print(append([]any{l.name}, args...)...)
+	l.parent.Print(l.prefix(args)...)
 }
 
 func (l Logger) Println(args ...any) {
-	log.Println(append([]any{l.name}, args...)...)
+	l.parent.Println(l.prefix(args)...)
 }
 
 func (l Logger) Printf(format string, args ...any) {
-	log.Printf("%s "+format, append([]any{l.name}, args...)...)
+	l.parent.Printf("%s "+format, l.prefix(args)...)
 }
 
 func (l Logger) Fatal(args ...any) {
-	log.Fatal(append([]any{l.name}, args...)...)
+	l.parent.Fatal(l.prefix(args)...)
 }
 
 func (l Logger) Fatalln(args ...any) {
-	log.Fatalln(append([]any{l.name}, args...)...)
+	l.parent.Fatalln(l.prefix(args)...)
 }
 
 func (l Logger) Fatalf(format string, args ...any) {
-	log.Fatalf("%s "+format, append([]any{l.name}, args...)...)
+	l.parent.Fatalf("%s "+format, l.prefix(args)...)
 }
