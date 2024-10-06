@@ -3,49 +3,11 @@ package run
 import (
 	"bufio"
 	"fmt"
-	"logbook/internal/utilities/strw"
+	"logbook/internal/utilities/slicew/lines"
 	"os"
 	"os/exec"
 	"sync"
 )
-
-// func ForOutputs(program string, args ...string) (string, string, error) {
-// 	cmd := exec.Command(program, args...)
-// 	stdout, stderr := bytes.NewBuffer([]byte{}), bytes.NewBuffer([]byte{})
-// 	cmd.Stdout = stdout
-// 	cmd.Stderr = stderr
-// 	err := cmd.Run()
-// 	return stdout.String(), stderr.String(), err
-// }
-
-// func ForOutput(program string, args ...string) (string, error) {
-// 	cmd := exec.Command(program, args...)
-// 	stdout := bytes.NewBuffer([]byte{})
-// 	cmd.Stdout = stdout
-// 	cmd.Stderr = stdout
-// 	err := cmd.Run()
-// 	return stdout.String(), err
-// }
-
-// // panics on error code != 0
-// func ExitOnError(program string, args ...string) string {
-// 	cmd := exec.Command(program, args...)
-// 	stdout, stderr := bytes.NewBuffer([]byte{}), bytes.NewBuffer([]byte{})
-// 	cmd.Stdout = stdout
-// 	cmd.Stderr = stderr
-
-// 	err := cmd.Run()
-// 	if err != nil {
-// 		fmt.Printf("running %q: %s\n", cmd.String(), err.Error())
-// 		fmt.Println("    stderr:")
-// 		fmt.Println(strw.IndentLines(stderr.String(), 8))
-// 		fmt.Println("    stdout:")
-// 		fmt.Println(strw.IndentLines(stdout.String(), 8))
-// 		os.Exit(1)
-// 	}
-
-// 	return stdout.String()
-// }
 
 // it exits if stderr receives anything or command returns error
 func ExitAfterStderr(program string, args ...string) string {
@@ -102,11 +64,11 @@ func ExitAfterStderr(program string, args ...string) string {
 	err = cmd.Wait()
 	if err != nil {
 		fmt.Printf("running %q: %s\n", cmd.String(), err.Error())
-		fmt.Println(strw.IndentLines(output, 4))
+		fmt.Println(lines.Prefix(output, "    "))
 		os.Exit(1)
 	} else if stderrReceived {
 		fmt.Printf("running %q\n", cmd.String())
-		fmt.Println(strw.IndentLines(output, 4))
+		fmt.Println(lines.Prefix(output, "    "))
 		os.Exit(1)
 	}
 
