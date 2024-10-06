@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 	"logbook/cmd/groups/service"
-	"logbook/internal/utilities/run"
+	"logbook/internal/utils/run"
 	"os"
 	"path/filepath"
 )

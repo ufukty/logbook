@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"logbook/cmd/objectives/app"
 	"logbook/cmd/objectives/service"
-	"logbook/internal/utilities/reflux"
+	"logbook/internal/utils/reflux"
 	"logbook/models"
 	"logbook/models/columns"
 	"strings"

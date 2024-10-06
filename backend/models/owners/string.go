@@ -2,7 +2,7 @@ package owners
 
 import (
 	"fmt"
-	"logbook/internal/utilities/strw"
+	"strings"
 )
 
 func ternary[T any](cond bool, t, f T) T {
@@ -18,7 +18,7 @@ func lastsix[S ~string](id S) S {
 
 func (ow DocumentItem) String() string {
 	return fmt.Sprintf("%s(type:%s) (oid:%s) (vid:%s)%s",
-		strw.Fill("  ", ow.Depth),
+		strings.Repeat(" ", ow.Depth),
 		ow.ObjectiveType,
 		lastsix(ow.Oid),
 		lastsix(ow.Vid),

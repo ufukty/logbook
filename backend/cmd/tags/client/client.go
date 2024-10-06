@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"logbook/cmd/tags/endpoints"
 	"logbook/config/api"
-	"logbook/internal/utilities/urls"
+	"logbook/internal/utils/urls"
 	"logbook/internal/web/balancer"
 	"logbook/internal/web/requests"
 )

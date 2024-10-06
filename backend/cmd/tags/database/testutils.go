@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 	"logbook/cmd/tags/service"
-	"logbook/internal/utilities/run"
+	"logbook/internal/utils/run"
 )
 
 func RunMigration(srvcfg *service.Config) error {

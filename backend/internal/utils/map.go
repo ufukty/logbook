@@ -1,4 +1,4 @@
-package mapw
+package utils
 
 import "golang.org/x/exp/maps"
 

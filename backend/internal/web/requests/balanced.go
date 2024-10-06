@@ -3,7 +3,7 @@ package requests
 import (
 	"fmt"
 	"logbook/config/api"
-	"logbook/internal/utilities/urls"
+	"logbook/internal/utils/urls"
 	"logbook/internal/web/balancer"
 	"net/http"
 )

@@ -1,4 +1,4 @@
-package functional
+package utils
 
 func Map[T any, V any](source []T, c func(i int, value T) V) (dest []V) {
 	for i, v := range source {

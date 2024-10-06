@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"logbook/cmd/objectives/database"
 	"logbook/cmd/objectives/service"
-	"logbook/internal/utilities/slicew/lines"
+	"logbook/internal/utils/lines"
 	"os"
 	"path/filepath"
 

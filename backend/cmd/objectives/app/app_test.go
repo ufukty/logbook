@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"logbook/cmd/objectives/database"
 	"logbook/cmd/objectives/service"
-	"logbook/internal/utilities/mapw"
-	"logbook/internal/utilities/slicew/lines"
+	"logbook/internal/utils"
+	"logbook/internal/utils/lines"
 	"logbook/models"
 	"logbook/models/columns"
 	"logbook/models/owners"
@@ -27,7 +27,7 @@ type testfilenode struct {
 }
 
 func testname(tc map[*testfilenode]*testfilenode) string {
-	return fmt.Sprintf("registering %d objectives on %d parents", len(tc), len(mapw.UniqueValues(tc)))
+	return fmt.Sprintf("registering %d objectives on %d parents", len(tc), len(utils.UniqueValues(tc)))
 }
 
 func TestAppManual(t *testing.T) {

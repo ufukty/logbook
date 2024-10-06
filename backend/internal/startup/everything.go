@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"logbook/config/api"
 	"logbook/config/deployment"
-	"logbook/internal/utilities/reflux"
+	"logbook/internal/utils/reflux"
 	"logbook/internal/web/logger"
 )
 

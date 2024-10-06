@@ -3,7 +3,7 @@ package integration
 import (
 	"bytes"
 	"fmt"
-	"logbook/internal/utilities/slicew/lines"
+	"logbook/internal/utils/lines"
 	"os"
 	"os/exec"
 )

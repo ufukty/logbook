@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"logbook/internal/utilities/slicew/lines"
+	"logbook/internal/utils/lines"
 	"net/http"
 	"reflect"
 	"strings"

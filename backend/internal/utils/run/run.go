@@ -3,7 +3,7 @@ package run
 import (
 	"bufio"
 	"fmt"
-	"logbook/internal/utilities/slicew/lines"
+	"logbook/internal/utils/lines"
 	"os"
 	"os/exec"
 	"sync"

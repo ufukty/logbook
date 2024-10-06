@@ -2,8 +2,8 @@ package balancer
 
 import (
 	"fmt"
-	"logbook/internal/utilities/randoms"
 	"logbook/models"
+	"math/rand/v2"
 	"sync"
 
 	"errors"
@@ -41,7 +41,7 @@ func (lb *LoadBalancer) Next() (*models.Instance, error) {
 		return nil, ErrNoHostAvailable
 	}
 	if len(hosts) <= lb.index {
-		lb.index = randoms.UniformIntN(len(hosts))
+		lb.index = rand.IntN(len(hosts))
 	}
 	var next = hosts[lb.index]
 	lb.index = (lb.index + 1) % len(hosts)
