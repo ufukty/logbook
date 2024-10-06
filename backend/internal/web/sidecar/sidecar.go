@@ -44,7 +44,7 @@ func New(ctl *registry.Client, deplycfg *deployment.Config, services []models.Se
 		store:    map[models.Service][]models.Instance{},
 		services: services,
 
-		l:        *logger.NewLogger("Sidecar"),
+		l:        *logger.New("Sidecar"),
 		deplycfg: deplycfg,
 		ctx:      ctx,
 		cancel:   cancel,

@@ -31,7 +31,7 @@ type Logger struct {
 	name string
 }
 
-func NewLogger(name string) *Logger {
+func New(name string) *Logger {
 	sum := sha512.Sum512([]byte(name))
 	var color = colors[sum[len(sum)-1]%12]
 	return &Logger{

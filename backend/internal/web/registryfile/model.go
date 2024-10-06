@@ -35,7 +35,7 @@ var _ balancer.InstanceSource = &FileReader{}
 func NewFileReader(filepath string, deplycfg *deployment.Config, params ServiceParams) *FileReader {
 	ctx, cancel := context.WithCancel(context.Background())
 	fr := &FileReader{
-		l:        logger.NewLogger("FileReader"),
+		l:        logger.New("FileReader"),
 		filepath: filepath,
 		ctx:      ctx,
 		cancel:   cancel,

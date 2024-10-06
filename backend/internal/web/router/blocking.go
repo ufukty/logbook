@@ -30,7 +30,7 @@ type ServerParameters struct {
 
 func StartServer(params ServerParameters, endpointRegisterer func(r *mux.Router)) {
 	tls := params.TlsKey != "" && params.TlsCrt != ""
-	l := logger.NewLogger("Router")
+	l := logger.New("Router")
 
 	r := mux.NewRouter()
 	endpointRegisterer(r)

@@ -47,7 +47,7 @@ func registerer(r *mux.Router, details map[api.Endpoint]EndpointDetails, l *logg
 }
 
 func StartServerWithEndpoints(params ServerParameters, details map[api.Endpoint]EndpointDetails) {
-	l := logger.NewLogger("StartServerWithEndpoints")
+	l := logger.New("StartServerWithEndpoints")
 	StartServer(params, func(r *mux.Router) {
 		registerer(r, details, l)
 	})

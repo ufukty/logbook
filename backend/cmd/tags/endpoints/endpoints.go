@@ -13,6 +13,6 @@ type Endpoints struct {
 func New(app *app.App) *Endpoints {
 	return &Endpoints{
 		app: app,
-		log: logger.NewLogger("endpoints"),
+		log: logger.New("endpoints"),
 	}
 }

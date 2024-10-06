@@ -13,7 +13,7 @@ func ApiGateway() (*ApiGatewayArgs, *deployment.Config, *api.Config, error) {
 	if err != nil {
 		return nil, nil, nil, fmt.Errorf("parsing args: %w", err)
 	}
-	l := logger.NewLogger("readConfigs")
+	l := logger.New("readConfigs")
 
 	deplcfg, err := deployment.ReadConfig(args.Deployment)
 	if err != nil {
@@ -37,7 +37,7 @@ func InternalGateway() (*InternalGatewayArgs, *deployment.Config, *api.Config, e
 	if err != nil {
 		return nil, nil, nil, fmt.Errorf("parsing args: %w", err)
 	}
-	l := logger.NewLogger("readConfigs")
+	l := logger.New("readConfigs")
 
 	deplcfg, err := deployment.ReadConfig(args.Deployment)
 	if err != nil {
@@ -61,7 +61,7 @@ func Service() (*ServiceArgs, *deployment.Config, *api.Config, error) {
 	if err != nil {
 		return nil, nil, nil, fmt.Errorf("parsing args: %w", err)
 	}
-	l := logger.NewLogger("readConfigs")
+	l := logger.New("readConfigs")
 
 	deplcfg, err := deployment.ReadConfig(args.Deployment)
 	if err != nil {
@@ -88,7 +88,7 @@ func ServiceWithCustomConfig[C any](serviceConfigReader ServiceConfigReader[C]) 
 	if err != nil {
 		return nil, nil, nil, nil, fmt.Errorf("parsing args: %w", err)
 	}
-	l := logger.NewLogger("readConfigs")
+	l := logger.New("readConfigs")
 
 	srvcfg, err := serviceConfigReader(args.Service)
 	if err != nil {

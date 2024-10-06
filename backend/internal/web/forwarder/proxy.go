@@ -71,7 +71,7 @@ func (lbrp *LoadBalancedReverseProxy) Handler(w http.ResponseWriter, r *http.Req
 
 func New(is balancer.InstanceSource, service models.Service, servicepath string) *LoadBalancedReverseProxy {
 	return &LoadBalancedReverseProxy{
-		log:         logger.NewLogger("LoadBalancedReverseProxy"),
+		log:         logger.New("LoadBalancedReverseProxy"),
 		pool:        map[*models.Instance]*httputil.ReverseProxy{},
 		lb:          balancer.New(is),
 		servicepath: servicepath,

@@ -19,7 +19,7 @@ func NewFixedSizeKV[K comparable, V any](logname string, size int) *FixedSizeKV[
 		Size:  size,
 		store: map[K]V{},
 		mu:    sync.RWMutex{},
-		log:   *logger.NewLogger(logname),
+		log:   *logger.New(logname),
 	}
 }
 

@@ -32,7 +32,7 @@ func newServiceRegistry(deplycfg *deployment.Config, logname string) *serviceReg
 	ctx, cancel := context.WithCancel(context.Background())
 	sr := &serviceRegistry{
 		deplycfg: deplycfg,
-		l:        logger.NewLogger(logname),
+		l:        logger.New(logname),
 
 		ctx:    ctx,
 		cancel: cancel,
@@ -139,7 +139,7 @@ type App struct {
 func New(deplycfg *deployment.Config) *App {
 	a := &App{
 		deplycfg:   deplycfg,
-		l:          logger.NewLogger("Hub"),
+		l:          logger.New("Hub"),
 		registries: stores.NewKV[models.Service, *serviceRegistry](),
 	}
 	return a
