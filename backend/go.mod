@@ -4,7 +4,6 @@ go 1.23
 
 require (
 	github.com/alexedwards/argon2id v1.0.0
-	github.com/go-chi/chi v1.5.5
 	github.com/go-chi/chi/v5 v5.1.0
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/mux v1.8.1
