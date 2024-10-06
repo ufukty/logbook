@@ -10,6 +10,9 @@ import (
 )
 
 type Router struct {
+	Cors struct {
+		AllowOrigin string `yaml:"allow-origin"`
+	} `yaml:"cors"`
 	GracePeriod    time.Duration `yaml:"grace-period"`
 	IdleTimeout    time.Duration `yaml:"idle-timeout"`
 	ReadTimeout    time.Duration `yaml:"read-timeout"`

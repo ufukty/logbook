@@ -16,8 +16,8 @@ import (
 // TODO: Check if [http.FileServer] sets Timeouts against Slowloris attack
 // TODO: CORS
 func Main() error {
-	crt := filepath.Join(os.Getenv("WORKSPACE"), "backend/cmd/auth/certificates/localhost.crt") // TODO: read flags
-	key := filepath.Join(os.Getenv("WORKSPACE"), "backend/cmd/auth/certificates/localhost.key") // TODO: read flags
+	crt := filepath.Join(os.Getenv("WORKSPACE"), "platform/local/tls/localhost.crt") // TODO: read flags
+	key := filepath.Join(os.Getenv("WORKSPACE"), "platform/local/tls/localhost.key") // TODO: read flags
 	build := filepath.Join(os.Getenv("WORKSPACE"), "backend/cmd/auth/web/build")
 
 	err := http.ListenAndServeTLS(":8082", crt, key, middleware.Logger(http.FileServer(http.Dir(build))))

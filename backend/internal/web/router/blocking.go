@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"logbook/config/api"
 	"logbook/config/deployment"
 	"logbook/internal/web/logger"
 	"logbook/internal/web/sidecar"
@@ -17,7 +16,6 @@ import (
 
 	"github.com/go-chi/chi/middleware"
 	"github.com/gorilla/mux"
-	"golang.org/x/exp/maps"
 )
 
 type ServerParameters struct {
@@ -107,19 +105,4 @@ func StartServer(params ServerParameters, endpointRegisterer func(r *mux.Router)
 	// to finalize based on context cancellation.
 	<-ctx.Done()
 	log.Println("Server is down")
-}
-
-func StartServerWithEndpoints(params ServerParameters, handlers map[api.Endpoint]http.HandlerFunc) {
-	l := logger.NewLogger("StartServerWithEndpoints")
-	StartServer(params, func(r *mux.Router) {
-		l.Println("registering routes in the order:")
-		r = r.UseEncodedPath()
-		for _, ep := range sortEndpoints(maps.Keys(handlers)) {
-			str := fmt.Sprintf("%s %s", ep.GetMethod(), ep.GetPath())
-			handler := handlers[ep]
-			// r.HandleFunc(str, handler)
-			r.HandleFunc(string(ep.GetPath()), handler).Methods(ep.GetMethod())
-			l.Printf("%q -> %p\n", str, handler)
-		}
-	})
 }

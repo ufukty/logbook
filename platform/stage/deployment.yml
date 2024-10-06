@@ -7,6 +7,8 @@ router:
   read-timeout: 1s
   idle-timeout: 1s
   grace-period: 1s
+  cors:
+    allow-origin: "logbook.balaasad.com"
 
 registry-file:
   update-period: 1s

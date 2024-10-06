@@ -5,6 +5,7 @@ import "fmt"
 type Service string
 
 var (
+	Auth       = Service("auth")
 	Account    = Service("account")
 	Discovery  = Service("discovery")
 	Groups     = Service("groups")
@@ -16,6 +17,7 @@ var (
 func (s *Service) Set(v string) error {
 	switch v {
 	case
+		string(Auth),
 		string(Account),
 		string(Discovery),
 		string(Groups),

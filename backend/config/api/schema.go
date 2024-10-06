@@ -13,11 +13,6 @@ type Account struct {
 	Path      string           `yaml:"path"`
 	Parent    any              `yaml:"-"`
 }
-type Auth struct {
-	Endpoints authEndpoints `yaml:"endpoints"`
-	Path      string        `yaml:"path"`
-	Parent    any           `yaml:"-"`
-}
 type Document struct {
 	Endpoints documentEndpoints `yaml:"endpoints"`
 	Path      string            `yaml:"path"`
@@ -52,19 +47,16 @@ type Tags struct {
 	Parent    any           `yaml:"-"`
 }
 type accountEndpoints struct {
-	Create        endpoint `yaml:"create"`
-	CreateProfile endpoint `yaml:"create_profile"`
-	Login         endpoint `yaml:"login"`
-	Logout        endpoint `yaml:"logout"`
-	Whoami        endpoint `yaml:"whoami"`
-	Parent        any      `yaml:"-"`
-}
-type authEndpoints struct {
+	CreateProfile   endpoint `yaml:"create_profile"`
+	CreateUser      endpoint `yaml:"create_user"`
+	Login           endpoint `yaml:"login"`
+	Logout          endpoint `yaml:"logout"`
 	Register        endpoint `yaml:"register"`
 	ReserveUsername endpoint `yaml:"reserve_username"`
 	Totp            endpoint `yaml:"totp"`
 	VerifyEmail     endpoint `yaml:"verify_email"`
 	VerifyPhone     endpoint `yaml:"verify_phone"`
+	Whoami          endpoint `yaml:"whoami"`
 	Parent          any      `yaml:"-"`
 }
 type documentEndpoints struct {
@@ -97,7 +89,6 @@ type objectivesEndpoints struct {
 }
 type publicServices struct {
 	Account    Account    `yaml:"account"`
-	Auth       Auth       `yaml:"auth"`
 	Document   Document   `yaml:"document"`
 	Groups     Groups     `yaml:"groups"`
 	Objectives Objectives `yaml:"objectives"`
@@ -128,18 +119,16 @@ func parentRefAssignments(c *Config) {
 	c.Public.Services.Parent = &c.Public
 	c.Public.Services.Account.Parent = &c.Public.Services
 	c.Public.Services.Account.Endpoints.Parent = &c.Public.Services.Account
-	c.Public.Services.Account.Endpoints.Create.Parent = &c.Public.Services.Account.Endpoints
 	c.Public.Services.Account.Endpoints.CreateProfile.Parent = &c.Public.Services.Account.Endpoints
+	c.Public.Services.Account.Endpoints.CreateUser.Parent = &c.Public.Services.Account.Endpoints
 	c.Public.Services.Account.Endpoints.Login.Parent = &c.Public.Services.Account.Endpoints
 	c.Public.Services.Account.Endpoints.Logout.Parent = &c.Public.Services.Account.Endpoints
+	c.Public.Services.Account.Endpoints.Register.Parent = &c.Public.Services.Account.Endpoints
+	c.Public.Services.Account.Endpoints.ReserveUsername.Parent = &c.Public.Services.Account.Endpoints
+	c.Public.Services.Account.Endpoints.Totp.Parent = &c.Public.Services.Account.Endpoints
+	c.Public.Services.Account.Endpoints.VerifyEmail.Parent = &c.Public.Services.Account.Endpoints
+	c.Public.Services.Account.Endpoints.VerifyPhone.Parent = &c.Public.Services.Account.Endpoints
 	c.Public.Services.Account.Endpoints.Whoami.Parent = &c.Public.Services.Account.Endpoints
-	c.Public.Services.Auth.Parent = &c.Public.Services
-	c.Public.Services.Auth.Endpoints.Parent = &c.Public.Services.Auth
-	c.Public.Services.Auth.Endpoints.Register.Parent = &c.Public.Services.Auth.Endpoints
-	c.Public.Services.Auth.Endpoints.ReserveUsername.Parent = &c.Public.Services.Auth.Endpoints
-	c.Public.Services.Auth.Endpoints.Totp.Parent = &c.Public.Services.Auth.Endpoints
-	c.Public.Services.Auth.Endpoints.VerifyEmail.Parent = &c.Public.Services.Auth.Endpoints
-	c.Public.Services.Auth.Endpoints.VerifyPhone.Parent = &c.Public.Services.Auth.Endpoints
 	c.Public.Services.Document.Parent = &c.Public.Services
 	c.Public.Services.Document.Endpoints.Parent = &c.Public.Services.Document
 	c.Public.Services.Document.Endpoints.List.Parent = &c.Public.Services.Document.Endpoints
@@ -180,15 +169,6 @@ func (a Account) GetPath() string {
 	return a.Path
 }
 func (a *Account) SetPath(v string) {
-	a.Path = v
-}
-func (a Auth) GetParent() any {
-	return a.Parent
-}
-func (a Auth) GetPath() string {
-	return a.Path
-}
-func (a *Auth) SetPath(v string) {
 	a.Path = v
 }
 func (d Document) GetParent() any {
@@ -249,9 +229,6 @@ func (t *Tags) SetPath(v string) {
 	t.Path = v
 }
 func (a accountEndpoints) GetParent() any {
-	return a.Parent
-}
-func (a authEndpoints) GetParent() any {
 	return a.Parent
 }
 func (d documentEndpoints) GetParent() any {

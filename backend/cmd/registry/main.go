@@ -7,7 +7,6 @@ import (
 	"logbook/config/api"
 	"logbook/internal/startup"
 	"logbook/internal/web/router"
-	"net/http"
 	"os"
 )
 
@@ -27,10 +26,10 @@ func Main() error {
 		Router: deplycfg.Router,
 		TlsCrt: args.TlsCertificate,
 		TlsKey: args.TlsKey,
-	}, map[api.Endpoint]http.HandlerFunc{
-		s.Endpoints.ListInstances:    eps.ListInstances,
-		s.Endpoints.RecheckInstance:  eps.RecheckInstance,
-		s.Endpoints.RegisterInstance: eps.RegisterInstance,
+	}, map[api.Endpoint]router.EndpointDetails{
+		s.Endpoints.ListInstances:    {Handler: eps.ListInstances},
+		s.Endpoints.RecheckInstance:  {Handler: eps.RecheckInstance},
+		s.Endpoints.RegisterInstance: {Handler: eps.RegisterInstance},
 	})
 
 	return nil

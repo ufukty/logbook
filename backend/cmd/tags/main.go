@@ -15,7 +15,6 @@ import (
 	"logbook/internal/web/router"
 	"logbook/internal/web/sidecar"
 	"logbook/models"
-	"net/http"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -53,9 +52,9 @@ func Main() error {
 		Sidecar: sc,
 		TlsCrt:  args.TlsCertificate,
 		TlsKey:  args.TlsKey,
-	}, map[api.Endpoint]http.HandlerFunc{
-		s.Endpoints.Assign:   eps.TagAssign,
-		s.Endpoints.Creation: eps.TagCreation,
+	}, map[api.Endpoint]router.EndpointDetails{
+		s.Endpoints.Assign:   {Handler: eps.TagAssign},
+		s.Endpoints.Creation: {Handler: eps.TagCreation},
 	})
 
 	return nil

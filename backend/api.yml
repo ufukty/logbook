@@ -1,23 +1,19 @@
 public:
   path: /api/v1.0.0
   services:
-    auth:
-      path: /auth
+    account:
+      path: /account
       endpoints:
+        create_profile: { method: POST, path: "/profile" }
+        create_user: { method: POST, path: "/user" }
+        login: { method: POST, path: "/login" }
+        logout: { method: POST, path: "/logout" }
+        whoami: { method: GET, path: "/whoami" }
         reserve_username: { method: POST, path: "/registration/reserve_username" }
         verify_phone: { method: POST, path: "/registration/verify/phone" }
         verify_email: { method: POST, path: "/registration/verify/email" }
         register: { method: "POST", path: "/registration/register" }
         totp: { method: "POST", path: "/registration/totp" }
-
-    account:
-      path: /account
-      endpoints:
-        create_profile: { method: POST, path: "/profile" }
-        create: { method: POST, path: "/account" }
-        login: { method: POST, path: "/login" }
-        logout: { method: POST, path: "/logout" }
-        whoami: { method: GET, path: "/whoami" }
 
     document:
       path: /document

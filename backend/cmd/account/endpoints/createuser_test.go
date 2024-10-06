@@ -39,8 +39,8 @@ func TestCreateUser(t *testing.T) {
 	}
 
 	r := httptest.NewRequest(
-		apicfg.Public.Services.Account.Endpoints.Create.Method,
-		apicfg.Public.Services.Account.Endpoints.Create.Path,
+		apicfg.Public.Services.Account.Endpoints.CreateUser.Method,
+		apicfg.Public.Services.Account.Endpoints.CreateUser.Path,
 		// strings.NewReader(`{"firstname": "Tiésto","lastname": "McSingleton","email": "test@test.balaasad.com","password": "123456789"}`),
 		strings.NewReader(`{
 			"firstname": "Tiésto",

@@ -14,10 +14,12 @@ import (
 	"logbook/internal/web/balancer"
 	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router"
+	"logbook/internal/web/router/cors"
 	"logbook/internal/web/sidecar"
 	"logbook/models"
-	"net/http"
+	"net/url"
 
+	"github.com/gorilla/mux"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -49,6 +51,11 @@ func Main() error {
 	em := endpoints.New(app)
 	s := apicfg.Public.Services.Account
 
+	origin, err := url.JoinPath(deplcfg.Router.Cors.AllowOrigin)
+	if err != nil {
+		return fmt.Errorf("url.JoinPath: %w", err)
+	}
+	c := cors.Same(origin)
 	// TODO: tls between services needs certs per host(name)
 	router.StartServerWithEndpoints(router.ServerParameters{
 		Address: args.PrivateNetworkIp,
@@ -58,12 +65,24 @@ func Main() error {
 		Sidecar: sc,
 		TlsCrt:  args.TlsCertificate,
 		TlsKey:  args.TlsKey,
-	}, map[api.Endpoint]http.HandlerFunc{
-		s.Endpoints.Create:        em.CreateUser,
-		s.Endpoints.CreateProfile: em.CreateProfile,
-		s.Endpoints.Login:         em.Login,
-		s.Endpoints.Logout:        em.Logout,
-		s.Endpoints.Whoami:        em.WhoAmI,
+	}, map[api.Endpoint]router.EndpointDetails{
+		s.Endpoints.CreateUser:    {em.CreateUser, c},
+		s.Endpoints.CreateProfile: {em.CreateProfile, c},
+		s.Endpoints.Login:         {em.Login, c},
+		s.Endpoints.Logout:        {em.Logout, c},
+		s.Endpoints.Whoami:        {em.WhoAmI, c},
+	})
+
+	router.StartServer(router.ServerParameters{
+		Address: args.PrivateNetworkIp,
+		Port:    deplcfg.Ports.Accounts,
+		Router:  deplcfg.Router,
+		Service: models.Account,
+		Sidecar: sc,
+		TlsCrt:  args.TlsCertificate,
+		TlsKey:  args.TlsKey,
+	}, func(r *mux.Router) {
+
 	})
 
 	return nil

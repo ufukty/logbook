@@ -6,6 +6,7 @@ import (
 	"logbook/cmd/account/database"
 	"logbook/cmd/objectives/endpoints"
 	"logbook/models/columns"
+	"time"
 
 	"github.com/alexedwards/argon2id"
 )
@@ -19,10 +20,20 @@ var argon2idParams = &argon2id.Params{
 }
 
 type RegistrationParameters struct {
+	CsrfToken string
+
 	Firstname columns.HumanName
 	Lastname  columns.HumanName
-	Email     columns.Email
-	Password  string
+	Birthday  time.Time
+	Country   columns.Country
+
+	Email      columns.Email
+	EmailGrant columns.EmailGrant
+
+	Phone      columns.Phone
+	PhoneGrant columns.PhoneGrant
+
+	Password string
 }
 
 var ErrEmailExists = fmt.Errorf("email in use")
