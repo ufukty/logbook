@@ -19,7 +19,6 @@ import (
 	"logbook/models"
 	"net/url"
 
-	"github.com/gorilla/mux"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -71,18 +70,6 @@ func Main() error {
 		s.Endpoints.Login:         {em.Login, c},
 		s.Endpoints.Logout:        {em.Logout, c},
 		s.Endpoints.Whoami:        {em.WhoAmI, c},
-	})
-
-	router.StartServer(router.ServerParameters{
-		Address: args.PrivateNetworkIp,
-		Port:    deplcfg.Ports.Accounts,
-		Router:  deplcfg.Router,
-		Service: models.Account,
-		Sidecar: sc,
-		TlsCrt:  args.TlsCertificate,
-		TlsKey:  args.TlsKey,
-	}, func(r *mux.Router) {
-
 	})
 
 	return nil
