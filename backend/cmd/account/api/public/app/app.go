@@ -1,7 +1,7 @@
 package app
 
 import (
-	"logbook/cmd/account/app/authz"
+	"logbook/cmd/account/api/public/app/authz"
 	"logbook/cmd/account/database"
 	objectives "logbook/cmd/objectives/client"
 	"logbook/config/api"

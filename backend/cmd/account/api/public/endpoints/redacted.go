@@ -2,8 +2,8 @@ package endpoints
 
 import (
 	"errors"
-	"logbook/cmd/account/app"
-	"logbook/cmd/account/app/authz"
+	"logbook/cmd/account/api/public/app"
+	"logbook/cmd/account/api/public/app/authz"
 )
 
 var generic = "Unable to process your request at the moment"
