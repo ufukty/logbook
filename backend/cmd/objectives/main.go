@@ -55,11 +55,11 @@ func Main() error {
 		TlsCrt:  args.TlsCertificate,
 		TlsKey:  args.TlsKey,
 	}, map[api.Endpoint]router.EndpointDetails{
-		s.Endpoints.Attach:     {Handler: eps.ReattachObjective},
-		s.Endpoints.Create:     {Handler: eps.CreateObjective},
-		s.Endpoints.Mark:       {Handler: eps.MarkComplete},
-		s.Endpoints.Placement:  {Handler: eps.GetPlacementArray},
-		s.Endpoints.RockCreate: {Handler: eps.RockCreate},
+		s.Endpoints.Attach:    {Handler: eps.ReattachObjective},
+		s.Endpoints.Create:    {Handler: eps.CreateObjective},
+		s.Endpoints.Mark:      {Handler: eps.MarkComplete},
+		s.Endpoints.Placement: {Handler: eps.GetPlacementArray},
+		// s.Endpoints.RockCreate: {Handler: eps.RockCreate},
 	}, l)
 
 	return nil

@@ -28,6 +28,8 @@ func mainerr() error {
 	}, l)
 	defer registrysd.Stop()
 
+	accountfwd := forwarder.New(registrysd, models.Discovery, api.PathFromInternet(apicfg.Internal.Services.Account), l)
+	objectivesfwd := forwarder.New(registrysd, models.Discovery, api.PathFromInternet(apicfg.Internal.Services.Objectives), l)
 	registryfwd := forwarder.New(registrysd, models.Discovery, api.PathFromInternet(apicfg.Internal.Services.Registry), l)
 
 	router.StartServer(router.ServerParameters{
@@ -38,6 +40,8 @@ func mainerr() error {
 	}, func(r *mux.Router) {
 		r = r.UseEncodedPath()
 		sub := r.PathPrefix(apicfg.Internal.Path).Subrouter()
+		sub.PathPrefix(apicfg.Internal.Services.Account.Path).HandlerFunc(accountfwd.Handler)
+		sub.PathPrefix(apicfg.Internal.Services.Objectives.Path).HandlerFunc(objectivesfwd.Handler)
 		sub.PathPrefix(apicfg.Internal.Services.Registry.Path).HandlerFunc(registryfwd.Handler)
 	}, l)
 

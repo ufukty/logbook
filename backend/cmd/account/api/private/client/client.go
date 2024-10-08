@@ -1,21 +1,26 @@
 package account
 
 import (
+	"logbook/cmd/objectives/endpoints"
 	"logbook/config/api"
+	"logbook/internal/web/balancer"
+	"logbook/internal/web/requests"
 )
 
 type Client struct {
-	path   string
-	config api.Account
+	lb          *balancer.LoadBalancer
+	servicepath string
+	servicecfg  api.Account
 }
 
-func NewClient(apicfg api.Config) *Client {
+func NewClient(lb *balancer.LoadBalancer, apicfg *api.Config) *Client {
 	return &Client{
-		path:   api.PathFromInternet(apicfg.Public.Services.Account),
-		config: apicfg.Public.Services.Account,
+		servicepath: apicfg.Internal.Services.Account.Path,
+		servicecfg:  apicfg.Internal.Services.Account,
+		lb:          lb,
 	}
 }
 
-// func (c Client) Register(bq *endpoints.CreateUserRequest) (*endpoints.CreateUserResponse, error) {
-// 	return reqs.SendTo[endpoints.CreateUserRequest, endpoints.CreateUserResponse](c.path, c.config.Endpoints.Create, bq)
-// }
+func (c *Client) WhoIs(bq *endpoints.MarkCompleteRequest) (*endpoints.MarkCompleteResponse, error) {
+	return requests.BalancedSend(c.lb, c.servicepath, c.servicecfg.Endpoints.WhoIs, bq, &endpoints.MarkCompleteResponse{})
+}

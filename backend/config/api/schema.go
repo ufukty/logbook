@@ -9,9 +9,9 @@ import (
 )
 
 type Account struct {
-	Endpoints accountEndpoints `yaml:"endpoints"`
-	Path      string           `yaml:"path"`
-	Parent    any              `yaml:"-"`
+	Endpoints endpoints `yaml:"endpoints"`
+	Path      string    `yaml:"path"`
+	Parent    any       `yaml:"-"`
 }
 type Document struct {
 	Endpoints documentEndpoints `yaml:"endpoints"`
@@ -37,9 +37,19 @@ type Public struct {
 	Services publicServices `yaml:"services"`
 }
 type Registry struct {
-	Endpoints endpoints `yaml:"endpoints"`
-	Path      string    `yaml:"path"`
-	Parent    any       `yaml:"-"`
+	Endpoints registryEndpoints `yaml:"endpoints"`
+	Path      string            `yaml:"path"`
+	Parent    any               `yaml:"-"`
+}
+type ServicesAccount struct {
+	Endpoints accountEndpoints `yaml:"endpoints"`
+	Path      string           `yaml:"path"`
+	Parent    any              `yaml:"-"`
+}
+type ServicesObjectives struct {
+	Endpoints servicesObjectivesEndpoints `yaml:"endpoints"`
+	Path      string                      `yaml:"path"`
+	Parent    any                         `yaml:"-"`
 }
 type Tags struct {
 	Endpoints tagsEndpoints `yaml:"endpoints"`
@@ -69,35 +79,44 @@ type endpoint struct {
 	Parent any    `yaml:"-"`
 }
 type endpoints struct {
-	ListInstances    endpoint `yaml:"list-instances"`
-	RecheckInstance  endpoint `yaml:"recheck-instance"`
-	RegisterInstance endpoint `yaml:"register-instance"`
-	Parent           any      `yaml:"-"`
+	WhoIs  endpoint `yaml:"who-is"`
+	Parent any      `yaml:"-"`
 }
 type groupsEndpoints struct {
 	Create endpoint `yaml:"create"`
 	Parent any      `yaml:"-"`
 }
 type objectivesEndpoints struct {
-	Attach     endpoint `yaml:"attach"`
-	Create     endpoint `yaml:"create"`
-	Delete     endpoint `yaml:"delete"`
-	Mark       endpoint `yaml:"mark"`
-	Placement  endpoint `yaml:"placement"`
 	RockCreate endpoint `yaml:"rock-create"`
 	Parent     any      `yaml:"-"`
 }
 type publicServices struct {
-	Account    Account    `yaml:"account"`
-	Document   Document   `yaml:"document"`
-	Groups     Groups     `yaml:"groups"`
-	Objectives Objectives `yaml:"objectives"`
-	Tags       Tags       `yaml:"tags"`
-	Parent     any        `yaml:"-"`
+	Account    ServicesAccount    `yaml:"account"`
+	Document   Document           `yaml:"document"`
+	Groups     Groups             `yaml:"groups"`
+	Objectives ServicesObjectives `yaml:"objectives"`
+	Tags       Tags               `yaml:"tags"`
+	Parent     any                `yaml:"-"`
+}
+type registryEndpoints struct {
+	ListInstances    endpoint `yaml:"list-instances"`
+	RecheckInstance  endpoint `yaml:"recheck-instance"`
+	RegisterInstance endpoint `yaml:"register-instance"`
+	Parent           any      `yaml:"-"`
 }
 type services struct {
-	Registry Registry `yaml:"registry"`
-	Parent   any      `yaml:"-"`
+	Account    Account    `yaml:"account"`
+	Objectives Objectives `yaml:"objectives"`
+	Registry   Registry   `yaml:"registry"`
+	Parent     any        `yaml:"-"`
+}
+type servicesObjectivesEndpoints struct {
+	Attach    endpoint `yaml:"attach"`
+	Create    endpoint `yaml:"create"`
+	Delete    endpoint `yaml:"delete"`
+	Mark      endpoint `yaml:"mark"`
+	Placement endpoint `yaml:"placement"`
+	Parent    any      `yaml:"-"`
 }
 type tagsEndpoints struct {
 	Assign   endpoint `yaml:"assign"`
@@ -111,6 +130,12 @@ type Config struct {
 
 func parentRefAssignments(c *Config) {
 	c.Internal.Services.Parent = &c.Internal
+	c.Internal.Services.Account.Parent = &c.Internal.Services
+	c.Internal.Services.Account.Endpoints.Parent = &c.Internal.Services.Account
+	c.Internal.Services.Account.Endpoints.WhoIs.Parent = &c.Internal.Services.Account.Endpoints
+	c.Internal.Services.Objectives.Parent = &c.Internal.Services
+	c.Internal.Services.Objectives.Endpoints.Parent = &c.Internal.Services.Objectives
+	c.Internal.Services.Objectives.Endpoints.RockCreate.Parent = &c.Internal.Services.Objectives.Endpoints
 	c.Internal.Services.Registry.Parent = &c.Internal.Services
 	c.Internal.Services.Registry.Endpoints.Parent = &c.Internal.Services.Registry
 	c.Internal.Services.Registry.Endpoints.ListInstances.Parent = &c.Internal.Services.Registry.Endpoints
@@ -142,7 +167,6 @@ func parentRefAssignments(c *Config) {
 	c.Public.Services.Objectives.Endpoints.Delete.Parent = &c.Public.Services.Objectives.Endpoints
 	c.Public.Services.Objectives.Endpoints.Mark.Parent = &c.Public.Services.Objectives.Endpoints
 	c.Public.Services.Objectives.Endpoints.Placement.Parent = &c.Public.Services.Objectives.Endpoints
-	c.Public.Services.Objectives.Endpoints.RockCreate.Parent = &c.Public.Services.Objectives.Endpoints
 	c.Public.Services.Tags.Parent = &c.Public.Services
 	c.Public.Services.Tags.Endpoints.Parent = &c.Public.Services.Tags
 	c.Public.Services.Tags.Endpoints.Assign.Parent = &c.Public.Services.Tags.Endpoints
@@ -219,6 +243,24 @@ func (r Registry) GetPath() string {
 func (r *Registry) SetPath(v string) {
 	r.Path = v
 }
+func (s ServicesAccount) GetParent() any {
+	return s.Parent
+}
+func (s ServicesAccount) GetPath() string {
+	return s.Path
+}
+func (s *ServicesAccount) SetPath(v string) {
+	s.Path = v
+}
+func (s ServicesObjectives) GetParent() any {
+	return s.Parent
+}
+func (s ServicesObjectives) GetPath() string {
+	return s.Path
+}
+func (s *ServicesObjectives) SetPath(v string) {
+	s.Path = v
+}
 func (t Tags) GetParent() any {
 	return t.Parent
 }
@@ -261,7 +303,13 @@ func (o objectivesEndpoints) GetParent() any {
 func (p publicServices) GetParent() any {
 	return p.Parent
 }
+func (r registryEndpoints) GetParent() any {
+	return r.Parent
+}
 func (s services) GetParent() any {
+	return s.Parent
+}
+func (s servicesObjectivesEndpoints) GetParent() any {
 	return s.Parent
 }
 func (t tagsEndpoints) GetParent() any {

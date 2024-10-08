@@ -1,5 +1,5 @@
 public:
-  path: /api/v1.0.0
+  path: /api/public
   services:
     account:
       path: /account
@@ -12,8 +12,8 @@ public:
         reserve_username: { method: POST, path: "/registration/reserve_username" }
         verify_phone: { method: POST, path: "/registration/verify/phone" }
         verify_email: { method: POST, path: "/registration/verify/email" }
-        register: { method: "POST", path: "/registration/register" }
-        totp: { method: "POST", path: "/registration/totp" }
+        register: { method: POST, path: "/registration/register" }
+        totp: { method: POST, path: "/registration/totp" }
 
     document:
       path: /document
@@ -33,7 +33,6 @@ public:
         delete: { method: POST, path: "/delete" }
         placement: { method: GET, path: "/{root}/placement" }
         mark: { method: POST, path: "/mark" }
-        rock-create: { method: POST, path: "/rock" }
 
     tags:
       path: /tags
@@ -42,11 +41,21 @@ public:
         assign: { method: POST, path: "/assign" }
 
 internal:
-  path: /internal
+  path: /api/private
   services:
+    account:
+      path: /account
+      endpoints:
+        who-is: { method: POST, path: "/whois" }
+
+    objectives:
+      path: /objectives
+      endpoints:
+        rock-create: { method: POST, path: "/rock" }
+
     registry:
       path: /registry
       endpoints:
-        register-instance: { path: "/register", method: POST }
-        list-instances: { path: "/list/{service}", method: GET }
-        recheck-instance: { path: "/recheck", method: POST }
+        register-instance: { method: POST, path: "/register" }
+        list-instances: { method: GET, path: "/list/{service}" }
+        recheck-instance: { method: POST, path: "/recheck" }
