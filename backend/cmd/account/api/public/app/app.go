@@ -3,7 +3,7 @@ package app
 import (
 	"logbook/cmd/account/api/public/app/authz"
 	"logbook/cmd/account/database"
-	objectives "logbook/cmd/objectives/client"
+	objectives "logbook/cmd/objectives/api/private/client"
 	"logbook/config/api"
 
 	"github.com/jackc/pgx/v5/pgxpool"

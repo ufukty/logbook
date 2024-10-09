@@ -1,7 +1,7 @@
 package endpoints
 
 import (
-	"logbook/cmd/account/api/private/app"
+	"logbook/cmd/objectives/api/private/app"
 	"logbook/internal/logger"
 )
 

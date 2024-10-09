@@ -13,8 +13,7 @@ import (
 	"logbook/internal/web/router"
 	"logbook/internal/web/sidecar"
 	"logbook/models"
-
-	"github.com/gorilla/mux"
+	"net/http"
 )
 
 func Main() error {
@@ -46,11 +45,9 @@ func Main() error {
 		Port:   deplcfg.Ports.Gateway,
 		TlsCrt: args.TlsCertificate,
 		TlsKey: args.TlsKey,
-	}, func(r *mux.Router) {
-		r = r.UseEncodedPath()
-		sub := r.PathPrefix(apicfg.Public.Path).Subrouter()
-		sub.PathPrefix(apicfg.Public.Services.Account.Path).HandlerFunc(accounts.Handler)
-		sub.PathPrefix(apicfg.Public.Services.Objectives.Path).HandlerFunc(objectives.Handler)
+	}, func(r *http.ServeMux) {
+		r.Handle(apicfg.Public.Services.Account.Path, http.StripPrefix(apicfg.Public.Path, accounts))
+		r.Handle(apicfg.Public.Services.Objectives.Path, http.StripPrefix(apicfg.Public.Path, objectives))
 	}, l)
 
 	return nil

@@ -2,23 +2,51 @@ package app
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"logbook/cmd/account/database"
 	"logbook/models/columns"
+
+	"github.com/jackc/pgx/v5"
 )
 
-type WhoIsParams struct {
-	SessionToken columns.SessionToken
-}
+var (
+	ErrSessionNotFound = fmt.Errorf("session not found")
+	ErrUserNotFound    = fmt.Errorf("user not found")
+	ErrProfileNotFound = fmt.Errorf("profile not found")
+)
 
-func (a *App) WhoIs(ctx context.Context, params WhoIsParams) (columns.UserId, error) {
-	ss, err := a.oneshot.SelectSessionByToken(ctx, params.SessionToken)
+func (a *App) WhoIs(ctx context.Context, token columns.SessionToken) (*database.Profile, error) {
+	session, err := a.oneshot.SelectSessionByToken(ctx, token)
 	if err != nil {
-		return columns.ZeroUserId, fmt.Errorf("oneshot.SelectSessionByToken: %w", err)
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, ErrSessionNotFound
+		} else {
+			return nil, fmt.Errorf("fetch session details from database: %w", err)
+		}
 	}
 
-	if ss.Uid == columns.ZeroUserId {
-		return columns.ZeroUserId, fmt.Errorf("unexpected zero user id found in database")
+	if session.Deleted {
+		return nil, ErrSessionNotFound
 	}
 
-	return ss.Uid, nil
+	if hasSessionExpired(session) {
+		return nil, ErrExpiredSession
+	}
+
+	user, err := a.oneshot.SelectUserByUserId(ctx, session.Uid)
+	if err != nil {
+		return nil, fmt.Errorf("fetch user details from database: %w", err)
+	}
+
+	if user.Deleted {
+		return nil, ErrUserNotFound
+	}
+
+	profile, err := a.oneshot.SelectLatestProfileByUid(ctx, session.Uid)
+	if err != nil {
+		return nil, ErrProfileNotFound
+	}
+
+	return &profile, nil
 }

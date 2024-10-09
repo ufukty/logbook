@@ -3,11 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
-	"logbook/cmd/objectives/app"
-	"logbook/cmd/objectives/endpoints"
+	"logbook/cmd/objectives/api/public"
 	"logbook/cmd/objectives/service"
 	registry "logbook/cmd/registry/client"
-	"logbook/config/api"
 	"logbook/internal/logger"
 	"logbook/internal/startup"
 	"logbook/internal/web/balancer"
@@ -15,6 +13,7 @@ import (
 	"logbook/internal/web/router"
 	"logbook/internal/web/sidecar"
 	"logbook/models"
+	"net/http"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -42,11 +41,10 @@ func Main() error {
 	sc := sidecar.New(registry.NewClient(balancer.New(internalsd), apicfg, true), deplcfg, []models.Service{}, l)
 	defer sc.Stop()
 
-	app := app.New(pool, l)
-	eps := endpoints.New(app, l)
+	pub := public.New(apicfg, deplcfg, pool, sc, l)
+	pri := public.New(apicfg, deplcfg, pool, sc, l)
 
-	s := apicfg.Public.Services.Objectives
-	router.StartServerWithEndpoints(router.ServerParameters{
+	router.StartServer(router.ServerParameters{
 		Address: args.PrivateNetworkIp,
 		Port:    deplcfg.Ports.Objectives,
 		Router:  deplcfg.Router,
@@ -54,12 +52,9 @@ func Main() error {
 		Sidecar: sc,
 		TlsCrt:  args.TlsCertificate,
 		TlsKey:  args.TlsKey,
-	}, map[api.Endpoint]router.EndpointDetails{
-		s.Endpoints.Attach:    {Handler: eps.ReattachObjective},
-		s.Endpoints.Create:    {Handler: eps.CreateObjective},
-		s.Endpoints.Mark:      {Handler: eps.MarkComplete},
-		s.Endpoints.Placement: {Handler: eps.GetPlacementArray},
-		// s.Endpoints.RockCreate: {Handler: eps.RockCreate},
+	}, func(r *http.ServeMux) {
+		pub.Register(r)
+		pri.Register(r)
 	}, l)
 
 	return nil

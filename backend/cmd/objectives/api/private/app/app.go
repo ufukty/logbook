@@ -1,8 +1,8 @@
 package app
 
 import (
-	"logbook/cmd/account/database"
-	"logbook/config/api"
+	"logbook/cmd/objectives/database"
+	"logbook/internal/logger"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -10,11 +10,14 @@ import (
 type App struct {
 	pool    *pgxpool.Pool
 	oneshot *database.Queries
+
+	l *logger.Logger
 }
 
-func New(pool *pgxpool.Pool, apicfg *api.Config) *App {
+func New(pool *pgxpool.Pool, l *logger.Logger) *App {
 	return &App{
 		pool:    pool,
 		oneshot: database.New(pool),
+		l:       l.Sub("App"),
 	}
 }

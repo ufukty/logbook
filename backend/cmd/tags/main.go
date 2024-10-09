@@ -5,10 +5,8 @@ import (
 	"fmt"
 	"log"
 	registry "logbook/cmd/registry/client"
-	"logbook/cmd/tags/app"
-	"logbook/cmd/tags/endpoints"
+	"logbook/cmd/tags/api/public"
 	"logbook/cmd/tags/service"
-	"logbook/config/api"
 	"logbook/internal/logger"
 	"logbook/internal/startup"
 	"logbook/internal/web/balancer"
@@ -16,6 +14,7 @@ import (
 	"logbook/internal/web/router"
 	"logbook/internal/web/sidecar"
 	"logbook/models"
+	"net/http"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -42,12 +41,10 @@ func Main() error {
 	sc := sidecar.New(registry.NewClient(balancer.New(internalsd), apicfg, true), deplcfg, []models.Service{}, l)
 	defer sc.Stop()
 
-	app := app.New(pool, apicfg, internalsd)
-	eps := endpoints.New(app, l)
+	pub := public.New(apicfg, deplcfg, pool, internalsd, l)
 
 	// TODO: tls between services needs certs per host(name)
-	s := apicfg.Public.Services.Tags
-	router.StartServerWithEndpoints(router.ServerParameters{
+	router.StartServer(router.ServerParameters{
 		Address: args.PrivateNetworkIp,
 		Port:    deplcfg.Ports.Tags,
 		Router:  deplcfg.Router,
@@ -55,9 +52,8 @@ func Main() error {
 		Sidecar: sc,
 		TlsCrt:  args.TlsCertificate,
 		TlsKey:  args.TlsKey,
-	}, map[api.Endpoint]router.EndpointDetails{
-		s.Endpoints.Assign:   {Handler: eps.TagAssign},
-		s.Endpoints.Creation: {Handler: eps.TagCreation},
+	}, func(r *http.ServeMux) {
+		pub.Register(r)
 	}, l)
 
 	return nil

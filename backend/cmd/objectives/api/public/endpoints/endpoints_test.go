@@ -3,20 +3,17 @@ package endpoints
 import (
 	"context"
 	"fmt"
-	"logbook/cmd/account/api/public/app"
-	"logbook/cmd/account/database"
-	"logbook/cmd/account/service"
-	"logbook/config/api"
+	"logbook/cmd/objectives/api/public/app"
+	"logbook/cmd/objectives/database"
+	"logbook/cmd/objectives/service"
 	"logbook/internal/logger"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func getTestDependencies() (*Endpoints, error) {
-	apicfg, err := api.ReadConfig("../../../../../api.yml")
-	if err != nil {
-		return nil, fmt.Errorf("reading api config: %w", err)
-	}
+	l := logger.New("test")
+
 	srvcnf, err := service.ReadConfig("../../../local.yml")
 	if err != nil {
 		return nil, fmt.Errorf("reading service config: %w", err)
@@ -28,10 +25,9 @@ func getTestDependencies() (*Endpoints, error) {
 
 	pool, err := pgxpool.New(context.Background(), srvcnf.Database.Dsn)
 	if err != nil {
-		return nil, fmt.Errorf("connecting database: %w", err)
+		return nil, fmt.Errorf("pgxpool.New: %w", err)
 	}
-	defer pool.Close()
-
-	a := app.New(pool, apicfg, nil) // FIXME: mock objectives service?
-	return New(a, logger.New("test")), nil
+	app := app.New(pool, l)
+	ep := New(app, l)
+	return ep, nil
 }

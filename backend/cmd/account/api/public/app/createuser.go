@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"logbook/cmd/account/database"
-	"logbook/cmd/objectives/endpoints"
+	"logbook/cmd/objectives/api/private/endpoints"
 	"logbook/models/columns"
 	"time"
 

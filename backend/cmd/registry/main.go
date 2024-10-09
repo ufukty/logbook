@@ -8,6 +8,7 @@ import (
 	"logbook/internal/logger"
 	"logbook/internal/startup"
 	"logbook/internal/web/router"
+	"net/http"
 	"os"
 )
 
@@ -21,18 +22,24 @@ func Main() error {
 
 	a := app.New(deplycfg, l)
 	defer a.Stop()
-	eps := endpoints.New(a, l)
+	e := endpoints.New(a, l)
 
 	s := apicfg.Internal.Services.Registry
-	router.StartServerWithEndpoints(router.ServerParameters{
+	router.StartServer(router.ServerParameters{
 		Port:   deplycfg.Ports.Registry,
 		Router: deplycfg.Router,
 		TlsCrt: args.TlsCertificate,
 		TlsKey: args.TlsKey,
-	}, map[api.Endpoint]router.EndpointDetails{
-		s.Endpoints.ListInstances:    {Handler: eps.ListInstances},
-		s.Endpoints.RecheckInstance:  {Handler: eps.RecheckInstance},
-		s.Endpoints.RegisterInstance: {Handler: eps.RegisterInstance},
+	}, func(r *http.ServeMux) {
+		eps := map[api.Endpoint]http.HandlerFunc{
+			s.Endpoints.ListInstances:    e.ListInstances,
+			s.Endpoints.RecheckInstance:  e.RecheckInstance,
+			s.Endpoints.RegisterInstance: e.RegisterInstance,
+		}
+
+		for ep, handler := range eps {
+			r.HandleFunc(fmt.Sprintf("%s %s", ep.GetMethod(), ep.GetPath()), handler)
+		}
 	}, l)
 
 	return nil

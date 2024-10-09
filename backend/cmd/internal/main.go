@@ -10,11 +10,10 @@ import (
 	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router"
 	"logbook/models"
-
-	"github.com/gorilla/mux"
+	"net/http"
 )
 
-func mainerr() error {
+func Main() error {
 	l := logger.New("internal-gateway")
 
 	args, deplcfg, apicfg, err := startup.InternalGateway(l)
@@ -28,28 +27,27 @@ func mainerr() error {
 	}, l)
 	defer registrysd.Stop()
 
-	accountfwd := forwarder.New(registrysd, models.Discovery, api.PathFromInternet(apicfg.Internal.Services.Account), l)
-	objectivesfwd := forwarder.New(registrysd, models.Discovery, api.PathFromInternet(apicfg.Internal.Services.Objectives), l)
-	registryfwd := forwarder.New(registrysd, models.Discovery, api.PathFromInternet(apicfg.Internal.Services.Registry), l)
+	account := forwarder.New(registrysd, models.Discovery, api.PathFromInternet(apicfg.Internal.Services.Account), l)
+	objectives := forwarder.New(registrysd, models.Discovery, api.PathFromInternet(apicfg.Internal.Services.Objectives), l)
+	registry := forwarder.New(registrysd, models.Discovery, api.PathFromInternet(apicfg.Internal.Services.Registry), l)
 
 	router.StartServer(router.ServerParameters{
 		Router: deplcfg.Router,
 		Port:   deplcfg.Ports.Internal,
 		TlsCrt: args.TlsCertificate,
 		TlsKey: args.TlsKey,
-	}, func(r *mux.Router) {
-		r = r.UseEncodedPath()
-		sub := r.PathPrefix(apicfg.Internal.Path).Subrouter()
-		sub.PathPrefix(apicfg.Internal.Services.Account.Path).HandlerFunc(accountfwd.Handler)
-		sub.PathPrefix(apicfg.Internal.Services.Objectives.Path).HandlerFunc(objectivesfwd.Handler)
-		sub.PathPrefix(apicfg.Internal.Services.Registry.Path).HandlerFunc(registryfwd.Handler)
+	}, func(r *http.ServeMux) {
+		// r = r.UseEncodedPath()
+		r.Handle(apicfg.Internal.Services.Account.Path, http.StripPrefix(apicfg.Internal.Path, account))
+		r.Handle(apicfg.Internal.Services.Objectives.Path, http.StripPrefix(apicfg.Internal.Path, objectives))
+		r.Handle(apicfg.Internal.Services.Registry.Path, http.StripPrefix(apicfg.Internal.Path, registry))
 	}, l)
 
 	return nil
 }
 
 func main() {
-	if err := mainerr(); err != nil {
+	if err := Main(); err != nil {
 		log.Fatalln(err)
 	}
 }

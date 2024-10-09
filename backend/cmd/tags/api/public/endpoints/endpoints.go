@@ -1,7 +1,7 @@
 package endpoints
 
 import (
-	"logbook/cmd/account/api/private/app"
+	"logbook/cmd/tags/api/public/app"
 	"logbook/internal/logger"
 )
 
@@ -13,6 +13,6 @@ type Endpoints struct {
 func New(a *app.App, l *logger.Logger) *Endpoints {
 	return &Endpoints{
 		a: a,
-		l: l.Sub("Endpoints"),
+		l: l.Sub("endpoints"),
 	}
 }

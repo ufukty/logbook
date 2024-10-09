@@ -59,7 +59,7 @@ func (lbrp *LoadBalancedReverseProxy) next() (*httputil.ReverseProxy, error) {
 	return nextrp, nil
 }
 
-func (lbrp *LoadBalancedReverseProxy) Handler(w http.ResponseWriter, r *http.Request) {
+func (lbrp *LoadBalancedReverseProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	forwarder, err := lbrp.next()
 	if err != nil {
 		lbrp.l.Println(fmt.Errorf("lbrp.next: %w", err))

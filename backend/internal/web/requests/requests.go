@@ -9,8 +9,6 @@ import (
 	"net/http"
 	"reflect"
 	"strings"
-
-	"github.com/gorilla/mux"
 )
 
 const bodyBufferLimit = 1 << 20 // 1 MB
@@ -52,7 +50,6 @@ func parseUrlFragments[T any](src *http.Request, dst T) error {
 	t := reflect.TypeOf(dst).Elem()
 	v := reflect.ValueOf(dst).Elem()
 	fields := v.NumField()
-	vars := mux.Vars(src)
 	errs := []string{}
 
 	for i := 0; i < fields; i++ {
@@ -63,11 +60,7 @@ func parseUrlFragments[T any](src *http.Request, dst T) error {
 		if !ok {
 			continue
 		}
-		fragmentvalue, ok := vars[fragmentkey]
-		if !ok {
-			errs = append(errs, fmt.Sprintf("url doesn't contain url fragment %q for %T.%s", fragmentkey, dst, ft.Name))
-			continue
-		}
+		fragmentvalue := src.PathValue(fragmentkey)
 
 		if fv.Kind() == reflect.Ptr && fv.IsNil() {
 			fv.Set(reflect.New(fv.Type().Elem())) // init

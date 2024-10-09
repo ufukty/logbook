@@ -25,11 +25,11 @@ func (m *MockInstanceSource) Instances() ([]models.Instance, error) {
 }
 
 func TestCreateUser(t *testing.T) {
-	apicfg, err := api.ReadConfig("../../../api.yml")
+	apicfg, err := api.ReadConfig("../../../../../api.yml")
 	if err != nil {
 		t.Fatal(fmt.Errorf("reading api config: %w", err))
 	}
-	srvcfg, err := service.ReadConfig("../local.yml")
+	srvcfg, err := service.ReadConfig("../../../local.yml")
 	if err != nil {
 		t.Fatal(fmt.Errorf("reading service config: %w", err))
 	}

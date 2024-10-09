@@ -4,21 +4,18 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"logbook/cmd/account/api/public/app"
-	"logbook/cmd/account/api/public/endpoints"
+	"logbook/cmd/account/api/private"
+	"logbook/cmd/account/api/public"
 	"logbook/cmd/account/service"
-	objectives "logbook/cmd/objectives/client"
 	registry "logbook/cmd/registry/client"
-	"logbook/config/api"
 	"logbook/internal/logger"
 	"logbook/internal/startup"
 	"logbook/internal/web/balancer"
 	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router"
-	"logbook/internal/web/router/cors"
 	"logbook/internal/web/sidecar"
 	"logbook/models"
-	"net/url"
+	"net/http"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -47,19 +44,11 @@ func Main() error {
 	}, l)
 	defer sc.Stop()
 
-	objectivesctl := objectives.NewClient(balancer.New(sc.InstanceSource(models.Objectives)), apicfg)
+	pub := public.New(apicfg, deplcfg, pool, sc, l)
+	pri := private.New(apicfg, deplcfg, pool, l)
 
-	app := app.New(pool, apicfg, objectivesctl)
-	em := endpoints.New(app, l)
-	s := apicfg.Public.Services.Account
-
-	origin, err := url.JoinPath(deplcfg.Router.Cors.AllowOrigin)
-	if err != nil {
-		return fmt.Errorf("url.JoinPath: %w", err)
-	}
-	c := cors.Same(origin)
 	// TODO: tls between services needs certs per host(name)
-	router.StartServerWithEndpoints(router.ServerParameters{
+	router.StartServer(router.ServerParameters{
 		Address: args.PrivateNetworkIp,
 		Port:    deplcfg.Ports.Accounts,
 		Router:  deplcfg.Router,
@@ -67,12 +56,9 @@ func Main() error {
 		Sidecar: sc,
 		TlsCrt:  args.TlsCertificate,
 		TlsKey:  args.TlsKey,
-	}, map[api.Endpoint]router.EndpointDetails{
-		s.Endpoints.CreateUser:    {em.CreateUser, c},
-		s.Endpoints.CreateProfile: {em.CreateProfile, c},
-		s.Endpoints.Login:         {em.Login, c},
-		s.Endpoints.Logout:        {em.Logout, c},
-		s.Endpoints.Whoami:        {em.WhoAmI, c},
+	}, func(r *http.ServeMux) {
+		pub.Register(r)
+		pri.Register(r)
 	}, l)
 
 	return nil

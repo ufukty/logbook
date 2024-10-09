@@ -1,7 +1,7 @@
 package account
 
 import (
-	"logbook/cmd/objectives/endpoints"
+	"logbook/cmd/account/api/private/endpoints"
 	"logbook/config/api"
 	"logbook/internal/web/balancer"
 	"logbook/internal/web/requests"
@@ -21,6 +21,6 @@ func NewClient(lb *balancer.LoadBalancer, apicfg *api.Config) *Client {
 	}
 }
 
-func (c *Client) WhoIs(bq *endpoints.MarkCompleteRequest) (*endpoints.MarkCompleteResponse, error) {
-	return requests.BalancedSend(c.lb, c.servicepath, c.servicecfg.Endpoints.WhoIs, bq, &endpoints.MarkCompleteResponse{})
+func (c *Client) WhoIs(bq *endpoints.WhoIsRequest) (*endpoints.WhoIsResponse, error) {
+	return requests.BalancedSend(c.lb, c.servicepath, c.servicecfg.Endpoints.WhoIs, bq, &endpoints.WhoIsResponse{})
 }

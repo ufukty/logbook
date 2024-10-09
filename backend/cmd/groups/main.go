@@ -3,11 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
-	"logbook/cmd/groups/app"
-	"logbook/cmd/groups/endpoints"
+	"logbook/cmd/groups/api/public"
 	"logbook/cmd/groups/service"
 	registry "logbook/cmd/registry/client"
-	"logbook/config/api"
 	"logbook/internal/logger"
 	"logbook/internal/startup"
 	"logbook/internal/web/balancer"
@@ -15,6 +13,7 @@ import (
 	"logbook/internal/web/router"
 	"logbook/internal/web/sidecar"
 	"logbook/models"
+	"net/http"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -42,11 +41,9 @@ func Main() error {
 	sc := sidecar.New(registry.NewClient(balancer.New(internalsd), apicfg, true), deplcfg, []models.Service{}, l)
 	defer sc.Stop()
 
-	app := app.New(pool)
-	eps := endpoints.New(app, l)
+	pub := public.New(apicfg, deplcfg, pool, sc, l)
 
-	s := apicfg.Public.Services.Groups
-	router.StartServerWithEndpoints(router.ServerParameters{
+	router.StartServer(router.ServerParameters{
 		Address: args.PrivateNetworkIp,
 		Port:    deplcfg.Ports.Objectives,
 		Router:  deplcfg.Router,
@@ -54,8 +51,8 @@ func Main() error {
 		Sidecar: sc,
 		TlsCrt:  args.TlsCertificate,
 		TlsKey:  args.TlsKey,
-	}, map[api.Endpoint]router.EndpointDetails{
-		s.Endpoints.Create: {Handler: eps.CreateGroup},
+	}, func(r *http.ServeMux) {
+		pub.Register(r)
 	}, l)
 
 	return nil
