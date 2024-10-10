@@ -37,8 +37,10 @@ func Main() error {
 	defer internalsd.Stop()
 	defer sc.Stop()
 
-	accounts := forwarder.New(sc.InstanceSource(models.Account), models.Account, api.PathFromInternet(apicfg.Public.Services.Account), l)
-	objectives := forwarder.New(sc.InstanceSource(models.Objectives), models.Objectives, api.PathFromInternet(apicfg.Public.Services.Objectives), l)
+	var (
+		accounts   = forwarder.New(sc.InstanceSource(models.Account), models.Account, api.PathFromInternet(apicfg.Public.Services.Account), l)
+		objectives = forwarder.New(sc.InstanceSource(models.Objectives), models.Objectives, api.PathFromInternet(apicfg.Public.Services.Objectives), l)
+	)
 
 	router.StartServer(router.ServerParameters{
 		Router: deplcfg.Router,

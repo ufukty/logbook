@@ -27,9 +27,11 @@ func Main() error {
 	}, l)
 	defer registrysd.Stop()
 
-	account := forwarder.New(registrysd, models.Discovery, api.PathFromInternet(apicfg.Internal.Services.Account), l)
-	objectives := forwarder.New(registrysd, models.Discovery, api.PathFromInternet(apicfg.Internal.Services.Objectives), l)
-	registry := forwarder.New(registrysd, models.Discovery, api.PathFromInternet(apicfg.Internal.Services.Registry), l)
+	var (
+		account    = forwarder.New(registrysd, models.Discovery, api.PathFromInternet(apicfg.Internal.Services.Account), l)
+		objectives = forwarder.New(registrysd, models.Discovery, api.PathFromInternet(apicfg.Internal.Services.Objectives), l)
+		registry   = forwarder.New(registrysd, models.Discovery, api.PathFromInternet(apicfg.Internal.Services.Registry), l)
+	)
 
 	router.StartServer(router.ServerParameters{
 		Router: deplcfg.Router,
