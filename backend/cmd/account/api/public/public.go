@@ -47,7 +47,7 @@ func (p *Public) Register(r *http.ServeMux) error {
 	s := p.apicfg.Public.Services.Account
 
 	eps := map[api.Endpoint]http.HandlerFunc{
-		s.Endpoints.CreateUser:    p.em.CreateUser,
+		s.Endpoints.CreateAccount: p.em.CreateAccount,
 		s.Endpoints.CreateProfile: p.em.CreateProfile,
 		s.Endpoints.Login:         p.em.Login,
 		s.Endpoints.Logout:        p.em.Logout,

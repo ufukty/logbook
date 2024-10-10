@@ -9,14 +9,14 @@ import (
 	"net/http"
 )
 
-type CreateUserRequest struct {
+type CreateAccountRequest struct {
 	Email     columns.Email     `json:"email"`
 	Password  string            `json:"password"`
 	Firstname columns.HumanName `json:"firstname"`
 	Lastname  columns.HumanName `json:"lastname"`
 }
 
-func (bq CreateUserRequest) validate() error {
+func (bq CreateAccountRequest) validate() error {
 	return validate.All(map[string]validate.Validator{
 		"email":     bq.Email,
 		"firstname": bq.Firstname,
@@ -37,8 +37,8 @@ func (bq CreateUserRequest) validate() error {
  * TODO: Create first bookmark
  * TODO: Wrap creation of user-task-bookmark with transaction, rollback on failure to not-lock person to re-register with same email
  */
-func (e *Endpoints) CreateUser(w http.ResponseWriter, r *http.Request) {
-	bq := &CreateUserRequest{}
+func (e *Endpoints) CreateAccount(w http.ResponseWriter, r *http.Request) {
+	bq := &CreateAccountRequest{}
 
 	if err := requests.ParseRequest(w, r, bq); err != nil {
 		e.l.Println(fmt.Errorf("binding: %w", err))
@@ -52,7 +52,7 @@ func (e *Endpoints) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := e.a.CreateUser(r.Context(), app.RegistrationParameters{
+	err := e.a.CreateAccount(r.Context(), app.CreateAccountRequest{
 		Firstname: bq.Firstname,
 		Lastname:  bq.Lastname,
 		Email:     bq.Email,

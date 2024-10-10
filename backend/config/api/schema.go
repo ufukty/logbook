@@ -3,9 +3,9 @@
 package api
 
 import (
+	"os"
 	"fmt"
 	"gopkg.in/yaml.v3"
-	"os"
 )
 
 type Account struct {
@@ -57,8 +57,8 @@ type Tags struct {
 	Parent    any           `yaml:"-"`
 }
 type accountEndpoints struct {
+	CreateAccount   endpoint `yaml:"create_account"`
 	CreateProfile   endpoint `yaml:"create_profile"`
-	CreateUser      endpoint `yaml:"create_user"`
 	Login           endpoint `yaml:"login"`
 	Logout          endpoint `yaml:"logout"`
 	Register        endpoint `yaml:"register"`
@@ -144,8 +144,8 @@ func parentRefAssignments(c *Config) {
 	c.Public.Services.Parent = &c.Public
 	c.Public.Services.Account.Parent = &c.Public.Services
 	c.Public.Services.Account.Endpoints.Parent = &c.Public.Services.Account
+	c.Public.Services.Account.Endpoints.CreateAccount.Parent = &c.Public.Services.Account.Endpoints
 	c.Public.Services.Account.Endpoints.CreateProfile.Parent = &c.Public.Services.Account.Endpoints
-	c.Public.Services.Account.Endpoints.CreateUser.Parent = &c.Public.Services.Account.Endpoints
 	c.Public.Services.Account.Endpoints.Login.Parent = &c.Public.Services.Account.Endpoints
 	c.Public.Services.Account.Endpoints.Logout.Parent = &c.Public.Services.Account.Endpoints
 	c.Public.Services.Account.Endpoints.Register.Parent = &c.Public.Services.Account.Endpoints

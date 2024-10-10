@@ -24,7 +24,7 @@ func (m *MockInstanceSource) Instances() ([]models.Instance, error) {
 	return *m, nil
 }
 
-func TestCreateUser(t *testing.T) {
+func TestCreateAccount(t *testing.T) {
 	apicfg, err := api.ReadConfig("../../../../../api.yml")
 	if err != nil {
 		t.Fatal(fmt.Errorf("reading api config: %w", err))
@@ -40,8 +40,8 @@ func TestCreateUser(t *testing.T) {
 	}
 
 	r := httptest.NewRequest(
-		apicfg.Public.Services.Account.Endpoints.CreateUser.Method,
-		apicfg.Public.Services.Account.Endpoints.CreateUser.Path,
+		apicfg.Public.Services.Account.Endpoints.CreateAccount.Method,
+		apicfg.Public.Services.Account.Endpoints.CreateAccount.Path,
 		// strings.NewReader(`{"firstname": "Tiésto","lastname": "McSingleton","email": "test@test.balaasad.com","password": "123456789"}`),
 		strings.NewReader(`{
 			"firstname": "Tiésto",
@@ -62,7 +62,7 @@ func TestCreateUser(t *testing.T) {
 	a := app.New(pool, apicfg, nil) // FIXME: mock objectives service?
 	ep := New(a, logger.New("test"))
 
-	ep.CreateUser(w, r)
+	ep.CreateAccount(w, r)
 
 	if w.Result().StatusCode != http.StatusOK {
 		t.Fatal("status is not ok")

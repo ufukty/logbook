@@ -7,7 +7,7 @@ import (
 	"logbook/models/columns"
 )
 
-func (a *App) DeleteUser(ctx context.Context, uid columns.UserId) error {
+func (a *App) DeleteAccount(ctx context.Context, uid columns.UserId) error {
 	tx, err := a.pool.Begin(ctx)
 	if err != nil {
 		return fmt.Errorf("pool.Begin: %w", err)

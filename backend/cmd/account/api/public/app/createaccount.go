@@ -19,7 +19,7 @@ var argon2idParams = &argon2id.Params{
 	KeyLength:   32,
 }
 
-type RegistrationParameters struct {
+type CreateAccountRequest struct {
 	CsrfToken string
 
 	Firstname columns.HumanName
@@ -38,7 +38,7 @@ type RegistrationParameters struct {
 
 var ErrEmailExists = fmt.Errorf("email in use")
 
-func (a *App) CreateUser(ctx context.Context, params RegistrationParameters) error {
+func (a *App) CreateAccount(ctx context.Context, params CreateAccountRequest) error {
 	tx, err := a.pool.Begin(ctx)
 	if err != nil {
 		return fmt.Errorf("pool.Begin: %w", err)

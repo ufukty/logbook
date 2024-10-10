@@ -23,11 +23,11 @@ func TestByGateway(t *testing.T) {
 	}
 
 	tcs := map[addressable]string{
-		c.Public:                  "/api/public",
-		c.Public.Services.Account: "/api/public/account/public",
-		c.Public.Services.Account.Endpoints.CreateUser: "/api/public/account/public/user",
-		c.Public.Services.Document:                     "/api/public/document/public",
-		c.Public.Services.Document.Endpoints.List:      "/api/public/document/public/list/{root}",
+		c.Public:                  "/api",
+		c.Public.Services.Account: "/api/account",
+		c.Public.Services.Account.Endpoints.CreateAccount: "/api/account/account",
+		c.Public.Services.Document:                        "/api/document",
+		c.Public.Services.Document.Endpoints.List:         "/api/document/list/{root}",
 	}
 
 	for in, want := range tcs {

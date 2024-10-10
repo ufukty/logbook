@@ -5,7 +5,7 @@ public:
       path: /account
       endpoints:
         create_profile: { method: POST, path: "/profile" }
-        create_user: { method: POST, path: "/user" }
+        create_account: { method: POST, path: "/account" }
         login: { method: POST, path: "/login" }
         logout: { method: POST, path: "/logout" }
         whoami: { method: GET, path: "/whoami" }
