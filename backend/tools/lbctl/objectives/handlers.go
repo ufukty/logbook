@@ -4,8 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	privapp "logbook/cmd/objectives/api/private/app"
-	"logbook/cmd/objectives/api/public/app"
+	"logbook/cmd/objectives/app"
 	"logbook/cmd/objectives/service"
 	"logbook/internal/logger"
 	"logbook/internal/utils/reflux"
@@ -405,7 +404,7 @@ func rockCreate() error {
 		return fmt.Errorf("pgxpool.New: %w", err)
 	}
 	defer pool.Close()
-	a := privapp.New(pool, logger.New("rockCreate"))
+	a := app.New(pool, logger.New("rockCreate"))
 
 	err = a.RockCreate(context.Background(), columns.UserId(flags.UserId))
 	if err != nil {
