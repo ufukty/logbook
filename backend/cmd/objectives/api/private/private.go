@@ -8,20 +8,25 @@ import (
 	"logbook/config/deployment"
 	"logbook/internal/logger"
 	"net/http"
-	"path/filepath"
 )
 
 type Private struct {
-	apicfg *api.Config
-	em     *endpoints.Endpoints
+	apicfg  *api.Config
+	em      *endpoints.Endpoints
+	deplcfg *deployment.Config
+	l       *logger.Logger
 }
 
 func New(apicfg *api.Config, deplcfg *deployment.Config, a *app.App, l *logger.Logger) *Private {
+	l = l.Sub("Private")
+
 	em := endpoints.New(a, l)
 
 	return &Private{
-		apicfg: apicfg,
-		em:     em,
+		apicfg:  apicfg,
+		em:      em,
+		deplcfg: deplcfg,
+		l:       l,
 	}
 }
 
@@ -33,8 +38,9 @@ func (p *Private) Register(r *http.ServeMux) error {
 	}
 
 	for ep, handler := range eps {
-		path := filepath.Join("/private", ep.GetPath())
-		r.HandleFunc(fmt.Sprintf("%s %s", ep.GetMethod(), path), handler)
+		pattern := fmt.Sprintf("%s %s", ep.GetMethod(), api.ByService(ep))
+		p.l.Printf("registering: %s -> %p\n", pattern, handler)
+		r.HandleFunc(pattern, handler)
 	}
 
 	return nil

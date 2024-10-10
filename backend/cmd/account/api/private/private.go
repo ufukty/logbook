@@ -8,7 +8,6 @@ import (
 	"logbook/config/deployment"
 	"logbook/internal/logger"
 	"net/http"
-	"path/filepath"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -18,16 +17,20 @@ type Private struct {
 	apicfg  *api.Config
 	deplcfg *deployment.Config
 	em      *endpoints.Endpoints
+	l       *logger.Logger
 }
 
 func New(apicfg *api.Config, deplcfg *deployment.Config, pool *pgxpool.Pool, l *logger.Logger) *Private {
+	l = l.Sub("Private")
 	app := app.New(pool, apicfg)
 	em := endpoints.New(app, l)
 
 	return &Private{
-		pool:   pool,
-		apicfg: apicfg,
-		em:     em,
+		pool:    pool,
+		apicfg:  apicfg,
+		deplcfg: deplcfg,
+		em:      em,
+		l:       l,
 	}
 }
 
@@ -39,8 +42,9 @@ func (p *Private) Register(r *http.ServeMux) error {
 	}
 
 	for ep, handler := range eps {
-		path := filepath.Join("/private", ep.GetPath())
-		r.HandleFunc(fmt.Sprintf("%s %s", ep.GetMethod(), path), handler)
+		pattern := fmt.Sprintf("%s %s", ep.GetMethod(), api.ByService(ep))
+		p.l.Printf("registering: %s -> %p\n", pattern, handler)
+		r.HandleFunc(pattern, handler)
 	}
 
 	return nil

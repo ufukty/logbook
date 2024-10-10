@@ -34,7 +34,7 @@ func Main() error {
 		}
 
 		for ep, handler := range eps {
-			r.HandleFunc(fmt.Sprintf("%s %s", ep.GetMethod(), ep.GetPath()), handler)
+			r.HandleFunc(fmt.Sprintf("%s %s", ep.GetMethod(), api.ByService(ep)), handler)
 		}
 
 		return nil

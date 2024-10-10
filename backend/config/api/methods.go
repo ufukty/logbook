@@ -5,11 +5,11 @@ import (
 	"slices"
 )
 
-type Addressable interface {
+type addressable interface {
 	GetPath() string
 }
 
-func Join(addrs ...Addressable) string {
+func Join(addrs ...addressable) string {
 	j := ""
 	for _, s := range addrs {
 		j = filepath.Join(j, s.GetPath())
@@ -17,39 +17,49 @@ func Join(addrs ...Addressable) string {
 	return j
 }
 
-type Child interface {
+type backtraceable interface {
 	GetParent() any
 }
 
-// endpoint/../.. = service
-// service/../.. = gateway
-func twoup(a Addressable) Addressable {
-	c1, ok := a.(Child)
-	if !ok {
-		return nil
+// follows .Parent refs until finds an [addressable]
+func up(a addressable) addressable {
+	var cursor any = a
+	for {
+		btl, ok := cursor.(backtraceable)
+		if !ok {
+			return nil
+		}
+		cursor = btl.GetParent()
+		if cursor == nil {
+			return nil
+		}
+		a2, ok := cursor.(addressable)
+		if ok {
+			return a2
+		}
 	}
-	p1 := c1.GetParent()
-	c2, ok := p1.(Child)
-	if !ok {
-		return nil
-	}
-	p2 := c2.GetParent()
-	u, ok := p2.(Addressable)
-	if !ok {
-		return nil
-	}
-	return u
 }
 
-func PathFromInternet(a Addressable) string {
-	addressables := []Addressable{a}
-	for i := 0; i < 2; i++ { // endpoint > service (../) > gateway (../../)
-		up := twoup(addressables[len(addressables)-1])
-		if up == nil {
-			break
-		}
-		addressables = append(addressables, up)
+func ancestry(a addressable) []addressable {
+	ads := []addressable{}
+	for cursor := a; cursor != nil; cursor = up(cursor) {
+		ads = append(ads, cursor)
 	}
-	slices.Reverse(addressables)
-	return Join(addressables...)
+	slices.Reverse(ads)
+	return ads
+}
+
+// returns service[,endpoint]
+func ByService(a addressable) string {
+	return Join(ancestry(a)[1:]...)
+}
+
+// returns gateway[,service[,endpoint]]
+func ByGateway(a addressable) string {
+	return Join(ancestry(a)...)
+}
+
+// returns gateway[,service[,endpoint]]
+func PrefixedByGateway(a addressable) string {
+	return Join(ancestry(a)...) + "/"
 }

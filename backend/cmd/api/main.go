@@ -28,23 +28,25 @@ func Main() error {
 		Port: deplcfg.Ports.Internal,
 		Tls:  true,
 	}, l)
+	defer internalsd.Stop()
+
 	// NOTE: service registry needs to be accessed through internal gateway
 	sc := sidecar.New(registry.NewClient(balancer.New(internalsd), apicfg, true), deplcfg, []models.Service{
 		models.Account,
 		models.Objectives,
 	}, l)
 	defer sc.Stop()
-	defer internalsd.Stop()
-	defer sc.Stop()
+
+	s := apicfg.Public.Services
 
 	var (
-		accounts   = forwarder.New(sc.InstanceSource(models.Account), models.Account, api.PathFromInternet(apicfg.Public.Services.Account), l)
-		objectives = forwarder.New(sc.InstanceSource(models.Objectives), models.Objectives, api.PathFromInternet(apicfg.Public.Services.Objectives), l)
+		accounts   = forwarder.New(sc.InstanceSource(models.Account), models.Account, api.ByGateway(s.Account), l)
+		objectives = forwarder.New(sc.InstanceSource(models.Objectives), models.Objectives, api.ByGateway(s.Objectives), l)
 	)
 
 	registerer := func(r *http.ServeMux) error {
-		r.Handle(apicfg.Public.Services.Account.Path, http.StripPrefix(apicfg.Public.Path, accounts))
-		r.Handle(apicfg.Public.Services.Objectives.Path, http.StripPrefix(apicfg.Public.Path, objectives))
+		r.Handle(api.PrefixedByGateway(s.Account), http.StripPrefix(apicfg.Public.Path, accounts))
+		r.Handle(api.PrefixedByGateway(s.Objectives), http.StripPrefix(apicfg.Public.Path, objectives))
 		return nil
 	}
 

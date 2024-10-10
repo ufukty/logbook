@@ -13,7 +13,6 @@ import (
 	"logbook/internal/web/sidecar"
 	"net/http"
 	"net/url"
-	"path/filepath"
 )
 
 type Public struct {
@@ -52,7 +51,7 @@ func (p *Public) Register(r *http.ServeMux) error {
 
 	for ep, handler := range eps {
 		corsed := cors.Simple(handler, origin, []string{ep.GetMethod()}, []string{headers.ContentType, headers.Authorization})
-		path := filepath.Join("/public", ep.GetPath())
+		path := api.ByService(ep)
 		for _, method := range []string{ep.GetMethod(), "OPTIONS"} {
 			pattern := fmt.Sprintf("%s %s", method, path)
 			p.l.Printf("registering: %s -> %p\n", pattern, corsed)

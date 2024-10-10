@@ -27,17 +27,18 @@ func Main() error {
 	}, l)
 	defer registrysd.Stop()
 
+	s := apicfg.Internal.Services
+
 	var (
-		account    = forwarder.New(registrysd, models.Discovery, api.PathFromInternet(apicfg.Internal.Services.Account), l)
-		objectives = forwarder.New(registrysd, models.Discovery, api.PathFromInternet(apicfg.Internal.Services.Objectives), l)
-		registry   = forwarder.New(registrysd, models.Discovery, api.PathFromInternet(apicfg.Internal.Services.Registry), l)
+		account    = forwarder.New(registrysd, models.Discovery, api.ByGateway(s.Account), l)
+		objectives = forwarder.New(registrysd, models.Discovery, api.ByGateway(s.Objectives), l)
+		registry   = forwarder.New(registrysd, models.Discovery, api.ByGateway(s.Registry), l)
 	)
 
 	registerer := func(r *http.ServeMux) error {
-		// r = r.UseEncodedPath()
-		r.Handle(apicfg.Internal.Services.Account.Path, http.StripPrefix(apicfg.Internal.Path, account))
-		r.Handle(apicfg.Internal.Services.Objectives.Path, http.StripPrefix(apicfg.Internal.Path, objectives))
-		r.Handle(apicfg.Internal.Services.Registry.Path, http.StripPrefix(apicfg.Internal.Path, registry))
+		r.Handle(api.PrefixedByGateway(s.Account), http.StripPrefix(apicfg.Internal.Path, account))
+		r.Handle(api.PrefixedByGateway(s.Objectives), http.StripPrefix(apicfg.Internal.Path, objectives))
+		r.Handle(api.PrefixedByGateway(s.Registry), http.StripPrefix(apicfg.Internal.Path, registry))
 		return nil
 	}
 
