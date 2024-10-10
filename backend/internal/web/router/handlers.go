@@ -3,23 +3,18 @@ package router
 import (
 	"context"
 	"fmt"
-	"log"
 	"logbook/internal/logger"
 	"net/http"
-	"net/http/httputil"
-	"strings"
 	"time"
-
-	"github.com/pkg/errors"
 )
+
+func summarize(r *http.Request) string {
+	return fmt.Sprintf("(\033[34m%s\033[0m, \033[35m%s\033[0m) \033[31m%s\033[0m \033[32m%s\033[0m \033[33m%s\033[0m", r.Host, r.RemoteAddr, r.Proto, r.Method, r.URL.Path)
+}
 
 func dumpRequestBuilder(l *logger.Logger) func(r *http.Request) {
 	return func(r *http.Request) {
-		var dump, err = httputil.DumpRequest(r, false)
-		if err != nil {
-			log.Println(errors.Wrap(err, "dumping request"))
-		}
-		l.Printf("%q", strings.ReplaceAll(strings.ReplaceAll(string(dump), "\r\n", " || "), "\n", " | "))
+		l.Println(summarize(r))
 	}
 }
 
@@ -35,11 +30,7 @@ func lastMatchBuilder(l *logger.Logger) func(w http.ResponseWriter, r *http.Requ
 	dumpRequest := dumpRequestBuilder(l)
 	return func(w http.ResponseWriter, r *http.Request) {
 		dumpRequest(r)
-		if r.URL.Path == "/" {
-			http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
-		} else {
-			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
-		}
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 	}
 }
 
