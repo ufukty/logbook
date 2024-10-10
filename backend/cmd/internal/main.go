@@ -33,16 +33,20 @@ func Main() error {
 		registry   = forwarder.New(registrysd, models.Discovery, api.PathFromInternet(apicfg.Internal.Services.Registry), l)
 	)
 
-	router.StartServer(router.ServerParameters{
-		Router: deplcfg.Router,
-		Port:   deplcfg.Ports.Internal,
-		TlsCrt: args.TlsCertificate,
-		TlsKey: args.TlsKey,
-	}, func(r *http.ServeMux) {
+	registerer := func(r *http.ServeMux) error {
 		// r = r.UseEncodedPath()
 		r.Handle(apicfg.Internal.Services.Account.Path, http.StripPrefix(apicfg.Internal.Path, account))
 		r.Handle(apicfg.Internal.Services.Objectives.Path, http.StripPrefix(apicfg.Internal.Path, objectives))
 		r.Handle(apicfg.Internal.Services.Registry.Path, http.StripPrefix(apicfg.Internal.Path, registry))
+		return nil
+	}
+
+	router.StartServer(router.ServerParameters{
+		Router:      deplcfg.Router,
+		Port:        deplcfg.Ports.Internal,
+		TlsCrt:      args.TlsCertificate,
+		TlsKey:      args.TlsKey,
+		Registerers: []router.Registerer{registerer},
 	}, l)
 
 	return nil

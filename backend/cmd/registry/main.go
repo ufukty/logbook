@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"logbook/cmd/registry/app"
 	"logbook/cmd/registry/endpoints"
 	"logbook/config/api"
@@ -9,7 +10,6 @@ import (
 	"logbook/internal/startup"
 	"logbook/internal/web/router"
 	"net/http"
-	"os"
 )
 
 func Main() error {
@@ -24,13 +24,9 @@ func Main() error {
 	defer a.Stop()
 	e := endpoints.New(a, l)
 
-	s := apicfg.Internal.Services.Registry
-	router.StartServer(router.ServerParameters{
-		Port:   deplycfg.Ports.Registry,
-		Router: deplycfg.Router,
-		TlsCrt: args.TlsCertificate,
-		TlsKey: args.TlsKey,
-	}, func(r *http.ServeMux) {
+	registerer := func(r *http.ServeMux) error {
+		s := apicfg.Internal.Services.Registry
+
 		eps := map[api.Endpoint]http.HandlerFunc{
 			s.Endpoints.ListInstances:    e.ListInstances,
 			s.Endpoints.RecheckInstance:  e.RecheckInstance,
@@ -40,14 +36,26 @@ func Main() error {
 		for ep, handler := range eps {
 			r.HandleFunc(fmt.Sprintf("%s %s", ep.GetMethod(), ep.GetPath()), handler)
 		}
+
+		return nil
+	}
+
+	err = router.StartServer(router.ServerParameters{
+		Port:        deplycfg.Ports.Registry,
+		Router:      deplycfg.Router,
+		TlsCrt:      args.TlsCertificate,
+		TlsKey:      args.TlsKey,
+		Registerers: []router.Registerer{registerer},
 	}, l)
+	if err != nil {
+		return fmt.Errorf("router.StartServer: %w", err)
+	}
 
 	return nil
 }
 
 func main() {
 	if err := Main(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.Println(err)
 	}
 }

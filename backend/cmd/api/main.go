@@ -42,21 +42,28 @@ func Main() error {
 		objectives = forwarder.New(sc.InstanceSource(models.Objectives), models.Objectives, api.PathFromInternet(apicfg.Public.Services.Objectives), l)
 	)
 
-	router.StartServer(router.ServerParameters{
-		Router: deplcfg.Router,
-		Port:   deplcfg.Ports.Gateway,
-		TlsCrt: args.TlsCertificate,
-		TlsKey: args.TlsKey,
-	}, func(r *http.ServeMux) {
+	registerer := func(r *http.ServeMux) error {
 		r.Handle(apicfg.Public.Services.Account.Path, http.StripPrefix(apicfg.Public.Path, accounts))
 		r.Handle(apicfg.Public.Services.Objectives.Path, http.StripPrefix(apicfg.Public.Path, objectives))
+		return nil
+	}
+
+	err = router.StartServer(router.ServerParameters{
+		Router:      deplcfg.Router,
+		Port:        deplcfg.Ports.Gateway,
+		TlsCrt:      args.TlsCertificate,
+		TlsKey:      args.TlsKey,
+		Registerers: []router.Registerer{registerer},
 	}, l)
+	if err != nil {
+		return fmt.Errorf("router.StartServer: %w", err)
+	}
 
 	return nil
 }
 
 func main() {
 	if err := Main(); err != nil {
-		log.Fatalln(err)
+		log.Println(err)
 	}
 }

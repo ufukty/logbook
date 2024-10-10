@@ -3,7 +3,6 @@ package router
 import (
 	"context"
 	"fmt"
-	"log"
 	"logbook/config/deployment"
 	"logbook/internal/logger"
 	"logbook/internal/web/sidecar"
@@ -13,9 +12,9 @@ import (
 	"os"
 	"os/signal"
 	"time"
-
-	"github.com/go-chi/chi/v5/middleware"
 )
+
+type Registerer func(r *http.ServeMux) error
 
 type ServerParameters struct {
 	Address string
@@ -25,30 +24,27 @@ type ServerParameters struct {
 	Sidecar *sidecar.Sidecar
 	TlsCrt  string
 	TlsKey  string
+
+	Registerers []Registerer
 }
 
-func StartServer(params ServerParameters, endpointRegisterer func(r *http.ServeMux), l *logger.Logger) {
+func StartServer(params ServerParameters, l *logger.Logger) error {
 	tls := params.TlsKey != "" && params.TlsCrt != ""
 	l.Sub("Router: ")
 
-	mux := http.NewServeMux()
-	endpointRegisterer(mux)
-	mux.HandleFunc("/ping", pongBuilder(l))
-	mux.HandleFunc("/", lastMatchBuilder(l))
-
-	handler := applyMiddleware(mux,
-		middleware.RequestID,
-		middleware.Timeout(time.Duration(params.Router.RequestTimeout)),
-		middleware.Logger,
-		// middleware.MWAuthorization,
-		// mux.CORSMethodMiddleware(r),
-		middleware.Recoverer,
-	)
+	r := http.NewServeMux()
+	for i, registerer := range params.Registerers {
+		err := registerer(r)
+		if err != nil {
+			return fmt.Errorf("calling registerer %d: %w", i, err)
+		}
+	}
+	r.HandleFunc("/ping", pongBuilder(l))
+	r.HandleFunc("/", lastMatchBuilder(l))
 
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", params.Port))
 	if err != nil {
-		l.Printf("net.Listen: %v\n", err)
-		return
+		return fmt.Errorf("net.Listen: %w", err)
 	}
 	defer listener.Close()
 
@@ -62,7 +58,7 @@ func StartServer(params ServerParameters, endpointRegisterer func(r *http.ServeM
 			Port:    port,
 		})
 		if err != nil {
-			l.Printf("Sidecar.SetInstanceDetails: %v\n", err)
+			return fmt.Errorf("Sidecar.SetInstanceDetails: %w", err)
 		}
 	}
 
@@ -71,7 +67,7 @@ func StartServer(params ServerParameters, endpointRegisterer func(r *http.ServeM
 		WriteTimeout: time.Duration(params.Router.WriteTimeout),
 		ReadTimeout:  time.Duration(params.Router.ReadTimeout),
 		IdleTimeout:  time.Duration(params.Router.IdleTimeout),
-		Handler:      handler,
+		Handler:      SimpleHandler(r, params.Router.RequestTimeout),
 	}
 
 	go func() {
@@ -93,10 +89,11 @@ func StartServer(params ServerParameters, endpointRegisterer func(r *http.ServeM
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(params.Router.GracePeriod))
 	defer cancel()
 
-	log.Printf("Shutting down server, grace period is '%s'\n", time.Duration(params.Router.GracePeriod).String())
+	l.Printf("Shutting down server, grace period is '%s'\n", time.Duration(params.Router.GracePeriod).String())
 	if err := server.Shutdown(ctx); err != nil {
-		l.Printf("Server forced to shutdown: %v\n", err)
+		return fmt.Errorf("shutdown: %w", err)
 	}
 
-	log.Println("Server is down")
+	l.Println("Server is down")
+	return nil
 }

@@ -14,23 +14,24 @@ import (
 	"net/http"
 	"net/url"
 	"path/filepath"
-
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Public struct {
-	pool    *pgxpool.Pool
 	apicfg  *api.Config
 	deplcfg *deployment.Config
 	e       *endpoints.Endpoints
+	l       *logger.Logger
 }
 
 func New(apicfg *api.Config, deplcfg *deployment.Config, a *app.App, sc *sidecar.Sidecar, l *logger.Logger) *Public {
+	l = l.Sub("Public")
 	e := endpoints.New(a, l)
 
 	return &Public{
-		apicfg: apicfg,
-		e:      e,
+		apicfg:  apicfg,
+		deplcfg: deplcfg,
+		e:       e,
+		l:       l,
 	}
 }
 
@@ -52,8 +53,11 @@ func (p *Public) Register(r *http.ServeMux) error {
 	for ep, handler := range eps {
 		corsed := cors.Simple(handler, origin, []string{ep.GetMethod()}, []string{headers.ContentType, headers.Authorization})
 		path := filepath.Join("/public", ep.GetPath())
-		r.HandleFunc(fmt.Sprintf("OPTIONS %s", path), corsed)
-		r.HandleFunc(fmt.Sprintf("%s %s", ep.GetMethod(), path), corsed)
+		for _, method := range []string{ep.GetMethod(), "OPTIONS"} {
+			pattern := fmt.Sprintf("%s %s", method, path)
+			p.l.Printf("registering: %s -> %p\n", pattern, corsed)
+			r.HandleFunc(pattern, corsed)
+		}
 	}
 
 	return nil

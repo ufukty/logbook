@@ -15,7 +15,6 @@ import (
 	"logbook/internal/web/router"
 	"logbook/internal/web/sidecar"
 	"logbook/models"
-	"net/http"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -48,24 +47,25 @@ func Main() error {
 	pri := private.New(apicfg, deplcfg, pool, l)
 
 	// TODO: tls between services needs certs per host(name)
-	router.StartServer(router.ServerParameters{
-		Address: args.PrivateNetworkIp,
-		Port:    deplcfg.Ports.Accounts,
-		Router:  deplcfg.Router,
-		Service: models.Account,
-		Sidecar: sc,
-		TlsCrt:  args.TlsCertificate,
-		TlsKey:  args.TlsKey,
-	}, func(r *http.ServeMux) {
-		pub.Register(r)
-		pri.Register(r)
+	err = router.StartServer(router.ServerParameters{
+		Address:     args.PrivateNetworkIp,
+		Port:        deplcfg.Ports.Accounts,
+		Router:      deplcfg.Router,
+		Service:     models.Account,
+		Sidecar:     sc,
+		TlsCrt:      args.TlsCertificate,
+		TlsKey:      args.TlsKey,
+		Registerers: []router.Registerer{pub.Register, pri.Register},
 	}, l)
+	if err != nil {
+		return fmt.Errorf("router.StartServer: %w", err)
+	}
 
 	return nil
 }
 
 func main() {
 	if err := Main(); err != nil {
-		log.Fatalln(err)
+		log.Println(err)
 	}
 }

@@ -13,7 +13,6 @@ import (
 	"logbook/internal/web/router"
 	"logbook/internal/web/sidecar"
 	"logbook/models"
-	"net/http"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -44,15 +43,14 @@ func Main() error {
 	pub := public.New(apicfg, deplcfg, pool, sc, l)
 
 	router.StartServer(router.ServerParameters{
-		Address: args.PrivateNetworkIp,
-		Port:    deplcfg.Ports.Objectives,
-		Router:  deplcfg.Router,
-		Service: models.Groups,
-		Sidecar: sc,
-		TlsCrt:  args.TlsCertificate,
-		TlsKey:  args.TlsKey,
-	}, func(r *http.ServeMux) {
-		pub.Register(r)
+		Address:     args.PrivateNetworkIp,
+		Port:        deplcfg.Ports.Objectives,
+		Router:      deplcfg.Router,
+		Service:     models.Groups,
+		Sidecar:     sc,
+		TlsCrt:      args.TlsCertificate,
+		TlsKey:      args.TlsKey,
+		Registerers: []router.Registerer{pub.Register},
 	}, l)
 
 	return nil

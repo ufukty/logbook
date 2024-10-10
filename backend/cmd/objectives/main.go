@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
+	"logbook/cmd/objectives/api/private"
 	"logbook/cmd/objectives/api/public"
 	"logbook/cmd/objectives/app"
 	"logbook/cmd/objectives/service"
@@ -14,7 +16,6 @@ import (
 	"logbook/internal/web/router"
 	"logbook/internal/web/sidecar"
 	"logbook/models"
-	"net/http"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -45,26 +46,27 @@ func Main() error {
 	app := app.New(pool, l)
 
 	pub := public.New(apicfg, deplcfg, app, sc, l)
-	pri := public.New(apicfg, deplcfg, app, sc, l)
+	pri := private.New(apicfg, deplcfg, app, l)
 
-	router.StartServer(router.ServerParameters{
-		Address: args.PrivateNetworkIp,
-		Port:    deplcfg.Ports.Objectives,
-		Router:  deplcfg.Router,
-		Service: models.Objectives,
-		Sidecar: sc,
-		TlsCrt:  args.TlsCertificate,
-		TlsKey:  args.TlsKey,
-	}, func(r *http.ServeMux) {
-		pub.Register(r)
-		pri.Register(r)
+	err = router.StartServer(router.ServerParameters{
+		Address:     args.PrivateNetworkIp,
+		Port:        deplcfg.Ports.Objectives,
+		Router:      deplcfg.Router,
+		Service:     models.Objectives,
+		Sidecar:     sc,
+		TlsCrt:      args.TlsCertificate,
+		TlsKey:      args.TlsKey,
+		Registerers: []router.Registerer{pub.Register, pri.Register},
 	}, l)
+	if err != nil {
+		return fmt.Errorf("router.StartServer: %w", err)
+	}
 
 	return nil
 }
 
 func main() {
 	if err := Main(); err != nil {
-		panic(err)
+		log.Println(err)
 	}
 }
