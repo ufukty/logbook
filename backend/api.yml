@@ -1,8 +1,8 @@
 public:
-  path: /api/public
+  path: /api
   services:
     account:
-      path: /account/public
+      path: /account
       endpoints:
         create_profile: { method: POST, path: "/profile" }
         create_user: { method: POST, path: "/user" }
@@ -16,17 +16,17 @@ public:
         totp: { method: POST, path: "/registration/totp" }
 
     document:
-      path: /document/public
+      path: /document
       endpoints:
         list: { method: GET, path: "/list/{root}" }
 
     groups:
-      path: /groups/public
+      path: /groups
       endpoints:
         create: { method: POST, path: "group" }
 
     objectives:
-      path: /objectives/public
+      path: /objectives
       endpoints:
         attach: { method: POST, path: "/attach" }
         create: { method: POST, path: "/" }
@@ -35,26 +35,26 @@ public:
         mark: { method: POST, path: "/mark" }
 
     tags:
-      path: /tags/public
+      path: /tags
       endpoints:
         creation: { method: POST, path: "/" }
         assign: { method: POST, path: "/assign" }
 
 internal:
-  path: /api/private
+  path: /internal
   services:
     account:
-      path: /account/private
+      path: /account-int
       endpoints:
         who-is: { method: POST, path: "/whois" }
 
     objectives:
-      path: /objectives/private
+      path: /objectives-int
       endpoints:
         rock-create: { method: POST, path: "/rock" }
 
     registry:
-      path: /registry/private
+      path: /registry
       endpoints:
         register-instance: { method: POST, path: "/register" }
         list-instances: { method: GET, path: "/list/{service}" }
