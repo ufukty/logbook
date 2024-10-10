@@ -1,4 +1,4 @@
-@api = https://localhost:8080/api/v1.0.0
+@api = https://localhost:8080/api
 
 ### Get rock
 
