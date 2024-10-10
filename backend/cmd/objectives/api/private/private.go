@@ -2,29 +2,24 @@ package private
 
 import (
 	"fmt"
-	"logbook/cmd/objectives/api/private/app"
 	"logbook/cmd/objectives/api/private/endpoints"
+	"logbook/cmd/objectives/app"
 	"logbook/config/api"
 	"logbook/config/deployment"
 	"logbook/internal/logger"
 	"net/http"
 	"path/filepath"
-
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Private struct {
-	pool   *pgxpool.Pool
 	apicfg *api.Config
 	em     *endpoints.Endpoints
 }
 
-func New(apicfg *api.Config, deplcfg *deployment.Config, pool *pgxpool.Pool, l *logger.Logger) *Private {
-	app := app.New(pool, l)
-	em := endpoints.New(app, l)
+func New(apicfg *api.Config, deplcfg *deployment.Config, a *app.App, l *logger.Logger) *Private {
+	em := endpoints.New(a, l)
 
 	return &Private{
-		pool:   pool,
 		apicfg: apicfg,
 		em:     em,
 	}

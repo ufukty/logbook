@@ -2,8 +2,9 @@ package public
 
 import (
 	"fmt"
-	"logbook/cmd/objectives/api/public/app"
+
 	"logbook/cmd/objectives/api/public/endpoints"
+	"logbook/cmd/objectives/app"
 	"logbook/config/api"
 	"logbook/config/deployment"
 	"logbook/internal/logger"
@@ -24,12 +25,10 @@ type Public struct {
 	e       *endpoints.Endpoints
 }
 
-func New(apicfg *api.Config, deplcfg *deployment.Config, pool *pgxpool.Pool, sc *sidecar.Sidecar, l *logger.Logger) *Public {
-	a := app.New(pool, l)
+func New(apicfg *api.Config, deplcfg *deployment.Config, a *app.App, sc *sidecar.Sidecar, l *logger.Logger) *Public {
 	e := endpoints.New(a, l)
 
 	return &Public{
-		pool:   pool,
 		apicfg: apicfg,
 		e:      e,
 	}

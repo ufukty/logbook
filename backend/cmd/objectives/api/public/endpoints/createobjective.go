@@ -2,7 +2,8 @@ package endpoints
 
 import (
 	"fmt"
-	"logbook/cmd/objectives/api/public/app"
+
+	"logbook/cmd/objectives/app"
 	"logbook/internal/web/requests"
 	"logbook/internal/web/validate"
 	"logbook/models"

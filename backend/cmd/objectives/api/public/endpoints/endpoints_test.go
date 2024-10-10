@@ -3,7 +3,7 @@ package endpoints
 import (
 	"context"
 	"fmt"
-	"logbook/cmd/objectives/api/public/app"
+	"logbook/cmd/objectives/app"
 	"logbook/cmd/objectives/database"
 	"logbook/cmd/objectives/service"
 	"logbook/internal/logger"

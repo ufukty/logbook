@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"logbook/cmd/objectives/api/public"
+	"logbook/cmd/objectives/app"
 	"logbook/cmd/objectives/service"
 	registry "logbook/cmd/registry/client"
 	"logbook/internal/logger"
@@ -41,8 +42,10 @@ func Main() error {
 	sc := sidecar.New(registry.NewClient(balancer.New(internalsd), apicfg, true), deplcfg, []models.Service{}, l)
 	defer sc.Stop()
 
-	pub := public.New(apicfg, deplcfg, pool, sc, l)
-	pri := public.New(apicfg, deplcfg, pool, sc, l)
+	app := app.New(pool, l)
+
+	pub := public.New(apicfg, deplcfg, app, sc, l)
+	pri := public.New(apicfg, deplcfg, app, sc, l)
 
 	router.StartServer(router.ServerParameters{
 		Address: args.PrivateNetworkIp,

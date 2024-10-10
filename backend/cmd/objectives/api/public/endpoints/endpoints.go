@@ -3,7 +3,8 @@ package endpoints
 import (
 	"context"
 	"fmt"
-	"logbook/cmd/objectives/api/public/app"
+
+	"logbook/cmd/objectives/app"
 	"logbook/internal/logger"
 	"logbook/internal/rates"
 	"logbook/models/columns"
