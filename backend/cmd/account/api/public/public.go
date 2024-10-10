@@ -33,9 +33,10 @@ func New(apicfg *api.Config, deplcfg *deployment.Config, pool *pgxpool.Pool, sc 
 	em := endpoints.New(app, l)
 
 	return &Public{
-		pool:   pool,
-		apicfg: apicfg,
-		em:     em,
+		pool:    pool,
+		apicfg:  apicfg,
+		deplcfg: deplcfg,
+		em:      em,
 	}
 }
 
