@@ -1,11 +1,9 @@
 package router
 
 import (
-	"context"
 	"fmt"
 	"logbook/internal/logger"
 	"net/http"
-	"time"
 )
 
 func summarize(r *http.Request) string {
@@ -47,42 +45,4 @@ func applyMiddleware(h http.Handler, middlewares ...func(http.Handler) http.Hand
 		h = m(h)
 	}
 	return h
-}
-
-func withRequestID(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Implement request ID middleware
-		next.ServeHTTP(w, r)
-	})
-}
-
-func withTimeout(timeout time.Duration) func(http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			ctx, cancel := context.WithTimeout(r.Context(), timeout)
-			defer cancel()
-			next.ServeHTTP(w, r.WithContext(ctx))
-		})
-	}
-}
-
-func withLogger(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Implement logger middleware
-		next.ServeHTTP(w, r)
-	})
-}
-
-func withCORS(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Implement CORS middleware
-		next.ServeHTTP(w, r)
-	})
-}
-
-func withRecoverer(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Implement recoverer middleware
-		next.ServeHTTP(w, r)
-	})
 }
