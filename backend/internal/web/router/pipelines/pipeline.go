@@ -6,55 +6,48 @@
 package pipelines
 
 import (
+	"context"
 	"fmt"
 	"logbook/internal/logger"
 	"logbook/models/columns"
 	"net/http"
 	"runtime/debug"
+	"time"
 )
 
 type RequestId string
 
-type Continuity string
+var ErrSilent = fmt.Errorf("no error") // return early without logging an error
 
-const (
-	Continue    = Continuity("continue")
-	Error       = Continuity("error")
-	EarlyReturn = Continuity("early-return")
-)
+type HandlerFunc[StorageType any] func(id RequestId, store *StorageType, w http.ResponseWriter, r *http.Request) error
 
-type HandlerFunc[StorageType any] func(w http.ResponseWriter, r *http.Request, id RequestId, store *StorageType) Continuity
-
-type Pipe[StorageType any] interface {
-	Name() string
-	Handle(w http.ResponseWriter, r *http.Request, id RequestId, store *StorageType) Continuity
+type PipelineParams struct {
+	Timeout time.Duration
 }
 
+// Pipeline:
+//
+//   - accepts a request,
+//   - generates request id,
+//   - inits type-safe storage,
+//   - calls handlers in order,
+//   - checks timeout,
+//   - recovers panic,
+//   - handles logging
 type pipeline[StorageType any] struct {
-	l       *logger.Logger
-	handler HandlerFunc[StorageType]
-	pre     []Pipe[StorageType]
-	post    []Pipe[StorageType]
+	l        *logger.Logger
+	handlers []HandlerFunc[StorageType]
+	params   PipelineParams
 }
 
-func NewPipeline[StorageType any](handler HandlerFunc[StorageType], pre, post []Pipe[StorageType], l *logger.Logger) *pipeline[StorageType] {
-	return &pipeline[StorageType]{
-		l:       l.Sub("Pipeline"),
-		handler: handler,
-		pre:     pre,
-		post:    post,
+func NewPipeline[T any](handlers []HandlerFunc[T], params PipelineParams, l *logger.Logger) *pipeline[T] {
+	return &pipeline[T]{
+		l:        l.Sub("Pipeline"),
+		handlers: handlers,
+		params:   params,
 	}
 }
 
-type phase string
-
-const (
-	pre  = phase("pre")
-	in   = phase("in")
-	post = phase("post")
-)
-
-// TODO: timeout middleware
 func (p pipeline[StorageType]) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	id, err := columns.NewUuidV4[RequestId]()
 	if err != nil {
@@ -63,10 +56,19 @@ func (p pipeline[StorageType]) ServeHTTP(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	// durs := map[middleware[StorageType]]time.Time{}
+	p.l.Printf("accepted %s: %s\n", lastsix(id), summarize(r))
+	defer func() {
+		p.l.Printf("served %s: %s\n", lastsix(id), summarize(r))
+	}()
 
-	ph := pre
-	var pipe Pipe[StorageType]
+	ctx, cancel := context.WithTimeout(r.Context(), p.params.Timeout)
+	defer func() {
+		cancel()
+		if ctx.Err() == context.DeadlineExceeded {
+			w.WriteHeader(http.StatusGatewayTimeout)
+		}
+	}()
+	r = r.WithContext(ctx)
 
 	defer func() {
 		if rec := recover(); rec != nil {
@@ -75,11 +77,7 @@ func (p pipeline[StorageType]) ServeHTTP(w http.ResponseWriter, r *http.Request)
 			}
 
 			debug.PrintStack()
-			logname := "handler"
-			if ph != in {
-				logname = pipe.Name()
-			}
-			p.l.Println(fmt.Errorf("recovered: %s: %v", logname, rec))
+			p.l.Println(fmt.Errorf("recovered: %v", rec))
 
 			if r.Header.Get("Connection") != "Upgrade" { // except websocket (?)
 				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -88,43 +86,21 @@ func (p pipeline[StorageType]) ServeHTTP(w http.ResponseWriter, r *http.Request)
 		}
 	}()
 
-	store := new(StorageType)
+	select {
+	case <-r.Context().Done(): // handle timeout
+		return
 
-	if p.pre != nil {
-		for _, pipe = range p.pre {
-			ec := pipe.Handle(w, r, id, store)
-			if ec == Continue {
-				continue
-			} else if ec == EarlyReturn {
-				return
-			} else {
-				p.l.Println(fmt.Errorf("pre: %s: %w", pipe.Name(), err))
+	default:
+		store := new(StorageType)
+		for i, pipe := range p.handlers {
+			err := pipe(id, store, w, r)
+			if err != nil {
+				if err != ErrSilent {
+					p.l.Println(fmt.Errorf("handler %d: %w", i, err))
+				}
 				return
 			}
 		}
 	}
 
-	ph = in
-	ec := p.handler(w, r, id, store)
-	if ec == EarlyReturn {
-		return
-	} else if ec == Error {
-		p.l.Println(fmt.Errorf("handler: %w", err))
-		return
-	}
-	ph = post
-
-	if p.post != nil {
-		for _, pipe = range p.post {
-			ec := pipe.Handle(w, r, id, store)
-			if ec == Continue {
-				continue
-			} else if ec == EarlyReturn {
-				return
-			} else {
-				p.l.Println(fmt.Errorf("post: %s: %w", pipe.Name(), err))
-				return
-			}
-		}
-	}
 }
