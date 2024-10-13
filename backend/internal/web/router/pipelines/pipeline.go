@@ -3,6 +3,8 @@
 // doesn't support typed context, as signatures are unchangeble (w, r)
 // and the flow of execution is not clear
 
+// the timeout and recovery logic are based on chi's middlewares
+
 package pipelines
 
 import (
@@ -65,20 +67,19 @@ func (p pipeline[StorageType]) ServeHTTP(w http.ResponseWriter, r *http.Request)
 	defer func() {
 		cancel()
 		if ctx.Err() == context.DeadlineExceeded {
-			w.WriteHeader(http.StatusGatewayTimeout)
+			http.Error(w, http.StatusText(http.StatusGatewayTimeout), http.StatusGatewayTimeout)
 		}
 	}()
 	r = r.WithContext(ctx)
 
+	var handler HandlerFunc[StorageType]
 	defer func() {
 		if rec := recover(); rec != nil {
 			if rec == http.ErrAbortHandler { // don't recover
 				panic(rec)
 			}
-
 			debug.PrintStack()
-			p.l.Println(fmt.Errorf("recovered: %v", rec))
-
+			p.l.Println(fmt.Errorf("recovered: %s: %v", funcname(handler), rec))
 			if r.Header.Get("Connection") != "Upgrade" { // except websocket (?)
 				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			}
@@ -92,11 +93,11 @@ func (p pipeline[StorageType]) ServeHTTP(w http.ResponseWriter, r *http.Request)
 
 	default:
 		store := new(StorageType)
-		for i, pipe := range p.handlers {
-			err := pipe(id, store, w, r)
+		for _, handler = range p.handlers {
+			err := handler(id, store, w, r)
 			if err != nil {
 				if err != ErrSilent {
-					p.l.Println(fmt.Errorf("handler %d: %w", i, err))
+					p.l.Println(fmt.Errorf("handler %s: %w", funcname(handler), err))
 				}
 				return
 			}
