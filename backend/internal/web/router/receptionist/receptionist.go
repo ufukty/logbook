@@ -5,7 +5,7 @@
 
 // the timeout and recovery logic are based on chi's middlewares
 
-package reception
+package receptionist
 
 import (
 	"context"
@@ -21,6 +21,7 @@ type RequestId string
 
 var ErrSilent = fmt.Errorf("no error") // return early without logging an error
 
+// Basically: [http.HandlerFunc] with additions
 type HandlerFunc[StorageType any] func(id RequestId, store *StorageType, w http.ResponseWriter, r *http.Request) error
 
 type ReceptionistParams struct {
@@ -42,7 +43,7 @@ type receptionist[StorageType any] struct {
 	params   ReceptionistParams
 }
 
-func NewReceptionist[T any](params ReceptionistParams, l *logger.Logger, handlers ...HandlerFunc[T]) *receptionist[T] {
+func New[T any](params ReceptionistParams, l *logger.Logger, handlers ...HandlerFunc[T]) *receptionist[T] {
 	return &receptionist[T]{
 		l:        l.Sub("Pipeline"),
 		handlers: handlers,

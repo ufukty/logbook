@@ -1,7 +1,7 @@
 package middlewares
 
 import (
-	"logbook/internal/web/router/reception"
+	"logbook/internal/web/router/receptionist"
 	"net/http"
 )
 
@@ -12,6 +12,6 @@ func NewAuth() *Auth {
 	return &Auth{}
 }
 
-func (Auth) Handle(id reception.RequestId, store *Store, w http.ResponseWriter, r *http.Request) error {
+func (Auth) Handle(id receptionist.RequestId, store *Store, w http.ResponseWriter, r *http.Request) error {
 	return nil
 }

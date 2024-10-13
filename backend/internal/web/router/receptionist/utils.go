@@ -1,4 +1,4 @@
-package reception
+package receptionist
 
 import (
 	"fmt"

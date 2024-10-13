@@ -9,7 +9,7 @@ import (
 	"logbook/config/deployment"
 	"logbook/internal/logger"
 	"logbook/internal/web/headers"
-	"logbook/internal/web/router/reception"
+	"logbook/internal/web/router/receptionist"
 	"logbook/internal/web/sidecar"
 	"net/http"
 	"net/url"
@@ -38,7 +38,7 @@ func New(apicfg *api.Config, deplcfg *deployment.Config, a *app.App, sc *sidecar
 func (p *Public) Register(r *http.ServeMux) error {
 	s := p.apicfg.Public.Services.Objectives
 
-	eps := map[api.Endpoint]reception.HandlerFunc[middlewares.Store]{
+	eps := map[api.Endpoint]receptionist.HandlerFunc[middlewares.Store]{
 		s.Endpoints.Attach:    p.e.ReattachObjective,
 		s.Endpoints.Create:    p.e.CreateObjective,
 		s.Endpoints.Mark:      p.e.MarkComplete,
@@ -62,7 +62,7 @@ func (p *Public) Register(r *http.ServeMux) error {
 		cm = middlewares.NewCorsManager(origin)
 	)
 
-	params := reception.ReceptionistParams{
+	params := receptionist.ReceptionistParams{
 		Timeout: 1 * time.Second,
 	}
 	corsheaders := []string{
@@ -71,7 +71,7 @@ func (p *Public) Register(r *http.ServeMux) error {
 	}
 
 	for ep, handler := range eps {
-		pl := reception.NewReceptionist(params, p.l.Sub(api.ByService(ep)),
+		pl := receptionist.New(params, p.l.Sub(api.ByService(ep)),
 			a.Handle,
 			cm.Instantiate([]string{ep.GetMethod()}, corsheaders).Handle,
 			handler,

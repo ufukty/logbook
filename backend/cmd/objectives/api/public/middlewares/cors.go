@@ -1,7 +1,7 @@
 package middlewares
 
 import (
-	"logbook/internal/web/router/reception"
+	"logbook/internal/web/router/receptionist"
 	"net/http"
 	"strings"
 )
@@ -21,7 +21,7 @@ func newCors(origin string, methods, headers []string) *Cors {
 	}
 }
 
-func (c *Cors) Handle(id reception.RequestId, store *Store, w http.ResponseWriter, r *http.Request) error {
+func (c *Cors) Handle(id receptionist.RequestId, store *Store, w http.ResponseWriter, r *http.Request) error {
 	// Set CORS headers
 	w.Header().Set("Access-Control-Allow-Origin", c.origin)
 	w.Header().Set("Access-Control-Allow-Methods", c.methods)
@@ -30,7 +30,7 @@ func (c *Cors) Handle(id reception.RequestId, store *Store, w http.ResponseWrite
 	// Handle preflight OPTIONS request
 	if r.Method == http.MethodOptions {
 		w.WriteHeader(http.StatusOK)
-		return reception.ErrSilent
+		return receptionist.ErrSilent
 	}
 
 	return nil

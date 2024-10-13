@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"logbook/cmd/objectives/api/public/middlewares"
 	"logbook/internal/web/requests"
-	"logbook/internal/web/router/reception"
+	"logbook/internal/web/router/receptionist"
 	"net/http"
 )
 
@@ -21,7 +21,7 @@ type ReattachObjectiveResponse struct {
 	// TODO:
 }
 
-func (e *Endpoints) ReattachObjective(rid reception.RequestId, store *middlewares.Store, w http.ResponseWriter, r *http.Request) error {
+func (e *Endpoints) ReattachObjective(rid receptionist.RequestId, store *middlewares.Store, w http.ResponseWriter, r *http.Request) error {
 	bq := &ReattachObjectiveRequest{}
 
 	if err := requests.ParseRequest(w, r, bq); err != nil {
