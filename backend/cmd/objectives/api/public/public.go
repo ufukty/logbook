@@ -2,20 +2,18 @@ package public
 
 import (
 	"fmt"
-	"time"
-
 	"logbook/cmd/objectives/api/public/endpoints"
+	"logbook/cmd/objectives/api/public/middlewares"
 	"logbook/cmd/objectives/app"
 	"logbook/config/api"
 	"logbook/config/deployment"
 	"logbook/internal/logger"
 	"logbook/internal/web/headers"
 	"logbook/internal/web/router/reception"
-	"logbook/internal/web/router/reception/middlewares"
-
 	"logbook/internal/web/sidecar"
 	"net/http"
 	"net/url"
+	"time"
 )
 
 type Public struct {
@@ -64,14 +62,20 @@ func (p *Public) Register(r *http.ServeMux) error {
 		cm = middlewares.NewCorsManager(origin)
 	)
 
+	params := reception.ReceptionistParams{
+		Timeout: 1 * time.Second,
+	}
+	corsheaders := []string{
+		headers.ContentType,
+		headers.Authorization,
+	}
+
 	for ep, handler := range eps {
-		pl := reception.NewReceptionist([]reception.HandlerFunc[middlewares.Store]{
+		pl := reception.NewReceptionist(params, p.l.Sub(api.ByService(ep)),
 			a.Handle,
-			cm.Instantiate([]string{ep.GetMethod()}, []string{headers.ContentType, headers.Authorization}).Handle,
+			cm.Instantiate([]string{ep.GetMethod()}, corsheaders).Handle,
 			handler,
-		}, reception.ReceptionistParams{
-			Timeout: 1 * time.Second,
-		}, p.l.Sub(api.ByService(ep)))
+		)
 		for _, method := range []string{ep.GetMethod(), "OPTIONS"} {
 			pattern := fmt.Sprintf("%s %s", method, api.ByService(ep))
 			p.l.Printf("registering: %s -> %p\n", pattern, pl)

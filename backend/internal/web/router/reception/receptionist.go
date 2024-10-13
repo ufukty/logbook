@@ -42,7 +42,7 @@ type receptionist[StorageType any] struct {
 	params   ReceptionistParams
 }
 
-func NewReceptionist[T any](handlers []HandlerFunc[T], params ReceptionistParams, l *logger.Logger) *receptionist[T] {
+func NewReceptionist[T any](params ReceptionistParams, l *logger.Logger, handlers ...HandlerFunc[T]) *receptionist[T] {
 	return &receptionist[T]{
 		l:        l.Sub("Pipeline"),
 		handlers: handlers,
