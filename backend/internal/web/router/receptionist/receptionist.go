@@ -17,13 +17,6 @@ import (
 	"time"
 )
 
-type RequestId string
-
-var ErrEarlyReturn = fmt.Errorf("no error") // return early without logging an error
-
-// Basically: [http.HandlerFunc] with additions
-type HandlerFunc[StorageType any] func(id RequestId, store *StorageType, w http.ResponseWriter, r *http.Request) error
-
 type Params struct {
 	Timeout time.Duration
 }
