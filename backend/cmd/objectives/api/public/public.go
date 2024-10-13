@@ -62,7 +62,7 @@ func (p *Public) Register(r *http.ServeMux) error {
 		cm = middlewares.NewCorsManager(origin)
 	)
 
-	params := receptionist.ReceptionistParams{
+	params := receptionist.Params{
 		Timeout: 1 * time.Second,
 	}
 	corsheaders := []string{

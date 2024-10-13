@@ -19,12 +19,12 @@ import (
 
 type RequestId string
 
-var ErrSilent = fmt.Errorf("no error") // return early without logging an error
+var ErrEarlyReturn = fmt.Errorf("no error") // return early without logging an error
 
 // Basically: [http.HandlerFunc] with additions
 type HandlerFunc[StorageType any] func(id RequestId, store *StorageType, w http.ResponseWriter, r *http.Request) error
 
-type ReceptionistParams struct {
+type Params struct {
 	Timeout time.Duration
 }
 
@@ -40,10 +40,10 @@ type ReceptionistParams struct {
 type receptionist[StorageType any] struct {
 	l        *logger.Logger
 	handlers []HandlerFunc[StorageType]
-	params   ReceptionistParams
+	params   Params
 }
 
-func New[T any](params ReceptionistParams, l *logger.Logger, handlers ...HandlerFunc[T]) *receptionist[T] {
+func New[T any](params Params, l *logger.Logger, handlers ...HandlerFunc[T]) *receptionist[T] {
 	return &receptionist[T]{
 		l:        l.Sub("Pipeline"),
 		handlers: handlers,
@@ -51,20 +51,20 @@ func New[T any](params ReceptionistParams, l *logger.Logger, handlers ...Handler
 	}
 }
 
-func (p receptionist[StorageType]) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (recp receptionist[StorageType]) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	id, err := columns.NewUuidV4[RequestId]()
 	if err != nil {
-		p.l.Println(fmt.Errorf("generating new request id: %w", err))
+		recp.l.Println(fmt.Errorf("generating new request id: %w", err))
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
-	p.l.Printf("accepted %s: %s\n", lastsix(id), summarize(r))
+	recp.l.Printf("accepted %s: %s\n", lastsix(id), summarize(r))
 	defer func() {
-		p.l.Printf("served %s: %s\n", lastsix(id), summarize(r))
+		recp.l.Printf("served %s: %s\n", lastsix(id), summarize(r))
 	}()
 
-	ctx, cancel := context.WithTimeout(r.Context(), p.params.Timeout)
+	ctx, cancel := context.WithTimeout(r.Context(), recp.params.Timeout)
 	defer func() {
 		cancel()
 		if ctx.Err() == context.DeadlineExceeded {
@@ -80,7 +80,7 @@ func (p receptionist[StorageType]) ServeHTTP(w http.ResponseWriter, r *http.Requ
 				panic(rec)
 			}
 			debug.PrintStack()
-			p.l.Println(fmt.Errorf("recovered: %s: %v", funcname(handler), rec))
+			recp.l.Println(fmt.Errorf("recovered: %s: %v", funcname(handler), rec))
 			if r.Header.Get("Connection") != "Upgrade" { // except websocket (?)
 				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			}
@@ -94,11 +94,11 @@ func (p receptionist[StorageType]) ServeHTTP(w http.ResponseWriter, r *http.Requ
 
 	default:
 		store := new(StorageType)
-		for _, handler = range p.handlers {
+		for _, handler = range recp.handlers {
 			err := handler(id, store, w, r)
 			if err != nil {
-				if err != ErrSilent {
-					p.l.Println(fmt.Errorf("handler %s: %w", funcname(handler), err))
+				if err != ErrEarlyReturn {
+					recp.l.Println(fmt.Errorf("handler %s: %w", funcname(handler), err))
 				}
 				return
 			}

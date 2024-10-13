@@ -30,7 +30,7 @@ func (c *Cors) Handle(id receptionist.RequestId, store *Store, w http.ResponseWr
 	// Handle preflight OPTIONS request
 	if r.Method == http.MethodOptions {
 		w.WriteHeader(http.StatusOK)
-		return receptionist.ErrSilent
+		return receptionist.ErrEarlyReturn
 	}
 
 	return nil
