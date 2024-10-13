@@ -13,6 +13,7 @@ import (
 	"logbook/internal/web/balancer"
 	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router"
+	"logbook/internal/web/router/registration"
 	"logbook/internal/web/sidecar"
 	"logbook/models"
 
@@ -46,16 +47,26 @@ func Main() error {
 	pub := public.New(apicfg, deplcfg, pool, sc, l)
 	pri := private.New(apicfg, deplcfg, pool, l)
 
+	agent := registration.New(deplcfg, l)
+	err = pub.Register(agent)
+	if err != nil {
+		return fmt.Errorf("pub.Register: %w", err)
+	}
+	err = pri.Register(agent)
+	if err != nil {
+		return fmt.Errorf("pri.Register: %w", err)
+	}
+
 	// TODO: tls between services needs certs per host(name)
 	err = router.StartServer(router.ServerParameters{
-		Address:     args.PrivateNetworkIp,
-		Port:        deplcfg.Ports.Accounts,
-		Router:      deplcfg.Router,
-		Service:     models.Account,
-		Sidecar:     sc,
-		TlsCrt:      args.TlsCertificate,
-		TlsKey:      args.TlsKey,
-		Registerers: []router.Registerer{pub.Register, pri.Register},
+		Address:  args.PrivateNetworkIp,
+		Port:     deplcfg.Ports.Accounts,
+		Router:   deplcfg.Router,
+		Service:  models.Account,
+		ServeMux: agent.Mux(),
+		Sidecar:  sc,
+		TlsCrt:   args.TlsCertificate,
+		TlsKey:   args.TlsKey,
 	}, l)
 	if err != nil {
 		return fmt.Errorf("router.StartServer: %w", err)

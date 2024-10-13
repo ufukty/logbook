@@ -2,10 +2,10 @@ package endpoints
 
 import (
 	"fmt"
-	"logbook/cmd/objectives/api/public/middlewares"
 	"logbook/cmd/objectives/app"
 	"logbook/internal/web/requests"
 	"logbook/internal/web/router/receptionist"
+	"logbook/internal/web/router/registration/middlewares"
 	"logbook/internal/web/validate"
 	"logbook/models"
 	"logbook/models/columns"

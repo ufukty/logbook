@@ -44,6 +44,11 @@ func New[T any](params Params, l *logger.Logger, handlers ...HandlerFunc[T]) *re
 	}
 }
 
+// TODO: log
+// TODO: not found
+// DONE: recover
+// DONE: timeout
+// DONE: handlers
 func (recp receptionist[StorageType]) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	id, err := columns.NewUuidV4[RequestId]()
 	if err != nil {

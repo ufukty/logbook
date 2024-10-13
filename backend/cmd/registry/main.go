@@ -9,6 +9,9 @@ import (
 	"logbook/internal/logger"
 	"logbook/internal/startup"
 	"logbook/internal/web/router"
+	"logbook/internal/web/router/receptionist"
+	"logbook/internal/web/router/registration"
+	"logbook/internal/web/router/registration/middlewares"
 	"net/http"
 )
 
@@ -24,28 +27,22 @@ func Main() error {
 	defer a.Stop()
 	e := endpoints.New(a, l)
 
-	registerer := func(r *http.ServeMux) error {
-		s := apicfg.Internal.Services.Registry
+	r := http.NewServeMux()
 
-		eps := map[api.Endpoint]http.HandlerFunc{
-			s.Endpoints.ListInstances:    e.ListInstances,
-			s.Endpoints.RecheckInstance:  e.RecheckInstance,
-			s.Endpoints.RegisterInstance: e.RegisterInstance,
-		}
-
-		for ep, handler := range eps {
-			r.HandleFunc(fmt.Sprintf("%s %s", ep.GetMethod(), api.ByService(ep)), handler)
-		}
-
-		return nil
-	}
+	s := apicfg.Internal.Services.Registry
+	agent := registration.New(deplycfg, l)
+	agent.RegisterForInternal(map[api.Endpoint]receptionist.HandlerFunc[middlewares.Store]{
+		s.Endpoints.ListInstances:    e.ListInstances,
+		s.Endpoints.RecheckInstance:  e.RecheckInstance,
+		s.Endpoints.RegisterInstance: e.RegisterInstance,
+	})
 
 	err = router.StartServer(router.ServerParameters{
-		Port:        deplycfg.Ports.Registry,
-		Router:      deplycfg.Router,
-		TlsCrt:      args.TlsCertificate,
-		TlsKey:      args.TlsKey,
-		Registerers: []router.Registerer{registerer},
+		Port:     deplycfg.Ports.Registry,
+		Router:   deplycfg.Router,
+		ServeMux: r,
+		TlsCrt:   args.TlsCertificate,
+		TlsKey:   args.TlsKey,
 	}, l)
 	if err != nil {
 		return fmt.Errorf("router.StartServer: %w", err)

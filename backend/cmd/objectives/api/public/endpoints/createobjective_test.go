@@ -2,7 +2,7 @@ package endpoints
 
 import (
 	"fmt"
-	"logbook/cmd/objectives/api/public/middlewares"
+	"logbook/internal/web/router/registration/middlewares"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -29,7 +29,10 @@ func TestCreateObjective(t *testing.T) {
 
 	w := httptest.NewRecorder()
 
-	ep.CreateObjective("", &middlewares.Store{}, w, r)
+	err = ep.CreateObjective("", &middlewares.Store{}, w, r)
+	if err != nil {
+		t.Fatal(fmt.Errorf("act, CreateObjective: %w", err))
+	}
 
 	if w.Code != http.StatusOK {
 		t.Fatal(fmt.Sprintf("got http error code %v", w.Code))

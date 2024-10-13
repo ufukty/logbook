@@ -3,6 +3,8 @@ package endpoints
 import (
 	"fmt"
 	"logbook/internal/web/requests"
+	"logbook/internal/web/router/receptionist"
+	"logbook/internal/web/router/registration/middlewares"
 	"net/http"
 )
 
@@ -19,27 +21,26 @@ type TagCreationResponse struct {
 	// TODO:
 }
 
-func (e *Endpoints) TagCreation(w http.ResponseWriter, r *http.Request) {
+func (e *Endpoints) TagCreation(id receptionist.RequestId, store *middlewares.Store, w http.ResponseWriter, r *http.Request) error {
 	bq := &TagCreationRequest{}
 
 	if err := requests.ParseRequest(w, r, bq); err != nil {
-		e.l.Println(fmt.Errorf("parsing request: %w", err))
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-		return
+		return fmt.Errorf("parsing request: %w", err)
 	}
 
 	if err := bq.validate(); err != nil {
-		e.l.Println(fmt.Errorf("validating request parameters: %w", err))
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-		return
+		return fmt.Errorf("validating request parameters: %w", err)
 	}
 
 	panic("to implement") // TODO:
 
 	bs := TagCreationResponse{} // TODO:
 	if err := requests.WriteJsonResponse(bs, w); err != nil {
-		e.l.Println(fmt.Errorf("writing json response: %w", err))
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
+		return fmt.Errorf("writing json response: %w", err)
 	}
+
+	return nil
 }

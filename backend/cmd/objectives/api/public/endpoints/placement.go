@@ -1,9 +1,9 @@
 package endpoints
 
 import (
-	"logbook/cmd/objectives/api/public/middlewares"
 	"logbook/cmd/objectives/database"
 	"logbook/internal/web/router/receptionist"
+	"logbook/internal/web/router/registration/middlewares"
 	"net/http"
 )
 

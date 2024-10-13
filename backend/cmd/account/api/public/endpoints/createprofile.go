@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"logbook/cmd/account/api/public/app"
 	"logbook/internal/web/requests"
+	"logbook/internal/web/router/receptionist"
+	"logbook/internal/web/router/registration/middlewares"
 	"logbook/internal/web/validate"
 	"logbook/models/columns"
 	"net/http"
@@ -26,19 +28,17 @@ func (params CreateProfileRequest) Validate() error {
 }
 
 // TODO: Authorization
-func (e Endpoints) CreateProfile(w http.ResponseWriter, r *http.Request) {
+func (e Endpoints) CreateProfile(id receptionist.RequestId, store *middlewares.Store, w http.ResponseWriter, r *http.Request) error {
 	bq := &CreateProfileRequest{}
 
 	if err := requests.ParseRequest(w, r, bq); err != nil {
-		e.l.Println(fmt.Errorf("binding request: %w", err))
 		http.Error(w, redact(err), http.StatusInternalServerError)
-		return
+		return fmt.Errorf("binding request: %w", err)
 	}
 
 	if err := bq.Validate(); err != nil {
-		e.l.Println(fmt.Errorf("validating the request parameters: %w", err))
 		http.Error(w, redact(err), http.StatusBadRequest)
-		return
+		return fmt.Errorf("validating the request parameters: %w", err)
 	}
 
 	err := e.a.CreateProfile(r.Context(), app.CreateProfileParams{
@@ -48,8 +48,11 @@ func (e Endpoints) CreateProfile(w http.ResponseWriter, r *http.Request) {
 		Lastname:     bq.Lastname,
 	})
 	if err != nil {
-		e.l.Println(fmt.Errorf("app: %w", err))
 		http.Error(w, redact(err), http.StatusInternalServerError)
-		return
+		return fmt.Errorf("app: %w", err)
 	}
+
+	w.WriteHeader(http.StatusOK)
+
+	return nil
 }

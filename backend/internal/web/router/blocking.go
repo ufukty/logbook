@@ -17,30 +17,19 @@ import (
 type Registerer func(r *http.ServeMux) error
 
 type ServerParameters struct {
-	Address string
-	Port    int
-	Router  deployment.Router
-	Service models.Service
-	Sidecar *sidecar.Sidecar
-	TlsCrt  string
-	TlsKey  string
-
-	Registerers []Registerer
+	Address  string
+	Port     int
+	Router   deployment.Router
+	ServeMux *http.ServeMux
+	Service  models.Service
+	Sidecar  *sidecar.Sidecar
+	TlsCrt   string
+	TlsKey   string
 }
 
 func StartServer(params ServerParameters, l *logger.Logger) error {
 	tls := params.TlsKey != "" && params.TlsCrt != ""
 	l.Sub("Router: ")
-
-	r := http.NewServeMux()
-	for i, registerer := range params.Registerers {
-		err := registerer(r)
-		if err != nil {
-			return fmt.Errorf("calling registerer %d: %w", i, err)
-		}
-	}
-	r.HandleFunc("/ping", pongBuilder(l))
-	r.HandleFunc("/", lastMatchBuilder(l))
 
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", params.Port))
 	if err != nil {
@@ -67,7 +56,7 @@ func StartServer(params ServerParameters, l *logger.Logger) error {
 		WriteTimeout: time.Duration(params.Router.WriteTimeout),
 		ReadTimeout:  time.Duration(params.Router.ReadTimeout),
 		IdleTimeout:  time.Duration(params.Router.IdleTimeout),
-		Handler:      SimpleHandler(r, params.Router.RequestTimeout),
+		Handler:      params.ServeMux,
 	}
 
 	go func() {

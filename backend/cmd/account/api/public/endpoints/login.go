@@ -5,6 +5,8 @@ import (
 	"logbook/cmd/account/api/public/app"
 	"logbook/internal/average"
 	"logbook/internal/web/requests"
+	"logbook/internal/web/router/receptionist"
+	"logbook/internal/web/router/registration/middlewares"
 	"logbook/internal/web/validate"
 	"logbook/models/columns"
 	"net/http"
@@ -21,19 +23,17 @@ func (bq CreateSessionRequest) validate() error {
 	})
 }
 
-func (e Endpoints) Login(w http.ResponseWriter, r *http.Request) {
+func (e Endpoints) Login(id receptionist.RequestId, store *middlewares.Store, w http.ResponseWriter, r *http.Request) error {
 	bq := &CreateSessionRequest{}
 
 	if err := requests.ParseRequest(w, r, bq); err != nil {
-		e.l.Println(fmt.Errorf("binding: %w", err))
 		http.Error(w, redact(err), http.StatusBadRequest)
-		return
+		return fmt.Errorf("binding: %w", err)
 	}
 
 	if err := bq.validate(); err != nil {
-		e.l.Println(fmt.Errorf("validation: %w", err))
 		http.Error(w, redact(err), http.StatusBadRequest)
-		return
+		return fmt.Errorf("validation: %w", err)
 	}
 
 	session, err := e.a.Login(r.Context(), app.CreateSessionParameters{
@@ -41,9 +41,8 @@ func (e Endpoints) Login(w http.ResponseWriter, r *http.Request) {
 		Password: string(bq.Password),
 	})
 	if err != nil {
-		e.l.Println(fmt.Errorf("Login: %w", err))
 		http.Error(w, redact(err), http.StatusInternalServerError)
-		return
+		return fmt.Errorf("Login: %w", err)
 	}
 
 	http.SetCookie(w, &http.Cookie{
@@ -54,4 +53,6 @@ func (e Endpoints) Login(w http.ResponseWriter, r *http.Request) {
 		Secure:   true,
 	})
 	w.WriteHeader(http.StatusOK)
+
+	return nil
 }

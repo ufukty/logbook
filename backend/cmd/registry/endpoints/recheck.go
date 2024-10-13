@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"logbook/cmd/registry/app"
 	"logbook/internal/web/requests"
+	"logbook/internal/web/router/receptionist"
+	"logbook/internal/web/router/registration/middlewares"
 	"logbook/models"
 	"net/http"
 )
@@ -13,22 +15,21 @@ type RecheckInstanceRequest struct {
 	InstanceId app.InstanceId `json:"instance-id"`
 }
 
-func (e *Endpoints) RecheckInstance(w http.ResponseWriter, r *http.Request) {
+func (e *Endpoints) RecheckInstance(id receptionist.RequestId, store *middlewares.Store, w http.ResponseWriter, r *http.Request) error {
 	bq := &RecheckInstanceRequest{}
 
 	if err := requests.ParseRequest(w, r, bq); err != nil {
-		e.l.Println(fmt.Errorf("parsing request: %w", err))
 		http.Error(w, redact(err), http.StatusBadRequest)
-		return
+		return fmt.Errorf("parsing request: %w", err)
 	}
 
 	if err := e.a.RecheckInstance(bq.Service, bq.InstanceId); err != nil {
-		e.l.Println(fmt.Errorf("performing request: %w", err))
 		http.Error(w, redact(err), http.StatusBadRequest)
-		return
+		return fmt.Errorf("performing request: %w", err)
 	}
 
 	w.WriteHeader(http.StatusOK)
+	return nil
 }
 
 // func (bq *RecheckInstanceRequest) Send() (*RecheckInstanceResponse, error) {

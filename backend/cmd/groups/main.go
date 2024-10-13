@@ -11,6 +11,7 @@ import (
 	"logbook/internal/web/balancer"
 	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router"
+	"logbook/internal/web/router/registration"
 	"logbook/internal/web/sidecar"
 	"logbook/models"
 
@@ -42,15 +43,21 @@ func Main() error {
 
 	pub := public.New(apicfg, deplcfg, pool, sc, l)
 
+	agent := registration.New(deplcfg, l)
+	err = pub.Register(agent)
+	if err != nil {
+		return fmt.Errorf("pub.Register: %w", err)
+	}
+
 	router.StartServer(router.ServerParameters{
-		Address:     args.PrivateNetworkIp,
-		Port:        deplcfg.Ports.Objectives,
-		Router:      deplcfg.Router,
-		Service:     models.Groups,
-		Sidecar:     sc,
-		TlsCrt:      args.TlsCertificate,
-		TlsKey:      args.TlsKey,
-		Registerers: []router.Registerer{pub.Register},
+		Address:  args.PrivateNetworkIp,
+		Port:     deplcfg.Ports.Objectives,
+		Router:   deplcfg.Router,
+		ServeMux: agent.Mux(),
+		Service:  models.Groups,
+		Sidecar:  sc,
+		TlsCrt:   args.TlsCertificate,
+		TlsKey:   args.TlsKey,
 	}, l)
 
 	return nil

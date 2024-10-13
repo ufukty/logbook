@@ -1,13 +1,14 @@
 package private
 
 import (
-	"fmt"
 	"logbook/cmd/account/api/private/app"
 	"logbook/cmd/account/api/private/endpoints"
 	"logbook/config/api"
 	"logbook/config/deployment"
 	"logbook/internal/logger"
-	"net/http"
+	"logbook/internal/web/router/receptionist"
+	"logbook/internal/web/router/registration"
+	"logbook/internal/web/router/registration/middlewares"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -34,18 +35,9 @@ func New(apicfg *api.Config, deplcfg *deployment.Config, pool *pgxpool.Pool, l *
 	}
 }
 
-func (p *Private) Register(r *http.ServeMux) error {
+func (p *Private) Register(agent *registration.Agent) error {
 	s := p.apicfg.Internal.Services.Account
-
-	eps := map[api.Endpoint]http.HandlerFunc{
+	return agent.RegisterForInternal(map[api.Endpoint]receptionist.HandlerFunc[middlewares.Store]{
 		s.Endpoints.WhoIs: p.em.WhoIs,
-	}
-
-	for ep, handler := range eps {
-		pattern := fmt.Sprintf("%s %s", ep.GetMethod(), api.ByService(ep))
-		p.l.Printf("registering: %s -> %p\n", pattern, handler)
-		r.HandleFunc(pattern, handler)
-	}
-
-	return nil
+	})
 }

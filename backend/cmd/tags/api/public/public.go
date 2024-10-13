@@ -1,18 +1,15 @@
 package public
 
 import (
-	"fmt"
 	"logbook/cmd/tags/api/public/app"
 	"logbook/cmd/tags/api/public/endpoints"
 	"logbook/config/api"
 	"logbook/config/deployment"
 	"logbook/internal/logger"
-	"logbook/internal/web/headers"
 	"logbook/internal/web/registryfile"
-	"logbook/internal/web/router/cors"
-	"net/http"
-	"net/url"
-	"path/filepath"
+	"logbook/internal/web/router/receptionist"
+	"logbook/internal/web/router/registration"
+	"logbook/internal/web/router/registration/middlewares"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -35,25 +32,10 @@ func New(apicfg *api.Config, deplcfg *deployment.Config, pool *pgxpool.Pool, int
 	}
 }
 
-func (p *Public) Register(r *http.ServeMux) error {
+func (p *Public) Register(agent *registration.Agent) error {
 	s := p.apicfg.Public.Services.Tags
-
-	eps := map[api.Endpoint]http.HandlerFunc{
+	return agent.RegisterForPublic(map[api.Endpoint]receptionist.HandlerFunc[middlewares.Store]{
 		s.Endpoints.Assign:   p.e.TagAssign,
 		s.Endpoints.Creation: p.e.TagCreation,
-	}
-
-	origin, err := url.JoinPath(p.deplcfg.Router.Cors.AllowOrigin)
-	if err != nil {
-		return fmt.Errorf("url.JoinPath: %w", err)
-	}
-
-	for ep, handler := range eps {
-		corsed := cors.Simple(handler, origin, []string{ep.GetMethod()}, []string{headers.ContentType, headers.Authorization})
-		path := filepath.Join("/public", ep.GetPath())
-		r.HandleFunc(fmt.Sprintf("OPTIONS %s", path), corsed)
-		r.HandleFunc(fmt.Sprintf("%s %s", ep.GetMethod(), path), corsed)
-	}
-
-	return nil
+	})
 }

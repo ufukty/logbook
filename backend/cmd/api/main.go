@@ -44,18 +44,16 @@ func Main() error {
 		objectives = forwarder.New(sc.InstanceSource(models.Objectives), models.Objectives, api.ByGateway(s.Objectives), l)
 	)
 
-	registerer := func(r *http.ServeMux) error {
-		r.Handle(api.PrefixedByGateway(s.Account), http.StripPrefix(apicfg.Public.Path, accounts))
-		r.Handle(api.PrefixedByGateway(s.Objectives), http.StripPrefix(apicfg.Public.Path, objectives))
-		return nil
-	}
+	r := http.NewServeMux()
+	r.Handle(api.PrefixedByGateway(s.Account), http.StripPrefix(apicfg.Public.Path, accounts))
+	r.Handle(api.PrefixedByGateway(s.Objectives), http.StripPrefix(apicfg.Public.Path, objectives))
 
 	err = router.StartServer(router.ServerParameters{
-		Router:      deplcfg.Router,
-		Port:        deplcfg.Ports.Gateway,
-		TlsCrt:      args.TlsCertificate,
-		TlsKey:      args.TlsKey,
-		Registerers: []router.Registerer{registerer},
+		Port:     deplcfg.Ports.Gateway,
+		Router:   deplcfg.Router,
+		ServeMux: r,
+		TlsCrt:   args.TlsCertificate,
+		TlsKey:   args.TlsKey,
 	}, l)
 	if err != nil {
 		return fmt.Errorf("router.StartServer: %w", err)

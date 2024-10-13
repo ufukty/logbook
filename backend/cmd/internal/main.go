@@ -35,19 +35,17 @@ func Main() error {
 		registry   = forwarder.New(registrysd, models.Discovery, api.ByGateway(s.Registry), l)
 	)
 
-	registerer := func(r *http.ServeMux) error {
-		r.Handle(api.PrefixedByGateway(s.Account), http.StripPrefix(apicfg.Internal.Path, account))
-		r.Handle(api.PrefixedByGateway(s.Objectives), http.StripPrefix(apicfg.Internal.Path, objectives))
-		r.Handle(api.PrefixedByGateway(s.Registry), http.StripPrefix(apicfg.Internal.Path, registry))
-		return nil
-	}
+	r := http.NewServeMux()
+	r.Handle(api.PrefixedByGateway(s.Account), http.StripPrefix(apicfg.Internal.Path, account))
+	r.Handle(api.PrefixedByGateway(s.Objectives), http.StripPrefix(apicfg.Internal.Path, objectives))
+	r.Handle(api.PrefixedByGateway(s.Registry), http.StripPrefix(apicfg.Internal.Path, registry))
 
 	router.StartServer(router.ServerParameters{
-		Router:      deplcfg.Router,
-		Port:        deplcfg.Ports.Internal,
-		TlsCrt:      args.TlsCertificate,
-		TlsKey:      args.TlsKey,
-		Registerers: []router.Registerer{registerer},
+		Router:   deplcfg.Router,
+		Port:     deplcfg.Ports.Internal,
+		ServeMux: r,
+		TlsCrt:   args.TlsCertificate,
+		TlsKey:   args.TlsKey,
 	}, l)
 
 	return nil

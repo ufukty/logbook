@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"logbook/cmd/account/api/public/app"
 	"logbook/internal/web/requests"
+	"logbook/internal/web/router/receptionist"
+	"logbook/internal/web/router/registration/middlewares"
 	"logbook/models/columns"
 	"net/http"
 
@@ -17,18 +19,17 @@ type WhoAmIResponse struct {
 	CreatedAt pgtype.Timestamp `json:"created_at"`
 }
 
-func (e Endpoints) WhoAmI(w http.ResponseWriter, r *http.Request) {
+func (e Endpoints) WhoAmI(id receptionist.RequestId, store *middlewares.Store, w http.ResponseWriter, r *http.Request) error {
 	cookie, err := r.Cookie("session_token")
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
-		return
+		return fmt.Errorf("no session_token found")
 	}
 
 	sessionToken := cookie.Value
 
 	profile, err := e.a.WhoAmI(r.Context(), columns.SessionToken(sessionToken))
 	if err != nil {
-		e.l.Println(fmt.Errorf("app.WhoAmI: %w", err))
 		switch err {
 		case
 			app.ErrProfileNotFound,
@@ -38,7 +39,7 @@ func (e Endpoints) WhoAmI(w http.ResponseWriter, r *http.Request) {
 		default:
 			http.Error(w, redact(err), http.StatusInternalServerError)
 		}
-		return
+		return fmt.Errorf("app.WhoAmI: %w", err)
 	}
 
 	bs := WhoAmIResponse{
@@ -49,4 +50,6 @@ func (e Endpoints) WhoAmI(w http.ResponseWriter, r *http.Request) {
 	}
 
 	requests.WriteJsonResponse(bs, w)
+
+	return nil
 }

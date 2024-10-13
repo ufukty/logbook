@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"logbook/cmd/account/api/public/app"
 	"logbook/internal/web/requests"
+	"logbook/internal/web/router/receptionist"
+	"logbook/internal/web/router/registration/middlewares"
 	"logbook/internal/web/validate"
 	"logbook/models/columns"
 	"net/http"
@@ -37,19 +39,17 @@ func (bq CreateAccountRequest) validate() error {
  * TODO: Create first bookmark
  * TODO: Wrap creation of user-task-bookmark with transaction, rollback on failure to not-lock person to re-register with same email
  */
-func (e *Endpoints) CreateAccount(w http.ResponseWriter, r *http.Request) {
+func (e *Endpoints) CreateAccount(id receptionist.RequestId, store *middlewares.Store, w http.ResponseWriter, r *http.Request) error {
 	bq := &CreateAccountRequest{}
 
 	if err := requests.ParseRequest(w, r, bq); err != nil {
-		e.l.Println(fmt.Errorf("binding: %w", err))
 		http.Error(w, redact(err), http.StatusBadRequest)
-		return
+		return fmt.Errorf("binding: %w", err)
 	}
 
 	if err := bq.validate(); err != nil {
-		e.l.Println(fmt.Errorf("validation: %w", err))
 		http.Error(w, redact(err), http.StatusBadRequest)
-		return
+		return fmt.Errorf("validation: %w", err)
 	}
 
 	err := e.a.CreateAccount(r.Context(), app.CreateAccountRequest{
@@ -59,10 +59,11 @@ func (e *Endpoints) CreateAccount(w http.ResponseWriter, r *http.Request) {
 		Password:  bq.Password,
 	})
 	if err != nil {
-		e.l.Println(fmt.Errorf("app.Register: %w", err))
 		http.Error(w, redact(err), http.StatusInternalServerError)
-		return
+		return fmt.Errorf("app.Register: %w", err)
 	}
 
 	w.WriteHeader(http.StatusOK)
+
+	return nil
 }

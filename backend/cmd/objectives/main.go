@@ -4,16 +4,20 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"logbook/cmd/objectives/api/private"
-	"logbook/cmd/objectives/api/public"
+	private "logbook/cmd/objectives/api/private/endpoints"
+	public "logbook/cmd/objectives/api/public/endpoints"
 	"logbook/cmd/objectives/app"
 	"logbook/cmd/objectives/service"
 	registry "logbook/cmd/registry/client"
+	"logbook/config/api"
 	"logbook/internal/logger"
 	"logbook/internal/startup"
 	"logbook/internal/web/balancer"
 	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router"
+	"logbook/internal/web/router/receptionist"
+	"logbook/internal/web/router/registration"
+	"logbook/internal/web/router/registration/middlewares"
 	"logbook/internal/web/sidecar"
 	"logbook/models"
 
@@ -43,20 +47,40 @@ func Main() error {
 	sc := sidecar.New(registry.NewClient(balancer.New(internalsd), apicfg, true), deplcfg, []models.Service{}, l)
 	defer sc.Stop()
 
-	app := app.New(pool, l)
+	a := app.New(pool, l)
+	pub := public.New(a, l)
+	priv := private.New(a, l)
 
-	pub := public.New(apicfg, deplcfg, app, sc, l)
-	pri := private.New(apicfg, deplcfg, app, l)
+	agent := registration.New(deplcfg, l)
+
+	ps := apicfg.Public.Services.Objectives
+	err = agent.RegisterForPublic(map[api.Endpoint]receptionist.HandlerFunc[middlewares.Store]{
+		ps.Endpoints.Attach:    pub.ReattachObjective,
+		ps.Endpoints.Create:    pub.CreateObjective,
+		ps.Endpoints.Mark:      pub.MarkComplete,
+		ps.Endpoints.Placement: pub.GetPlacementArray,
+	})
+	if err != nil {
+		return fmt.Errorf("agent.RegisterForPublic: %w", err)
+	}
+
+	is := apicfg.Internal.Services.Objectives
+	err = agent.RegisterForInternal(map[api.Endpoint]receptionist.HandlerFunc[middlewares.Store]{
+		is.Endpoints.RockCreate: priv.RockCreate,
+	})
+	if err != nil {
+		return fmt.Errorf("agent.RegisterForInternal: %w", err)
+	}
 
 	err = router.StartServer(router.ServerParameters{
-		Address:     args.PrivateNetworkIp,
-		Port:        deplcfg.Ports.Objectives,
-		Router:      deplcfg.Router,
-		Service:     models.Objectives,
-		Sidecar:     sc,
-		TlsCrt:      args.TlsCertificate,
-		TlsKey:      args.TlsKey,
-		Registerers: []router.Registerer{pub.Register, pri.Register},
+		Address:  args.PrivateNetworkIp,
+		Port:     deplcfg.Ports.Objectives,
+		Router:   deplcfg.Router,
+		ServeMux: agent.Mux(),
+		Service:  models.Objectives,
+		Sidecar:  sc,
+		TlsCrt:   args.TlsCertificate,
+		TlsKey:   args.TlsKey,
 	}, l)
 	if err != nil {
 		return fmt.Errorf("router.StartServer: %w", err)
