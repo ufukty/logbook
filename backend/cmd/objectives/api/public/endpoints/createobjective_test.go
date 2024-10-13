@@ -2,7 +2,7 @@ package endpoints
 
 import (
 	"fmt"
-	"logbook/internal/web/router/pipelines/middlewares"
+	"logbook/internal/web/router/reception/middlewares"
 	"net/http"
 	"net/http/httptest"
 	"strings"

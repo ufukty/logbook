@@ -5,7 +5,7 @@
 
 // the timeout and recovery logic are based on chi's middlewares
 
-package pipelines
+package reception
 
 import (
 	"context"
@@ -23,7 +23,7 @@ var ErrSilent = fmt.Errorf("no error") // return early without logging an error
 
 type HandlerFunc[StorageType any] func(id RequestId, store *StorageType, w http.ResponseWriter, r *http.Request) error
 
-type PipelineParams struct {
+type ReceptionistParams struct {
 	Timeout time.Duration
 }
 
@@ -36,21 +36,21 @@ type PipelineParams struct {
 //   - checks timeout,
 //   - recovers panic,
 //   - handles logging
-type pipeline[StorageType any] struct {
+type receptionist[StorageType any] struct {
 	l        *logger.Logger
 	handlers []HandlerFunc[StorageType]
-	params   PipelineParams
+	params   ReceptionistParams
 }
 
-func NewPipeline[T any](handlers []HandlerFunc[T], params PipelineParams, l *logger.Logger) *pipeline[T] {
-	return &pipeline[T]{
+func NewReceptionist[T any](handlers []HandlerFunc[T], params ReceptionistParams, l *logger.Logger) *receptionist[T] {
+	return &receptionist[T]{
 		l:        l.Sub("Pipeline"),
 		handlers: handlers,
 		params:   params,
 	}
 }
 
-func (p pipeline[StorageType]) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (p receptionist[StorageType]) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	id, err := columns.NewUuidV4[RequestId]()
 	if err != nil {
 		p.l.Println(fmt.Errorf("generating new request id: %w", err))

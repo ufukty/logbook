@@ -5,8 +5,8 @@ import (
 
 	"logbook/cmd/objectives/app"
 	"logbook/internal/web/requests"
-	"logbook/internal/web/router/pipelines"
-	"logbook/internal/web/router/pipelines/middlewares"
+	"logbook/internal/web/router/reception"
+	"logbook/internal/web/router/reception/middlewares"
 	"logbook/internal/web/validate"
 	"logbook/models"
 	"logbook/models/columns"
@@ -27,7 +27,7 @@ type CreateObjectiveResponse struct {
 }
 
 // TODO: Check user input for script tags in order to prevent XSS attempts
-func (e *Endpoints) CreateObjective(rid pipelines.RequestId, store *middlewares.Store, w http.ResponseWriter, r *http.Request) error {
+func (e *Endpoints) CreateObjective(rid reception.RequestId, store *middlewares.Store, w http.ResponseWriter, r *http.Request) error {
 	bq := &CreateObjectiveRequest{}
 
 	if err := requests.ParseRequest(w, r, bq); err != nil {

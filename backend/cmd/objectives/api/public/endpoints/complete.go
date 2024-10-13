@@ -3,8 +3,8 @@ package endpoints
 import (
 	"fmt"
 	"logbook/internal/web/requests"
-	"logbook/internal/web/router/pipelines"
-	"logbook/internal/web/router/pipelines/middlewares"
+	"logbook/internal/web/router/reception"
+	"logbook/internal/web/router/reception/middlewares"
 	"net/http"
 )
 
@@ -21,7 +21,7 @@ type MarkCompleteResponse struct {
 	// TODO:
 }
 
-func (e *Endpoints) MarkComplete(rid pipelines.RequestId, store *middlewares.Store, w http.ResponseWriter, r *http.Request) error {
+func (e *Endpoints) MarkComplete(rid reception.RequestId, store *middlewares.Store, w http.ResponseWriter, r *http.Request) error {
 	bq := &MarkCompleteRequest{}
 
 	if err := requests.ParseRequest(w, r, bq); err != nil {
