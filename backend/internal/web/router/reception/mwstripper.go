@@ -8,7 +8,7 @@ type stripper struct {
 	builtin http.Handler
 }
 
-func NewStripper(prefix string, h http.Handler) *stripper {
+func newStripper(prefix string, h http.Handler) *stripper {
 	return &stripper{
 		builtin: http.StripPrefix(prefix, h),
 	}

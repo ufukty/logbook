@@ -39,7 +39,7 @@ type corsManager struct {
 	origin string
 }
 
-func NewCorsManager(origin string) *corsManager {
+func newCorsManager(origin string) *corsManager {
 	return &corsManager{
 		origin: origin,
 	}

@@ -34,7 +34,7 @@ func (a *Agent) Mux() *http.ServeMux {
 // TODO: auth
 func (ag *Agent) RegisterForInternal(eps map[api.Endpoint]HandlerFunc) error {
 	var (
-		a = NewAuth()
+		a = newAuth()
 	)
 
 	params := receptionistParams{
@@ -63,8 +63,8 @@ func (ag *Agent) RegisterForPublic(eps map[api.Endpoint]HandlerFunc) error {
 	}
 
 	var (
-		a  = NewAuth()
-		cm = NewCorsManager(origin)
+		a  = newAuth()
+		cm = newCorsManager(origin)
 	)
 
 	params := receptionistParams{
@@ -97,7 +97,7 @@ func (ag *Agent) RegisterForwarders(servicepath string, fwds map[api.Addressable
 	}
 
 	for addr, fwd := range fwds {
-		str := NewStripper(servicepath, fwd)
+		str := newStripper(servicepath, fwd)
 		route := api.PrefixedByGateway(addr)
 		ag.r.Handle(route, newReceptionist(params, ag.l.Sub(fmt.Sprintf("stripper(%s)", route)), str.Strip))
 	}
@@ -110,8 +110,8 @@ func (ag *Agent) RegisterCommonalities() error {
 		Timeout: 1 * time.Second, // FIXME:
 	}
 
-	ag.r.Handle("/ping", newReceptionist(params, ag.l.Sub("ping"), Pong))
-	ag.r.Handle("/", newReceptionist(params, ag.l.Sub("not found"), NotFound))
+	ag.r.Handle("/ping", newReceptionist(params, ag.l.Sub("ping"), pong))
+	ag.r.Handle("/", newReceptionist(params, ag.l.Sub("not found"), notFound))
 
 	return nil
 }

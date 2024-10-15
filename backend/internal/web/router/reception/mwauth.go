@@ -7,7 +7,7 @@ import (
 type auth struct {
 }
 
-func NewAuth() *auth {
+func newAuth() *auth {
 	return &auth{}
 }
 
