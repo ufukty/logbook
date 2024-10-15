@@ -23,7 +23,7 @@ func NewAgent(deplcfg *deployment.Config, l *logger.Logger) *Agent {
 	return &Agent{
 		deplcfg: deplcfg,
 		r:       http.NewServeMux(),
-		l:       l.Sub("registration"),
+		l:       l.Sub("agent"),
 	}
 }
 
@@ -99,7 +99,7 @@ func (ag *Agent) RegisterForwarders(servicepath string, fwds map[api.Addressable
 	for addr, fwd := range fwds {
 		str := NewStripper(servicepath, fwd)
 		route := api.PrefixedByGateway(addr)
-		ag.r.Handle(route, newReceptionist(params, ag.l.Sub(fmt.Sprintf("Stipper(%s)", route)), str.Strip))
+		ag.r.Handle(route, newReceptionist(params, ag.l.Sub(fmt.Sprintf("stripper(%s)", route)), str.Strip))
 	}
 
 	return nil
@@ -111,7 +111,7 @@ func (ag *Agent) RegisterCommonalities() error {
 	}
 
 	ag.r.Handle("/ping", newReceptionist(params, ag.l.Sub("ping"), Pong))
-	ag.r.Handle("/", http.HandlerFunc(http.NotFound))
+	ag.r.Handle("/", newReceptionist(params, ag.l.Sub("not found"), NotFound))
 
 	return nil
 }
