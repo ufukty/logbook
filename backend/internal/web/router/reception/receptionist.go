@@ -5,20 +5,19 @@
 
 // the timeout and recovery logic are based on chi's middlewares
 
-package receptionist
+package reception
 
 import (
 	"context"
 	"fmt"
 	"logbook/internal/logger"
-	"logbook/internal/web/router/registration/receptionist/decls"
 	"logbook/models/columns"
 	"net/http"
 	"runtime/debug"
 	"time"
 )
 
-type Params struct {
+type receptionistParams struct {
 	Timeout time.Duration
 }
 
@@ -33,11 +32,11 @@ type Params struct {
 //   - handles logging
 type receptionist struct {
 	l        *logger.Logger
-	handlers []decls.HandlerFunc
-	params   Params
+	handlers []HandlerFunc
+	params   receptionistParams
 }
 
-func New(params Params, l *logger.Logger, handlers ...decls.HandlerFunc) *receptionist {
+func newReceptionist(params receptionistParams, l *logger.Logger, handlers ...HandlerFunc) *receptionist {
 	return &receptionist{
 		l:        l.Sub("Pipeline"),
 		handlers: handlers,
@@ -53,7 +52,7 @@ func New(params Params, l *logger.Logger, handlers ...decls.HandlerFunc) *recept
 func (recp receptionist) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ww := &response{ResponseWriter: w}
 
-	id, err := columns.NewUuidV4[decls.RequestId]()
+	id, err := columns.NewUuidV4[RequestId]()
 	if err != nil {
 		recp.l.Println(fmt.Errorf("generating new request id: %w", err))
 		http.Error(ww, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -76,7 +75,7 @@ func (recp receptionist) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}()
 	r = r.WithContext(ctx)
 
-	var handler decls.HandlerFunc
+	var handler HandlerFunc
 	defer func() {
 		if rec := recover(); rec != nil {
 			if rec == http.ErrAbortHandler { // don't recover
@@ -96,11 +95,11 @@ func (recp receptionist) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 
 	default:
-		store := &decls.Store{}
+		store := &Store{}
 		for _, handler = range recp.handlers {
 			err := handler(id, store, ww, r)
 			if err != nil {
-				if err != decls.ErrEarlyReturn {
+				if err != ErrEarlyReturn {
 					recp.l.Println(fmt.Errorf("handler %s: %w", funcname(handler), err))
 				}
 				return

@@ -2,13 +2,13 @@ package endpoints
 
 import (
 	"fmt"
-	"logbook/internal/web/router/registration/receptionist/decls"
+	"logbook/internal/web/router/reception"
 	"logbook/models/columns"
 	"net/http"
 )
 
 // TODO: add anti-CSRF token checks
-func (e Endpoints) Logout(id decls.RequestId, store *decls.Store, w http.ResponseWriter, r *http.Request) error {
+func (e Endpoints) Logout(id reception.RequestId, store *reception.Store, w http.ResponseWriter, r *http.Request) error {
 	st := columns.SessionToken(r.Header.Get("session_token"))
 
 	if err := st.Validate(); err != nil {

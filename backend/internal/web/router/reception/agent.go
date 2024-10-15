@@ -1,30 +1,48 @@
-package registration
+package reception
 
 import (
 	"fmt"
 	"logbook/config/api"
+	"logbook/config/deployment"
+	"logbook/internal/logger"
 	"logbook/internal/web/forwarder"
 	"logbook/internal/web/headers"
-	"logbook/internal/web/router/registration/middlewares"
-	"logbook/internal/web/router/registration/receptionist"
-	"logbook/internal/web/router/registration/receptionist/decls"
 	"net/http"
 	"net/url"
 	"time"
 )
 
+// [Agent] is the registration Agent which helps services, and gateways to register their handlers and forwarders appropriately
+type Agent struct {
+	deplcfg *deployment.Config
+	r       *http.ServeMux
+	l       *logger.Logger
+}
+
+func NewAgent(deplcfg *deployment.Config, l *logger.Logger) *Agent {
+	return &Agent{
+		deplcfg: deplcfg,
+		r:       http.NewServeMux(),
+		l:       l.Sub("registration"),
+	}
+}
+
+func (a *Agent) Mux() *http.ServeMux {
+	return a.r
+}
+
 // TODO: auth
-func (ag *Agent) RegisterForInternal(eps map[api.Endpoint]decls.HandlerFunc) error {
+func (ag *Agent) RegisterForInternal(eps map[api.Endpoint]HandlerFunc) error {
 	var (
-		a = middlewares.NewAuth()
+		a = NewAuth()
 	)
 
-	params := receptionist.Params{
+	params := receptionistParams{
 		Timeout: time.Second, // FIXME:
 	}
 
 	for ep, handler := range eps {
-		pl := receptionist.New(params, ag.l.Sub(api.ByService(ep)),
+		pl := newReceptionist(params, ag.l.Sub(api.ByService(ep)),
 			a.Handle,
 			handler,
 		)
@@ -38,18 +56,18 @@ func (ag *Agent) RegisterForInternal(eps map[api.Endpoint]decls.HandlerFunc) err
 
 // DONE: cors
 // TODO: auth
-func (ag *Agent) RegisterForPublic(eps map[api.Endpoint]decls.HandlerFunc) error {
+func (ag *Agent) RegisterForPublic(eps map[api.Endpoint]HandlerFunc) error {
 	origin, err := url.JoinPath(ag.deplcfg.Router.Cors.AllowOrigin)
 	if err != nil {
 		return fmt.Errorf("url.JoinPath: %w", err)
 	}
 
 	var (
-		a  = middlewares.NewAuth()
-		cm = middlewares.NewCorsManager(origin)
+		a  = NewAuth()
+		cm = NewCorsManager(origin)
 	)
 
-	params := receptionist.Params{
+	params := receptionistParams{
 		Timeout: 1 * time.Second, // FIXME:
 	}
 	corsheaders := []string{
@@ -58,7 +76,7 @@ func (ag *Agent) RegisterForPublic(eps map[api.Endpoint]decls.HandlerFunc) error
 	}
 
 	for ep, handler := range eps {
-		pl := receptionist.New(params, ag.l.Sub(api.ByService(ep)),
+		pl := newReceptionist(params, ag.l.Sub(api.ByService(ep)),
 			a.Handle,
 			cm.Instantiate([]string{ep.GetMethod()}, corsheaders).Handle,
 			handler,
@@ -74,25 +92,25 @@ func (ag *Agent) RegisterForPublic(eps map[api.Endpoint]decls.HandlerFunc) error
 }
 
 func (ag *Agent) RegisterForwarders(servicepath string, fwds map[api.Addressable]*forwarder.LoadBalancedReverseProxy) error {
-	params := receptionist.Params{
+	params := receptionistParams{
 		Timeout: time.Second, // FIXME:
 	}
 
 	for addr, fwd := range fwds {
-		str := middlewares.NewStripper(servicepath, fwd)
+		str := NewStripper(servicepath, fwd)
 		route := api.PrefixedByGateway(addr)
-		ag.r.Handle(route, receptionist.New(params, ag.l.Sub(fmt.Sprintf("Stipper(%s)", route)), str.Strip))
+		ag.r.Handle(route, newReceptionist(params, ag.l.Sub(fmt.Sprintf("Stipper(%s)", route)), str.Strip))
 	}
 
 	return nil
 }
 
 func (ag *Agent) RegisterCommonalities() error {
-	params := receptionist.Params{
+	params := receptionistParams{
 		Timeout: 1 * time.Second, // FIXME:
 	}
 
-	ag.r.Handle("/ping", receptionist.New(params, ag.l.Sub("ping"), middlewares.Pong))
+	ag.r.Handle("/ping", newReceptionist(params, ag.l.Sub("ping"), Pong))
 	ag.r.Handle("/", http.HandlerFunc(http.NotFound))
 
 	return nil

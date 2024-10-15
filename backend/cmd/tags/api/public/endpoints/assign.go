@@ -3,7 +3,7 @@ package endpoints
 import (
 	"fmt"
 	"logbook/internal/web/requests"
-	"logbook/internal/web/router/registration/receptionist/decls"
+	"logbook/internal/web/router/reception"
 	"net/http"
 )
 
@@ -20,7 +20,7 @@ type TagAssignResponse struct {
 	// TODO:
 }
 
-func (e *Endpoints) TagAssign(id decls.RequestId, store *decls.Store, w http.ResponseWriter, r *http.Request) error {
+func (e *Endpoints) TagAssign(id reception.RequestId, store *reception.Store, w http.ResponseWriter, r *http.Request) error {
 	bq := &TagAssignRequest{}
 
 	if err := requests.ParseRequest(w, r, bq); err != nil {

@@ -12,7 +12,7 @@ import (
 	"logbook/internal/web/balancer"
 	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router"
-	"logbook/internal/web/router/registration"
+	"logbook/internal/web/router/reception"
 	"logbook/internal/web/sidecar"
 	"logbook/models"
 
@@ -43,7 +43,7 @@ func Main() error {
 
 	pub := public.New(apicfg, deplcfg, pool, internalsd, l)
 
-	agent := registration.New(deplcfg, l)
+	agent := reception.NewAgent(deplcfg, l)
 	err = pub.Register(agent)
 	if err != nil {
 		return fmt.Errorf("pub.Register: %w", err)

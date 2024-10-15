@@ -9,8 +9,7 @@ import (
 	"logbook/internal/logger"
 	"logbook/internal/startup"
 	"logbook/internal/web/router"
-	"logbook/internal/web/router/registration"
-	"logbook/internal/web/router/registration/receptionist/decls"
+	"logbook/internal/web/router/reception"
 	"net/http"
 )
 
@@ -29,8 +28,8 @@ func Main() error {
 	r := http.NewServeMux()
 
 	s := apicfg.Internal.Services.Registry
-	agent := registration.New(deplycfg, l)
-	agent.RegisterForInternal(map[api.Endpoint]decls.HandlerFunc{
+	agent := reception.NewAgent(deplycfg, l)
+	agent.RegisterForInternal(map[api.Endpoint]reception.HandlerFunc{
 		s.Endpoints.ListInstances:    e.ListInstances,
 		s.Endpoints.RecheckInstance:  e.RecheckInstance,
 		s.Endpoints.RegisterInstance: e.RegisterInstance,

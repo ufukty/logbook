@@ -9,7 +9,7 @@ import (
 	"logbook/internal/web/forwarder"
 	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router"
-	"logbook/internal/web/router/registration"
+	"logbook/internal/web/router/reception"
 	"logbook/models"
 )
 
@@ -35,7 +35,7 @@ func Main() error {
 		registry   = forwarder.New(registrysd, models.Discovery, api.ByGateway(s.Registry), l)
 	)
 
-	agent := registration.New(deplcfg, l)
+	agent := reception.NewAgent(deplcfg, l)
 	err = agent.RegisterForwarders(apicfg.Internal.Path, map[api.Addressable]*forwarder.LoadBalancedReverseProxy{
 		s.Account:    account,
 		s.Objectives: objectives,

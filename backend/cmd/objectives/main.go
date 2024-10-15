@@ -15,8 +15,7 @@ import (
 	"logbook/internal/web/balancer"
 	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router"
-	"logbook/internal/web/router/registration"
-	"logbook/internal/web/router/registration/receptionist/decls"
+	"logbook/internal/web/router/reception"
 	"logbook/internal/web/sidecar"
 	"logbook/models"
 
@@ -50,10 +49,10 @@ func Main() error {
 	pub := public.New(a, l)
 	priv := private.New(a, l)
 
-	agent := registration.New(deplcfg, l)
+	agent := reception.NewAgent(deplcfg, l)
 
 	ps := apicfg.Public.Services.Objectives
-	err = agent.RegisterForPublic(map[api.Endpoint]decls.HandlerFunc{
+	err = agent.RegisterForPublic(map[api.Endpoint]reception.HandlerFunc{
 		ps.Endpoints.Attach:    pub.ReattachObjective,
 		ps.Endpoints.Create:    pub.CreateObjective,
 		ps.Endpoints.Mark:      pub.MarkComplete,
@@ -64,7 +63,7 @@ func Main() error {
 	}
 
 	is := apicfg.Internal.Services.Objectives
-	err = agent.RegisterForInternal(map[api.Endpoint]decls.HandlerFunc{
+	err = agent.RegisterForInternal(map[api.Endpoint]reception.HandlerFunc{
 		is.Endpoints.RockCreate: priv.RockCreate,
 	})
 	if err != nil {

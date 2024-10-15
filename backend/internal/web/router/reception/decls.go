@@ -1,4 +1,4 @@
-package decls
+package reception
 
 import (
 	"fmt"

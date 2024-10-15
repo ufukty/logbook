@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"logbook/cmd/registry/app"
 	"logbook/internal/web/requests"
-	"logbook/internal/web/router/registration/receptionist/decls"
+	"logbook/internal/web/router/reception"
 	"logbook/models"
 	"net/http"
 	"net/url"
@@ -34,7 +34,7 @@ type RegisterInstanceResponse struct {
 	InstanceId app.InstanceId `json:"instance-id"`
 }
 
-func (e *Endpoints) RegisterInstance(id decls.RequestId, store *decls.Store, w http.ResponseWriter, r *http.Request) error {
+func (e *Endpoints) RegisterInstance(id reception.RequestId, store *reception.Store, w http.ResponseWriter, r *http.Request) error {
 	bq := &RegisterInstanceRequest{}
 
 	if err := requests.ParseRequest(w, r, bq); err != nil {

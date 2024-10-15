@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"logbook/cmd/account/api/public/app"
 	"logbook/internal/web/requests"
-	"logbook/internal/web/router/registration/receptionist/decls"
+	"logbook/internal/web/router/reception"
 	"logbook/models/columns"
 	"net/http"
 
@@ -18,7 +18,7 @@ type WhoAmIResponse struct {
 	CreatedAt pgtype.Timestamp `json:"created_at"`
 }
 
-func (e Endpoints) WhoAmI(id decls.RequestId, store *decls.Store, w http.ResponseWriter, r *http.Request) error {
+func (e Endpoints) WhoAmI(id reception.RequestId, store *reception.Store, w http.ResponseWriter, r *http.Request) error {
 	cookie, err := r.Cookie("session_token")
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)

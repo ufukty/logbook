@@ -11,7 +11,7 @@ import (
 	"logbook/internal/web/forwarder"
 	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router"
-	"logbook/internal/web/router/registration"
+	"logbook/internal/web/router/reception"
 	"logbook/internal/web/sidecar"
 	"logbook/models"
 )
@@ -44,7 +44,7 @@ func Main() error {
 		objectives = forwarder.New(sc.InstanceSource(models.Objectives), models.Objectives, api.ByGateway(s.Objectives), l)
 	)
 
-	agent := registration.New(deplcfg, l)
+	agent := reception.NewAgent(deplcfg, l)
 	err = agent.RegisterForwarders(apicfg.Public.Path, map[api.Addressable]*forwarder.LoadBalancedReverseProxy{
 		s.Account:    accounts,
 		s.Objectives: objectives,

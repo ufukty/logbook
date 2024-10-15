@@ -3,7 +3,7 @@ package endpoints
 import (
 	"fmt"
 	"logbook/internal/web/requests"
-	"logbook/internal/web/router/registration/receptionist/decls"
+	"logbook/internal/web/router/reception"
 	"logbook/models/columns"
 	"net/http"
 
@@ -22,7 +22,7 @@ type WhoIsResponse struct {
 }
 
 // TODO: What it should return for missing body, invalid token or IO errors?
-func (e Endpoints) WhoIs(rid decls.RequestId, store *decls.Store, w http.ResponseWriter, r *http.Request) error {
+func (e Endpoints) WhoIs(rid reception.RequestId, store *reception.Store, w http.ResponseWriter, r *http.Request) error {
 	bq := &WhoIsRequest{}
 
 	err := requests.ParseRequest(w, r, bq)
