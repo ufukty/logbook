@@ -3,9 +3,11 @@ package registration
 import (
 	"fmt"
 	"logbook/config/api"
+	"logbook/internal/web/forwarder"
 	"logbook/internal/web/headers"
 	"logbook/internal/web/router/receptionist"
 	"logbook/internal/web/router/registration/middlewares"
+	"net/http"
 	"net/url"
 	"time"
 )
@@ -66,6 +68,31 @@ func (ag *Agent) RegisterForPublic(eps map[api.Endpoint]receptionist.HandlerFunc
 			ag.r.Handle(pattern, pl)
 		}
 	}
+
+	return nil
+}
+
+func (ag *Agent) RegisterForwarders(servicepath string, fwds map[api.Addressable]*forwarder.LoadBalancedReverseProxy) error {
+	params := receptionist.Params{
+		Timeout: time.Second, // FIXME:
+	}
+
+	for addr, fwd := range fwds {
+		str := stripper{builtin: http.StripPrefix(servicepath, fwd)}
+		route := api.PrefixedByGateway(addr)
+		ag.r.Handle(route, receptionist.New(params, ag.l.Sub(fmt.Sprintf("Stipper(%s)", route)), str.Strip))
+	}
+
+	return nil
+}
+
+func (ag *Agent) RegisterCommonalities() error {
+	params := receptionist.Params{
+		Timeout: 1 * time.Second, // FIXME:
+	}
+
+	ag.r.Handle("/ping", receptionist.New(params, ag.l.Sub("ping"), pong[middlewares.Store]))
+	ag.r.Handle("/", http.HandlerFunc(http.NotFound))
 
 	return nil
 }

@@ -11,9 +11,9 @@ import (
 	"logbook/internal/web/forwarder"
 	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router"
+	"logbook/internal/web/router/registration"
 	"logbook/internal/web/sidecar"
 	"logbook/models"
-	"net/http"
 )
 
 func Main() error {
@@ -44,14 +44,23 @@ func Main() error {
 		objectives = forwarder.New(sc.InstanceSource(models.Objectives), models.Objectives, api.ByGateway(s.Objectives), l)
 	)
 
-	r := http.NewServeMux()
-	r.Handle(api.PrefixedByGateway(s.Account), http.StripPrefix(apicfg.Public.Path, accounts))
-	r.Handle(api.PrefixedByGateway(s.Objectives), http.StripPrefix(apicfg.Public.Path, objectives))
+	agent := registration.New(deplcfg, l)
+	err = agent.RegisterForwarders(apicfg.Public.Path, map[api.Addressable]*forwarder.LoadBalancedReverseProxy{
+		s.Account:    accounts,
+		s.Objectives: objectives,
+	})
+	if err != nil {
+		return fmt.Errorf("agent.RegisterForwarders: %w", err)
+	}
+	err = agent.RegisterCommonalities()
+	if err != nil {
+		return fmt.Errorf("agent.RegisterCommonalities: %w", err)
+	}
 
 	err = router.StartServer(router.ServerParameters{
 		Port:     deplcfg.Ports.Gateway,
 		Router:   deplcfg.Router,
-		ServeMux: r,
+		ServeMux: agent.Mux(),
 		TlsCrt:   args.TlsCertificate,
 		TlsKey:   args.TlsKey,
 	}, l)

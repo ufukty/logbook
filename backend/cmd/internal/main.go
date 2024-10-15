@@ -9,8 +9,8 @@ import (
 	"logbook/internal/web/forwarder"
 	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router"
+	"logbook/internal/web/router/registration"
 	"logbook/models"
-	"net/http"
 )
 
 func Main() error {
@@ -35,15 +35,24 @@ func Main() error {
 		registry   = forwarder.New(registrysd, models.Discovery, api.ByGateway(s.Registry), l)
 	)
 
-	r := http.NewServeMux()
-	r.Handle(api.PrefixedByGateway(s.Account), http.StripPrefix(apicfg.Internal.Path, account))
-	r.Handle(api.PrefixedByGateway(s.Objectives), http.StripPrefix(apicfg.Internal.Path, objectives))
-	r.Handle(api.PrefixedByGateway(s.Registry), http.StripPrefix(apicfg.Internal.Path, registry))
+	agent := registration.New(deplcfg, l)
+	err = agent.RegisterForwarders(apicfg.Internal.Path, map[api.Addressable]*forwarder.LoadBalancedReverseProxy{
+		s.Account:    account,
+		s.Objectives: objectives,
+		s.Registry:   registry,
+	})
+	if err != nil {
+		return fmt.Errorf("agent.RegisterForwarders: %w", err)
+	}
+	err = agent.RegisterCommonalities()
+	if err != nil {
+		return fmt.Errorf("agent.RegisterCommonalities: %w", err)
+	}
 
 	router.StartServer(router.ServerParameters{
 		Router:   deplcfg.Router,
 		Port:     deplcfg.Ports.Internal,
-		ServeMux: r,
+		ServeMux: agent.Mux(),
 		TlsCrt:   args.TlsCertificate,
 		TlsKey:   args.TlsKey,
 	}, l)

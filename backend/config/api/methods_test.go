@@ -22,7 +22,7 @@ func TestByGateway(t *testing.T) {
 		t.Fatal(fmt.Errorf("prep: %w", err))
 	}
 
-	tcs := map[addressable]string{
+	tcs := map[Addressable]string{
 		c.Public:                  "/api",
 		c.Public.Services.Account: "/api/account",
 		c.Public.Services.Account.Endpoints.CreateAccount: "/api/account/account",
