@@ -34,6 +34,10 @@ func Main() error {
 		s.Endpoints.RecheckInstance:  e.RecheckInstance,
 		s.Endpoints.RegisterInstance: e.RegisterInstance,
 	})
+	err = agent.RegisterCommonalities()
+	if err != nil {
+		return fmt.Errorf("agent.RegisterCommonalities: %w", err)
+	}
 
 	err = router.StartServer(router.ServerParameters{
 		Port:     deplycfg.Ports.Registry,

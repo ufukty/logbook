@@ -69,6 +69,10 @@ func Main() error {
 	if err != nil {
 		return fmt.Errorf("agent.RegisterForInternal: %w", err)
 	}
+	err = agent.RegisterCommonalities()
+	if err != nil {
+		return fmt.Errorf("agent.RegisterCommonalities: %w", err)
+	}
 
 	err = router.StartServer(router.ServerParameters{
 		Address:  args.PrivateNetworkIp,
