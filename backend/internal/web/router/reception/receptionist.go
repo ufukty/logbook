@@ -38,7 +38,7 @@ type receptionist struct {
 
 func newReceptionist(params receptionistParams, l *logger.Logger, handlers ...HandlerFunc) *receptionist {
 	return &receptionist{
-		l:        l.Sub("Pipeline"),
+		l:        l.Sub("receptionist"),
 		handlers: handlers,
 		params:   params,
 	}
