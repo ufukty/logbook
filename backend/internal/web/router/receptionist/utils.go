@@ -2,13 +2,28 @@ package receptionist
 
 import (
 	"fmt"
+	"logbook/internal/logger/colors"
 	"net/http"
 	"reflect"
 	"runtime"
+	"time"
 )
 
 func summarize(r *http.Request) string {
-	return fmt.Sprintf("(\033[34m%s\033[0m, \033[35m%s\033[0m) \033[31m%s\033[0m \033[32m%s\033[0m \033[33m%s\033[0m", r.Host, r.RemoteAddr, r.Proto, r.Method, r.URL.Path)
+	return fmt.Sprintf("%s %s %s (%s, %s)",
+		colors.Green(r.Method),
+		colors.Yellow(r.URL.Path),
+		colors.Red(r.Proto),
+		colors.Blue(r.Host),
+		colors.Magenta(r.RemoteAddr),
+	)
+}
+
+func summarizeW(w *Response, t time.Time) string {
+	return fmt.Sprintf("%s %s %s bytes",
+		colors.Magenta(w.Status),
+		colors.Green(time.Since(t)),
+		colors.Cyan(w.Header().Get("Content-Length")))
 }
 
 func lastsix[S ~string](id S) S {

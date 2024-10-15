@@ -50,23 +50,27 @@ func New[T any](params Params, l *logger.Logger, handlers ...HandlerFunc[T]) *re
 // DONE: timeout
 // DONE: handlers
 func (recp receptionist[StorageType]) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	ww := &Response{ResponseWriter: w}
+
 	id, err := columns.NewUuidV4[RequestId]()
 	if err != nil {
 		recp.l.Println(fmt.Errorf("generating new request id: %w", err))
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		http.Error(ww, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
+	t := time.Now()
+
 	recp.l.Printf("accepted %s: %s\n", lastsix(id), summarize(r))
 	defer func() {
-		recp.l.Printf("served %s: %s\n", lastsix(id), summarize(r))
+		recp.l.Printf("served   %s: %s\n", lastsix(id), summarizeW(ww, t))
 	}()
 
 	ctx, cancel := context.WithTimeout(r.Context(), recp.params.Timeout)
 	defer func() {
 		cancel()
 		if ctx.Err() == context.DeadlineExceeded {
-			http.Error(w, http.StatusText(http.StatusGatewayTimeout), http.StatusGatewayTimeout)
+			http.Error(ww, http.StatusText(http.StatusGatewayTimeout), http.StatusGatewayTimeout)
 		}
 	}()
 	r = r.WithContext(ctx)
@@ -80,7 +84,7 @@ func (recp receptionist[StorageType]) ServeHTTP(w http.ResponseWriter, r *http.R
 			debug.PrintStack()
 			recp.l.Println(fmt.Errorf("recovered: %s: %v", funcname(handler), rec))
 			if r.Header.Get("Connection") != "Upgrade" { // except websocket (?)
-				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				http.Error(ww, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			}
 			return
 		}
@@ -93,7 +97,7 @@ func (recp receptionist[StorageType]) ServeHTTP(w http.ResponseWriter, r *http.R
 	default:
 		store := new(StorageType)
 		for _, handler = range recp.handlers {
-			err := handler(id, store, w, r)
+			err := handler(id, store, ww, r)
 			if err != nil {
 				if err != ErrEarlyReturn {
 					recp.l.Println(fmt.Errorf("handler %s: %w", funcname(handler), err))
