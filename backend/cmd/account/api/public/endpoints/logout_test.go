@@ -2,8 +2,7 @@ package endpoints
 
 import (
 	"fmt"
-	"logbook/internal/web/router/receptionist"
-	"logbook/internal/web/router/registration/middlewares"
+	"logbook/internal/web/router/registration/decls"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -28,7 +27,7 @@ func TestLogoutWithInvalidToken(t *testing.T) {
 			})
 			w := httptest.NewRecorder()
 
-			ep.Logout(receptionist.ZeroRequestId, &middlewares.Store{}, w, r)
+			ep.Logout(decls.ZeroRequestId, &decls.Store{}, w, r)
 
 			if w.Code == 200 {
 				t.Error("Failure expected.")

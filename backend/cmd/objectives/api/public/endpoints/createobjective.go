@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"logbook/cmd/objectives/app"
 	"logbook/internal/web/requests"
-	"logbook/internal/web/router/receptionist"
-	"logbook/internal/web/router/registration/middlewares"
+	"logbook/internal/web/router/registration/decls"
 	"logbook/internal/web/validate"
 	"logbook/models"
 	"logbook/models/columns"
@@ -26,7 +25,7 @@ type CreateObjectiveResponse struct {
 }
 
 // TODO: Check user input for script tags in order to prevent XSS attempts
-func (e *Endpoints) CreateObjective(rid receptionist.RequestId, store *middlewares.Store, w http.ResponseWriter, r *http.Request) error {
+func (e *Endpoints) CreateObjective(rid decls.RequestId, store *decls.Store, w http.ResponseWriter, r *http.Request) error {
 	bq := &CreateObjectiveRequest{}
 
 	if err := requests.ParseRequest(w, r, bq); err != nil {

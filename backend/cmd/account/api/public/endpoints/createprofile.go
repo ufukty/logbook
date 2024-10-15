@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"logbook/cmd/account/api/public/app"
 	"logbook/internal/web/requests"
-	"logbook/internal/web/router/receptionist"
-	"logbook/internal/web/router/registration/middlewares"
+	"logbook/internal/web/router/registration/decls"
 	"logbook/internal/web/validate"
 	"logbook/models/columns"
 	"net/http"
@@ -28,7 +27,7 @@ func (params CreateProfileRequest) Validate() error {
 }
 
 // TODO: Authorization
-func (e Endpoints) CreateProfile(id receptionist.RequestId, store *middlewares.Store, w http.ResponseWriter, r *http.Request) error {
+func (e Endpoints) CreateProfile(id decls.RequestId, store *decls.Store, w http.ResponseWriter, r *http.Request) error {
 	bq := &CreateProfileRequest{}
 
 	if err := requests.ParseRequest(w, r, bq); err != nil {

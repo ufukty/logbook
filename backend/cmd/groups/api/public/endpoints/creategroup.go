@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"logbook/cmd/groups/api/public/app"
 	"logbook/internal/web/requests"
-	"logbook/internal/web/router/receptionist"
-	"logbook/internal/web/router/registration/middlewares"
+	"logbook/internal/web/router/registration/decls"
 	"logbook/internal/web/validate"
 	"logbook/models/columns"
 	"net/http"
@@ -23,7 +22,7 @@ type CreateGroupResponse struct {
 	GroupId columns.GroupId `json:"gid"`
 }
 
-func (e *Endpoints) CreateGroup(id receptionist.RequestId, store *middlewares.Store, w http.ResponseWriter, r *http.Request) error {
+func (e *Endpoints) CreateGroup(id decls.RequestId, store *decls.Store, w http.ResponseWriter, r *http.Request) error {
 	bq := &CreateGroupRequest{}
 
 	if err := requests.ParseRequest(w, r, bq); err != nil {

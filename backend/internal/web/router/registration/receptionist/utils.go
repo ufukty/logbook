@@ -19,7 +19,7 @@ func summarize(r *http.Request) string {
 	)
 }
 
-func summarizeW(w *Response, t time.Time) string {
+func summarizeW(w *response, t time.Time) string {
 	return fmt.Sprintf("%s %s %s bytes",
 		colors.Magenta(w.Status),
 		colors.Green(time.Since(t)),

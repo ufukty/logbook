@@ -5,8 +5,7 @@ import (
 	"logbook/cmd/account/api/public/app"
 	"logbook/internal/average"
 	"logbook/internal/web/requests"
-	"logbook/internal/web/router/receptionist"
-	"logbook/internal/web/router/registration/middlewares"
+	"logbook/internal/web/router/registration/decls"
 	"logbook/internal/web/validate"
 	"logbook/models/columns"
 	"net/http"
@@ -23,7 +22,7 @@ func (bq CreateSessionRequest) validate() error {
 	})
 }
 
-func (e Endpoints) Login(id receptionist.RequestId, store *middlewares.Store, w http.ResponseWriter, r *http.Request) error {
+func (e Endpoints) Login(id decls.RequestId, store *decls.Store, w http.ResponseWriter, r *http.Request) error {
 	bq := &CreateSessionRequest{}
 
 	if err := requests.ParseRequest(w, r, bq); err != nil {

@@ -9,9 +9,8 @@ import (
 	"logbook/internal/logger"
 	"logbook/internal/startup"
 	"logbook/internal/web/router"
-	"logbook/internal/web/router/receptionist"
 	"logbook/internal/web/router/registration"
-	"logbook/internal/web/router/registration/middlewares"
+	"logbook/internal/web/router/registration/decls"
 	"net/http"
 )
 
@@ -31,7 +30,7 @@ func Main() error {
 
 	s := apicfg.Internal.Services.Registry
 	agent := registration.New(deplycfg, l)
-	agent.RegisterForInternal(map[api.Endpoint]receptionist.HandlerFunc[middlewares.Store]{
+	agent.RegisterForInternal(map[api.Endpoint]decls.HandlerFunc{
 		s.Endpoints.ListInstances:    e.ListInstances,
 		s.Endpoints.RecheckInstance:  e.RecheckInstance,
 		s.Endpoints.RegisterInstance: e.RegisterInstance,

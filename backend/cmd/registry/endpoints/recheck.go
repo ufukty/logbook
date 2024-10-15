@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"logbook/cmd/registry/app"
 	"logbook/internal/web/requests"
-	"logbook/internal/web/router/receptionist"
-	"logbook/internal/web/router/registration/middlewares"
+	"logbook/internal/web/router/registration/decls"
 	"logbook/models"
 	"net/http"
 )
@@ -15,7 +14,7 @@ type RecheckInstanceRequest struct {
 	InstanceId app.InstanceId `json:"instance-id"`
 }
 
-func (e *Endpoints) RecheckInstance(id receptionist.RequestId, store *middlewares.Store, w http.ResponseWriter, r *http.Request) error {
+func (e *Endpoints) RecheckInstance(id decls.RequestId, store *decls.Store, w http.ResponseWriter, r *http.Request) error {
 	bq := &RecheckInstanceRequest{}
 
 	if err := requests.ParseRequest(w, r, bq); err != nil {

@@ -2,12 +2,12 @@ package receptionist
 
 import "net/http"
 
-type Response struct {
+type response struct {
 	http.ResponseWriter
 	Status int
 }
 
-func (r *Response) WriteHeader(statusCode int) {
+func (r *response) WriteHeader(statusCode int) {
 	r.Status = statusCode
 	r.ResponseWriter.WriteHeader(statusCode)
 }

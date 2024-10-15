@@ -1,27 +1,27 @@
 package middlewares
 
 import (
-	"logbook/internal/web/router/receptionist"
+	"logbook/internal/web/router/registration/decls"
 	"net/http"
 	"strings"
 )
 
-type Cors struct {
+type cors struct {
 	origin  string
 	methods string
 	headers string
 }
 
-func newCors(origin string, methods, headers []string) *Cors {
+func newCors(origin string, methods, headers []string) *cors {
 	methods = append(methods, "OPTIONS")
-	return &Cors{
+	return &cors{
 		origin:  origin,
 		methods: strings.Join(methods, ", "),
 		headers: strings.Join(headers, ", "),
 	}
 }
 
-func (c *Cors) Handle(id receptionist.RequestId, store *Store, w http.ResponseWriter, r *http.Request) error {
+func (c *cors) Handle(id decls.RequestId, store *decls.Store, w http.ResponseWriter, r *http.Request) error {
 	// Set CORS headers
 	w.Header().Set("Access-Control-Allow-Origin", c.origin)
 	w.Header().Set("Access-Control-Allow-Methods", c.methods)
@@ -30,22 +30,22 @@ func (c *Cors) Handle(id receptionist.RequestId, store *Store, w http.ResponseWr
 	// Handle preflight OPTIONS request
 	if r.Method == http.MethodOptions {
 		w.WriteHeader(http.StatusOK)
-		return receptionist.ErrEarlyReturn
+		return decls.ErrEarlyReturn
 	}
 
 	return nil
 }
 
-type CorsManager struct {
+type corsManager struct {
 	origin string
 }
 
-func NewCorsManager(origin string) *CorsManager {
-	return &CorsManager{
+func NewCorsManager(origin string) *corsManager {
+	return &corsManager{
 		origin: origin,
 	}
 }
 
-func (c CorsManager) Instantiate(methods, headers []string) *Cors {
+func (c corsManager) Instantiate(methods, headers []string) *cors {
 	return newCors(c.origin, methods, headers)
 }

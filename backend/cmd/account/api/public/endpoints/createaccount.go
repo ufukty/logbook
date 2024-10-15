@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"logbook/cmd/account/api/public/app"
 	"logbook/internal/web/requests"
-	"logbook/internal/web/router/receptionist"
-	"logbook/internal/web/router/registration/middlewares"
+	"logbook/internal/web/router/registration/decls"
 	"logbook/internal/web/validate"
 	"logbook/models/columns"
 	"net/http"
@@ -39,7 +38,7 @@ func (bq CreateAccountRequest) validate() error {
  * TODO: Create first bookmark
  * TODO: Wrap creation of user-task-bookmark with transaction, rollback on failure to not-lock person to re-register with same email
  */
-func (e *Endpoints) CreateAccount(id receptionist.RequestId, store *middlewares.Store, w http.ResponseWriter, r *http.Request) error {
+func (e *Endpoints) CreateAccount(id decls.RequestId, store *decls.Store, w http.ResponseWriter, r *http.Request) error {
 	bq := &CreateAccountRequest{}
 
 	if err := requests.ParseRequest(w, r, bq); err != nil {

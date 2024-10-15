@@ -6,9 +6,8 @@ import (
 	"logbook/config/api"
 	"logbook/config/deployment"
 	"logbook/internal/logger"
-	"logbook/internal/web/router/receptionist"
 	"logbook/internal/web/router/registration"
-	"logbook/internal/web/router/registration/middlewares"
+	"logbook/internal/web/router/registration/decls"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -37,7 +36,7 @@ func New(apicfg *api.Config, deplcfg *deployment.Config, pool *pgxpool.Pool, l *
 
 func (p *Private) Register(agent *registration.Agent) error {
 	s := p.apicfg.Internal.Services.Account
-	return agent.RegisterForInternal(map[api.Endpoint]receptionist.HandlerFunc[middlewares.Store]{
+	return agent.RegisterForInternal(map[api.Endpoint]decls.HandlerFunc{
 		s.Endpoints.WhoIs: p.em.WhoIs,
 	})
 }

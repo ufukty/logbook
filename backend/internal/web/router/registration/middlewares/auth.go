@@ -1,17 +1,17 @@
 package middlewares
 
 import (
-	"logbook/internal/web/router/receptionist"
+	"logbook/internal/web/router/registration/decls"
 	"net/http"
 )
 
-type Auth struct {
+type auth struct {
 }
 
-func NewAuth() *Auth {
-	return &Auth{}
+func NewAuth() *auth {
+	return &auth{}
 }
 
-func (Auth) Handle(id receptionist.RequestId, store *Store, w http.ResponseWriter, r *http.Request) error {
+func (auth) Handle(id decls.RequestId, store *decls.Store, w http.ResponseWriter, r *http.Request) error {
 	return nil
 }

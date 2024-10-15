@@ -5,15 +5,16 @@ import (
 	"logbook/config/api"
 	"logbook/internal/web/forwarder"
 	"logbook/internal/web/headers"
-	"logbook/internal/web/router/receptionist"
+	"logbook/internal/web/router/registration/decls"
 	"logbook/internal/web/router/registration/middlewares"
+	"logbook/internal/web/router/registration/receptionist"
 	"net/http"
 	"net/url"
 	"time"
 )
 
 // TODO: auth
-func (ag *Agent) RegisterForInternal(eps map[api.Endpoint]receptionist.HandlerFunc[middlewares.Store]) error {
+func (ag *Agent) RegisterForInternal(eps map[api.Endpoint]decls.HandlerFunc) error {
 	var (
 		a = middlewares.NewAuth()
 	)
@@ -37,7 +38,7 @@ func (ag *Agent) RegisterForInternal(eps map[api.Endpoint]receptionist.HandlerFu
 
 // DONE: cors
 // TODO: auth
-func (ag *Agent) RegisterForPublic(eps map[api.Endpoint]receptionist.HandlerFunc[middlewares.Store]) error {
+func (ag *Agent) RegisterForPublic(eps map[api.Endpoint]decls.HandlerFunc) error {
 	origin, err := url.JoinPath(ag.deplcfg.Router.Cors.AllowOrigin)
 	if err != nil {
 		return fmt.Errorf("url.JoinPath: %w", err)
@@ -78,7 +79,7 @@ func (ag *Agent) RegisterForwarders(servicepath string, fwds map[api.Addressable
 	}
 
 	for addr, fwd := range fwds {
-		str := stripper{builtin: http.StripPrefix(servicepath, fwd)}
+		str := middlewares.NewStripper(servicepath, fwd)
 		route := api.PrefixedByGateway(addr)
 		ag.r.Handle(route, receptionist.New(params, ag.l.Sub(fmt.Sprintf("Stipper(%s)", route)), str.Strip))
 	}
@@ -91,7 +92,7 @@ func (ag *Agent) RegisterCommonalities() error {
 		Timeout: 1 * time.Second, // FIXME:
 	}
 
-	ag.r.Handle("/ping", receptionist.New(params, ag.l.Sub("ping"), pong[middlewares.Store]))
+	ag.r.Handle("/ping", receptionist.New(params, ag.l.Sub("ping"), middlewares.Pong))
 	ag.r.Handle("/", http.HandlerFunc(http.NotFound))
 
 	return nil

@@ -8,9 +8,8 @@ import (
 	"logbook/config/deployment"
 	"logbook/internal/logger"
 	"logbook/internal/web/balancer"
-	"logbook/internal/web/router/receptionist"
 	"logbook/internal/web/router/registration"
-	"logbook/internal/web/router/registration/middlewares"
+	"logbook/internal/web/router/registration/decls"
 	"logbook/internal/web/sidecar"
 	"logbook/models"
 
@@ -43,7 +42,7 @@ func New(apicfg *api.Config, deplcfg *deployment.Config, pool *pgxpool.Pool, sc 
 
 func (p *Public) Register(agent *registration.Agent) error {
 	s := p.apicfg.Public.Services.Account
-	return agent.RegisterForPublic(map[api.Endpoint]receptionist.HandlerFunc[middlewares.Store]{
+	return agent.RegisterForPublic(map[api.Endpoint]decls.HandlerFunc{
 		s.Endpoints.CreateAccount: p.em.CreateAccount,
 		s.Endpoints.CreateProfile: p.em.CreateProfile,
 		s.Endpoints.Login:         p.em.Login,

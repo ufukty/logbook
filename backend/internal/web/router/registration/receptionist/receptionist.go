@@ -11,6 +11,7 @@ import (
 	"context"
 	"fmt"
 	"logbook/internal/logger"
+	"logbook/internal/web/router/registration/decls"
 	"logbook/models/columns"
 	"net/http"
 	"runtime/debug"
@@ -30,14 +31,14 @@ type Params struct {
 //   - checks timeout,
 //   - recovers panic,
 //   - handles logging
-type receptionist[StorageType any] struct {
+type receptionist struct {
 	l        *logger.Logger
-	handlers []HandlerFunc[StorageType]
+	handlers []decls.HandlerFunc
 	params   Params
 }
 
-func New[T any](params Params, l *logger.Logger, handlers ...HandlerFunc[T]) *receptionist[T] {
-	return &receptionist[T]{
+func New(params Params, l *logger.Logger, handlers ...decls.HandlerFunc) *receptionist {
+	return &receptionist{
 		l:        l.Sub("Pipeline"),
 		handlers: handlers,
 		params:   params,
@@ -49,10 +50,10 @@ func New[T any](params Params, l *logger.Logger, handlers ...HandlerFunc[T]) *re
 // DONE: recover
 // DONE: timeout
 // DONE: handlers
-func (recp receptionist[StorageType]) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	ww := &Response{ResponseWriter: w}
+func (recp receptionist) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	ww := &response{ResponseWriter: w}
 
-	id, err := columns.NewUuidV4[RequestId]()
+	id, err := columns.NewUuidV4[decls.RequestId]()
 	if err != nil {
 		recp.l.Println(fmt.Errorf("generating new request id: %w", err))
 		http.Error(ww, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -75,7 +76,7 @@ func (recp receptionist[StorageType]) ServeHTTP(w http.ResponseWriter, r *http.R
 	}()
 	r = r.WithContext(ctx)
 
-	var handler HandlerFunc[StorageType]
+	var handler decls.HandlerFunc
 	defer func() {
 		if rec := recover(); rec != nil {
 			if rec == http.ErrAbortHandler { // don't recover
@@ -95,11 +96,11 @@ func (recp receptionist[StorageType]) ServeHTTP(w http.ResponseWriter, r *http.R
 		return
 
 	default:
-		store := new(StorageType)
+		store := &decls.Store{}
 		for _, handler = range recp.handlers {
 			err := handler(id, store, ww, r)
 			if err != nil {
-				if err != ErrEarlyReturn {
+				if err != decls.ErrEarlyReturn {
 					recp.l.Println(fmt.Errorf("handler %s: %w", funcname(handler), err))
 				}
 				return
