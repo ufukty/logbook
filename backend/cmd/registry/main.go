@@ -10,7 +10,7 @@ import (
 	"logbook/internal/startup"
 	"logbook/internal/web/router"
 	"logbook/internal/web/router/registration"
-	"logbook/internal/web/router/registration/decls"
+	"logbook/internal/web/router/registration/receptionist/decls"
 	"net/http"
 )
 

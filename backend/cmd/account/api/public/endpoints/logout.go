@@ -2,7 +2,7 @@ package endpoints
 
 import (
 	"fmt"
-	"logbook/internal/web/router/registration/decls"
+	"logbook/internal/web/router/registration/receptionist/decls"
 	"logbook/models/columns"
 	"net/http"
 )

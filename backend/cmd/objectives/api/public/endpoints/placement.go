@@ -2,7 +2,7 @@ package endpoints
 
 import (
 	"logbook/cmd/objectives/database"
-	"logbook/internal/web/router/registration/decls"
+	"logbook/internal/web/router/registration/receptionist/decls"
 	"net/http"
 )
 

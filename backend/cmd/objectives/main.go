@@ -16,7 +16,7 @@ import (
 	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router"
 	"logbook/internal/web/router/registration"
-	"logbook/internal/web/router/registration/decls"
+	"logbook/internal/web/router/registration/receptionist/decls"
 	"logbook/internal/web/sidecar"
 	"logbook/models"
 

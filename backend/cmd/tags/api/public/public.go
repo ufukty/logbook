@@ -8,7 +8,7 @@ import (
 	"logbook/internal/logger"
 	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router/registration"
-	"logbook/internal/web/router/registration/decls"
+	"logbook/internal/web/router/registration/receptionist/decls"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )

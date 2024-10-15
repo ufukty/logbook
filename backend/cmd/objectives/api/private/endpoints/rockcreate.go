@@ -3,7 +3,7 @@ package endpoints
 import (
 	"fmt"
 	"logbook/internal/web/requests"
-	"logbook/internal/web/router/registration/decls"
+	"logbook/internal/web/router/registration/receptionist/decls"
 	"logbook/internal/web/validate"
 	"logbook/models/columns"
 	"net/http"

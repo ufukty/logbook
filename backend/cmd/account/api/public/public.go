@@ -9,7 +9,7 @@ import (
 	"logbook/internal/logger"
 	"logbook/internal/web/balancer"
 	"logbook/internal/web/router/registration"
-	"logbook/internal/web/router/registration/decls"
+	"logbook/internal/web/router/registration/receptionist/decls"
 	"logbook/internal/web/sidecar"
 	"logbook/models"
 

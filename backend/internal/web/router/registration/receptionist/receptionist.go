@@ -11,7 +11,7 @@ import (
 	"context"
 	"fmt"
 	"logbook/internal/logger"
-	"logbook/internal/web/router/registration/decls"
+	"logbook/internal/web/router/registration/receptionist/decls"
 	"logbook/models/columns"
 	"net/http"
 	"runtime/debug"

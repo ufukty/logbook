@@ -7,7 +7,7 @@ import (
 	"logbook/config/deployment"
 	"logbook/internal/logger"
 	"logbook/internal/web/router/registration"
-	"logbook/internal/web/router/registration/decls"
+	"logbook/internal/web/router/registration/receptionist/decls"
 	"logbook/internal/web/sidecar"
 
 	"github.com/jackc/pgx/v5/pgxpool"

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"logbook/cmd/objectives/app"
 	"logbook/internal/web/requests"
-	"logbook/internal/web/router/registration/decls"
+	"logbook/internal/web/router/registration/receptionist/decls"
 	"logbook/internal/web/validate"
 	"logbook/models"
 	"logbook/models/columns"

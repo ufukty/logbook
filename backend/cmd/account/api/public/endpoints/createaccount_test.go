@@ -8,7 +8,7 @@ import (
 	"logbook/cmd/account/service"
 	"logbook/config/api"
 	"logbook/internal/logger"
-	"logbook/internal/web/router/registration/decls"
+	"logbook/internal/web/router/registration/receptionist/decls"
 	"logbook/models"
 	"mime"
 	"net/http"
