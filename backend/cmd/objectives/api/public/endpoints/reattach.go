@@ -3,7 +3,6 @@ package endpoints
 import (
 	"fmt"
 	"logbook/internal/web/requests"
-	"logbook/internal/web/router/reception"
 	"net/http"
 )
 
@@ -20,26 +19,27 @@ type ReattachObjectiveResponse struct {
 	// TODO:
 }
 
-func (e *Endpoints) ReattachObjective(rid reception.RequestId, store *reception.Store, w http.ResponseWriter, r *http.Request) error {
+func (e *Endpoints) ReattachObjective(w http.ResponseWriter, r *http.Request) {
 	bq := &ReattachObjectiveRequest{}
 
 	if err := requests.ParseRequest(w, r, bq); err != nil {
+		e.l.Println(fmt.Errorf("parsing request: %w", err))
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-		return fmt.Errorf("parsing request: %w", err)
+		return
 	}
 
 	if err := bq.validate(); err != nil {
+		e.l.Println(fmt.Errorf("validating request parameters: %w", err))
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-		return fmt.Errorf("validating request parameters: %w", err)
+		return
 	}
 
 	panic("to implement") // TODO:
 
 	bs := ReattachObjectiveResponse{} // TODO:
 	if err := requests.WriteJsonResponse(bs, w); err != nil {
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return fmt.Errorf("writing json response: %w", err)
+		e.l.Println(fmt.Errorf("writing json response: %w", err))
+		return
 	}
 
-	return nil
 }

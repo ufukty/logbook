@@ -8,6 +8,7 @@ import (
 	"logbook/internal/logger"
 	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router/reception"
+	"net/http"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -32,7 +33,7 @@ func New(apicfg *api.Config, deplcfg *deployment.Config, pool *pgxpool.Pool, int
 
 func (p *Public) Register(agent *reception.Agent) error {
 	s := p.apicfg.Public.Services.Tags
-	return agent.RegisterForPublic(map[api.Endpoint]reception.HandlerFunc{
+	return agent.RegisterForPublic(map[api.Endpoint]http.HandlerFunc{
 		s.Endpoints.Assign:   p.e.TagAssign,
 		s.Endpoints.Creation: p.e.TagCreation,
 	})

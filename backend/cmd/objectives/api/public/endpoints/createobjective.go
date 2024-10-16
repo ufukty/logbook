@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"logbook/cmd/objectives/app"
 	"logbook/internal/web/requests"
-	"logbook/internal/web/router/reception"
 	"logbook/internal/web/validate"
 	"logbook/models"
 	"logbook/models/columns"
@@ -25,17 +24,19 @@ type CreateObjectiveResponse struct {
 }
 
 // TODO: Check user input for script tags in order to prevent XSS attempts
-func (e *Endpoints) CreateObjective(rid reception.RequestId, store *reception.Store, w http.ResponseWriter, r *http.Request) error {
+func (e *Endpoints) CreateObjective(w http.ResponseWriter, r *http.Request) {
 	bq := &CreateObjectiveRequest{}
 
 	if err := requests.ParseRequest(w, r, bq); err != nil {
+		fmt.Println(fmt.Errorf("parsing request: %w", err))
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-		return fmt.Errorf("parsing request: %w", err)
+		return
 	}
 
 	if err := bq.validate(); err != nil {
+		fmt.Println(fmt.Errorf("validating request parameters: %w", err))
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-		return fmt.Errorf("validating request parameters: %w", err)
+		return
 	}
 
 	obj, err := e.a.CreateSubtask(r.Context(), app.CreateSubtaskParams{
@@ -44,17 +45,17 @@ func (e *Endpoints) CreateObjective(rid reception.RequestId, store *reception.St
 		Creator: "00000000-0000-0000-0000-000000000000", // TODO: check auth header
 	})
 	if err != nil {
+		fmt.Println(fmt.Errorf("app.createObjective: %w", err))
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return fmt.Errorf("app.createObjective: %w", err)
+		return
 	}
 
 	bs := CreateObjectiveResponse{
 		Oid: obj.Oid,
 	}
 	if err := requests.WriteJsonResponse(bs, w); err != nil {
+		fmt.Println(fmt.Errorf("writing json response: %w", err))
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return fmt.Errorf("writing json response: %w", err)
+		return
 	}
-
-	return nil
 }

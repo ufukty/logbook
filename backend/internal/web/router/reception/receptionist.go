@@ -21,34 +21,23 @@ type receptionistParams struct {
 	Timeout time.Duration
 }
 
-// Pipeline:
-//
-//   - accepts a request,
-//   - generates request id,
-//   - inits type-safe storage,
-//   - calls handlers in order,
-//   - checks timeout,
-//   - recovers panic,
-//   - handles logging
 type receptionist struct {
-	l        *logger.Logger
-	handlers []HandlerFunc
-	params   receptionistParams
+	l       *logger.Logger
+	handler http.Handler
+	params  receptionistParams
 }
 
-func newReceptionist(params receptionistParams, l *logger.Logger, handlers ...HandlerFunc) *receptionist {
+func newReceptionist(params receptionistParams, l *logger.Logger, handler http.Handler) *receptionist {
 	return &receptionist{
-		l:        l.Sub("receptionist"),
-		handlers: handlers,
-		params:   params,
+		l:       l.Sub("receptionist"),
+		handler: handler,
+		params:  params,
 	}
 }
 
-// TODO: log
-// TODO: not found
+// DONE: logging
 // DONE: recover
 // DONE: timeout
-// DONE: handlers
 func (recp receptionist) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ww := &response{ResponseWriter: w}
 
@@ -75,14 +64,13 @@ func (recp receptionist) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}()
 	r = r.WithContext(ctx)
 
-	var handler HandlerFunc
 	defer func() {
 		if rec := recover(); rec != nil {
 			if rec == http.ErrAbortHandler { // don't recover
 				panic(rec)
 			}
 			debug.PrintStack()
-			recp.l.Println(fmt.Errorf("recovered: %s: %v", funcname(handler), rec))
+			recp.l.Println(fmt.Errorf("recovered: %s: %v", funcname(recp.handler), rec))
 			if r.Header.Get("Connection") != "Upgrade" { // except websocket (?)
 				http.Error(ww, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			}
@@ -95,16 +83,7 @@ func (recp receptionist) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 
 	default:
-		store := &Store{}
-		for _, handler = range recp.handlers {
-			err := handler(id, store, ww, r)
-			if err != nil {
-				if err != ErrEarlyReturn {
-					recp.l.Println(fmt.Errorf("handler %s: %w", funcname(handler), err))
-				}
-				return
-			}
-		}
+		recp.handler.ServeHTTP(ww, r)
 	}
 
 }

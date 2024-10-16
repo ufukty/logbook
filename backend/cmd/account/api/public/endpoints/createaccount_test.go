@@ -8,7 +8,6 @@ import (
 	"logbook/cmd/account/service"
 	"logbook/config/api"
 	"logbook/internal/logger"
-	"logbook/internal/web/router/reception"
 	"logbook/models"
 	"mime"
 	"net/http"
@@ -63,7 +62,7 @@ func TestCreateAccount(t *testing.T) {
 	a := app.New(pool, apicfg, nil) // FIXME: mock objectives service?
 	ep := New(a, logger.New("test"))
 
-	ep.CreateAccount(reception.ZeroRequestId, &reception.Store{}, w, r)
+	ep.CreateAccount(w, r)
 
 	if w.Result().StatusCode != http.StatusOK {
 		t.Fatal("status is not ok")

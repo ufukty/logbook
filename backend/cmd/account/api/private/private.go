@@ -7,6 +7,7 @@ import (
 	"logbook/config/deployment"
 	"logbook/internal/logger"
 	"logbook/internal/web/router/reception"
+	"net/http"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -35,7 +36,7 @@ func New(apicfg *api.Config, deplcfg *deployment.Config, pool *pgxpool.Pool, l *
 
 func (p *Private) Register(agent *reception.Agent) error {
 	s := p.apicfg.Internal.Services.Account
-	return agent.RegisterForInternal(map[api.Endpoint]reception.HandlerFunc{
+	return agent.RegisterForInternal(map[api.Endpoint]http.HandlerFunc{
 		s.Endpoints.WhoIs: p.em.WhoIs,
 	})
 }

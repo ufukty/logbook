@@ -18,6 +18,7 @@ import (
 	"logbook/internal/web/router/reception"
 	"logbook/internal/web/sidecar"
 	"logbook/models"
+	"net/http"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -52,7 +53,7 @@ func Main() error {
 	agent := reception.NewAgent(deplcfg, l)
 
 	ps := apicfg.Public.Services.Objectives
-	err = agent.RegisterForPublic(map[api.Endpoint]reception.HandlerFunc{
+	err = agent.RegisterForPublic(map[api.Endpoint]http.HandlerFunc{
 		ps.Endpoints.Attach:    pub.ReattachObjective,
 		ps.Endpoints.Create:    pub.CreateObjective,
 		ps.Endpoints.Mark:      pub.MarkComplete,
@@ -63,7 +64,7 @@ func Main() error {
 	}
 
 	is := apicfg.Internal.Services.Objectives
-	err = agent.RegisterForInternal(map[api.Endpoint]reception.HandlerFunc{
+	err = agent.RegisterForInternal(map[api.Endpoint]http.HandlerFunc{
 		is.Endpoints.RockCreate: priv.RockCreate,
 	})
 	if err != nil {

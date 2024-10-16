@@ -2,7 +2,6 @@ package endpoints
 
 import (
 	"logbook/cmd/objectives/database"
-	"logbook/internal/web/router/reception"
 	"net/http"
 )
 
@@ -13,6 +12,6 @@ type GetPlacementArrayResponse struct {
 	List []database.Objective
 }
 
-func (ep *Endpoints) GetPlacementArray(rid reception.RequestId, store *reception.Store, w http.ResponseWriter, r *http.Request) error {
-	return nil
+func (ep *Endpoints) GetPlacementArray(w http.ResponseWriter, r *http.Request) {
+	panic("to implement")
 }

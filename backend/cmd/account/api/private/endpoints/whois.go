@@ -3,7 +3,6 @@ package endpoints
 import (
 	"fmt"
 	"logbook/internal/web/requests"
-	"logbook/internal/web/router/reception"
 	"logbook/models/columns"
 	"net/http"
 
@@ -22,19 +21,21 @@ type WhoIsResponse struct {
 }
 
 // TODO: What it should return for missing body, invalid token or IO errors?
-func (e Endpoints) WhoIs(rid reception.RequestId, store *reception.Store, w http.ResponseWriter, r *http.Request) error {
+func (e Endpoints) WhoIs(w http.ResponseWriter, r *http.Request) {
 	bq := &WhoIsRequest{}
 
 	err := requests.ParseRequest(w, r, bq)
 	if err != nil {
+		e.l.Println(fmt.Errorf("ParseRequest: %w", err))
 		http.Error(w, fmt.Errorf("ParseRequest :%w", err).Error(), http.StatusInternalServerError)
-		return fmt.Errorf("ParseRequest: %w", err)
+		return
 	}
 
 	profile, err := e.a.WhoIs(r.Context(), bq.SessionToken)
 	if err != nil {
+		e.l.Println(fmt.Errorf("WhoIs: %w", err))
 		http.Error(w, fmt.Errorf("app.WhoIs :%w", err).Error(), http.StatusInternalServerError)
-		return fmt.Errorf("WhoIs: %w", err)
+		return
 	}
 
 	bs := WhoIsResponse{
@@ -46,8 +47,7 @@ func (e Endpoints) WhoIs(rid reception.RequestId, store *reception.Store, w http
 
 	err = requests.WriteJsonResponse(bs, w)
 	if err != nil {
-		return fmt.Errorf("write json response: %w", err)
+		e.l.Println(fmt.Errorf("write json response: %w", err))
+		return
 	}
-
-	return nil
 }

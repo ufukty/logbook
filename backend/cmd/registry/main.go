@@ -29,7 +29,7 @@ func Main() error {
 
 	s := apicfg.Internal.Services.Registry
 	agent := reception.NewAgent(deplycfg, l)
-	agent.RegisterForInternal(map[api.Endpoint]reception.HandlerFunc{
+	agent.RegisterForInternal(map[api.Endpoint]http.HandlerFunc{
 		s.Endpoints.ListInstances:    e.ListInstances,
 		s.Endpoints.RecheckInstance:  e.RecheckInstance,
 		s.Endpoints.RegisterInstance: e.RegisterInstance,

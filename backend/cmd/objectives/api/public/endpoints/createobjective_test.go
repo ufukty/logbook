@@ -2,7 +2,6 @@ package endpoints
 
 import (
 	"fmt"
-	"logbook/internal/web/router/reception"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -29,10 +28,7 @@ func TestCreateObjective(t *testing.T) {
 
 	w := httptest.NewRecorder()
 
-	err = ep.CreateObjective(reception.ZeroRequestId, &reception.Store{}, w, r)
-	if err != nil {
-		t.Fatal(fmt.Errorf("act, CreateObjective: %w", err))
-	}
+	ep.CreateObjective(w, r)
 
 	if w.Code != http.StatusOK {
 		t.Fatal(fmt.Sprintf("got http error code %v", w.Code))

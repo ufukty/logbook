@@ -8,6 +8,7 @@ import (
 	"logbook/internal/logger"
 	"logbook/internal/web/router/reception"
 	"logbook/internal/web/sidecar"
+	"net/http"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -37,7 +38,7 @@ func New(apicfg *api.Config, deplcfg *deployment.Config, pool *pgxpool.Pool, sc 
 
 func (p *Public) Register(agent *reception.Agent) error {
 	s := p.apicfg.Public.Services.Groups
-	return agent.RegisterForPublic(map[api.Endpoint]reception.HandlerFunc{
+	return agent.RegisterForPublic(map[api.Endpoint]http.HandlerFunc{
 		s.Endpoints.Create: p.em.CreateGroup,
 	})
 	return nil

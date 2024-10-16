@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"logbook/cmd/registry/app"
 	"logbook/internal/web/requests"
-	"logbook/internal/web/router/reception"
 	"logbook/models"
 	"net/http"
 	"net/url"
@@ -34,17 +33,19 @@ type RegisterInstanceResponse struct {
 	InstanceId app.InstanceId `json:"instance-id"`
 }
 
-func (e *Endpoints) RegisterInstance(id reception.RequestId, store *reception.Store, w http.ResponseWriter, r *http.Request) error {
+func (e *Endpoints) RegisterInstance(w http.ResponseWriter, r *http.Request) {
 	bq := &RegisterInstanceRequest{}
 
 	if err := requests.ParseRequest(w, r, bq); err != nil {
+		e.l.Println(fmt.Errorf("parsing request: %w", err))
 		http.Error(w, redact(err), http.StatusBadRequest)
-		return fmt.Errorf("parsing request: %w", err)
+		return
 	}
 
 	if err := bq.validate(); err != nil {
+		e.l.Println(fmt.Errorf("validating request parameters: %w", err))
 		http.Error(w, redact(err), http.StatusBadRequest)
-		return fmt.Errorf("validating request parameters: %w", err)
+		return
 	}
 
 	iid, err := e.a.RegisterInstance(bq.Service, models.Instance{
@@ -53,21 +54,17 @@ func (e *Endpoints) RegisterInstance(id reception.RequestId, store *reception.St
 		Port:    bq.Port,
 	})
 	if err != nil {
+		e.l.Println(fmt.Errorf("performing request: %w", err))
 		http.Error(w, redact(err), http.StatusInternalServerError)
-		return fmt.Errorf("performing request: %w", err)
+		return
 	}
 
 	bs := RegisterInstanceResponse{
 		InstanceId: iid,
 	}
 	if err := requests.WriteJsonResponse(bs, w); err != nil {
+		e.l.Println(fmt.Errorf("writing json response: %w", err))
 		http.Error(w, redact(err), http.StatusInternalServerError)
-		return fmt.Errorf("writing json response: %w", err)
+		return
 	}
-
-	return nil
 }
-
-// func (bq *RegisterInstanceRequest) Send() (*RegisterInstanceResponse, error) {
-// 	return reqs.Send[RegisterInstanceRequest, RegisterInstanceResponse](config., bq)
-// }
