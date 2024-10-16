@@ -9,9 +9,9 @@ import (
 	"logbook/internal/startup"
 	"logbook/internal/web/balancer"
 	"logbook/internal/web/forwarder"
+	"logbook/internal/web/reception"
 	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router"
-	"logbook/internal/web/router/reception"
 	"logbook/internal/web/sidecar"
 	"logbook/models"
 )

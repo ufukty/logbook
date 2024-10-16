@@ -6,8 +6,8 @@ import (
 	"logbook/config/api"
 	"logbook/config/deployment"
 	"logbook/internal/logger"
+	"logbook/internal/web/reception"
 	"logbook/internal/web/registryfile"
-	"logbook/internal/web/router/reception"
 	"net/http"
 
 	"github.com/jackc/pgx/v5/pgxpool"

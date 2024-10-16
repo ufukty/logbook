@@ -8,8 +8,8 @@ import (
 	"logbook/config/api"
 	"logbook/internal/logger"
 	"logbook/internal/startup"
+	"logbook/internal/web/reception"
 	"logbook/internal/web/router"
-	"logbook/internal/web/router/reception"
 	"net/http"
 )
 

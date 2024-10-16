@@ -8,7 +8,7 @@ import (
 	"logbook/config/deployment"
 	"logbook/internal/logger"
 	"logbook/internal/web/balancer"
-	"logbook/internal/web/router/reception"
+	"logbook/internal/web/reception"
 	"logbook/internal/web/sidecar"
 	"logbook/models"
 	"net/http"
