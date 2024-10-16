@@ -9,19 +9,17 @@ import (
 )
 
 type Client struct {
-	lb          *balancer.LoadBalancer
-	servicepath string
-	servicecfg  api.Objectives
+	lb         *balancer.LoadBalancer
+	servicecfg api.Objectives
 }
 
 func NewClient(lb *balancer.LoadBalancer, apicfg *api.Config) *Client {
 	return &Client{
-		servicepath: apicfg.Internal.Services.Objectives.Path,
-		servicecfg:  apicfg.Internal.Services.Objectives,
-		lb:          lb,
+		servicecfg: apicfg.Objectives,
+		lb:         lb,
 	}
 }
 
 func (c *Client) RockCreate(bq *endpoints.RockCreateRequest) (*http.Response, error) {
-	return requests.BalancedSendRaw(c.lb, c.servicepath, c.servicecfg.Endpoints.RockCreate, bq)
+	return requests.BalancedSendRaw(c.lb, "", c.servicecfg.Private.RockCreate, bq)
 }

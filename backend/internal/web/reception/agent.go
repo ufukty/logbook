@@ -31,24 +31,7 @@ func (a *Agent) Mux() *http.ServeMux {
 	return a.r
 }
 
-// service-to-service endpoints
-func (ag *Agent) RegisterForInternal(eps map[api.Endpoint]http.HandlerFunc) error {
-	params := receptionistParams{
-		Timeout: time.Second, // FIXME:
-	}
-
-	for ep, handler := range eps {
-		pl := newReceptionist(params, ag.l.Sub(api.ByService(ep)), handler)
-		pattern := fmt.Sprintf("%s %s", ep.GetMethod(), api.ByService(ep))
-		ag.l.Printf("registering: %s -> %p\n", pattern, handler)
-		ag.r.Handle(pattern, pl)
-	}
-
-	return nil
-}
-
-// userspace endpoints
-func (ag *Agent) RegisterForPublic(eps map[api.Endpoint]http.HandlerFunc) error {
+func (ag *Agent) RegisterEndpoints(public, private map[api.Endpoint]http.HandlerFunc) error {
 	origin, err := url.JoinPath(ag.deplcfg.Router.Cors.AllowOrigin)
 	if err != nil {
 		return fmt.Errorf("url.JoinPath: %w", err)
@@ -57,48 +40,49 @@ func (ag *Agent) RegisterForPublic(eps map[api.Endpoint]http.HandlerFunc) error 
 	params := receptionistParams{
 		Timeout: 1 * time.Second, // FIXME:
 	}
+
 	corsheaders := []string{
 		headers.ContentType,
 		headers.Authorization,
 	}
 
-	for ep, handler := range eps {
+	for ep, handler := range public {
 		c := newCors(handler, origin, []string{ep.GetMethod()}, corsheaders)
-		pl := newReceptionist(params, ag.l.Sub(api.ByService(ep)), c)
+		pl := newReceptionist(params, ag.l.Sub(ep.GetPath()), c)
 
+		ag.l.Printf("registering: %s, OPTIONS %s -> %p\n", ep.GetMethod(), ep.GetPath(), pl)
 		for _, method := range []string{ep.GetMethod(), "OPTIONS"} {
-			pattern := fmt.Sprintf("%s %s", method, api.ByService(ep))
-			ag.l.Printf("registering: %s -> %p\n", pattern, handler)
+			pattern := fmt.Sprintf("%s %s", method, ep.GetPath())
 			ag.r.Handle(pattern, pl)
 		}
 	}
 
+	for ep, handler := range private {
+		pl := newReceptionist(params, ag.l.Sub(ep.GetPath()), handler)
+		pattern := fmt.Sprintf("%s %s", ep.GetMethod(), ep.GetPath())
+		ag.l.Printf("registering: %s -> %p\n", pattern, pl)
+		ag.r.Handle(pattern, pl)
+	}
+
+	ag.r.Handle("GET /ping", newReceptionist(params, ag.l.Sub("ping"), http.HandlerFunc(pong)))
+	ag.r.Handle("GET /", newReceptionist(params, ag.l.Sub("not-found"), http.HandlerFunc(http.NotFound)))
+
 	return nil
 }
 
-func (ag *Agent) RegisterForwarders(servicepath string, fwds map[api.Addressable]*forwarder.LoadBalancedReverseProxy) error {
+func (ag *Agent) RegisterForwarders(fwds map[string]*forwarder.LoadBalancedReverseProxy) error {
 	params := receptionistParams{
 		Timeout: time.Second, // FIXME:
 	}
 
 	for addr, fwd := range fwds {
-		route := api.PrefixedByGateway(addr)
-		ag.r.Handle(
-			route,
-			newReceptionist(params, ag.l.Sub(fmt.Sprintf("stripper(%s)", route)), http.StripPrefix(servicepath, fwd)),
-		)
-	}
-
-	return nil
-}
-
-func (ag *Agent) RegisterCommonalities() error {
-	params := receptionistParams{
-		Timeout: 1 * time.Second, // FIXME:
+		ag.l.Printf("registering forwarder for: %s -> %p\n", addr, fwd)
+		l := ag.l.Sub(fmt.Sprintf("strip-prefix(%s)", addr))
+		ag.r.Handle(addr+"/", newReceptionist(params, l, http.StripPrefix(addr, fwd)))
 	}
 
 	ag.r.Handle("/ping", newReceptionist(params, ag.l.Sub("ping"), http.HandlerFunc(pong)))
-	ag.r.Handle("/", newReceptionist(params, ag.l.Sub("not found"), http.HandlerFunc(http.NotFound)))
+	ag.r.Handle("/", newReceptionist(params, ag.l.Sub("not-found"), http.HandlerFunc(http.NotFound)))
 
 	return nil
 }

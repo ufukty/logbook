@@ -8,7 +8,6 @@ import (
 	"logbook/config/deployment"
 	"logbook/internal/logger"
 	"logbook/internal/web/balancer"
-	"logbook/internal/web/reception"
 	"logbook/internal/web/sidecar"
 	"logbook/models"
 	"net/http"
@@ -40,13 +39,13 @@ func New(apicfg *api.Config, deplcfg *deployment.Config, pool *pgxpool.Pool, sc 
 	}
 }
 
-func (p *Public) Register(agent *reception.Agent) error {
-	s := p.apicfg.Public.Services.Account
-	return agent.RegisterForPublic(map[api.Endpoint]http.HandlerFunc{
-		s.Endpoints.CreateAccount: p.em.CreateAccount,
-		s.Endpoints.CreateProfile: p.em.CreateProfile,
-		s.Endpoints.Login:         p.em.Login,
-		s.Endpoints.Logout:        p.em.Logout,
-		s.Endpoints.Whoami:        p.em.WhoAmI,
-	})
+func (p *Public) Endpoints() map[api.Endpoint]http.HandlerFunc {
+	s := p.apicfg.Account.Public
+	return map[api.Endpoint]http.HandlerFunc{
+		s.CreateAccount: p.em.CreateAccount,
+		s.CreateProfile: p.em.CreateProfile,
+		s.Login:         p.em.Login,
+		s.Logout:        p.em.Logout,
+		s.Whoami:        p.em.WhoAmI,
+	}
 }

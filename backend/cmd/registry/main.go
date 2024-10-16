@@ -27,16 +27,15 @@ func Main() error {
 
 	r := http.NewServeMux()
 
-	s := apicfg.Internal.Services.Registry
+	s := apicfg.Registry.Private
 	agent := reception.NewAgent(deplycfg, l)
-	agent.RegisterForInternal(map[api.Endpoint]http.HandlerFunc{
-		s.Endpoints.ListInstances:    e.ListInstances,
-		s.Endpoints.RecheckInstance:  e.RecheckInstance,
-		s.Endpoints.RegisterInstance: e.RegisterInstance,
+	err = agent.RegisterEndpoints(nil, map[api.Endpoint]http.HandlerFunc{
+		s.ListInstances:    e.ListInstances,
+		s.RecheckInstance:  e.RecheckInstance,
+		s.RegisterInstance: e.RegisterInstance,
 	})
-	err = agent.RegisterCommonalities()
 	if err != nil {
-		return fmt.Errorf("agent.RegisterCommonalities: %w", err)
+		return fmt.Errorf("agent.RegisterEndpoints: %w", err)
 	}
 
 	err = router.StartServer(router.ServerParameters{

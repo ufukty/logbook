@@ -6,7 +6,6 @@ import (
 	"logbook/config/api"
 	"logbook/config/deployment"
 	"logbook/internal/logger"
-	"logbook/internal/web/reception"
 	"logbook/internal/web/sidecar"
 	"net/http"
 
@@ -36,10 +35,8 @@ func New(apicfg *api.Config, deplcfg *deployment.Config, pool *pgxpool.Pool, sc 
 	}
 }
 
-func (p *Public) Register(agent *reception.Agent) error {
-	s := p.apicfg.Public.Services.Groups
-	return agent.RegisterForPublic(map[api.Endpoint]http.HandlerFunc{
-		s.Endpoints.Create: p.em.CreateGroup,
-	})
-	return nil
+func (p *Public) Endpoints() map[api.Endpoint]http.HandlerFunc {
+	return map[api.Endpoint]http.HandlerFunc{
+		p.apicfg.Groups.Public.Create: p.em.CreateGroup,
+	}
 }

@@ -3,60 +3,69 @@
 package api
 
 import (
+	"gopkg.in/yaml.v3"
 	"os"
 	"fmt"
-	"gopkg.in/yaml.v3"
 )
 
-type Account struct {
-	Endpoints endpoints `yaml:"endpoints"`
-	Path      string    `yaml:"path"`
-	Parent    any       `yaml:"-"`
+func (r Registry) Range() map[string]RegistryPrivate {
+	return map[string]RegistryPrivate{"private": r.Private}
 }
-type Document struct {
-	Endpoints documentEndpoints `yaml:"endpoints"`
-	Path      string            `yaml:"path"`
-	Parent    any               `yaml:"-"`
+func (g Groups) Range() map[string]GroupsPublic {
+	return map[string]GroupsPublic{"public": g.Public}
+}
+func (a ApiGateway) Range() map[string]Services {
+	return map[string]Services{"services": a.Services}
+}
+func (i InternalGateway) Range() map[string]InternalGatewayServices {
+	return map[string]InternalGatewayServices{"services": i.Services}
+}
+func (t Tags) Range() map[string]TagsPublic {
+	return map[string]TagsPublic{"public": t.Public}
+}
+
+type Account struct {
+	Private Private `yaml:"private"`
+	Public  Public  `yaml:"public"`
+}
+type ApiGateway struct {
+	Services Services `yaml:"services"`
 }
 type Groups struct {
-	Endpoints groupsEndpoints `yaml:"endpoints"`
-	Path      string          `yaml:"path"`
-	Parent    any             `yaml:"-"`
+	Public GroupsPublic `yaml:"public"`
 }
-type Internal struct {
-	Path     string   `yaml:"path"`
-	Services services `yaml:"services"`
+type GroupsPublic struct {
+	Create endpoint `yaml:"create"`
+	Parent any      `yaml:"-"`
+}
+type InternalGateway struct {
+	Services InternalGatewayServices `yaml:"services"`
+}
+type InternalGatewayServices struct {
+	Registry string `yaml:"registry"`
+	Parent   any    `yaml:"-"`
 }
 type Objectives struct {
-	Endpoints objectivesEndpoints `yaml:"endpoints"`
-	Path      string              `yaml:"path"`
-	Parent    any                 `yaml:"-"`
+	Private ObjectivesPrivate `yaml:"private"`
+	Public  ObjectivesPublic  `yaml:"public"`
+}
+type ObjectivesPrivate struct {
+	RockCreate endpoint `yaml:"rock-create"`
+	Parent     any      `yaml:"-"`
+}
+type ObjectivesPublic struct {
+	Attach    endpoint `yaml:"attach"`
+	Create    endpoint `yaml:"create"`
+	Delete    endpoint `yaml:"delete"`
+	Mark      endpoint `yaml:"mark"`
+	Placement endpoint `yaml:"placement"`
+	Parent    any      `yaml:"-"`
+}
+type Private struct {
+	WhoIs  endpoint `yaml:"who-is"`
+	Parent any      `yaml:"-"`
 }
 type Public struct {
-	Path     string         `yaml:"path"`
-	Services publicServices `yaml:"services"`
-}
-type Registry struct {
-	Endpoints registryEndpoints `yaml:"endpoints"`
-	Path      string            `yaml:"path"`
-	Parent    any               `yaml:"-"`
-}
-type ServicesAccount struct {
-	Endpoints accountEndpoints `yaml:"endpoints"`
-	Path      string           `yaml:"path"`
-	Parent    any              `yaml:"-"`
-}
-type ServicesObjectives struct {
-	Endpoints servicesObjectivesEndpoints `yaml:"endpoints"`
-	Path      string                      `yaml:"path"`
-	Parent    any                         `yaml:"-"`
-}
-type Tags struct {
-	Endpoints tagsEndpoints `yaml:"endpoints"`
-	Path      string        `yaml:"path"`
-	Parent    any           `yaml:"-"`
-}
-type accountEndpoints struct {
 	CreateAccount   endpoint `yaml:"create_account"`
 	CreateProfile   endpoint `yaml:"create_profile"`
 	Login           endpoint `yaml:"login"`
@@ -69,108 +78,78 @@ type accountEndpoints struct {
 	Whoami          endpoint `yaml:"whoami"`
 	Parent          any      `yaml:"-"`
 }
-type documentEndpoints struct {
-	List   endpoint `yaml:"list"`
-	Parent any      `yaml:"-"`
+type Registry struct {
+	Private RegistryPrivate `yaml:"private"`
+}
+type RegistryPrivate struct {
+	ListInstances    endpoint `yaml:"list-instances"`
+	RecheckInstance  endpoint `yaml:"recheck-instance"`
+	RegisterInstance endpoint `yaml:"register-instance"`
+	Parent           any      `yaml:"-"`
+}
+type Services struct {
+	Account    string `yaml:"account"`
+	Groups     string `yaml:"groups"`
+	Objectives string `yaml:"objectives"`
+	Tags       string `yaml:"tags"`
+	Parent     any    `yaml:"-"`
+}
+type Tags struct {
+	Public TagsPublic `yaml:"public"`
+}
+type TagsPublic struct {
+	Assign   endpoint `yaml:"assign"`
+	Creation endpoint `yaml:"creation"`
+	Parent   any      `yaml:"-"`
 }
 type endpoint struct {
 	Method string `yaml:"method"`
 	Path   string `yaml:"path"`
 	Parent any    `yaml:"-"`
 }
-type endpoints struct {
-	WhoIs  endpoint `yaml:"who-is"`
-	Parent any      `yaml:"-"`
-}
-type groupsEndpoints struct {
-	Create endpoint `yaml:"create"`
-	Parent any      `yaml:"-"`
-}
-type objectivesEndpoints struct {
-	RockCreate endpoint `yaml:"rock-create"`
-	Parent     any      `yaml:"-"`
-}
-type publicServices struct {
-	Account    ServicesAccount    `yaml:"account"`
-	Document   Document           `yaml:"document"`
-	Groups     Groups             `yaml:"groups"`
-	Objectives ServicesObjectives `yaml:"objectives"`
-	Tags       Tags               `yaml:"tags"`
-	Parent     any                `yaml:"-"`
-}
-type registryEndpoints struct {
-	ListInstances    endpoint `yaml:"list-instances"`
-	RecheckInstance  endpoint `yaml:"recheck-instance"`
-	RegisterInstance endpoint `yaml:"register-instance"`
-	Parent           any      `yaml:"-"`
-}
-type services struct {
-	Account    Account    `yaml:"account"`
-	Objectives Objectives `yaml:"objectives"`
-	Registry   Registry   `yaml:"registry"`
-	Parent     any        `yaml:"-"`
-}
-type servicesObjectivesEndpoints struct {
-	Attach    endpoint `yaml:"attach"`
-	Create    endpoint `yaml:"create"`
-	Delete    endpoint `yaml:"delete"`
-	Mark      endpoint `yaml:"mark"`
-	Placement endpoint `yaml:"placement"`
-	Parent    any      `yaml:"-"`
-}
-type tagsEndpoints struct {
-	Assign   endpoint `yaml:"assign"`
-	Creation endpoint `yaml:"creation"`
-	Parent   any      `yaml:"-"`
-}
 type Config struct {
-	Internal Internal `yaml:"internal"`
-	Public   Public   `yaml:"public"`
+	Account         Account         `yaml:"account"`
+	ApiGateway      ApiGateway      `yaml:"api-gateway"`
+	Groups          Groups          `yaml:"groups"`
+	InternalGateway InternalGateway `yaml:"internal-gateway"`
+	Objectives      Objectives      `yaml:"objectives"`
+	Registry        Registry        `yaml:"registry"`
+	Tags            Tags            `yaml:"tags"`
 }
 
 func parentRefAssignments(c *Config) {
-	c.Internal.Services.Parent = &c.Internal
-	c.Internal.Services.Account.Parent = &c.Internal.Services
-	c.Internal.Services.Account.Endpoints.Parent = &c.Internal.Services.Account
-	c.Internal.Services.Account.Endpoints.WhoIs.Parent = &c.Internal.Services.Account.Endpoints
-	c.Internal.Services.Objectives.Parent = &c.Internal.Services
-	c.Internal.Services.Objectives.Endpoints.Parent = &c.Internal.Services.Objectives
-	c.Internal.Services.Objectives.Endpoints.RockCreate.Parent = &c.Internal.Services.Objectives.Endpoints
-	c.Internal.Services.Registry.Parent = &c.Internal.Services
-	c.Internal.Services.Registry.Endpoints.Parent = &c.Internal.Services.Registry
-	c.Internal.Services.Registry.Endpoints.ListInstances.Parent = &c.Internal.Services.Registry.Endpoints
-	c.Internal.Services.Registry.Endpoints.RecheckInstance.Parent = &c.Internal.Services.Registry.Endpoints
-	c.Internal.Services.Registry.Endpoints.RegisterInstance.Parent = &c.Internal.Services.Registry.Endpoints
-	c.Public.Services.Parent = &c.Public
-	c.Public.Services.Account.Parent = &c.Public.Services
-	c.Public.Services.Account.Endpoints.Parent = &c.Public.Services.Account
-	c.Public.Services.Account.Endpoints.CreateAccount.Parent = &c.Public.Services.Account.Endpoints
-	c.Public.Services.Account.Endpoints.CreateProfile.Parent = &c.Public.Services.Account.Endpoints
-	c.Public.Services.Account.Endpoints.Login.Parent = &c.Public.Services.Account.Endpoints
-	c.Public.Services.Account.Endpoints.Logout.Parent = &c.Public.Services.Account.Endpoints
-	c.Public.Services.Account.Endpoints.Register.Parent = &c.Public.Services.Account.Endpoints
-	c.Public.Services.Account.Endpoints.ReserveUsername.Parent = &c.Public.Services.Account.Endpoints
-	c.Public.Services.Account.Endpoints.Totp.Parent = &c.Public.Services.Account.Endpoints
-	c.Public.Services.Account.Endpoints.VerifyEmail.Parent = &c.Public.Services.Account.Endpoints
-	c.Public.Services.Account.Endpoints.VerifyPhone.Parent = &c.Public.Services.Account.Endpoints
-	c.Public.Services.Account.Endpoints.Whoami.Parent = &c.Public.Services.Account.Endpoints
-	c.Public.Services.Document.Parent = &c.Public.Services
-	c.Public.Services.Document.Endpoints.Parent = &c.Public.Services.Document
-	c.Public.Services.Document.Endpoints.List.Parent = &c.Public.Services.Document.Endpoints
-	c.Public.Services.Groups.Parent = &c.Public.Services
-	c.Public.Services.Groups.Endpoints.Parent = &c.Public.Services.Groups
-	c.Public.Services.Groups.Endpoints.Create.Parent = &c.Public.Services.Groups.Endpoints
-	c.Public.Services.Objectives.Parent = &c.Public.Services
-	c.Public.Services.Objectives.Endpoints.Parent = &c.Public.Services.Objectives
-	c.Public.Services.Objectives.Endpoints.Attach.Parent = &c.Public.Services.Objectives.Endpoints
-	c.Public.Services.Objectives.Endpoints.Create.Parent = &c.Public.Services.Objectives.Endpoints
-	c.Public.Services.Objectives.Endpoints.Delete.Parent = &c.Public.Services.Objectives.Endpoints
-	c.Public.Services.Objectives.Endpoints.Mark.Parent = &c.Public.Services.Objectives.Endpoints
-	c.Public.Services.Objectives.Endpoints.Placement.Parent = &c.Public.Services.Objectives.Endpoints
-	c.Public.Services.Tags.Parent = &c.Public.Services
-	c.Public.Services.Tags.Endpoints.Parent = &c.Public.Services.Tags
-	c.Public.Services.Tags.Endpoints.Assign.Parent = &c.Public.Services.Tags.Endpoints
-	c.Public.Services.Tags.Endpoints.Creation.Parent = &c.Public.Services.Tags.Endpoints
+	c.Account.Private.Parent = &c.Account
+	c.Account.Private.WhoIs.Parent = &c.Account.Private
+	c.Account.Public.Parent = &c.Account
+	c.Account.Public.CreateAccount.Parent = &c.Account.Public
+	c.Account.Public.CreateProfile.Parent = &c.Account.Public
+	c.Account.Public.Login.Parent = &c.Account.Public
+	c.Account.Public.Logout.Parent = &c.Account.Public
+	c.Account.Public.Register.Parent = &c.Account.Public
+	c.Account.Public.ReserveUsername.Parent = &c.Account.Public
+	c.Account.Public.Totp.Parent = &c.Account.Public
+	c.Account.Public.VerifyEmail.Parent = &c.Account.Public
+	c.Account.Public.VerifyPhone.Parent = &c.Account.Public
+	c.Account.Public.Whoami.Parent = &c.Account.Public
+	c.ApiGateway.Services.Parent = &c.ApiGateway
+	c.Groups.Public.Parent = &c.Groups
+	c.Groups.Public.Create.Parent = &c.Groups.Public
+	c.InternalGateway.Services.Parent = &c.InternalGateway
+	c.Objectives.Private.Parent = &c.Objectives
+	c.Objectives.Private.RockCreate.Parent = &c.Objectives.Private
+	c.Objectives.Public.Parent = &c.Objectives
+	c.Objectives.Public.Attach.Parent = &c.Objectives.Public
+	c.Objectives.Public.Create.Parent = &c.Objectives.Public
+	c.Objectives.Public.Delete.Parent = &c.Objectives.Public
+	c.Objectives.Public.Mark.Parent = &c.Objectives.Public
+	c.Objectives.Public.Placement.Parent = &c.Objectives.Public
+	c.Registry.Private.Parent = &c.Registry
+	c.Registry.Private.ListInstances.Parent = &c.Registry.Private
+	c.Registry.Private.RecheckInstance.Parent = &c.Registry.Private
+	c.Registry.Private.RegisterInstance.Parent = &c.Registry.Private
+	c.Tags.Public.Parent = &c.Tags
+	c.Tags.Public.Assign.Parent = &c.Tags.Public
+	c.Tags.Public.Creation.Parent = &c.Tags.Public
 }
 func ReadConfig(path string) (*Config, error) {
 	file, err := os.Open(path)
@@ -186,95 +165,32 @@ func ReadConfig(path string) (*Config, error) {
 	parentRefAssignments(c)
 	return c, nil
 }
-func (a Account) GetParent() any {
-	return a.Parent
-}
-func (a Account) GetPath() string {
-	return a.Path
-}
-func (a *Account) SetPath(v string) {
-	a.Path = v
-}
-func (d Document) GetParent() any {
-	return d.Parent
-}
-func (d Document) GetPath() string {
-	return d.Path
-}
-func (d *Document) SetPath(v string) {
-	d.Path = v
-}
-func (g Groups) GetParent() any {
+func (g GroupsPublic) GetParent() any {
 	return g.Parent
 }
-func (g Groups) GetPath() string {
-	return g.Path
+func (i InternalGatewayServices) GetParent() any {
+	return i.Parent
 }
-func (g *Groups) SetPath(v string) {
-	g.Path = v
-}
-func (i Internal) GetPath() string {
-	return i.Path
-}
-func (i *Internal) SetPath(v string) {
-	i.Path = v
-}
-func (o Objectives) GetParent() any {
+func (o ObjectivesPrivate) GetParent() any {
 	return o.Parent
 }
-func (o Objectives) GetPath() string {
-	return o.Path
+func (o ObjectivesPublic) GetParent() any {
+	return o.Parent
 }
-func (o *Objectives) SetPath(v string) {
-	o.Path = v
+func (p Private) GetParent() any {
+	return p.Parent
 }
-func (p Public) GetPath() string {
-	return p.Path
+func (p Public) GetParent() any {
+	return p.Parent
 }
-func (p *Public) SetPath(v string) {
-	p.Path = v
-}
-func (r Registry) GetParent() any {
+func (r RegistryPrivate) GetParent() any {
 	return r.Parent
 }
-func (r Registry) GetPath() string {
-	return r.Path
-}
-func (r *Registry) SetPath(v string) {
-	r.Path = v
-}
-func (s ServicesAccount) GetParent() any {
+func (s Services) GetParent() any {
 	return s.Parent
 }
-func (s ServicesAccount) GetPath() string {
-	return s.Path
-}
-func (s *ServicesAccount) SetPath(v string) {
-	s.Path = v
-}
-func (s ServicesObjectives) GetParent() any {
-	return s.Parent
-}
-func (s ServicesObjectives) GetPath() string {
-	return s.Path
-}
-func (s *ServicesObjectives) SetPath(v string) {
-	s.Path = v
-}
-func (t Tags) GetParent() any {
+func (t TagsPublic) GetParent() any {
 	return t.Parent
-}
-func (t Tags) GetPath() string {
-	return t.Path
-}
-func (t *Tags) SetPath(v string) {
-	t.Path = v
-}
-func (a accountEndpoints) GetParent() any {
-	return a.Parent
-}
-func (d documentEndpoints) GetParent() any {
-	return d.Parent
 }
 func (e endpoint) GetMethod() string {
 	return e.Method
@@ -290,28 +206,4 @@ func (e *endpoint) SetMethod(v string) {
 }
 func (e *endpoint) SetPath(v string) {
 	e.Path = v
-}
-func (e endpoints) GetParent() any {
-	return e.Parent
-}
-func (g groupsEndpoints) GetParent() any {
-	return g.Parent
-}
-func (o objectivesEndpoints) GetParent() any {
-	return o.Parent
-}
-func (p publicServices) GetParent() any {
-	return p.Parent
-}
-func (r registryEndpoints) GetParent() any {
-	return r.Parent
-}
-func (s services) GetParent() any {
-	return s.Parent
-}
-func (s servicesObjectivesEndpoints) GetParent() any {
-	return s.Parent
-}
-func (t tagsEndpoints) GetParent() any {
-	return t.Parent
 }

@@ -20,10 +20,8 @@ func TestConcurrentMapWrites(t *testing.T) {
 	for i := 0; i < 100; i++ {
 		*is = append(*is, models.Instance{Address: "127.0.0.1", Port: -1})
 	}
-	service := models.Service("test-service")
-	servicepath := "/test"
 
-	proxy := New(is, service, servicepath, logger.New("test"))
+	proxy := New(is, logger.New("test"))
 
 	var wg sync.WaitGroup
 	concurrentGoroutines := 100

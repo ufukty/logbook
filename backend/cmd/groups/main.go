@@ -44,13 +44,9 @@ func Main() error {
 	pub := public.New(apicfg, deplcfg, pool, sc, l)
 
 	agent := reception.NewAgent(deplcfg, l)
-	err = pub.Register(agent)
+	err = agent.RegisterEndpoints(pub.Endpoints(), nil)
 	if err != nil {
-		return fmt.Errorf("pub.Register: %w", err)
-	}
-	err = agent.RegisterCommonalities()
-	if err != nil {
-		return fmt.Errorf("agent.RegisterCommonalities: %w", err)
+		return fmt.Errorf("agent.RegisterEndpoints: %w", err)
 	}
 
 	router.StartServer(router.ServerParameters{

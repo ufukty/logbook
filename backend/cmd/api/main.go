@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	registry "logbook/cmd/registry/client"
-	"logbook/config/api"
 	"logbook/internal/logger"
 	"logbook/internal/startup"
 	"logbook/internal/web/balancer"
@@ -37,25 +36,18 @@ func Main() error {
 	}, l)
 	defer sc.Stop()
 
-	s := apicfg.Public.Services
-
-	var (
-		accounts   = forwarder.New(sc.InstanceSource(models.Account), models.Account, api.ByGateway(s.Account), l)
-		objectives = forwarder.New(sc.InstanceSource(models.Objectives), models.Objectives, api.ByGateway(s.Objectives), l)
-	)
-
 	agent := reception.NewAgent(deplcfg, l)
-	err = agent.RegisterForwarders(apicfg.Public.Path, map[api.Addressable]*forwarder.LoadBalancedReverseProxy{
-		s.Account:    accounts,
-		s.Objectives: objectives,
+	err = agent.RegisterForwarders(map[string]*forwarder.LoadBalancedReverseProxy{
+		apicfg.ApiGateway.Services.Account:    forwarder.New(sc.InstanceSource(models.Account), l),
+		apicfg.ApiGateway.Services.Objectives: forwarder.New(sc.InstanceSource(models.Objectives), l),
 	})
 	if err != nil {
 		return fmt.Errorf("agent.RegisterForwarders: %w", err)
 	}
-	err = agent.RegisterCommonalities()
-	if err != nil {
-		return fmt.Errorf("agent.RegisterCommonalities: %w", err)
-	}
+	// err = agent.RegisterCommonalities()
+	// if err != nil {
+	// 	return fmt.Errorf("agent.RegisterCommonalities: %w", err)
+	// }
 
 	err = router.StartServer(router.ServerParameters{
 		Port:     deplcfg.Ports.Gateway,

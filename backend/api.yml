@@ -1,61 +1,50 @@
-public:
-  path: /api
+api-gateway:
   services:
-    account:
-      path: /account
-      endpoints:
-        create_profile: { method: POST, path: "/profile" }
-        create_account: { method: POST, path: "/account" }
-        login: { method: POST, path: "/login" }
-        logout: { method: POST, path: "/logout" }
-        whoami: { method: GET, path: "/whoami" }
-        reserve_username: { method: POST, path: "/registration/reserve_username" }
-        verify_phone: { method: POST, path: "/registration/verify/phone" }
-        verify_email: { method: POST, path: "/registration/verify/email" }
-        register: { method: POST, path: "/registration/register" }
-        totp: { method: POST, path: "/registration/totp" }
+    account: /account
+    groups: /groups
+    objectives: /objectives
+    tags: /tags
 
-    document:
-      path: /document
-      endpoints:
-        list: { method: GET, path: "/list/{root}" }
-
-    groups:
-      path: /groups
-      endpoints:
-        create: { method: POST, path: "group" }
-
-    objectives:
-      path: /objectives
-      endpoints:
-        attach: { method: POST, path: "/attach" }
-        create: { method: POST, path: "/" }
-        delete: { method: POST, path: "/delete" }
-        placement: { method: GET, path: "/{root}/placement" }
-        mark: { method: POST, path: "/mark" }
-
-    tags:
-      path: /tags
-      endpoints:
-        creation: { method: POST, path: "/" }
-        assign: { method: POST, path: "/assign" }
-
-internal:
-  path: /internal
+internal-gateway:
   services:
-    account:
-      path: /account-int
-      endpoints:
-        who-is: { method: POST, path: "/whois" }
+    registry: /registry
 
-    objectives:
-      path: /objectives-int
-      endpoints:
-        rock-create: { method: POST, path: "/rock" }
+account:
+  public:
+    create_profile: { method: POST, path: "/profile" }
+    create_account: { method: POST, path: "/account" }
+    login: { method: POST, path: "/login" }
+    logout: { method: POST, path: "/logout" }
+    whoami: { method: GET, path: "/whoami" }
+    reserve_username: { method: POST, path: "/registration/reserve_username" }
+    verify_phone: { method: POST, path: "/registration/verify/phone" }
+    verify_email: { method: POST, path: "/registration/verify/email" }
+    register: { method: POST, path: "/registration/register" }
+    totp: { method: POST, path: "/registration/totp" }
+  private:
+    who-is: { method: POST, path: "/whois" }
+    
+groups:
+  public:
+    create: { method: POST, path: "group" }
 
-    registry:
-      path: /registry
-      endpoints:
-        register-instance: { method: POST, path: "/register" }
-        list-instances: { method: GET, path: "/list/{service}" }
-        recheck-instance: { method: POST, path: "/recheck" }
+objectives:
+  public:
+    attach: { method: POST, path: "/attach" }
+    create: { method: POST, path: "/" }
+    delete: { method: POST, path: "/delete" }
+    placement: { method: GET, path: "/{root}/placement" }
+    mark: { method: POST, path: "/mark" }
+  private:
+    rock-create: { method: POST, path: "/rock" }
+
+tags:
+  public:
+    creation: { method: POST, path: "/" }
+    assign: { method: POST, path: "/assign" }
+
+registry:
+  private:
+    register-instance: { method: POST, path: "/register" }
+    list-instances: { method: GET, path: "/list/{service}" }
+    recheck-instance: { method: POST, path: "/recheck" }

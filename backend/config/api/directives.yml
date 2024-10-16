@@ -1,19 +1,21 @@
-"*":
-  accessors: [path]
+"**":
   export: true
 
 "*.services":
   parent: Parent
 
-"*.services.*":
-  accessors: [path]
-  export: true
+"*.public":
   parent: Parent
 
-"*.services.*.endpoints":
+"*.public.*":
+  declare: endpoint
+  accessors: [path, method]
   parent: Parent
 
-"*.services.*.endpoints.*":
+"*.private":
+  parent: Parent
+
+"*.private.*":
   declare: endpoint
   accessors: [path, method]
   parent: Parent

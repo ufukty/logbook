@@ -3,20 +3,19 @@ package forwarder
 import (
 	"fmt"
 	"logbook/internal/logger"
+	"logbook/internal/logger/colors"
 	"logbook/internal/web/balancer"
 	"logbook/models"
 	"net/http"
 	"net/http/httputil"
-	"strings"
 	"sync"
 )
 
 type LoadBalancedReverseProxy struct {
-	lb          *balancer.LoadBalancer
-	pool        map[*models.Instance]*httputil.ReverseProxy
-	mu          sync.RWMutex
-	servicepath string // rewrite
-	l           *logger.Logger
+	lb   *balancer.LoadBalancer
+	pool map[*models.Instance]*httputil.ReverseProxy
+	mu   sync.RWMutex
+	l    *logger.Logger
 }
 
 func (lbrp *LoadBalancedReverseProxy) next() (*httputil.ReverseProxy, error) {
@@ -37,15 +36,15 @@ func (lbrp *LoadBalancedReverseProxy) next() (*httputil.ReverseProxy, error) {
 
 				pr.Out.URL.Scheme = "https"
 				pr.Out.URL.Host = host
-				pr.Out.URL.Path = strings.TrimPrefix(pr.In.URL.Path, lbrp.servicepath)
-				pr.Out.URL.RawPath = strings.TrimPrefix(pr.In.URL.RawPath, lbrp.servicepath)
+				pr.Out.URL.Path = pr.In.URL.Path
+				pr.Out.URL.RawPath = pr.In.URL.RawPath
 
 				pr.Out.Host = pr.In.Host
 
-				// lbrp.log.Printf("forwarding request: (%s %s %s) => (%s %s %s)\n",
-				// 	pr.In.Method, pr.In.Host, pr.In.URL.String(),
-				// 	pr.Out.Method, pr.Out.Host, pr.Out.URL.String(),
-				// )
+				lbrp.l.Printf("forwarding: (%s %s %s) => (%s %s %s)\n",
+					colors.Green(pr.In.Method), colors.Blue(pr.In.Host), colors.Yellow(pr.In.URL.String()),
+					colors.Green(pr.Out.Method), colors.Blue(pr.Out.Host), colors.Yellow(pr.Out.URL.String()),
+				)
 			},
 			ErrorHandler: func(w http.ResponseWriter, r *http.Request, err error) {
 				lbrp.l.Printf("proxy error: %v, method=%s, url=%s, remoteAddr=%s\n", err, r.Method, r.URL.String(), r.RemoteAddr)
@@ -69,11 +68,10 @@ func (lbrp *LoadBalancedReverseProxy) ServeHTTP(w http.ResponseWriter, r *http.R
 	forwarder.ServeHTTP(w, r)
 }
 
-func New(is balancer.InstanceSource, service models.Service, servicepath string, l *logger.Logger) *LoadBalancedReverseProxy {
+func New(is balancer.InstanceSource, l *logger.Logger) *LoadBalancedReverseProxy {
 	return &LoadBalancedReverseProxy{
-		l:           l.Sub("LoadBalancedReverseProxy"),
-		pool:        map[*models.Instance]*httputil.ReverseProxy{},
-		lb:          balancer.New(is),
-		servicepath: servicepath,
+		l:    l.Sub("LoadBalancedReverseProxy"),
+		pool: map[*models.Instance]*httputil.ReverseProxy{},
+		lb:   balancer.New(is),
 	}
 }

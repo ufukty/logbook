@@ -52,27 +52,18 @@ func Main() error {
 
 	agent := reception.NewAgent(deplcfg, l)
 
-	ps := apicfg.Public.Services.Objectives
-	err = agent.RegisterForPublic(map[api.Endpoint]http.HandlerFunc{
-		ps.Endpoints.Attach:    pub.ReattachObjective,
-		ps.Endpoints.Create:    pub.CreateObjective,
-		ps.Endpoints.Mark:      pub.MarkComplete,
-		ps.Endpoints.Placement: pub.GetPlacementArray,
-	})
+	err = agent.RegisterEndpoints(
+		map[api.Endpoint]http.HandlerFunc{
+			apicfg.Objectives.Public.Attach:    pub.ReattachObjective,
+			apicfg.Objectives.Public.Create:    pub.CreateObjective,
+			apicfg.Objectives.Public.Mark:      pub.MarkComplete,
+			apicfg.Objectives.Public.Placement: pub.GetPlacementArray,
+		}, map[api.Endpoint]http.HandlerFunc{
+			apicfg.Objectives.Private.RockCreate: priv.RockCreate,
+		},
+	)
 	if err != nil {
-		return fmt.Errorf("agent.RegisterForPublic: %w", err)
-	}
-
-	is := apicfg.Internal.Services.Objectives
-	err = agent.RegisterForInternal(map[api.Endpoint]http.HandlerFunc{
-		is.Endpoints.RockCreate: priv.RockCreate,
-	})
-	if err != nil {
-		return fmt.Errorf("agent.RegisterForInternal: %w", err)
-	}
-	err = agent.RegisterCommonalities()
-	if err != nil {
-		return fmt.Errorf("agent.RegisterCommonalities: %w", err)
+		return fmt.Errorf("agent.RegisterEndpoints: %w", err)
 	}
 
 	err = router.StartServer(router.ServerParameters{

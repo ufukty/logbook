@@ -6,15 +6,13 @@ import (
 )
 
 type Client struct {
-	lb          *balancer.LoadBalancer
-	servicepath string
-	servicecfg  api.Objectives
+	lb         *balancer.LoadBalancer
+	servicecfg api.Groups
 }
 
 func NewClient(lb *balancer.LoadBalancer, apicfg *api.Config) *Client {
 	return &Client{
-		servicepath: apicfg.Internal.Services.Objectives.Path,
-		servicecfg:  apicfg.Internal.Services.Objectives,
-		lb:          lb,
+		servicecfg: apicfg.Groups,
+		lb:         lb,
 	}
 }

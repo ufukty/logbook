@@ -8,19 +8,17 @@ import (
 )
 
 type Client struct {
-	lb          *balancer.LoadBalancer
-	servicepath string
-	servicecfg  api.Account
+	lb         *balancer.LoadBalancer
+	servicecfg api.Account
 }
 
 func NewClient(lb *balancer.LoadBalancer, apicfg *api.Config) *Client {
 	return &Client{
-		servicepath: apicfg.Internal.Services.Account.Path,
-		servicecfg:  apicfg.Internal.Services.Account,
-		lb:          lb,
+		servicecfg: apicfg.Account,
+		lb:         lb,
 	}
 }
 
 func (c *Client) WhoIs(bq *endpoints.WhoIsRequest) (*endpoints.WhoIsResponse, error) {
-	return requests.BalancedSend(c.lb, c.servicepath, c.servicecfg.Endpoints.WhoIs, bq, &endpoints.WhoIsResponse{})
+	return requests.BalancedSend(c.lb, "", c.servicecfg.Private.WhoIs, bq, &endpoints.WhoIsResponse{})
 }
