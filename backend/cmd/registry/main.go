@@ -25,8 +25,6 @@ func Main() error {
 	defer a.Stop()
 	e := endpoints.New(a, l)
 
-	r := http.NewServeMux()
-
 	s := apicfg.Registry.Private
 	agent := reception.NewAgent(deplycfg, l)
 	err = agent.RegisterEndpoints(nil, map[api.Endpoint]http.HandlerFunc{
@@ -41,7 +39,7 @@ func Main() error {
 	err = router.StartServer(router.ServerParameters{
 		Port:     deplycfg.Ports.Registry,
 		Router:   deplycfg.Router,
-		ServeMux: r,
+		ServeMux: agent.Mux(),
 		TlsCrt:   args.TlsCertificate,
 		TlsKey:   args.TlsKey,
 	}, l)
