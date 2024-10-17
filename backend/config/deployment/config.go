@@ -3,21 +3,20 @@
 package deployment
 
 import (
-	"fmt"
 	"gopkg.in/yaml.v3"
 	"os"
 	"time"
+	"fmt"
 )
 
 type Router struct {
 	Cors struct {
 		AllowOrigin string `yaml:"allow-origin"`
 	} `yaml:"cors"`
-	GracePeriod    time.Duration `yaml:"grace-period"`
-	IdleTimeout    time.Duration `yaml:"idle-timeout"`
-	ReadTimeout    time.Duration `yaml:"read-timeout"`
-	RequestTimeout time.Duration `yaml:"request-timeout"`
-	WriteTimeout   time.Duration `yaml:"write-timeout"`
+	GracePeriod  time.Duration `yaml:"grace-period"`
+	IdleTimeout  time.Duration `yaml:"idle-timeout"`
+	ReadTimeout  time.Duration `yaml:"read-timeout"`
+	WriteTimeout time.Duration `yaml:"write-timeout"`
 }
 type Config struct {
 	Ports struct {
@@ -28,6 +27,9 @@ type Config struct {
 		Registry   int `yaml:"registry"`
 		Tags       int `yaml:"tags"`
 	} `yaml:"ports"`
+	Reception struct {
+		RequestTimeout time.Duration `yaml:"request-timeout"`
+	} `yaml:"reception"`
 	Registry struct {
 		ClearanceDelay  time.Duration `yaml:"clearance-delay"`
 		ClearancePeriod time.Duration `yaml:"clearance-period"`

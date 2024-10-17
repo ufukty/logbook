@@ -10,6 +10,7 @@ package reception
 import (
 	"context"
 	"fmt"
+	"logbook/config/deployment"
 	"logbook/internal/logger"
 	"logbook/models/columns"
 	"net/http"
@@ -21,21 +22,17 @@ type RequestId string
 
 const ZeroRequestId = RequestId("00000000-0000-0000-0000-000000000000")
 
-type receptionistParams struct {
-	Timeout time.Duration
-}
-
 type receptionist struct {
 	l       *logger.Logger
 	handler http.Handler
-	params  receptionistParams
+	deplcfg *deployment.Config
 }
 
-func newReceptionist(params receptionistParams, l *logger.Logger, handler http.Handler) *receptionist {
+func newReceptionist(deplcfg *deployment.Config, l *logger.Logger, handler http.Handler) *receptionist {
 	return &receptionist{
 		l:       l.Sub("receptionist"),
 		handler: handler,
-		params:  params,
+		deplcfg: deplcfg,
 	}
 }
 
@@ -59,7 +56,7 @@ func (recp receptionist) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		recp.l.Printf("served   %s: %s\n", lastsix(id), summarizeW(ww, t))
 	}()
 
-	ctx, cancel := context.WithTimeout(r.Context(), recp.params.Timeout)
+	ctx, cancel := context.WithTimeout(r.Context(), recp.deplcfg.Reception.RequestTimeout)
 	defer func() {
 		cancel()
 		if ctx.Err() == context.DeadlineExceeded {

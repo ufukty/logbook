@@ -2,13 +2,15 @@ api:
   domain: logbook.balaasad.com
 
 router:
-  request-timeout: 2s
   write-timeout: 1s
   read-timeout: 1s
   idle-timeout: 1s
   grace-period: 1s
   cors:
     allow-origin: "logbook.balaasad.com"
+
+reception:
+  request-timeout: 2s
 
 registry-file:
   update-period: 1s
