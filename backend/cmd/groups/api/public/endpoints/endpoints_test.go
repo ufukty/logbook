@@ -6,15 +6,15 @@ import (
 	"logbook/cmd/groups/api/public/app"
 	"logbook/cmd/groups/database"
 	"logbook/cmd/groups/service"
-	"logbook/internal/logger"
+	"logbook/internal/startup"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func getTestDependencies() (*Endpoints, error) {
-	srvcnf, err := service.ReadConfig("../../../local.yml")
+	l, srvcnf, _, _, err := startup.TestDependenciesWithServiceConfig("groups", service.ReadConfig)
 	if err != nil {
-		return nil, fmt.Errorf("reading service config: %w", err)
+		return nil, fmt.Errorf("startup: %w", err)
 	}
 	err = database.Migrate(srvcnf)
 	if err != nil {
@@ -26,6 +26,6 @@ func getTestDependencies() (*Endpoints, error) {
 		return nil, fmt.Errorf("pgxpool.New: %w", err)
 	}
 	app := app.New(pool)
-	ep := New(app, logger.New("test"))
+	ep := New(app, l)
 	return ep, nil
 }

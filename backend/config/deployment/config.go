@@ -19,7 +19,8 @@ type Router struct {
 	WriteTimeout time.Duration `yaml:"write-timeout"`
 }
 type Config struct {
-	Ports struct {
+	Environment string `yaml:"environment"`
+	Ports       struct {
 		Accounts   int `yaml:"accounts"`
 		Gateway    int `yaml:"gateway"`
 		Internal   int `yaml:"internal"`

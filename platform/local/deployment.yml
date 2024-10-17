@@ -1,3 +1,5 @@
+environment: local
+
 router:
   write-timeout: 1s
   read-timeout: 1s

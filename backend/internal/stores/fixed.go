@@ -9,17 +9,17 @@ type FixedSizeKV[K comparable, V any] struct {
 	Size  int
 	store map[K]V
 	mu    sync.RWMutex
-	log   logger.Logger
+	log   *logger.Logger
 }
 
 var _ Stores[any, any] = &FixedSizeKV[any, any]{}
 
-func NewFixedSizeKV[K comparable, V any](logname string, size int) *FixedSizeKV[K, V] {
+func NewFixedSizeKV[K comparable, V any](l *logger.Logger, size int) *FixedSizeKV[K, V] {
 	return &FixedSizeKV[K, V]{
 		Size:  size,
 		store: map[K]V{},
 		mu:    sync.RWMutex{},
-		log:   *logger.New(logname),
+		log:   l,
 	}
 }
 

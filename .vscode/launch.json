@@ -12,8 +12,6 @@
       "program": "${workspaceFolder}/backend/cmd/api",
       "cwd": "${workspaceFolder}/backend",
       "args": [
-        "-e",
-        "local",
         "-api",
         "api.yml",
         "-deployment",
@@ -37,8 +35,6 @@
       "program": "${workspaceFolder}/backend/cmd/internal",
       "cwd": "${workspaceFolder}/backend",
       "args": [
-        "-e",
-        "local",
         "-api",
         "api.yml",
         "-deployment",
@@ -62,8 +58,6 @@
       "program": "${workspaceFolder}/backend/cmd/registry",
       "cwd": "${workspaceFolder}/backend",
       "args": [
-        "-e",
-        "local",
         "-api",
         "api.yml",
         "-deployment",
@@ -86,8 +80,6 @@
       "program": "${workspaceFolder}/backend/cmd/account",
       "cwd": "${workspaceFolder}/backend",
       "args": [
-        "-e",
-        "local",
         "-api",
         "api.yml",
         "-service",
@@ -114,8 +106,6 @@
       "program": "${workspaceFolder}/backend/cmd/objectives",
       "cwd": "${workspaceFolder}/backend",
       "args": [
-        "-e",
-        "local",
         "-api",
         "api.yml",
         "-service",

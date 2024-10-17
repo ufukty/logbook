@@ -6,18 +6,17 @@ import (
 	"logbook/cmd/objectives/app"
 	"logbook/cmd/objectives/database"
 	"logbook/cmd/objectives/service"
-	"logbook/internal/logger"
+	"logbook/internal/startup"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func getTestDependencies() (*Endpoints, error) {
-	l := logger.New("test")
-
-	srvcnf, err := service.ReadConfig("../../../local.yml")
+	l, srvcnf, _, _, err := startup.TestDependenciesWithServiceConfig("objectives", service.ReadConfig)
 	if err != nil {
-		return nil, fmt.Errorf("reading service config: %w", err)
+		return nil, fmt.Errorf("startup.TestDependenciesWithServiceConfig: %w", err)
 	}
+
 	err = database.RunMigration(srvcnf)
 	if err != nil {
 		return nil, fmt.Errorf("running migration: %w", err)

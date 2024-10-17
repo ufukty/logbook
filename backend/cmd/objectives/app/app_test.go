@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"logbook/cmd/objectives/database"
 	"logbook/cmd/objectives/service"
-	"logbook/internal/logger"
+	"logbook/internal/startup"
 	"logbook/internal/utils"
 	"logbook/internal/utils/lines"
 	"logbook/models"
@@ -32,16 +32,14 @@ func testname(tc map[*testfilenode]*testfilenode) string {
 }
 
 func TestAppManual(t *testing.T) {
-	l := logger.New("test")
-
 	uid, err := columns.NewUuidV4[columns.UserId]()
 	if err != nil {
 		t.Fatal(fmt.Errorf("prep, uid: %w", err))
 	}
 
-	srvcnf, err := service.ReadConfig("../../../local.yml")
+	l, srvcnf, _, _, err := startup.TestDependenciesWithServiceConfig("objectives", service.ReadConfig)
 	if err != nil {
-		t.Fatal(fmt.Errorf("reading service config: %w", err))
+		t.Fatal(fmt.Errorf("startup.TestDependenciesWithServiceConfig: %w", err))
 	}
 	err = database.RunMigration(srvcnf)
 	if err != nil {
@@ -283,17 +281,16 @@ func TestDemoFile(t *testing.T) {
 }
 
 func TestAppRandomOrderSubtaskCreationWithConcurrency(t *testing.T) {
-	l := logger.New("test")
-
 	uid, err := columns.NewUuidV4[columns.UserId]()
 	if err != nil {
 		t.Fatal(fmt.Errorf("prep, uid: %w", err))
 	}
 
-	srvcnf, err := service.ReadConfig("../../../local.yml")
+	l, srvcnf, _, _, err := startup.TestDependenciesWithServiceConfig("objectives", service.ReadConfig)
 	if err != nil {
-		t.Fatal(fmt.Errorf("reading service config: %w", err))
+		t.Fatal(fmt.Errorf("startup.TestDependenciesWithServiceConfig: %w", err))
 	}
+
 	err = database.RunMigration(srvcnf)
 	if err != nil {
 		t.Fatal(fmt.Errorf("running migration: %w", err))

@@ -2,11 +2,13 @@ package main
 
 import (
 	"fmt"
+	"logbook/config/deployment"
+	"logbook/internal/logger"
 	"logbook/tools/lbctl/objectives"
 	"os"
 )
 
-type Run func() error
+type Run func(l *logger.Logger) error
 
 var commands = map[string]Run{
 	"objectives": objectives.Run,
@@ -23,7 +25,8 @@ func dispatch() error {
 	if !ok {
 		return fmt.Errorf("command %q doesn't exist. run: lbctl help", arg)
 	}
-	err := command()
+	l := logger.New(&deployment.Config{Environment: "local"}, "lbctl")
+	err := command(l)
 	if err != nil {
 		return fmt.Errorf("%s: %w", arg, err)
 	}

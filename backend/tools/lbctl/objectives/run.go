@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"logbook/cmd/objectives/database"
 	"logbook/cmd/objectives/service"
+	"logbook/internal/logger"
 	"logbook/internal/utils/lines"
 	"os"
 	"path/filepath"
@@ -13,7 +14,7 @@ import (
 
 var configpath = filepath.Join(os.Getenv("WORKSPACE"), "backend/cmd/objectives/local.yml")
 
-func migrate() error {
+func migrate(_ *logger.Logger) error {
 	srvcfg, err := service.ReadConfig(configpath)
 	if err != nil {
 		return fmt.Errorf("service.ReadConfig: %w", err)
@@ -25,11 +26,11 @@ func migrate() error {
 	return nil
 }
 
-func Run() error {
+func Run(l *logger.Logger) error {
 	subcmd := os.Args[1]
 	os.Args = os.Args[1:]
 
-	handlers := map[string]func() error{
+	handlers := map[string]func(*logger.Logger) error{
 		"addbookmark":         addBookmark,
 		"checkout":            checkout,
 		"createsubtask":       createSubtask,
@@ -49,7 +50,7 @@ func Run() error {
 	if !ok {
 		return fmt.Errorf("handler not found: %s\n\navailable handlers:\n%s", subcmd, lines.Join(maps.Keys(handlers), "  "))
 	}
-	err := handler()
+	err := handler(l)
 	if err != nil {
 		return fmt.Errorf("%s: %w", subcmd, err)
 	}

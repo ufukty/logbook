@@ -19,9 +19,9 @@ type caches struct {
 	Uss *stores.FixedSizeKV[usssubject, int32]
 }
 
-func newCacheStore() *caches {
+func newCacheStore(l *logger.Logger) *caches {
 	return &caches{
-		Uss: stores.NewFixedSizeKV[usssubject, int32]("uss cache", 100000), // 108byte * 100.000 = 10.8mb
+		Uss: stores.NewFixedSizeKV[usssubject, int32](l.Sub("uss cache"), 100000), // 108byte * 100.000 = 10.8mb
 	}
 }
 
@@ -34,10 +34,11 @@ type App struct {
 }
 
 func New(pool *pgxpool.Pool, l *logger.Logger) *App {
+	l = l.Sub("App")
 	return &App{
 		pool:    pool,
 		oneshot: database.New(pool),
-		caches:  newCacheStore(),
-		l:       l.Sub("App"),
+		caches:  newCacheStore(l),
+		l:       l,
 	}
 }

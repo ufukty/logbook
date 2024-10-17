@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"logbook/cmd/objectives/database"
 	"logbook/cmd/objectives/service"
-	"logbook/internal/logger"
+	"logbook/internal/startup"
 	"logbook/models/columns"
 	"testing"
 
@@ -13,15 +13,13 @@ import (
 )
 
 func testdeps() (*App, columns.UserId, error) {
-	l := logger.New("test")
-
 	uid, err := columns.NewUuidV4[columns.UserId]()
 	if err != nil {
 		return nil, columns.ZeroUserId, fmt.Errorf("prep, uid: %w", err)
 	}
-	srvcnf, err := service.ReadConfig("../../../local.yml")
+	l, srvcnf, _, _, err := startup.TestDependenciesWithServiceConfig("objectives", service.ReadConfig)
 	if err != nil {
-		return nil, columns.ZeroUserId, fmt.Errorf("reading service config: %w", err)
+		return nil, columns.ZeroUserId, fmt.Errorf("startup.TestDependenciesWithServiceConfig: %w", err)
 	}
 	err = database.RunMigration(srvcnf)
 	if err != nil {

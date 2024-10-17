@@ -17,8 +17,7 @@ function service() {
   if test -d "cmd/${SERVICENAME}/database"; then
     /usr/local/go/bin/go test -timeout 10s -run '^TestMigration$' "logbook/cmd/${SERVICENAME}/database" -v -count=1
   fi
-  unbuffer go run "logbook/cmd/${SERVICENAME}" \
-    -e local \
+  go run "logbook/cmd/${SERVICENAME}" \
     -ip localhost \
     -api api.yml \
     -service "cmd/${SERVICENAME}/local.yml" \
@@ -29,8 +28,7 @@ function service() {
 }
 
 function registry() {
-  unbuffer go run "logbook/cmd/registry" \
-    -e local \
+  go run "logbook/cmd/registry" \
     -api api.yml \
     -deployment "../platform/local/deployment.yml" \
     -cert "../platform/local/tls/localhost.crt" \
@@ -38,8 +36,7 @@ function registry() {
 }
 
 function api-gateway() {
-  unbuffer go run "logbook/cmd/api" \
-    -e local \
+  go run "logbook/cmd/api" \
     -api api.yml \
     -deployment "../platform/local/deployment.yml" \
     -internal "../platform/local/registryfile.internalgateway.json" \
@@ -48,8 +45,7 @@ function api-gateway() {
 }
 
 function internal-gateway() {
-  unbuffer go run "logbook/cmd/internal" \
-    -e local \
+  go run "logbook/cmd/internal" \
     -api api.yml \
     -deployment "../platform/local/deployment.yml" \
     -registry "../platform/local/registryfile.registryservice.json" \

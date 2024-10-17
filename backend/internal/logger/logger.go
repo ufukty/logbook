@@ -3,6 +3,7 @@ package logger
 import (
 	"fmt"
 	"log"
+	"logbook/config/deployment"
 	"os"
 	"slices"
 )
@@ -17,19 +18,26 @@ type logger interface {
 }
 
 type Logger struct {
-	name   string
-	parent logger
+	name    string
+	parent  logger
+	deplcfg *deployment.Config
 }
 
-func New(name string) *Logger {
+func New(deplcfg *deployment.Config, name string) *Logger {
+	if deplcfg.Environment == "local" {
+		name = fmt.Sprintf("%s%s:%s", m.pickcolor(name), name, colorReset)
+	} else {
+		name = fmt.Sprintf("%s:", name)
+	}
 	return &Logger{
-		name:   fmt.Sprintf("%s%s:%s", m.pickcolor(name), name, colorReset),
-		parent: log.New(os.Stdout, "", log.LstdFlags|log.LUTC),
+		name:    name,
+		parent:  log.New(os.Stdout, "", log.LstdFlags|log.LUTC),
+		deplcfg: deplcfg,
 	}
 }
 
 func (l *Logger) Sub(name string) *Logger {
-	s := New(name)
+	s := New(l.deplcfg, name)
 	s.parent = l
 	return s
 }

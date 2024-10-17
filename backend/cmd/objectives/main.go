@@ -10,7 +10,6 @@ import (
 	"logbook/cmd/objectives/service"
 	registry "logbook/cmd/registry/client"
 	"logbook/config/api"
-	"logbook/internal/logger"
 	"logbook/internal/startup"
 	"logbook/internal/web/balancer"
 	"logbook/internal/web/reception"
@@ -24,9 +23,7 @@ import (
 )
 
 func Main() error {
-	l := logger.New("objectives")
-
-	args, srvcfg, deplcfg, apicfg, err := startup.ServiceWithCustomConfig(service.ReadConfig, l)
+	l, args, srvcfg, deplcfg, apicfg, err := startup.ServiceWithCustomConfig("objectives", service.ReadConfig)
 	if err != nil {
 		return fmt.Errorf("reading configs: %w", err)
 	}

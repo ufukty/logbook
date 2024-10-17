@@ -6,7 +6,6 @@ import (
 	"logbook/cmd/registry/app"
 	"logbook/cmd/registry/endpoints"
 	"logbook/config/api"
-	"logbook/internal/logger"
 	"logbook/internal/startup"
 	"logbook/internal/web/reception"
 	"logbook/internal/web/router"
@@ -14,9 +13,7 @@ import (
 )
 
 func Main() error {
-	l := logger.New("registry")
-
-	args, deplycfg, apicfg, err := startup.Service()
+	l, args, deplycfg, apicfg, err := startup.Service("registry")
 	if err != nil {
 		return fmt.Errorf("reading config: %w", err)
 	}

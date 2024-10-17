@@ -51,9 +51,9 @@ func (recp receptionist) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	t := time.Now()
 
-	recp.l.Printf("accepted %s: %s\n", lastsix(id), summarize(r))
+	recp.l.Printf("accepted %s: %s\n", lastsix(id), summarize(recp.deplcfg, r))
 	defer func() {
-		recp.l.Printf("served   %s: %s\n", lastsix(id), summarizeW(ww, t))
+		recp.l.Printf("served   %s: %s\n", lastsix(id), summarizeW(recp.deplcfg, ww, t))
 	}()
 
 	ctx, cancel := context.WithTimeout(r.Context(), recp.deplcfg.Reception.RequestTimeout)

@@ -2,21 +2,17 @@ package registryfile
 
 import (
 	"fmt"
-	"logbook/config/deployment"
-	"logbook/internal/logger"
+	"logbook/internal/startup"
 	"testing"
-	"time"
 )
 
 func TestFileReader(t *testing.T) {
-	deplycfg := &deployment.Config{
-		RegistryFile: struct {
-			UpdatePeriod time.Duration "yaml:\"update-period\""
-		}{
-			UpdatePeriod: time.Second,
-		},
+	l, deplcfg, _, err := startup.TestDependencies()
+	if err != nil {
+		t.Fatal(fmt.Errorf("startup: %w", err))
 	}
-	fr := NewFileReader("testdata/file.json", deplycfg, ServiceParams{8080, true}, logger.New("test"))
+
+	fr := NewFileReader("testdata/file.json", deplcfg, ServiceParams{8080, true}, l)
 	instances, err := fr.Instances()
 	defer fr.Stop()
 	if err != nil {

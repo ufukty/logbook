@@ -1,3 +1,5 @@
+environment: stage
+
 api:
   domain: logbook.balaasad.com
 

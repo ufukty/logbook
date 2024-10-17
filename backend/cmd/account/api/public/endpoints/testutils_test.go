@@ -6,21 +6,17 @@ import (
 	"logbook/cmd/account/api/public/app"
 	"logbook/cmd/account/database"
 	"logbook/cmd/account/service"
-	"logbook/config/api"
-	"logbook/internal/logger"
+	"logbook/internal/startup"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func getTestDependencies() (*Endpoints, error) {
-	apicfg, err := api.ReadConfig("../../../../../api.yml")
+	l, srvcnf, _, apicfg, err := startup.TestDependenciesWithServiceConfig("account", service.ReadConfig)
 	if err != nil {
-		return nil, fmt.Errorf("reading api config: %w", err)
+		return nil, fmt.Errorf("startup.TestDependenciesWithServiceConfig: %w", err)
 	}
-	srvcnf, err := service.ReadConfig("../../../local.yml")
-	if err != nil {
-		return nil, fmt.Errorf("reading service config: %w", err)
-	}
+
 	err = database.RunMigration(srvcnf)
 	if err != nil {
 		return nil, fmt.Errorf("running migration: %w", err)
@@ -33,5 +29,5 @@ func getTestDependencies() (*Endpoints, error) {
 	defer pool.Close()
 
 	a := app.New(pool, apicfg, nil) // FIXME: mock objectives service?
-	return New(a, logger.New("test")), nil
+	return New(a, l), nil
 }

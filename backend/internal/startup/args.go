@@ -10,15 +10,12 @@ type WebServerArgs struct {
 	Deployment       string
 	Service          string
 	InternalGateway  string
-	EnvMode          string
 	TlsKey           string
 	TlsCertificate   string
 }
 
 func parseWebServerArgs() (WebServerArgs, error) {
 	var args WebServerArgs
-	flag.StringVar(&args.EnvMode,
-		"e", "", "either from [ local | stage | production ]")
 	flag.StringVar(&args.Api,
 		"api", "", "path to api config")
 	flag.StringVar(&args.Deployment,
@@ -41,7 +38,6 @@ type ServiceArgs struct {
 	Deployment       string
 	Service          string
 	InternalGateway  string
-	EnvMode          string
 	TlsKey           string
 	TlsCertificate   string
 }
@@ -50,8 +46,6 @@ func parseServiceArgs() (ServiceArgs, error) {
 	var args ServiceArgs
 	flag.StringVar(&args.PrivateNetworkIp,
 		"ip", "", "Host's IP in the private network, which will be used to register the service into service registry")
-	flag.StringVar(&args.EnvMode,
-		"e", "", "either from [ local | stage | production ]")
 	flag.StringVar(&args.Api,
 		"api", "", "path to api config")
 	flag.StringVar(&args.Deployment,
@@ -99,15 +93,12 @@ type InternalGatewayArgs struct {
 	Api             string
 	Deployment      string
 	RegistryService string
-	EnvMode         string
 	TlsKey          string
 	TlsCertificate  string
 }
 
 func parseInternalGatewayArgs() (InternalGatewayArgs, error) {
 	var args InternalGatewayArgs
-	flag.StringVar(&args.EnvMode,
-		"e", "", "either from [ local | stage | production ]")
 	flag.StringVar(&args.Api,
 		"api", "", "api config file")
 	flag.StringVar(&args.Deployment,

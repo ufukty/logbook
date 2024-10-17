@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"logbook/internal/logger"
 	"logbook/internal/startup"
 	"logbook/internal/web/forwarder"
 	"logbook/internal/web/reception"
@@ -12,9 +11,7 @@ import (
 )
 
 func Main() error {
-	l := logger.New("internal-gateway")
-
-	args, deplcfg, apicfg, err := startup.InternalGateway(l)
+	l, args, deplcfg, apicfg, err := startup.InternalGateway()
 	if err != nil {
 		return fmt.Errorf("reading configs: %w", err)
 	}
@@ -27,7 +24,7 @@ func Main() error {
 
 	agent := reception.NewAgent(deplcfg, l)
 	err = agent.RegisterForwarders(map[string]*forwarder.LoadBalancedReverseProxy{
-		apicfg.InternalGateway.Services.Registry: forwarder.New(registrysd, l),
+		apicfg.InternalGateway.Services.Registry: forwarder.New(registrysd, deplcfg, l),
 	})
 	if err != nil {
 		return fmt.Errorf("agent.RegisterForwarders: %w", err)

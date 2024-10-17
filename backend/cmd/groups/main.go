@@ -6,7 +6,6 @@ import (
 	"logbook/cmd/groups/api/public"
 	"logbook/cmd/groups/service"
 	registry "logbook/cmd/registry/client"
-	"logbook/internal/logger"
 	"logbook/internal/startup"
 	"logbook/internal/web/balancer"
 	"logbook/internal/web/reception"
@@ -19,9 +18,7 @@ import (
 )
 
 func Main() error {
-	l := logger.New("groups")
-
-	args, srvcfg, deplcfg, apicfg, err := startup.ServiceWithCustomConfig(service.ReadConfig, l)
+	l, args, srvcfg, deplcfg, apicfg, err := startup.ServiceWithCustomConfig("groups", service.ReadConfig)
 	if err != nil {
 		return fmt.Errorf("reading configs: %w", err)
 	}

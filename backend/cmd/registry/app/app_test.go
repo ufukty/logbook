@@ -18,7 +18,7 @@ func TestRegisterInstance(t *testing.T) {
 	if err != nil {
 		t.Fatal(fmt.Errorf("prep, deployment.ReadConfig: %w", err))
 	}
-	a := app.New(deplcfg, logger.New("test"))
+	a := app.New(deplcfg, logger.New(deplcfg, "test"))
 	defer a.Stop()
 
 	service := models.Service("test-service")
@@ -40,7 +40,7 @@ func TestRecheckInstance(t *testing.T) {
 	if err != nil {
 		t.Fatal(fmt.Errorf("prep, deployment.ReadConfig: %w", err))
 	}
-	a := app.New(deplcfg, logger.New("test"))
+	a := app.New(deplcfg, logger.New(deplcfg, "test"))
 	defer a.Stop()
 
 	service := models.Service("test-service")
@@ -63,7 +63,7 @@ func TestListInstances(t *testing.T) {
 	if err != nil {
 		t.Fatal(fmt.Errorf("prep, deployment.ReadConfig: %w", err))
 	}
-	a := app.New(deplcfg, logger.New("test"))
+	a := app.New(deplcfg, logger.New(deplcfg, "test"))
 	defer a.Stop()
 
 	service := models.Service("test-service")
@@ -96,7 +96,7 @@ func TestHouseKeeping(t *testing.T) {
 	deplcfg.Registry.ClearancePeriod = 50 * time.Millisecond
 	deplcfg.Registry.ClearanceDelay = 50 * time.Millisecond
 
-	a := app.New(deplcfg, logger.New("test"))
+	a := app.New(deplcfg, logger.New(deplcfg, "test"))
 	defer a.Stop()
 
 	service := models.Service("test-service")

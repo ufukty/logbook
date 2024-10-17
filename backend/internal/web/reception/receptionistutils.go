@@ -2,6 +2,7 @@ package reception
 
 import (
 	"fmt"
+	"logbook/config/deployment"
 	"logbook/internal/logger/colors"
 	"net/http"
 	"reflect"
@@ -9,21 +10,38 @@ import (
 	"time"
 )
 
-func summarize(r *http.Request) string {
+func summarize(deplcfg *deployment.Config, r *http.Request) string {
+	if deplcfg.Environment == "local" {
+		return fmt.Sprintf("%s %s %s (%s, %s)",
+			colors.Green(r.Method),
+			colors.Yellow(r.URL.Path),
+			colors.Red(r.Proto),
+			colors.Blue(r.Host),
+			colors.Magenta(r.RemoteAddr),
+		)
+	}
 	return fmt.Sprintf("%s %s %s (%s, %s)",
-		colors.Green(r.Method),
-		colors.Yellow(r.URL.Path),
-		colors.Red(r.Proto),
-		colors.Blue(r.Host),
-		colors.Magenta(r.RemoteAddr),
+		r.Method,
+		r.URL.Path,
+		r.Proto,
+		r.Host,
+		r.RemoteAddr,
 	)
 }
 
-func summarizeW(w *response, t time.Time) string {
-	return fmt.Sprintf("%s %s %s bytes",
-		colors.Magenta(w.Status),
-		colors.Green(time.Since(t)),
-		colors.Cyan(w.Header().Get("Content-Length")))
+func summarizeW(deplcfg *deployment.Config, w *response, t time.Time) string {
+	if deplcfg.Environment == "local" {
+		return fmt.Sprintf("%s %s %s bytes",
+			colors.Magenta(w.Status),
+			colors.Green(time.Since(t)),
+			colors.Cyan(w.Header().Get("Content-Length")),
+		)
+	}
+	return fmt.Sprintf("%d %s %s bytes",
+		w.Status,
+		time.Since(t),
+		w.Header().Get("Content-Length"),
+	)
 }
 
 func lastsix[S ~string](id S) S {

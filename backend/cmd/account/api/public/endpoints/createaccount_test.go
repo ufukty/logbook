@@ -6,8 +6,7 @@ import (
 	"logbook/cmd/account/api/public/app"
 	"logbook/cmd/account/database"
 	"logbook/cmd/account/service"
-	"logbook/config/api"
-	"logbook/internal/logger"
+	"logbook/internal/startup"
 	"logbook/models"
 	"mime"
 	"net/http"
@@ -25,13 +24,9 @@ func (m *MockInstanceSource) Instances() ([]models.Instance, error) {
 }
 
 func TestCreateAccount(t *testing.T) {
-	apicfg, err := api.ReadConfig("../../../../../api.yml")
+	l, srvcfg, _, apicfg, err := startup.TestDependenciesWithServiceConfig("account", service.ReadConfig)
 	if err != nil {
-		t.Fatal(fmt.Errorf("reading api config: %w", err))
-	}
-	srvcfg, err := service.ReadConfig("../../../local.yml")
-	if err != nil {
-		t.Fatal(fmt.Errorf("reading service config: %w", err))
+		t.Fatal(fmt.Errorf("startup.TestDependenciesWithServiceConfig: %w", err))
 	}
 
 	err = database.RunMigration(srvcfg)
@@ -60,7 +55,7 @@ func TestCreateAccount(t *testing.T) {
 	defer pool.Close()
 
 	a := app.New(pool, apicfg, nil) // FIXME: mock objectives service?
-	ep := New(a, logger.New("test"))
+	ep := New(a, l)
 
 	ep.CreateAccount(w, r)
 

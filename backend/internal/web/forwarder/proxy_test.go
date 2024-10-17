@@ -1,7 +1,8 @@
 package forwarder
 
 import (
-	"logbook/internal/logger"
+	"fmt"
+	"logbook/internal/startup"
 	"logbook/internal/web/balancer"
 	"logbook/models"
 	"sync"
@@ -16,12 +17,17 @@ func (mis *mockInstanceSource) Instances() ([]models.Instance, error) {
 }
 
 func TestConcurrentMapWrites(t *testing.T) {
+	l, deplcfg, _, err := startup.TestDependencies()
+	if err != nil {
+		t.Fatal(fmt.Errorf("startup: %w", err))
+	}
+
 	is := &mockInstanceSource{}
 	for i := 0; i < 100; i++ {
 		*is = append(*is, models.Instance{Address: "127.0.0.1", Port: -1})
 	}
 
-	proxy := New(is, logger.New("test"))
+	proxy := New(is, deplcfg, l)
 
 	var wg sync.WaitGroup
 	concurrentGoroutines := 100

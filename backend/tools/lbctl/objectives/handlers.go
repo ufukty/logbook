@@ -22,7 +22,7 @@ type bookmarkFlags struct {
 	Name       string
 }
 
-func addBookmark() error {
+func addBookmark(l *logger.Logger) error {
 	var flags bookmarkFlags
 	flag.StringVar(&flags.UserId, "uid", "00000000-0000-0000-0000-000000000000", "")
 	flag.StringVar(&flags.SubjectOid, "oid", "", "subject oid")
@@ -43,7 +43,7 @@ func addBookmark() error {
 		return fmt.Errorf("pgxpool.New: %w", err)
 	}
 	defer pool.Close()
-	a := app.New(pool, logger.New("addBookmark"))
+	a := app.New(pool, l.Sub("addBookmark"))
 
 	err = a.AddBookmark(context.Background(), app.AddBookmarkParams{
 		Actor:        columns.UserId(flags.UserId),
@@ -63,7 +63,7 @@ type checkoutFlags struct {
 	To         string
 }
 
-func checkout() error {
+func checkout(l *logger.Logger) error {
 	var flags checkoutFlags
 	flag.StringVar(&flags.UserId, "uid", "00000000-0000-0000-0000-000000000000", "")
 	flag.StringVar(&flags.SubjectOid, "oid", "", "subject oid")
@@ -84,7 +84,7 @@ func checkout() error {
 		return fmt.Errorf("pgxpool.New: %w", err)
 	}
 	defer pool.Close()
-	a := app.New(pool, logger.New("checkout"))
+	a := app.New(pool, l.Sub("checkout"))
 
 	err = a.Checkout(context.Background(), app.CheckoutParams{
 		User:    columns.UserId(flags.UserId),
@@ -104,7 +104,7 @@ type createSubtaskFlags struct {
 	Content   string
 }
 
-func createSubtask() error {
+func createSubtask(l *logger.Logger) error {
 	var flags createSubtaskFlags
 	flag.StringVar(&flags.UserId, "uid", "00000000-0000-0000-0000-000000000000", "")
 	flag.StringVar(&flags.ParentOid, "oid", "", "parent oid")
@@ -126,7 +126,7 @@ func createSubtask() error {
 		return fmt.Errorf("pgxpool.New: %w", err)
 	}
 	defer pool.Close()
-	a := app.New(pool, logger.New("createSubtask"))
+	a := app.New(pool, l.Sub("createSubtask"))
 
 	obj, err := a.CreateSubtask(context.Background(), app.CreateSubtaskParams{
 		Creator: columns.UserId(flags.UserId),
@@ -146,7 +146,7 @@ type deleteSubtaskFlags struct {
 	Vid    string
 }
 
-func deleteSubtask() error {
+func deleteSubtask(l *logger.Logger) error {
 	var flags deleteSubtaskFlags
 	flag.StringVar(&flags.UserId, "uid", "00000000-0000-0000-0000-000000000000", "")
 	flag.StringVar(&flags.Oid, "oid", "", "subject oid")
@@ -166,7 +166,7 @@ func deleteSubtask() error {
 		return fmt.Errorf("pgxpool.New: %w", err)
 	}
 	defer pool.Close()
-	a := app.New(pool, logger.New("deleteSubtask"))
+	a := app.New(pool, l.Sub("deleteSubtask"))
 
 	err = a.DeleteSubtask(context.Background(), app.DeleteSubtaskParams{
 		Subject: models.Ovid{columns.ObjectiveId(flags.Oid), columns.VersionId(flags.Vid)},
@@ -182,7 +182,7 @@ type getActiveVersionFlags struct {
 	Oid string
 }
 
-func getActiveVersion() error {
+func getActiveVersion(l *logger.Logger) error {
 	var flags getActiveVersionFlags
 	flag.StringVar(&flags.Oid, "oid", "", "")
 	flag.Parse()
@@ -200,7 +200,7 @@ func getActiveVersion() error {
 		return fmt.Errorf("pgxpool.New: %w", err)
 	}
 	defer pool.Close()
-	a := app.New(pool, logger.New("getActiveVersion"))
+	a := app.New(pool, l.Sub("getActiveVersion"))
 
 	vid, err := a.GetActiveVersion(context.Background(), columns.ObjectiveId(flags.Oid))
 	if err != nil {
@@ -215,7 +215,7 @@ type getMergedPropsFlags struct {
 	Vid string
 }
 
-func getMergedProps() error {
+func getMergedProps(l *logger.Logger) error {
 	var flags getMergedPropsFlags
 	flag.StringVar(&flags.Oid, "oid", "", "parent oid")
 	flag.StringVar(&flags.Vid, "vid", "", "parent vid")
@@ -234,7 +234,7 @@ func getMergedProps() error {
 		return fmt.Errorf("pgxpool.New: %w", err)
 	}
 	defer pool.Close()
-	a := app.New(pool, logger.New("getMergedProps"))
+	a := app.New(pool, l.Sub("getMergedProps"))
 
 	mprops, err := a.GetMergedProps(context.Background(), models.Ovid{columns.ObjectiveId(flags.Oid), columns.VersionId(flags.Vid)})
 	if err != nil {
@@ -249,7 +249,7 @@ type getObjectiveHistoryFlags struct {
 	Vid string
 }
 
-func getObjectiveHistory() error {
+func getObjectiveHistory(l *logger.Logger) error {
 	var flags getObjectiveHistoryFlags
 	flag.StringVar(&flags.Oid, "oid", "", "oid")
 	flag.StringVar(&flags.Vid, "vid", "", "vid")
@@ -268,7 +268,7 @@ func getObjectiveHistory() error {
 		return fmt.Errorf("pgxpool.New: %w", err)
 	}
 	defer pool.Close()
-	a := app.New(pool, logger.New("getObjectiveHistory"))
+	a := app.New(pool, l.Sub("getObjectiveHistory"))
 
 	hist, err := a.GetObjectiveHistory(context.Background(), app.GetObjectiveHistoryParams{
 		Subject: models.Ovid{Oid: columns.ObjectiveId(flags.Oid), Vid: columns.VersionId(flags.Vid)},
@@ -286,7 +286,7 @@ type listBookmarksFlags struct {
 	UserId string
 }
 
-func listBookmarks() error {
+func listBookmarks(l *logger.Logger) error {
 	var flags listBookmarksFlags
 	flag.StringVar(&flags.UserId, "uid", "00000000-0000-0000-0000-000000000000", "")
 	flag.Parse()
@@ -304,7 +304,7 @@ func listBookmarks() error {
 		return fmt.Errorf("pgxpool.New: %w", err)
 	}
 	defer pool.Close()
-	a := app.New(pool, logger.New("listBookmarks"))
+	a := app.New(pool, l.Sub("listBookmarks"))
 
 	bms, err := a.ListBookmarks(context.Background(), app.ListBookmarksParams{
 		Viewer: columns.UserId(flags.UserId),
@@ -327,7 +327,7 @@ func listBookmarks() error {
 // type reattachFlags struct {
 // }
 
-// func reattach() error {
+// func reattach(l *logger.Logger) error {
 // 	var flags reattachFlags
 // 	flag.Parse()
 
@@ -356,7 +356,7 @@ func listBookmarks() error {
 // type reorderFlags struct {
 // }
 
-// func reorder() error {
+// func reorder(l *logger.Logger) error {
 // 	var flags reorderFlags
 // 	flag.Parse()
 
@@ -386,7 +386,7 @@ type rockCreateFlags struct {
 	UserId string
 }
 
-func rockCreate() error {
+func rockCreate(l *logger.Logger) error {
 	var flags rockCreateFlags
 	flag.StringVar(&flags.UserId, "uid", "00000000-0000-0000-0000-000000000000", "")
 	flag.Parse()
@@ -404,7 +404,7 @@ func rockCreate() error {
 		return fmt.Errorf("pgxpool.New: %w", err)
 	}
 	defer pool.Close()
-	a := app.New(pool, logger.New("rockCreate"))
+	a := app.New(pool, l.Sub("rockCreate"))
 
 	err = a.RockCreate(context.Background(), columns.UserId(flags.UserId))
 	if err != nil {
@@ -417,7 +417,7 @@ type rockGetFlags struct {
 	UserId string
 }
 
-func rockGet() error {
+func rockGet(l *logger.Logger) error {
 	var flags rockGetFlags
 	flag.StringVar(&flags.UserId, "uid", "00000000-0000-0000-0000-000000000000", "")
 	flag.Parse()
@@ -435,7 +435,7 @@ func rockGet() error {
 		return fmt.Errorf("pgxpool.New: %w", err)
 	}
 	defer pool.Close()
-	a := app.New(pool, logger.New("rockGet"))
+	a := app.New(pool, l.Sub("rockGet"))
 
 	oid, err := a.RockGet(context.Background(), columns.UserId(flags.UserId))
 	if err != nil {
@@ -452,7 +452,7 @@ type viewBuilderFlags struct {
 	Start, Length int
 }
 
-func viewBuilder() error {
+func viewBuilder(l *logger.Logger) error {
 	var flags viewBuilderFlags
 	flag.StringVar(&flags.UserId, "uid", "00000000-0000-0000-0000-000000000000", "")
 	flag.StringVar(&flags.RockOid, "oid", "", "rock oid")
@@ -474,7 +474,7 @@ func viewBuilder() error {
 		return fmt.Errorf("pgxpool.New: %w", err)
 	}
 	defer pool.Close()
-	a := app.New(pool, logger.New("viewBuilder"))
+	a := app.New(pool, l.Sub("viewBuilder"))
 
 	d, err := a.ViewBuilder(context.Background(), app.ViewBuilderParams{
 		Viewer: columns.UserId(flags.UserId),
