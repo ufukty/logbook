@@ -1,3 +1,5 @@
+direction: right
+
 active: {
   shape: sql_table
 
@@ -14,42 +16,7 @@ bookmark: {
   is_rock: bool # rocks are hidden in the UI
   created_at: timestamp
 }
-
-control_area: {
-  shape: sql_table
-
-  aid: AreaId
-  root: ObjectiveId
-  ar_type: AreaType
-
-  created_at: timestamp
-  deleted_at: timestamp?
-}
-
-collaboration: {
-  shape: sql_table
-
-  cid: CollaborationId
-  aid: AreaId
-  
-  creator: UserId
-  admin: UserId
-  leader: UserId
-
-  created_at: timestamp
-  disabled_at: timestamp
-}
-
-collaborator: {
-  shape: sql_table
-
-  cid: CollaborationId
-  uid: UserId
-
-  created_at: timestamp
-  deleted_at: timestamp
-}
-
+    
 objective: {
   shape: sql_table
 
@@ -197,16 +164,12 @@ op_double_transitive_merger: {
   second: OperationId
 }
 
-direction: right
-
 objective.oid -- active.oid
 
 # a bookmark points to a root node of a work tree
 bookmark.oid -- objective.oid
 
 control_area.root -- objective.oid
-control_area.aid -- collaboration.aid
-collaboration.cid -- collaborator.cid
 
 objective.oid -- objective_view_prefs.oid
 
@@ -228,3 +191,4 @@ operation.opid -- op_transitive.opid
 operation.opid -- op_double_transitive_merger.opid
 
 objective.created_by -- operation.opid
+

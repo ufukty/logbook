@@ -1,21 +1,89 @@
-member: {
+direction: right
+
+control_area: {
   shape: sql_table
 
+  aid: AreaId
+  root: ObjectiveId
+  ar_type: AreaType
+
+  created_at: timestamp
+  deleted_at: timestamp?
+}
+
+collaboration: {
+  shape: sql_table
+
+  cid: CollaborationId
+  aid: AreaId
+
+  creator: UserId
+  admin: UserId
+  leader: UserId
+
+  created_at: timestamp
+  disabled_at: timestamp
+}
+
+collaborator_group: {
+  shape: sql_table
+
+  cid: CollaborationId
   gid: GroupId
+
+  created_at: timestamp
+  deleted_at: timestamp
+}
+
+collaborator_user: {
+  shape: sql_table
+
+  cid: CollaborationId
   uid: UserId
+
+  created_at: timestamp
+  deleted_at: timestamp
+}
+
+group: {
+  shape: sql_table
+  
+  gid: GroupId
+  title: string
   
   created_at: timestamp
   deleted_at: timestamp?
 }
 
-group: {
+group_member_user: {
   shape: sql_table
-
+  
   gid: GroupId
-  title: string
-
+  member: UserId
+  invited_by: UserId
+  
   created_at: timestamp
   deleted_at: timestamp?
 }
 
-member.gid -- group.gid
+group_member_group: {
+  shape: sql_table
+  
+  gid: GroupId
+  member: GroupId
+  invited_by: UserId
+  
+  created_at: timestamp
+  deleted_at: timestamp?
+}
+
+control_area.root -- objective.oid
+
+control_area.aid -- collaboration.aid
+collaboration.cid -- collaborator_group.cid
+collaboration.cid -- collaborator_user.cid
+
+collaborator_group.gid -- group.gid
+
+group.gid -- group_member_user.gid
+group.gid -- group_member_group.gid
