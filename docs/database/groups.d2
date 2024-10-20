@@ -57,10 +57,12 @@ group: {
 
 group_member_user: {
   shape: sql_table
+
+  msid: MembershipId
   
   gid: GroupId
   member: UserId
-  invited_by: UserId
+  invite: GroupInviteId
   
   created_at: timestamp
   deleted_at: timestamp?
@@ -68,10 +70,36 @@ group_member_user: {
 
 group_member_group: {
   shape: sql_table
+
+  msid: MembershipId
   
   gid: GroupId
   member: GroupId
-  invited_by: UserId
+  invite: GroupInviteId
+  
+  created_at: timestamp
+  deleted_at: timestamp?
+}
+
+group_invite_group: {
+  shape: sql_table
+
+  ginid: GroupInviteId
+  
+  inviter: UserId
+  invitee: GroupId
+  
+  created_at: timestamp
+  deleted_at: timestamp?
+}
+
+group_invite_user: {
+  shape: sql_table
+
+  ginid: GroupInviteId
+  
+  inviter: UserId
+  invitee: UserId
   
   created_at: timestamp
   deleted_at: timestamp?
@@ -87,3 +115,6 @@ collaborator_group.gid -- group.gid
 
 group.gid -- group_member_user.gid
 group.gid -- group_member_group.gid
+
+group_member_group.invite -- group_invite_group.ginid
+group_member_user.invite -- group_invite_user.ginid
