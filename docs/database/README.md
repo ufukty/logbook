@@ -99,6 +99,10 @@ Design:
 -	As the parent node's version can never be older than its children's, view builder can pop the version numbers from version array when they are ahead of the held one, as it dig deeper. So, it can also postpone asking for the whole of version array, as it can fetch previous versions as it dig deeper and see another version than it holds
 -	View builder may leverage `created_at` columns to quickly filter out ahead rows.
 
+## Privileges
+
+![](privileges.png)
+
 ## Distributed transactions
 
 ![](transactions.png)

@@ -3,9 +3,10 @@ direction: right
 control_area: {
   shape: sql_table
 
-  aid: AreaId
+  caid: ControlAreaId
+  catype: ControlAreaType
+  
   root: ObjectiveId
-  ar_type: AreaType
 
   created_at: timestamp
   deleted_at: timestamp?
@@ -15,7 +16,7 @@ collaboration: {
   shape: sql_table
 
   cid: CollaborationId
-  aid: AreaId
+  caid: ControlAreaId
 
   creator: UserId
   admin: UserId
@@ -105,16 +106,32 @@ group_invite_user: {
   deleted_at: timestamp?
 }
 
-control_area.root -- objective.oid
+delegation: {
+  shape: sql_table
 
-control_area.aid -- collaboration.aid
+  delid: DelegationId
+
+  caid: ControlAreaId
+
+  delegator: UserId
+  delegee: UserId
+
+  created_at: timestamp
+  deleted_at: timestamp?
+}
+
+objective.oid -- control_area.root
+
+control_area.caid -- delegation.caid
+control_area.caid -- collaboration.caid
+
 collaboration.cid -- collaborator_group.cid
 collaboration.cid -- collaborator_user.cid
 
-collaborator_group.gid -- group.gid
+group.gid -- collaborator_group.gid
 
-group.gid -- group_member_user.gid
-group.gid -- group_member_group.gid
+group_member_user.gid -- group.gid
+group_member_group.gid -- group.gid
 
-group_member_group.invite -- group_invite_group.ginid
-group_member_user.invite -- group_invite_user.ginid
+group_invite_group.ginid -- group_member_group.invite
+group_invite_user.ginid -- group_member_user.invite
