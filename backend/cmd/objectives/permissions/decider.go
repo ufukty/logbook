@@ -3,6 +3,7 @@ package permissions
 import (
 	"fmt"
 	"logbook/cmd/objectives/database"
+	"logbook/cmd/objectives/permissions/adapter"
 	"logbook/internal/logger"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -11,13 +12,13 @@ import (
 var ErrUnauthorized = fmt.Errorf("unauthorized")
 
 type Decider struct {
-	oneshot *database.Queries
-	l       *logger.Logger
+	db *adapter.Adapter
+	l  *logger.Logger
 }
 
 func New(pool *pgxpool.Pool, l *logger.Logger) *Decider {
 	return &Decider{
-		oneshot: database.New(pool),
-		l:       l.Sub("decider"),
+		db: adapter.New(database.New(pool)),
+		l:  l.Sub("decider"),
 	}
 }

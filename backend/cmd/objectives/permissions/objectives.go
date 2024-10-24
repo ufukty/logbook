@@ -3,7 +3,6 @@ package permissions
 import (
 	"context"
 	"fmt"
-	"logbook/cmd/objectives/permissions/augmented"
 	"logbook/models/columns"
 )
 
@@ -28,11 +27,14 @@ func (d *Decider) CanGroupDeleteObjective(ctx context.Context, gid columns.Group
 }
 
 func (d *Decider) CanUserUpdateObjective(ctx context.Context, uid columns.UserId, oid columns.ObjectiveId) error {
-	obj := augmented.NewObjective(d.oneshot, oid)
+	obj, err := d.db.Objective(ctx, oid)
+	if err != nil {
+		return fmt.Errorf("db.Objective: %w", err)
+	}
 
 	ok, err := obj.IsOwner(ctx, uid)
 	if err != nil {
-		return fmt.Errorf("AssertOwnership: %w", err)
+		return fmt.Errorf("obj.IsOwner: %w", err)
 	} else if ok {
 		return nil
 	}
