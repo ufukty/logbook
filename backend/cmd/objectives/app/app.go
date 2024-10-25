@@ -1,6 +1,7 @@
 package app
 
 import (
+	"logbook/cmd/objectives/app/l2"
 	"logbook/cmd/objectives/database"
 	"logbook/internal/logger"
 	"logbook/internal/stores"
@@ -29,6 +30,7 @@ type App struct {
 	pool    *pgxpool.Pool
 	oneshot *database.Queries
 	caches  *caches
+	l2      *l2.App
 
 	l *logger.Logger
 }

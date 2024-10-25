@@ -1,4 +1,4 @@
-package app
+package l2
 
 import (
 	"context"
@@ -52,7 +52,7 @@ func helperListActivePathToRock(ctx context.Context, q *database.Queries, subjec
 }
 
 // returns a path from the node to the root: [subject, active-ascendants..., rock] or [ErrLeftBehind]
-func (a *App) listActivePathToRock(ctx context.Context, q *database.Queries, subject models.Ovid) ([]models.Ovid, error) {
+func (a *App) ListActivePathToRock(ctx context.Context, q *database.Queries, subject models.Ovid) ([]models.Ovid, error) {
 	ap, err := helperListActivePathToRock(ctx, q, subject, a.l)
 	if err != nil {
 		return nil, fmt.Errorf("helperListActivePathToRock: %w", err)

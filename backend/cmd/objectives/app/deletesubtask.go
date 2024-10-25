@@ -22,7 +22,7 @@ func (a *App) DeleteSubtask(ctx context.Context, params DeleteSubtaskParams) err
 	defer tx.Rollback(ctx)
 	q := database.New(tx)
 
-	ap, err := a.listActivePathToRock(ctx, q, params.Subject)
+	ap, err := a.l2.ListActivePathToRock(ctx, q, params.Subject)
 	if err != nil {
 		return fmt.Errorf("listActivePathToRock: %w", err)
 	}

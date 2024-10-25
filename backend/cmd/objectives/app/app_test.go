@@ -165,7 +165,7 @@ func TestDemoFile(t *testing.T) {
 	})
 
 	t.Run("active path", func(t *testing.T) {
-		ap, err := a.listActivePathToRock(context.Background(), a.oneshot, firstGrandGrandChild)
+		ap, err := a.l2.ListActivePathToRock(context.Background(), a.oneshot, firstGrandGrandChild)
 		if err != nil {
 			t.Fatal(fmt.Errorf("listActivePathToRock: %w", err))
 		}

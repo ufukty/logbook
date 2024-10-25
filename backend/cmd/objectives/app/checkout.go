@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
+	"logbook/cmd/objectives/app/l2"
 	"logbook/cmd/objectives/database"
 	"logbook/models"
 	"logbook/models/columns"
@@ -44,9 +45,9 @@ func (a *App) Checkout(ctx context.Context, params CheckoutParams) error {
 	defer tx.Rollback(ctx)
 	q := database.New(tx)
 
-	activepath, err := a.listActivePathToRock(ctx, q, params.Subject)
-	if err == ErrLeftBehind {
-		return ErrLeftBehind
+	activepath, err := a.l2.ListActivePathToRock(ctx, q, params.Subject)
+	if err == l2.ErrLeftBehind {
+		return l2.ErrLeftBehind
 	} else if err != nil {
 		return fmt.Errorf("listActivePathToRock: %w", err)
 	}

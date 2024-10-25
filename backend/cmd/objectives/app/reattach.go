@@ -66,12 +66,12 @@ func (a *App) Reattach(ctx context.Context, params ReattachParams) error {
 	defer tx.Rollback(ctx)
 	q := database.New(tx)
 
-	apCurrent, err := a.listActivePathToRock(ctx, q, params.CurrentParent)
+	apCurrent, err := a.l2.ListActivePathToRock(ctx, q, params.CurrentParent)
 	if err != nil {
 		return fmt.Errorf("listActivePathToRock/current: %w", err)
 	}
 
-	apNext, err := a.listActivePathToRock(ctx, q, params.NextParent)
+	apNext, err := a.l2.ListActivePathToRock(ctx, q, params.NextParent)
 	if err != nil {
 		return fmt.Errorf("listActivePathToRock/next: %w", err)
 	}

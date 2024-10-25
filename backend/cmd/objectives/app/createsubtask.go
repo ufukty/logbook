@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
+	"logbook/cmd/objectives/app/l2"
 	"logbook/cmd/objectives/database"
 	"logbook/models"
 	"logbook/models/columns"
@@ -36,9 +37,9 @@ func (a *App) CreateSubtask(ctx context.Context, params CreateSubtaskParams) (mo
 	defer tx.Rollback(ctx)
 	q := database.New(tx)
 
-	activepath, err := a.listActivePathToRock(ctx, q, params.Parent)
-	if err == ErrLeftBehind {
-		return models.ZeroOvid, ErrLeftBehind
+	activepath, err := a.l2.ListActivePathToRock(ctx, q, params.Parent)
+	if err == l2.ErrLeftBehind {
+		return models.ZeroOvid, l2.ErrLeftBehind
 	} else if err != nil {
 		return models.ZeroOvid, fmt.Errorf("listActivePathToRock: %w", err)
 	}

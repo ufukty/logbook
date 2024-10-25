@@ -1,4 +1,4 @@
-package app
+package l2
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 
 var ErrControlAreaNotFound = fmt.Errorf("control area not found")
 
-func (a *App) findControlArea(ctx context.Context, subject models.Ovid) (*database.ControlArea, error) {
+func (a *App) FindControlArea(ctx context.Context, subject models.Ovid) (*database.ControlArea, error) {
 	tx, err := a.pool.Begin(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("pool.Begin: %w", err)
@@ -19,7 +19,7 @@ func (a *App) findControlArea(ctx context.Context, subject models.Ovid) (*databa
 	defer tx.Rollback(ctx)
 	q := database.New(tx)
 
-	ap, err := a.listActivePathToRock(ctx, q, subject)
+	ap, err := a.ListActivePathToRock(ctx, q, subject)
 	if err != nil {
 		return nil, fmt.Errorf("listActivePathToRock: %w", err)
 	}

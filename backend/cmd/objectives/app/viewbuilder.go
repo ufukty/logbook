@@ -140,7 +140,7 @@ func (a *App) viewBuilder(ctx context.Context, q *database.Queries, viewer colum
 // in the boundaries of viewport described as a range starts from [ViewBuilderParams.Start]
 // and in the length of [ViewBuilderParams.Length] which doesn't contain hidden/unaccessible objectives.
 //
-// may wrap: [ErrLeftBehind]
+// may wrap: [l2.ErrLeftBehind]
 func (a *App) ViewBuilder(ctx context.Context, params ViewBuilderParams) ([]owners.DocumentItem, error) {
 	if params.Length > ViewportLimit {
 		return nil, ErrGiantViewport
