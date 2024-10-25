@@ -65,7 +65,7 @@ group_member_user: {
   
   gid: GroupId
   member: UserId
-  invite: GroupInviteId
+  ginvid: GroupInviteId
   
   created_at: timestamp
   deleted_at: timestamp?
@@ -78,7 +78,7 @@ group_member_group: {
   
   gid: GroupId
   member: GroupId
-  invite: GroupInviteId
+  ginvid: GroupInviteId
   
   created_at: timestamp
   deleted_at: timestamp?
@@ -87,7 +87,7 @@ group_member_group: {
 group_invite_group: {
   shape: sql_table
 
-  ginid: GroupInviteId
+  ginvid: GroupInviteId
   
   inviter: UserId
   invitee: GroupId
@@ -99,7 +99,7 @@ group_invite_group: {
 group_invite_user: {
   shape: sql_table
 
-  ginid: GroupInviteId
+  ginvid: GroupInviteId
   
   inviter: UserId
   invitee: UserId
@@ -135,5 +135,5 @@ group.gid -- collaborator_group.gid
 group_member_user.gid -- group.gid
 group_member_group.gid -- group.gid
 
-group_invite_group.ginid -- group_member_group.invite
-group_invite_user.ginid -- group_member_user.invite
+group_invite_group.ginvid -- group_member_group.ginvid
+group_invite_user.ginvid -- group_member_user.ginvid
