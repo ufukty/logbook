@@ -12,46 +12,46 @@ import (
 	"logbook/models/columns"
 )
 
-type AreaType string
+type ControlAreaType string
 
 const (
-	AreaTypeSolo          AreaType = "solo"
-	AreaTypeCollaboration AreaType = "collaboration"
+	ControlAreaTypeSolo          ControlAreaType = "solo"
+	ControlAreaTypeCollaboration ControlAreaType = "collaboration"
 )
 
-func (e *AreaType) Scan(src interface{}) error {
+func (e *ControlAreaType) Scan(src interface{}) error {
 	switch s := src.(type) {
 	case []byte:
-		*e = AreaType(s)
+		*e = ControlAreaType(s)
 	case string:
-		*e = AreaType(s)
+		*e = ControlAreaType(s)
 	default:
-		return fmt.Errorf("unsupported scan type for AreaType: %T", src)
+		return fmt.Errorf("unsupported scan type for ControlAreaType: %T", src)
 	}
 	return nil
 }
 
-type NullAreaType struct {
-	AreaType AreaType
-	Valid    bool // Valid is true if AreaType is not NULL
+type NullControlAreaType struct {
+	ControlAreaType ControlAreaType
+	Valid           bool // Valid is true if ControlAreaType is not NULL
 }
 
 // Scan implements the Scanner interface.
-func (ns *NullAreaType) Scan(value interface{}) error {
+func (ns *NullControlAreaType) Scan(value interface{}) error {
 	if value == nil {
-		ns.AreaType, ns.Valid = "", false
+		ns.ControlAreaType, ns.Valid = "", false
 		return nil
 	}
 	ns.Valid = true
-	return ns.AreaType.Scan(value)
+	return ns.ControlAreaType.Scan(value)
 }
 
 // Value implements the driver Valuer interface.
-func (ns NullAreaType) Value() (driver.Value, error) {
+func (ns NullControlAreaType) Value() (driver.Value, error) {
 	if !ns.Valid {
 		return nil, nil
 	}
-	return string(ns.AreaType), nil
+	return string(ns.ControlAreaType), nil
 }
 
 type OpStatus string
@@ -179,8 +179,8 @@ type BottomUpPropsThirdPerson struct {
 }
 
 type Collaboration struct {
-	Cid       columns.CollaborationId
-	Aid       columns.AreaId
+	Coid      columns.CollaborationId
+	Caid      columns.ControlAreaId
 	Creator   columns.UserId
 	Admin     columns.UserId
 	Leader    columns.UserId
@@ -188,18 +188,26 @@ type Collaboration struct {
 	DeletedAt pgtype.Timestamp
 }
 
-type Collaborator struct {
-	ID        pgtype.UUID
-	Cid       columns.CollaborationId
+type CollaboratorGroup struct {
+	Crid      columns.CollaboratorId
+	Coid      columns.CollaborationId
+	Gid       columns.GroupId
+	CreatedAt pgtype.Timestamp
+	DeletedAt pgtype.Timestamp
+}
+
+type CollaboratorUser struct {
+	Crid      columns.CollaboratorId
+	Coid      columns.CollaborationId
 	Uid       columns.UserId
 	CreatedAt pgtype.Timestamp
 	DeletedAt pgtype.Timestamp
 }
 
 type ControlArea struct {
-	Aid       columns.AreaId
+	Caid      columns.ControlAreaId
 	Root      columns.ObjectiveId
-	ArType    AreaType
+	Catype    ControlAreaType
 	CreatedAt pgtype.Timestamp
 	DeletedAt pgtype.Timestamp
 }

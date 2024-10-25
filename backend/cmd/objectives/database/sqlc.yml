@@ -13,10 +13,10 @@ sql:
         output_files_suffix: .sqlc
         emit_exact_table_names: true
         overrides:
-          - db_type: AreaId
+          - db_type: ControlAreaId
             go_type:
               import: "logbook/models/columns"
-              type: AreaId
+              type: ControlAreaId
 
           - db_type: ObjectiveId
             go_type:
@@ -62,3 +62,13 @@ sql:
             go_type:
               import: "logbook/models/columns"
               type: CollaborationId
+
+          - db_type: CollaboratorId
+            go_type:
+              import: "logbook/models/columns"
+              type: CollaboratorId
+
+          - db_type: GroupId
+            go_type:
+              import: "logbook/models/columns"
+              type: GroupId

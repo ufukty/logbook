@@ -17,18 +17,18 @@ UPDATE
 SET
     "deleted_at" = TIMESTAMP
 WHERE
-    "aid" = $1
+    "caid" = $1
 RETURNING
-    aid, root, ar_type, created_at, deleted_at
+    caid, root, catype, created_at, deleted_at
 `
 
-func (q *Queries) DeleteControlArea(ctx context.Context, aid columns.AreaId) (ControlArea, error) {
-	row := q.db.QueryRow(ctx, deleteControlArea, aid)
+func (q *Queries) DeleteControlArea(ctx context.Context, caid columns.ControlAreaId) (ControlArea, error) {
+	row := q.db.QueryRow(ctx, deleteControlArea, caid)
 	var i ControlArea
 	err := row.Scan(
-		&i.Aid,
+		&i.Caid,
 		&i.Root,
-		&i.ArType,
+		&i.Catype,
 		&i.CreatedAt,
 		&i.DeletedAt,
 	)
@@ -36,24 +36,24 @@ func (q *Queries) DeleteControlArea(ctx context.Context, aid columns.AreaId) (Co
 }
 
 const insertControlArea = `-- name: InsertControlArea :one
-INSERT INTO "control_area"("root", "ar_type")
+INSERT INTO "control_area"("root", "catype")
     VALUES ($1, $2)
 RETURNING
-    aid, root, ar_type, created_at, deleted_at
+    caid, root, catype, created_at, deleted_at
 `
 
 type InsertControlAreaParams struct {
 	Root   columns.ObjectiveId
-	ArType AreaType
+	Catype ControlAreaType
 }
 
 func (q *Queries) InsertControlArea(ctx context.Context, arg InsertControlAreaParams) (ControlArea, error) {
-	row := q.db.QueryRow(ctx, insertControlArea, arg.Root, arg.ArType)
+	row := q.db.QueryRow(ctx, insertControlArea, arg.Root, arg.Catype)
 	var i ControlArea
 	err := row.Scan(
-		&i.Aid,
+		&i.Caid,
 		&i.Root,
-		&i.ArType,
+		&i.Catype,
 		&i.CreatedAt,
 		&i.DeletedAt,
 	)
@@ -62,7 +62,7 @@ func (q *Queries) InsertControlArea(ctx context.Context, arg InsertControlAreaPa
 
 const selectControlAreaOnObjective = `-- name: SelectControlAreaOnObjective :one
 SELECT
-    aid, root, ar_type, created_at, deleted_at
+    caid, root, catype, created_at, deleted_at
 FROM
     "control_area"
 WHERE
@@ -74,9 +74,9 @@ func (q *Queries) SelectControlAreaOnObjective(ctx context.Context, root columns
 	row := q.db.QueryRow(ctx, selectControlAreaOnObjective, root)
 	var i ControlArea
 	err := row.Scan(
-		&i.Aid,
+		&i.Caid,
 		&i.Root,
-		&i.ArType,
+		&i.Catype,
 		&i.CreatedAt,
 		&i.DeletedAt,
 	)

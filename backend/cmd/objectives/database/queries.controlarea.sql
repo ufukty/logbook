@@ -1,5 +1,5 @@
 -- name: InsertControlArea :one
-INSERT INTO "control_area"("root", "ar_type")
+INSERT INTO "control_area"("root", "catype")
     VALUES ($1, $2)
 RETURNING
     *;
@@ -10,7 +10,7 @@ UPDATE
 SET
     "deleted_at" = TIMESTAMP
 WHERE
-    "aid" = $1
+    "caid" = $1
 RETURNING
     *;
 

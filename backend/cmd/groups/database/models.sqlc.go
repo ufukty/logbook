@@ -65,7 +65,6 @@ type Group struct {
 
 type GroupInviteGroup struct {
 	Ginvid    columns.GroupInviteId
-	Gid       columns.GroupId
 	Inviter   columns.UserId
 	Invitee   columns.GroupId
 	Status    GroupInviteStatus
@@ -74,7 +73,6 @@ type GroupInviteGroup struct {
 
 type GroupInviteUser struct {
 	Ginvid    columns.GroupInviteId
-	Gid       columns.GroupId
 	Inviter   columns.UserId
 	Invitee   columns.UserId
 	Status    GroupInviteStatus
@@ -82,17 +80,19 @@ type GroupInviteUser struct {
 }
 
 type GroupMemberGroup struct {
-	Msid      pgtype.UUID
+	Gmid      columns.GroupMembershipId
 	Gid       interface{}
 	Member    interface{}
+	Ginvid    columns.GroupInviteId
 	CreatedAt pgtype.Timestamp
 	DeletedAt pgtype.Timestamp
 }
 
 type GroupMemberUser struct {
-	Msid      pgtype.UUID
+	Gmid      columns.GroupMembershipId
 	Gid       interface{}
 	Member    interface{}
+	Ginvid    columns.GroupInviteId
 	CreatedAt pgtype.Timestamp
 	DeletedAt pgtype.Timestamp
 }

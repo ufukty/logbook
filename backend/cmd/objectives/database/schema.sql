@@ -2,11 +2,13 @@
 -- CREATE DATABASE logbook;
 -- \c logbook;
 -- ;
-CREATE DOMAIN "AreaId" AS uuid;
+CREATE DOMAIN "ControlAreaId" AS uuid;
 
 CREATE DOMAIN "BookmarkId" AS uuid;
 
 CREATE DOMAIN "CollaborationId" AS uuid;
+
+CREATE DOMAIN "CollaboratorId" AS uuid;
 
 CREATE DOMAIN "LinkId" AS uuid;
 
@@ -195,22 +197,22 @@ CREATE TABLE "bookmark"(
     "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TYPE "AreaType" AS ENUM(
+CREATE TYPE "ControlAreaType" AS ENUM(
     'solo',
     'collaboration'
 );
 
 CREATE TABLE "control_area"(
-    "aid" "AreaId" UNIQUE NOT NULL DEFAULT gen_random_uuid(),
+    "caid" "ControlAreaId" UNIQUE NOT NULL DEFAULT gen_random_uuid(),
     "root" "ObjectiveId" NOT NULL,
-    "ar_type" "AreaType" NOT NULL,
+    "catype" "ControlAreaType" NOT NULL,
     "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "deleted_at" timestamp
 );
 
 CREATE TABLE "collaboration"(
-    "cid" "CollaborationId" UNIQUE NOT NULL DEFAULT gen_random_uuid(),
-    "aid" "AreaId" NOT NULL,
+    "coid" "CollaborationId" UNIQUE NOT NULL DEFAULT gen_random_uuid(),
+    "caid" "ControlAreaId" NOT NULL,
     "creator" "UserId" NOT NULL,
     "admin" "UserId" NOT NULL,
     "leader" "UserId" NOT NULL,
@@ -218,11 +220,18 @@ CREATE TABLE "collaboration"(
     "deleted_at" timestamp
 );
 
-CREATE TABLE "collaborator"(
-    "id" uuid UNIQUE NOT NULL DEFAULT gen_random_uuid(),
-    "cid" "CollaborationId" NOT NULL,
+CREATE TABLE "collaborator_user"(
+    "crid" "CollaboratorId" UNIQUE NOT NULL DEFAULT gen_random_uuid(),
+    "coid" "CollaborationId" NOT NULL,
     "uid" "UserId" NOT NULL,
     "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "deleted_at" timestamp
 );
 
+CREATE TABLE "collaborator_group"(
+    "crid" "CollaboratorId" UNIQUE NOT NULL DEFAULT gen_random_uuid(),
+    "coid" "CollaborationId" NOT NULL,
+    "gid" "GroupId" NOT NULL,
+    "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" timestamp
+);

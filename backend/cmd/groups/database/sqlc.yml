@@ -24,6 +24,11 @@ sql:
               import: "logbook/models/columns"
               type: GroupInviteId
 
+          - db_type: GroupMembershipId
+            go_type:
+              import: "logbook/models/columns"
+              type: GroupMembershipId
+
           - db_type: UserId
             go_type:
               import: "logbook/models/columns"

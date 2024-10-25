@@ -19,17 +19,19 @@ type (
 
 // groups
 type (
-	GroupId       string
-	GroupInviteId string
-	GroupName     string
+	GroupId           string
+	GroupInviteId     string
+	GroupMembershipId string
+	GroupName         string
 )
 
 // objectives
 type (
-	AreaId          string
+	ControlAreaId   string
 	BookmarkId      string
 	BottomUpPropsId string
 	CollaborationId string
+	CollaboratorId  string
 	LinkId          string
 	ObjectiveId     string
 	OperationId     string

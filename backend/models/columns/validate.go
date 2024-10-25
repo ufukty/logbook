@@ -13,7 +13,7 @@ func (v AccessId) Validate() error {
 	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
 }
 
-func (v AreaId) Validate() error {
+func (v ControlAreaId) Validate() error {
 	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
 }
 
@@ -26,6 +26,10 @@ func (v BottomUpPropsId) Validate() error {
 }
 
 func (v CollaborationId) Validate() error {
+	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
+}
+
+func (v CollaboratorId) Validate() error {
 	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
 }
 
@@ -42,6 +46,10 @@ func (v GroupInviteId) Validate() error {
 }
 
 func (v GroupName) Validate() error {
+	return validate.StringBasics(string(v), min_length_group_title, max_length_group_title, regexp_group_title)
+}
+
+func (v GroupMembershipId) Validate() error {
 	return validate.StringBasics(string(v), min_length_group_title, max_length_group_title, regexp_group_title)
 }
 

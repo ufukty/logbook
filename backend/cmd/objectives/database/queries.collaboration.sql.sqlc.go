@@ -17,43 +17,63 @@ UPDATE
 SET
     "deleted_at" = CURRENT_TIMESTAMP
 WHERE
-    "cid" = $1
+    "coid" = $1
 `
 
-func (q *Queries) DeleteCollaboration(ctx context.Context, cid columns.CollaborationId) error {
-	_, err := q.db.Exec(ctx, deleteCollaboration, cid)
+func (q *Queries) DeleteCollaboration(ctx context.Context, coid columns.CollaborationId) error {
+	_, err := q.db.Exec(ctx, deleteCollaboration, coid)
 	return err
 }
 
-const deleteCollaborator = `-- name: DeleteCollaborator :exec
+const deleteGroupTypeCollaboratorByCollaboratorId = `-- name: DeleteGroupTypeCollaboratorByCollaboratorId :exec
 UPDATE
-    "collaborator"
+    "collaborator_group"
 SET
     "deleted_at" = CURRENT_TIMESTAMP
 WHERE
-    "cid" = $1
-    AND "uid" = $2
+    "coid" = $1
+    AND "crid" = $2
 `
 
-type DeleteCollaboratorParams struct {
-	Cid columns.CollaborationId
-	Uid columns.UserId
+type DeleteGroupTypeCollaboratorByCollaboratorIdParams struct {
+	Coid columns.CollaborationId
+	Crid columns.CollaboratorId
 }
 
-func (q *Queries) DeleteCollaborator(ctx context.Context, arg DeleteCollaboratorParams) error {
-	_, err := q.db.Exec(ctx, deleteCollaborator, arg.Cid, arg.Uid)
+func (q *Queries) DeleteGroupTypeCollaboratorByCollaboratorId(ctx context.Context, arg DeleteGroupTypeCollaboratorByCollaboratorIdParams) error {
+	_, err := q.db.Exec(ctx, deleteGroupTypeCollaboratorByCollaboratorId, arg.Coid, arg.Crid)
+	return err
+}
+
+const deleteUserTypeCollaboratorByCollaboratorId = `-- name: DeleteUserTypeCollaboratorByCollaboratorId :exec
+UPDATE
+    "collaborator_user"
+SET
+    "deleted_at" = CURRENT_TIMESTAMP
+WHERE
+    "coid" = $1
+    AND "crid" = $2
+`
+
+type DeleteUserTypeCollaboratorByCollaboratorIdParams struct {
+	Coid columns.CollaborationId
+	Crid columns.CollaboratorId
+}
+
+func (q *Queries) DeleteUserTypeCollaboratorByCollaboratorId(ctx context.Context, arg DeleteUserTypeCollaboratorByCollaboratorIdParams) error {
+	_, err := q.db.Exec(ctx, deleteUserTypeCollaboratorByCollaboratorId, arg.Coid, arg.Crid)
 	return err
 }
 
 const insertCollaboration = `-- name: InsertCollaboration :one
-INSERT INTO "collaboration"("cid", "creator", "admin", "leader")
+INSERT INTO "collaboration"("coid", "creator", "admin", "leader")
     VALUES ($1, $2, $3, $4)
 RETURNING
-    cid, aid, creator, admin, leader, created_at, deleted_at
+    coid, caid, creator, admin, leader, created_at, deleted_at
 `
 
 type InsertCollaborationParams struct {
-	Cid     columns.CollaborationId
+	Coid    columns.CollaborationId
 	Creator columns.UserId
 	Admin   columns.UserId
 	Leader  columns.UserId
@@ -61,15 +81,15 @@ type InsertCollaborationParams struct {
 
 func (q *Queries) InsertCollaboration(ctx context.Context, arg InsertCollaborationParams) (Collaboration, error) {
 	row := q.db.QueryRow(ctx, insertCollaboration,
-		arg.Cid,
+		arg.Coid,
 		arg.Creator,
 		arg.Admin,
 		arg.Leader,
 	)
 	var i Collaboration
 	err := row.Scan(
-		&i.Cid,
-		&i.Aid,
+		&i.Coid,
+		&i.Caid,
 		&i.Creator,
 		&i.Admin,
 		&i.Leader,
@@ -79,24 +99,49 @@ func (q *Queries) InsertCollaboration(ctx context.Context, arg InsertCollaborati
 	return i, err
 }
 
-const insertCollaborator = `-- name: InsertCollaborator :one
-INSERT INTO "collaborator"("cid", "uid")
+const insertGroupTypeCollaborator = `-- name: InsertGroupTypeCollaborator :one
+INSERT INTO "collaborator_group"("coid", "gid")
     VALUES ($1, $2)
 RETURNING
-    id, cid, uid, created_at, deleted_at
+    crid, coid, gid, created_at, deleted_at
 `
 
-type InsertCollaboratorParams struct {
-	Cid columns.CollaborationId
-	Uid columns.UserId
+type InsertGroupTypeCollaboratorParams struct {
+	Coid columns.CollaborationId
+	Gid  columns.GroupId
 }
 
-func (q *Queries) InsertCollaborator(ctx context.Context, arg InsertCollaboratorParams) (Collaborator, error) {
-	row := q.db.QueryRow(ctx, insertCollaborator, arg.Cid, arg.Uid)
-	var i Collaborator
+func (q *Queries) InsertGroupTypeCollaborator(ctx context.Context, arg InsertGroupTypeCollaboratorParams) (CollaboratorGroup, error) {
+	row := q.db.QueryRow(ctx, insertGroupTypeCollaborator, arg.Coid, arg.Gid)
+	var i CollaboratorGroup
 	err := row.Scan(
-		&i.ID,
-		&i.Cid,
+		&i.Crid,
+		&i.Coid,
+		&i.Gid,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const insertUserTypeCollaborator = `-- name: InsertUserTypeCollaborator :one
+INSERT INTO "collaborator_user"("coid", "uid")
+    VALUES ($1, $2)
+RETURNING
+    crid, coid, uid, created_at, deleted_at
+`
+
+type InsertUserTypeCollaboratorParams struct {
+	Coid columns.CollaborationId
+	Uid  columns.UserId
+}
+
+func (q *Queries) InsertUserTypeCollaborator(ctx context.Context, arg InsertUserTypeCollaboratorParams) (CollaboratorUser, error) {
+	row := q.db.QueryRow(ctx, insertUserTypeCollaborator, arg.Coid, arg.Uid)
+	var i CollaboratorUser
+	err := row.Scan(
+		&i.Crid,
+		&i.Coid,
 		&i.Uid,
 		&i.CreatedAt,
 		&i.DeletedAt,
@@ -104,109 +149,66 @@ func (q *Queries) InsertCollaborator(ctx context.Context, arg InsertCollaborator
 	return i, err
 }
 
-const selectCollaboration = `-- name: SelectCollaboration :one
+const listGroupTypeCollaborators = `-- name: ListGroupTypeCollaborators :many
 SELECT
-    cid, aid, creator, admin, leader, created_at, deleted_at
+    crid, coid, gid, created_at, deleted_at
 FROM
-    "collaboration"
+    "collaborator_group"
 WHERE
-    "cid" = $1
-`
-
-func (q *Queries) SelectCollaboration(ctx context.Context, cid columns.CollaborationId) (Collaboration, error) {
-	row := q.db.QueryRow(ctx, selectCollaboration, cid)
-	var i Collaboration
-	err := row.Scan(
-		&i.Cid,
-		&i.Aid,
-		&i.Creator,
-		&i.Admin,
-		&i.Leader,
-		&i.CreatedAt,
-		&i.DeletedAt,
-	)
-	return i, err
-}
-
-const selectCollaborationOnControlArea = `-- name: SelectCollaborationOnControlArea :one
-SELECT
-    cid, aid, creator, admin, leader, created_at, deleted_at
-FROM
-    "collaboration"
-WHERE
-    "aid" = $1
-    AND "deleted_at" IS NULL
-LIMIT 50
-`
-
-func (q *Queries) SelectCollaborationOnControlArea(ctx context.Context, aid columns.AreaId) (Collaboration, error) {
-	row := q.db.QueryRow(ctx, selectCollaborationOnControlArea, aid)
-	var i Collaboration
-	err := row.Scan(
-		&i.Cid,
-		&i.Aid,
-		&i.Creator,
-		&i.Admin,
-		&i.Leader,
-		&i.CreatedAt,
-		&i.DeletedAt,
-	)
-	return i, err
-}
-
-const selectCollaborator = `-- name: SelectCollaborator :one
-SELECT
-    id, cid, uid, created_at, deleted_at
-FROM
-    "collaborator"
-WHERE
-    "cid" = $1
-    AND "uid" = $2
-    AND "deleted_at" IS NULL
-LIMIT 1
-`
-
-type SelectCollaboratorParams struct {
-	Cid columns.CollaborationId
-	Uid columns.UserId
-}
-
-func (q *Queries) SelectCollaborator(ctx context.Context, arg SelectCollaboratorParams) (Collaborator, error) {
-	row := q.db.QueryRow(ctx, selectCollaborator, arg.Cid, arg.Uid)
-	var i Collaborator
-	err := row.Scan(
-		&i.ID,
-		&i.Cid,
-		&i.Uid,
-		&i.CreatedAt,
-		&i.DeletedAt,
-	)
-	return i, err
-}
-
-const selectCollaborators = `-- name: SelectCollaborators :many
-SELECT
-    id, cid, uid, created_at, deleted_at
-FROM
-    "collaborator"
-WHERE
-    "cid" = $1
+    "coid" = $1
     AND "deleted_at" IS NULL
 LIMIT 100
 `
 
-func (q *Queries) SelectCollaborators(ctx context.Context, cid columns.CollaborationId) ([]Collaborator, error) {
-	rows, err := q.db.Query(ctx, selectCollaborators, cid)
+func (q *Queries) ListGroupTypeCollaborators(ctx context.Context, coid columns.CollaborationId) ([]CollaboratorGroup, error) {
+	rows, err := q.db.Query(ctx, listGroupTypeCollaborators, coid)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Collaborator
+	var items []CollaboratorGroup
 	for rows.Next() {
-		var i Collaborator
+		var i CollaboratorGroup
 		if err := rows.Scan(
-			&i.ID,
-			&i.Cid,
+			&i.Crid,
+			&i.Coid,
+			&i.Gid,
+			&i.CreatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listUserTypeCollaborators = `-- name: ListUserTypeCollaborators :many
+SELECT
+    crid, coid, uid, created_at, deleted_at
+FROM
+    "collaborator_user"
+WHERE
+    "coid" = $1
+    AND "deleted_at" IS NULL
+LIMIT 100
+`
+
+func (q *Queries) ListUserTypeCollaborators(ctx context.Context, coid columns.CollaborationId) ([]CollaboratorUser, error) {
+	rows, err := q.db.Query(ctx, listUserTypeCollaborators, coid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []CollaboratorUser
+	for rows.Next() {
+		var i CollaboratorUser
+		if err := rows.Scan(
+			&i.Crid,
+			&i.Coid,
 			&i.Uid,
 			&i.CreatedAt,
 			&i.DeletedAt,
@@ -219,4 +221,114 @@ func (q *Queries) SelectCollaborators(ctx context.Context, cid columns.Collabora
 		return nil, err
 	}
 	return items, nil
+}
+
+const selectCollaboration = `-- name: SelectCollaboration :one
+SELECT
+    coid, caid, creator, admin, leader, created_at, deleted_at
+FROM
+    "collaboration"
+WHERE
+    "coid" = $1
+`
+
+func (q *Queries) SelectCollaboration(ctx context.Context, coid columns.CollaborationId) (Collaboration, error) {
+	row := q.db.QueryRow(ctx, selectCollaboration, coid)
+	var i Collaboration
+	err := row.Scan(
+		&i.Coid,
+		&i.Caid,
+		&i.Creator,
+		&i.Admin,
+		&i.Leader,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const selectCollaborationOnControlArea = `-- name: SelectCollaborationOnControlArea :one
+SELECT
+    coid, caid, creator, admin, leader, created_at, deleted_at
+FROM
+    "collaboration"
+WHERE
+    "caid" = $1
+    AND "deleted_at" IS NULL
+LIMIT 50
+`
+
+func (q *Queries) SelectCollaborationOnControlArea(ctx context.Context, caid columns.ControlAreaId) (Collaboration, error) {
+	row := q.db.QueryRow(ctx, selectCollaborationOnControlArea, caid)
+	var i Collaboration
+	err := row.Scan(
+		&i.Coid,
+		&i.Caid,
+		&i.Creator,
+		&i.Admin,
+		&i.Leader,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const selectGroupTypeCollaboratorByGroupId = `-- name: SelectGroupTypeCollaboratorByGroupId :one
+SELECT
+    crid, coid, gid, created_at, deleted_at
+FROM
+    "collaborator_group"
+WHERE
+    "coid" = $1
+    AND "gid" = $2
+    AND "deleted_at" IS NULL
+LIMIT 1
+`
+
+type SelectGroupTypeCollaboratorByGroupIdParams struct {
+	Coid columns.CollaborationId
+	Gid  columns.GroupId
+}
+
+func (q *Queries) SelectGroupTypeCollaboratorByGroupId(ctx context.Context, arg SelectGroupTypeCollaboratorByGroupIdParams) (CollaboratorGroup, error) {
+	row := q.db.QueryRow(ctx, selectGroupTypeCollaboratorByGroupId, arg.Coid, arg.Gid)
+	var i CollaboratorGroup
+	err := row.Scan(
+		&i.Crid,
+		&i.Coid,
+		&i.Gid,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const selectUserTypeCollaboratorByUserId = `-- name: SelectUserTypeCollaboratorByUserId :one
+SELECT
+    crid, coid, uid, created_at, deleted_at
+FROM
+    "collaborator_user"
+WHERE
+    "coid" = $1
+    AND "uid" = $2
+    AND "deleted_at" IS NULL
+LIMIT 1
+`
+
+type SelectUserTypeCollaboratorByUserIdParams struct {
+	Coid columns.CollaborationId
+	Uid  columns.UserId
+}
+
+func (q *Queries) SelectUserTypeCollaboratorByUserId(ctx context.Context, arg SelectUserTypeCollaboratorByUserIdParams) (CollaboratorUser, error) {
+	row := q.db.QueryRow(ctx, selectUserTypeCollaboratorByUserId, arg.Coid, arg.Uid)
+	var i CollaboratorUser
+	err := row.Scan(
+		&i.Crid,
+		&i.Coid,
+		&i.Uid,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
 }
