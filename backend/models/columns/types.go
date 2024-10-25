@@ -23,6 +23,7 @@ type (
 	GroupInviteId     string
 	GroupMembershipId string
 	GroupName         string
+	DelegationId      string
 )
 
 // objectives

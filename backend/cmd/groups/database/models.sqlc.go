@@ -55,6 +55,15 @@ func (ns NullGroupInviteStatus) Value() (driver.Value, error) {
 	return string(ns.GroupInviteStatus), nil
 }
 
+type Delegation struct {
+	Delid     columns.DelegationId
+	Caid      columns.ControlAreaId
+	Delegator columns.UserId
+	Delegee   columns.UserId
+	CreatedAt pgtype.Timestamp
+	DeletedAt pgtype.Timestamp
+}
+
 type Group struct {
 	Gid       columns.GroupId
 	Name      string

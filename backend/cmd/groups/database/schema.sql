@@ -6,6 +6,10 @@ CREATE DOMAIN "GroupInviteId" AS uuid;
 
 CREATE DOMAIN "UserId" AS uuid;
 
+CREATE DOMAIN "DelegationId" AS uuid;
+
+CREATE DOMAIN "ControlAreaId" AS uuid;
+
 CREATE TABLE "group"(
     "gid" "GroupId" NOT NULL UNIQUE DEFAULT gen_random_uuid(),
     "name" text NOT NULL,
@@ -53,5 +57,14 @@ CREATE TABLE "group_invite_group"(
     "invitee" "GroupId" NOT NULL,
     "status" "GroupInviteStatus" NOT NULL DEFAULT 'sent',
     "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE "delegation"(
+    "delid" "DelegationId" NOT NULL UNIQUE DEFAULT gen_random_uuid(),
+    "caid" "ControlAreaId" NOT NULL,
+    "delegator" "UserId" NOT NULL,
+    "delegee" "UserId" NOT NULL,
+    "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" timestamp
 );
 

@@ -33,3 +33,13 @@ sql:
             go_type:
               import: "logbook/models/columns"
               type: UserId
+
+          - db_type: DelegationId
+            go_type:
+              import: "logbook/models/columns"
+              type: DelegationId
+
+          - db_type: ControlAreaId
+            go_type:
+              import: "logbook/models/columns"
+              type: ControlAreaId
