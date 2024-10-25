@@ -15,7 +15,7 @@ control_area: {
 collaboration: {
   shape: sql_table
 
-  cid: CollaborationId
+  coid: CollaborationId
   caid: ControlAreaId
 
   creator: UserId
@@ -23,13 +23,14 @@ collaboration: {
   leader: UserId
 
   created_at: timestamp
-  disabled_at: timestamp
+  deleted_at: timestamp
 }
 
 collaborator_group: {
   shape: sql_table
 
-  cid: CollaborationId
+  crid: CollaboratorId
+  coid: CollaborationId
   gid: GroupId
 
   created_at: timestamp
@@ -39,7 +40,8 @@ collaborator_group: {
 collaborator_user: {
   shape: sql_table
 
-  cid: CollaborationId
+  crid: CollaboratorId
+  coid: CollaborationId
   uid: UserId
 
   created_at: timestamp
@@ -125,8 +127,8 @@ objective.oid -- control_area.root
 control_area.caid -- delegation.caid
 control_area.caid -- collaboration.caid
 
-collaboration.cid -- collaborator_group.cid
-collaboration.cid -- collaborator_user.cid
+collaboration.coid -- collaborator_group.coid
+collaboration.coid -- collaborator_user.coid
 
 group.gid -- collaborator_group.gid
 
