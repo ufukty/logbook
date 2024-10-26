@@ -3,16 +3,13 @@
 package api
 
 import (
+	"fmt"
 	"gopkg.in/yaml.v3"
 	"os"
-	"fmt"
 )
 
-func (r Registry) Range() map[string]RegistryPrivate {
-	return map[string]RegistryPrivate{"private": r.Private}
-}
-func (g Groups) Range() map[string]GroupsPublic {
-	return map[string]GroupsPublic{"public": g.Public}
+func (t Tags) Range() map[string]TagsPublic {
+	return map[string]TagsPublic{"public": t.Public}
 }
 func (a ApiGateway) Range() map[string]Services {
 	return map[string]Services{"services": a.Services}
@@ -20,8 +17,8 @@ func (a ApiGateway) Range() map[string]Services {
 func (i InternalGateway) Range() map[string]InternalGatewayServices {
 	return map[string]InternalGatewayServices{"services": i.Services}
 }
-func (t Tags) Range() map[string]TagsPublic {
-	return map[string]TagsPublic{"public": t.Public}
+func (r Registry) Range() map[string]RegistryPrivate {
+	return map[string]RegistryPrivate{"private": r.Private}
 }
 
 type Account struct {
@@ -32,7 +29,12 @@ type ApiGateway struct {
 	Services Services `yaml:"services"`
 }
 type Groups struct {
-	Public GroupsPublic `yaml:"public"`
+	Private GroupsPrivate `yaml:"private"`
+	Public  GroupsPublic  `yaml:"public"`
+}
+type GroupsPrivate struct {
+	MembershipCheck endpoint `yaml:"membership_check"`
+	Parent          any      `yaml:"-"`
 }
 type GroupsPublic struct {
 	Create endpoint `yaml:"create"`
@@ -132,6 +134,8 @@ func parentRefAssignments(c *Config) {
 	c.Account.Public.VerifyPhone.Parent = &c.Account.Public
 	c.Account.Public.Whoami.Parent = &c.Account.Public
 	c.ApiGateway.Services.Parent = &c.ApiGateway
+	c.Groups.Private.Parent = &c.Groups
+	c.Groups.Private.MembershipCheck.Parent = &c.Groups.Private
 	c.Groups.Public.Parent = &c.Groups
 	c.Groups.Public.Create.Parent = &c.Groups.Public
 	c.InternalGateway.Services.Parent = &c.InternalGateway
@@ -164,6 +168,9 @@ func ReadConfig(path string) (*Config, error) {
 	}
 	parentRefAssignments(c)
 	return c, nil
+}
+func (g GroupsPrivate) GetParent() any {
+	return g.Parent
 }
 func (g GroupsPublic) GetParent() any {
 	return g.Parent

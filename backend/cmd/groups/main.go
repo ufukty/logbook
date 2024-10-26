@@ -4,7 +4,8 @@ import (
 	"context"
 	"fmt"
 	"logbook/cmd/groups/app"
-	public "logbook/cmd/groups/endpoints/public"
+	"logbook/cmd/groups/endpoints/private"
+	"logbook/cmd/groups/endpoints/public"
 	"logbook/cmd/groups/service"
 	registry "logbook/cmd/registry/client"
 	"logbook/config/api"
@@ -43,11 +44,17 @@ func Main() error {
 
 	a := app.New(pool)
 	pub := public.New(a, l)
+	pri := private.New(a, l)
 
 	agent := reception.NewAgent(deplcfg, l)
-	err = agent.RegisterEndpoints(map[api.Endpoint]http.HandlerFunc{
-		apicfg.Groups.Public.Create: pub.CreateGroup,
-	}, nil)
+	err = agent.RegisterEndpoints(
+		map[api.Endpoint]http.HandlerFunc{
+			apicfg.Groups.Public.Create: pub.CreateGroup,
+		},
+		map[api.Endpoint]http.HandlerFunc{
+			apicfg.Groups.Private.MembershipCheck: pri.MembershipCheck,
+		},
+	)
 	if err != nil {
 		return fmt.Errorf("agent.RegisterEndpoints: %w", err)
 	}

@@ -23,10 +23,12 @@ account:
     totp: { method: POST, path: "/registration/totp" }
   private:
     who-is: { method: POST, path: "/whois" }
-    
+
 groups:
   public:
-    create: { method: POST, path: "group" }
+    create: { method: POST, path: "/group" }
+  private:
+    membership_check: { method: GET, path: "/membership/{gid}/{uid}" }
 
 objectives:
   public:

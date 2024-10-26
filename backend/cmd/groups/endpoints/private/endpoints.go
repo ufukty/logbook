@@ -1,4 +1,4 @@
-package public
+package private
 
 import (
 	"logbook/cmd/groups/app"
@@ -13,6 +13,6 @@ type Endpoints struct {
 func New(a *app.App, l *logger.Logger) *Endpoints {
 	return &Endpoints{
 		a: a,
-		l: l.Sub("endpoints(public)"),
+		l: l.Sub("endpoints(private)"),
 	}
 }
