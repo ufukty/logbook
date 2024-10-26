@@ -41,8 +41,8 @@ func Main() error {
 	}, l)
 	defer sc.Stop()
 
-	pub := public.New(apicfg, deplcfg, pool, sc, l)
-	pri := private.New(apicfg, deplcfg, pool, l)
+	pub := public.New(apicfg, pool, sc, l)
+	pri := private.New(apicfg, pool, l)
 
 	agent := reception.NewAgent(deplcfg, l)
 	err = agent.RegisterEndpoints(pub.Endpoints(), pri.Endpoints())

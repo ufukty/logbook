@@ -5,7 +5,6 @@ import (
 	"logbook/cmd/account/api/public/endpoints"
 	objectives "logbook/cmd/objectives/client"
 	"logbook/config/api"
-	"logbook/config/deployment"
 	"logbook/internal/logger"
 	"logbook/internal/web/balancer"
 	"logbook/internal/web/sidecar"
@@ -16,14 +15,13 @@ import (
 )
 
 type Public struct {
-	pool    *pgxpool.Pool
-	apicfg  *api.Config
-	deplcfg *deployment.Config
-	em      *endpoints.Endpoints
-	l       *logger.Logger
+	pool   *pgxpool.Pool
+	apicfg *api.Config
+	em     *endpoints.Endpoints
+	l      *logger.Logger
 }
 
-func New(apicfg *api.Config, deplcfg *deployment.Config, pool *pgxpool.Pool, sc *sidecar.Sidecar, l *logger.Logger) *Public {
+func New(apicfg *api.Config, pool *pgxpool.Pool, sc *sidecar.Sidecar, l *logger.Logger) *Public {
 	l = l.Sub("Public")
 
 	objectives := objectives.NewClient(balancer.New(sc.InstanceSource(models.Objectives)), apicfg)
@@ -31,11 +29,10 @@ func New(apicfg *api.Config, deplcfg *deployment.Config, pool *pgxpool.Pool, sc 
 	em := endpoints.New(app, l)
 
 	return &Public{
-		pool:    pool,
-		apicfg:  apicfg,
-		deplcfg: deplcfg,
-		em:      em,
-		l:       l,
+		pool:   pool,
+		apicfg: apicfg,
+		em:     em,
+		l:      l,
 	}
 }
 
