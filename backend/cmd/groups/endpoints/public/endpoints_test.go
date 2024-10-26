@@ -3,7 +3,7 @@ package endpoints
 import (
 	"context"
 	"fmt"
-	"logbook/cmd/groups/api/public/app"
+	"logbook/cmd/groups/app"
 	"logbook/cmd/groups/database"
 	"logbook/cmd/groups/service"
 	"logbook/internal/startup"

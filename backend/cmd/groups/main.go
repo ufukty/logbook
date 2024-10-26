@@ -3,9 +3,11 @@ package main
 import (
 	"context"
 	"fmt"
-	"logbook/cmd/groups/api/public"
+	"logbook/cmd/groups/app"
+	public "logbook/cmd/groups/endpoints/public"
 	"logbook/cmd/groups/service"
 	registry "logbook/cmd/registry/client"
+	"logbook/config/api"
 	"logbook/internal/startup"
 	"logbook/internal/web/balancer"
 	"logbook/internal/web/reception"
@@ -13,6 +15,7 @@ import (
 	"logbook/internal/web/router"
 	"logbook/internal/web/sidecar"
 	"logbook/models"
+	"net/http"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -38,10 +41,13 @@ func Main() error {
 	sc := sidecar.New(registry.NewClient(balancer.New(internalsd), apicfg, true), deplcfg, []models.Service{}, l)
 	defer sc.Stop()
 
-	pub := public.New(apicfg, deplcfg, pool, sc, l)
+	a := app.New(pool)
+	pub := public.New(a, l)
 
 	agent := reception.NewAgent(deplcfg, l)
-	err = agent.RegisterEndpoints(pub.Endpoints(), nil)
+	err = agent.RegisterEndpoints(map[api.Endpoint]http.HandlerFunc{
+		apicfg.Groups.Public.Create: pub.CreateGroup,
+	}, nil)
 	if err != nil {
 		return fmt.Errorf("agent.RegisterEndpoints: %w", err)
 	}
