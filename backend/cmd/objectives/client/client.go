@@ -1,7 +1,7 @@
 package objectives
 
 import (
-	"logbook/cmd/objectives/api/private/endpoints"
+	"logbook/cmd/objectives/endpoints/private"
 	"logbook/config/api"
 	"logbook/internal/web/balancer"
 	"logbook/internal/web/requests"
@@ -20,6 +20,6 @@ func NewClient(lb *balancer.LoadBalancer, apicfg *api.Config) *Client {
 	}
 }
 
-func (c *Client) RockCreate(bq *endpoints.RockCreateRequest) (*http.Response, error) {
+func (c *Client) RockCreate(bq *private.RockCreateRequest) (*http.Response, error) {
 	return requests.BalancedSendRaw(c.lb, "", c.servicecfg.Private.RockCreate, bq)
 }

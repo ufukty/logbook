@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"logbook/cmd/account/database"
-	"logbook/cmd/objectives/api/private/endpoints"
+	"logbook/cmd/objectives/endpoints/private"
 	"logbook/models/columns"
 	"time"
 
@@ -79,7 +79,7 @@ func (a *App) CreateAccount(ctx context.Context, params CreateAccountRequest) er
 		return fmt.Errorf("inserting profile information into database: %w", err)
 	}
 
-	r, err := a.objectives.RockCreate(&endpoints.RockCreateRequest{
+	r, err := a.objectives.RockCreate(&private.RockCreateRequest{
 		UserId: user.Uid,
 	})
 	if err != nil {

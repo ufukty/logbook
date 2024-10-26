@@ -1,4 +1,4 @@
-package endpoints
+package private
 
 import (
 	"fmt"

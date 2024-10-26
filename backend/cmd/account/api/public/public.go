@@ -3,7 +3,7 @@ package public
 import (
 	"logbook/cmd/account/api/public/app"
 	"logbook/cmd/account/api/public/endpoints"
-	objectives "logbook/cmd/objectives/api/private/client"
+	objectives "logbook/cmd/objectives/client"
 	"logbook/config/api"
 	"logbook/config/deployment"
 	"logbook/internal/logger"

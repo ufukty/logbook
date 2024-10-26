@@ -1,4 +1,4 @@
-package endpoints
+package private
 
 import (
 	"logbook/cmd/objectives/app"
