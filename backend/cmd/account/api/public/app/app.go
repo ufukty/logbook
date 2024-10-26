@@ -1,8 +1,9 @@
 package app
 
 import (
-	"logbook/cmd/account/api/public/app/authz"
 	"logbook/cmd/account/database"
+	"logbook/cmd/account/permissions"
+	"logbook/cmd/account/sessions"
 	objectives "logbook/cmd/objectives/client"
 	"logbook/config/api"
 
@@ -10,16 +11,17 @@ import (
 )
 
 type App struct {
-	authz   *authz.Authorization
+	pd      *permissions.Decider
 	pool    *pgxpool.Pool
 	oneshot *database.Queries
+	s       *sessions.Sessions
 
 	objectives *objectives.Client
 }
 
 func New(pool *pgxpool.Pool, apicfg *api.Config, objectivesctl *objectives.Client) *App {
 	return &App{
-		authz:      authz.New(database.New(pool)),
+		pd:         permissions.New(database.New(pool)),
 		pool:       pool,
 		oneshot:    database.New(pool),
 		objectives: objectivesctl,

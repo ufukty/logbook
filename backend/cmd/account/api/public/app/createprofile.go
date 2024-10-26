@@ -15,7 +15,12 @@ type CreateProfileParams struct {
 }
 
 func (a App) CreateProfile(ctx context.Context, params CreateProfileParams) error {
-	err := a.authz.AssertCanSetProfile(ctx, params.SessionToken, params.Uid)
+	uid, err := a.s.UserForSessionToken(ctx, params.SessionToken)
+	if err != nil {
+		return fmt.Errorf("UserForSessionToken: %w", err)
+	}
+
+	err = a.pd.CanUserSetProfile(ctx, uid, params.Uid)
 	if err != nil {
 		return fmt.Errorf("checking authorization: %w", err)
 	}
