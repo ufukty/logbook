@@ -11,42 +11,46 @@ internal-gateway:
 
 account:
   public:
-    create_profile: { method: POST, path: "/profile" }
-    create_account: { method: POST, path: "/account" }
-    login: { method: POST, path: "/login" }
-    logout: { method: POST, path: "/logout" }
-    whoami: { method: GET, path: "/whoami" }
-    reserve_username: { method: POST, path: "/registration/reserve_username" }
-    verify_phone: { method: POST, path: "/registration/verify/phone" }
-    verify_email: { method: POST, path: "/registration/verify/email" }
-    register: { method: POST, path: "/registration/register" }
-    totp: { method: POST, path: "/registration/totp" }
+    create_profile: POST /profile
+    create_account: POST /account
+    login: POST /login
+    logout: POST /logout
+    whoami: GET /whoami
+    reserve_username: POST /registration/reserve_username
+    verify_phone: POST /registration/verify/phone
+    verify_email: POST /registration/verify/email
+    register: POST /registration/register
+    totp: POST /registration/totp
   private:
-    who-is: { method: POST, path: "/whois" }
+    who-is: POST /whois
 
 groups:
   public:
-    create: { method: POST, path: "/group" }
+    create: POST /group
   private:
-    membership_check: { method: GET, path: "/membership/{gid}/{uid}" }
+    membership_check: GET /group/{gid}/member/{uid}/indirect
+
+idp:
+  private:
+    group_check_eventual_membership: GET /group/membership/{gid}/{uid}
 
 objectives:
   public:
-    attach: { method: POST, path: "/attach" }
-    create: { method: POST, path: "/" }
-    delete: { method: POST, path: "/delete" }
-    placement: { method: GET, path: "/{root}/placement" }
-    mark: { method: POST, path: "/mark" }
+    attach: POST /attach
+    create: POST /
+    delete: POST /delete
+    placement: GET /{root}/placement
+    mark: POST /mark
   private:
-    rock-create: { method: POST, path: "/rock" }
+    rock-create: POST /rock
 
 tags:
   public:
-    creation: { method: POST, path: "/" }
-    assign: { method: POST, path: "/assign" }
+    creation: POST /
+    assign: POST /assign
 
 registry:
   private:
-    register-instance: { method: POST, path: "/register" }
-    list-instances: { method: GET, path: "/list/{service}" }
-    recheck-instance: { method: POST, path: "/recheck" }
+    register-instance: POST /register
+    list-instances: GET /list/{service}
+    recheck-instance: POST /recheck

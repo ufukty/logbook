@@ -8,17 +8,53 @@ import (
 	"os"
 )
 
-func (t Tags) Range() map[string]TagsPublic {
-	return map[string]TagsPublic{"public": t.Public}
+func (p Public) Range() map[string]Endpoint {
+	return map[string]Endpoint{"create_account": p.CreateAccount, "create_profile": p.CreateProfile, "login": p.Login, "logout": p.Logout, "register": p.Register, "reserve_username": p.ReserveUsername, "totp": p.Totp, "verify_email": p.VerifyEmail, "verify_phone": p.VerifyPhone, "whoami": p.Whoami}
 }
-func (a ApiGateway) Range() map[string]Services {
-	return map[string]Services{"services": a.Services}
+func (i InternalGatewayServices) Range() map[string]string {
+	return map[string]string{"registry": i.Registry}
+}
+func (i Idp) Range() map[string]IdpPrivate {
+	return map[string]IdpPrivate{"private": i.Private}
+}
+func (g GroupsPrivate) Range() map[string]Endpoint {
+	return map[string]Endpoint{"membership_check": g.MembershipCheck}
+}
+func (t TagsPublic) Range() map[string]Endpoint {
+	return map[string]Endpoint{"assign": t.Assign, "creation": t.Creation}
+}
+func (o ObjectivesPublic) Range() map[string]Endpoint {
+	return map[string]Endpoint{"attach": o.Attach, "create": o.Create, "delete": o.Delete, "mark": o.Mark, "placement": o.Placement}
 }
 func (i InternalGateway) Range() map[string]InternalGatewayServices {
 	return map[string]InternalGatewayServices{"services": i.Services}
 }
+func (s Services) Range() map[string]string {
+	return map[string]string{"account": s.Account, "groups": s.Groups, "objectives": s.Objectives, "tags": s.Tags}
+}
 func (r Registry) Range() map[string]RegistryPrivate {
 	return map[string]RegistryPrivate{"private": r.Private}
+}
+func (i IdpPrivate) Range() map[string]Endpoint {
+	return map[string]Endpoint{"group_check_eventual_membership": i.GroupCheckEventualMembership}
+}
+func (r RegistryPrivate) Range() map[string]Endpoint {
+	return map[string]Endpoint{"list-instances": r.ListInstances, "recheck-instance": r.RecheckInstance, "register-instance": r.RegisterInstance}
+}
+func (g GroupsPublic) Range() map[string]Endpoint {
+	return map[string]Endpoint{"create": g.Create}
+}
+func (t Tags) Range() map[string]TagsPublic {
+	return map[string]TagsPublic{"public": t.Public}
+}
+func (p Private) Range() map[string]Endpoint {
+	return map[string]Endpoint{"who-is": p.WhoIs}
+}
+func (a ApiGateway) Range() map[string]Services {
+	return map[string]Services{"services": a.Services}
+}
+func (o ObjectivesPrivate) Range() map[string]Endpoint {
+	return map[string]Endpoint{"rock-create": o.RockCreate}
 }
 
 type Account struct {
@@ -33,128 +69,84 @@ type Groups struct {
 	Public  GroupsPublic  `yaml:"public"`
 }
 type GroupsPrivate struct {
-	MembershipCheck endpoint `yaml:"membership_check"`
-	Parent          any      `yaml:"-"`
+	MembershipCheck Endpoint `yaml:"membership_check"`
 }
 type GroupsPublic struct {
-	Create endpoint `yaml:"create"`
-	Parent any      `yaml:"-"`
+	Create Endpoint `yaml:"create"`
+}
+type Idp struct {
+	Private IdpPrivate `yaml:"private"`
+}
+type IdpPrivate struct {
+	GroupCheckEventualMembership Endpoint `yaml:"group_check_eventual_membership"`
 }
 type InternalGateway struct {
 	Services InternalGatewayServices `yaml:"services"`
 }
 type InternalGatewayServices struct {
 	Registry string `yaml:"registry"`
-	Parent   any    `yaml:"-"`
 }
 type Objectives struct {
 	Private ObjectivesPrivate `yaml:"private"`
 	Public  ObjectivesPublic  `yaml:"public"`
 }
 type ObjectivesPrivate struct {
-	RockCreate endpoint `yaml:"rock-create"`
-	Parent     any      `yaml:"-"`
+	RockCreate Endpoint `yaml:"rock-create"`
 }
 type ObjectivesPublic struct {
-	Attach    endpoint `yaml:"attach"`
-	Create    endpoint `yaml:"create"`
-	Delete    endpoint `yaml:"delete"`
-	Mark      endpoint `yaml:"mark"`
-	Placement endpoint `yaml:"placement"`
-	Parent    any      `yaml:"-"`
+	Attach    Endpoint `yaml:"attach"`
+	Create    Endpoint `yaml:"create"`
+	Delete    Endpoint `yaml:"delete"`
+	Mark      Endpoint `yaml:"mark"`
+	Placement Endpoint `yaml:"placement"`
 }
 type Private struct {
-	WhoIs  endpoint `yaml:"who-is"`
-	Parent any      `yaml:"-"`
+	WhoIs Endpoint `yaml:"who-is"`
 }
 type Public struct {
-	CreateAccount   endpoint `yaml:"create_account"`
-	CreateProfile   endpoint `yaml:"create_profile"`
-	Login           endpoint `yaml:"login"`
-	Logout          endpoint `yaml:"logout"`
-	Register        endpoint `yaml:"register"`
-	ReserveUsername endpoint `yaml:"reserve_username"`
-	Totp            endpoint `yaml:"totp"`
-	VerifyEmail     endpoint `yaml:"verify_email"`
-	VerifyPhone     endpoint `yaml:"verify_phone"`
-	Whoami          endpoint `yaml:"whoami"`
-	Parent          any      `yaml:"-"`
+	CreateAccount   Endpoint `yaml:"create_account"`
+	CreateProfile   Endpoint `yaml:"create_profile"`
+	Login           Endpoint `yaml:"login"`
+	Logout          Endpoint `yaml:"logout"`
+	Register        Endpoint `yaml:"register"`
+	ReserveUsername Endpoint `yaml:"reserve_username"`
+	Totp            Endpoint `yaml:"totp"`
+	VerifyEmail     Endpoint `yaml:"verify_email"`
+	VerifyPhone     Endpoint `yaml:"verify_phone"`
+	Whoami          Endpoint `yaml:"whoami"`
 }
 type Registry struct {
 	Private RegistryPrivate `yaml:"private"`
 }
 type RegistryPrivate struct {
-	ListInstances    endpoint `yaml:"list-instances"`
-	RecheckInstance  endpoint `yaml:"recheck-instance"`
-	RegisterInstance endpoint `yaml:"register-instance"`
-	Parent           any      `yaml:"-"`
+	ListInstances    Endpoint `yaml:"list-instances"`
+	RecheckInstance  Endpoint `yaml:"recheck-instance"`
+	RegisterInstance Endpoint `yaml:"register-instance"`
 }
 type Services struct {
 	Account    string `yaml:"account"`
 	Groups     string `yaml:"groups"`
 	Objectives string `yaml:"objectives"`
 	Tags       string `yaml:"tags"`
-	Parent     any    `yaml:"-"`
 }
 type Tags struct {
 	Public TagsPublic `yaml:"public"`
 }
 type TagsPublic struct {
-	Assign   endpoint `yaml:"assign"`
-	Creation endpoint `yaml:"creation"`
-	Parent   any      `yaml:"-"`
-}
-type endpoint struct {
-	Method string `yaml:"method"`
-	Path   string `yaml:"path"`
-	Parent any    `yaml:"-"`
+	Assign   Endpoint `yaml:"assign"`
+	Creation Endpoint `yaml:"creation"`
 }
 type Config struct {
 	Account         Account         `yaml:"account"`
 	ApiGateway      ApiGateway      `yaml:"api-gateway"`
 	Groups          Groups          `yaml:"groups"`
+	Idp             Idp             `yaml:"idp"`
 	InternalGateway InternalGateway `yaml:"internal-gateway"`
 	Objectives      Objectives      `yaml:"objectives"`
 	Registry        Registry        `yaml:"registry"`
 	Tags            Tags            `yaml:"tags"`
 }
 
-func parentRefAssignments(c *Config) {
-	c.Account.Private.Parent = &c.Account
-	c.Account.Private.WhoIs.Parent = &c.Account.Private
-	c.Account.Public.Parent = &c.Account
-	c.Account.Public.CreateAccount.Parent = &c.Account.Public
-	c.Account.Public.CreateProfile.Parent = &c.Account.Public
-	c.Account.Public.Login.Parent = &c.Account.Public
-	c.Account.Public.Logout.Parent = &c.Account.Public
-	c.Account.Public.Register.Parent = &c.Account.Public
-	c.Account.Public.ReserveUsername.Parent = &c.Account.Public
-	c.Account.Public.Totp.Parent = &c.Account.Public
-	c.Account.Public.VerifyEmail.Parent = &c.Account.Public
-	c.Account.Public.VerifyPhone.Parent = &c.Account.Public
-	c.Account.Public.Whoami.Parent = &c.Account.Public
-	c.ApiGateway.Services.Parent = &c.ApiGateway
-	c.Groups.Private.Parent = &c.Groups
-	c.Groups.Private.MembershipCheck.Parent = &c.Groups.Private
-	c.Groups.Public.Parent = &c.Groups
-	c.Groups.Public.Create.Parent = &c.Groups.Public
-	c.InternalGateway.Services.Parent = &c.InternalGateway
-	c.Objectives.Private.Parent = &c.Objectives
-	c.Objectives.Private.RockCreate.Parent = &c.Objectives.Private
-	c.Objectives.Public.Parent = &c.Objectives
-	c.Objectives.Public.Attach.Parent = &c.Objectives.Public
-	c.Objectives.Public.Create.Parent = &c.Objectives.Public
-	c.Objectives.Public.Delete.Parent = &c.Objectives.Public
-	c.Objectives.Public.Mark.Parent = &c.Objectives.Public
-	c.Objectives.Public.Placement.Parent = &c.Objectives.Public
-	c.Registry.Private.Parent = &c.Registry
-	c.Registry.Private.ListInstances.Parent = &c.Registry.Private
-	c.Registry.Private.RecheckInstance.Parent = &c.Registry.Private
-	c.Registry.Private.RegisterInstance.Parent = &c.Registry.Private
-	c.Tags.Public.Parent = &c.Tags
-	c.Tags.Public.Assign.Parent = &c.Tags.Public
-	c.Tags.Public.Creation.Parent = &c.Tags.Public
-}
 func ReadConfig(path string) (*Config, error) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -166,51 +158,5 @@ func ReadConfig(path string) (*Config, error) {
 	if err != nil {
 		return nil, fmt.Errorf("decoding config file: %w", err)
 	}
-	parentRefAssignments(c)
 	return c, nil
-}
-func (g GroupsPrivate) GetParent() any {
-	return g.Parent
-}
-func (g GroupsPublic) GetParent() any {
-	return g.Parent
-}
-func (i InternalGatewayServices) GetParent() any {
-	return i.Parent
-}
-func (o ObjectivesPrivate) GetParent() any {
-	return o.Parent
-}
-func (o ObjectivesPublic) GetParent() any {
-	return o.Parent
-}
-func (p Private) GetParent() any {
-	return p.Parent
-}
-func (p Public) GetParent() any {
-	return p.Parent
-}
-func (r RegistryPrivate) GetParent() any {
-	return r.Parent
-}
-func (s Services) GetParent() any {
-	return s.Parent
-}
-func (t TagsPublic) GetParent() any {
-	return t.Parent
-}
-func (e endpoint) GetMethod() string {
-	return e.Method
-}
-func (e endpoint) GetParent() any {
-	return e.Parent
-}
-func (e endpoint) GetPath() string {
-	return e.Path
-}
-func (e *endpoint) SetMethod(v string) {
-	e.Method = v
-}
-func (e *endpoint) SetPath(v string) {
-	e.Path = v
 }
