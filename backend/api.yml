@@ -26,9 +26,12 @@ account:
 
 groups:
   public:
-    create: POST /group
+    group_create: POST /group
+    group_members_list: GET /group/{gid}/members
   private:
-    membership_check: GET /group/{gid}/member/{uid}/indirect
+    group_members_list: GET /group/{gid}/members
+    group_members_check: GET /group/{gid}/member/{uid}
+    group_members_check_eventual: GET /group/{gid}/member/{uid}/eventual
 
 idp:
   private:

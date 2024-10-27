@@ -21,8 +21,8 @@ CREATE TABLE "group"(
 
 CREATE TABLE "group_member_user"(
     "gmid" "GroupMembershipId" NOT NULL UNIQUE DEFAULT gen_random_uuid(),
-    "gid" "GroupId",
-    "member" "UserId",
+    "gid" "GroupId" NOT NULL,
+    "member" "UserId" NOT NULL,
     "ginvid" "GroupInviteId" NOT NULL,
     "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "deleted_at" timestamp
@@ -30,8 +30,8 @@ CREATE TABLE "group_member_user"(
 
 CREATE TABLE "group_member_group"(
     "gmid" "GroupMembershipId" NOT NULL UNIQUE DEFAULT gen_random_uuid(),
-    "gid" "GroupId",
-    "member" "GroupId",
+    "gid" "GroupId" NOT NULL,
+    "member" "GroupId" NOT NULL,
     "ginvid" "GroupInviteId" NOT NULL,
     "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "deleted_at" timestamp

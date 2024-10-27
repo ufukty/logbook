@@ -36,6 +36,120 @@ func (q *Queries) InsertNewGroup(ctx context.Context, arg InsertNewGroupParams) 
 	return i, err
 }
 
+const selectGroupTypeGroupMembers = `-- name: SelectGroupTypeGroupMembers :many
+SELECT
+    gmid, gid, member, ginvid, created_at, deleted_at
+FROM
+    "group_member_group"
+WHERE
+    "gid" = $1
+    AND "deleted_at" IS NOT NULL
+LIMIT 200
+`
+
+func (q *Queries) SelectGroupTypeGroupMembers(ctx context.Context, gid columns.GroupId) ([]GroupMemberGroup, error) {
+	rows, err := q.db.Query(ctx, selectGroupTypeGroupMembers, gid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GroupMemberGroup
+	for rows.Next() {
+		var i GroupMemberGroup
+		if err := rows.Scan(
+			&i.Gmid,
+			&i.Gid,
+			&i.Member,
+			&i.Ginvid,
+			&i.CreatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const selectGroupsByGroupTypeMember = `-- name: SelectGroupsByGroupTypeMember :many
+SELECT
+    gmid, gid, member, ginvid, created_at, deleted_at
+FROM
+    "group_member_group"
+WHERE
+    "member" = $1
+    AND "deleted_at" IS NOT NULL
+LIMIT 200
+`
+
+func (q *Queries) SelectGroupsByGroupTypeMember(ctx context.Context, member columns.GroupId) ([]GroupMemberGroup, error) {
+	rows, err := q.db.Query(ctx, selectGroupsByGroupTypeMember, member)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GroupMemberGroup
+	for rows.Next() {
+		var i GroupMemberGroup
+		if err := rows.Scan(
+			&i.Gmid,
+			&i.Gid,
+			&i.Member,
+			&i.Ginvid,
+			&i.CreatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const selectGroupsByUserTypeMember = `-- name: SelectGroupsByUserTypeMember :many
+SELECT
+    gmid, gid, member, ginvid, created_at, deleted_at
+FROM
+    "group_member_user"
+WHERE
+    "member" = $1
+    AND "deleted_at" IS NOT NULL
+LIMIT 200
+`
+
+func (q *Queries) SelectGroupsByUserTypeMember(ctx context.Context, member columns.UserId) ([]GroupMemberUser, error) {
+	rows, err := q.db.Query(ctx, selectGroupsByUserTypeMember, member)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GroupMemberUser
+	for rows.Next() {
+		var i GroupMemberUser
+		if err := rows.Scan(
+			&i.Gmid,
+			&i.Gid,
+			&i.Member,
+			&i.Ginvid,
+			&i.CreatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const selectGroupsCreatedBy = `-- name: SelectGroupsCreatedBy :many
 SELECT
     gid, name, creator, created_at, deleted_at
@@ -43,7 +157,7 @@ FROM
     "group"
 WHERE
     "creator" = $1
-    AND "deleted_at" IS NOT NULL
+    AND "deleted_at" IS NOT NULL -- FIXME:
 LIMIT 20
 `
 
@@ -60,6 +174,44 @@ func (q *Queries) SelectGroupsCreatedBy(ctx context.Context, creator columns.Use
 			&i.Gid,
 			&i.Name,
 			&i.Creator,
+			&i.CreatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const selectUserTypeGroupMembers = `-- name: SelectUserTypeGroupMembers :many
+SELECT
+    gmid, gid, member, ginvid, created_at, deleted_at
+FROM
+    "group_member_user"
+WHERE
+    "gid" = $1
+    AND "deleted_at" IS NOT NULL
+LIMIT 200
+`
+
+func (q *Queries) SelectUserTypeGroupMembers(ctx context.Context, gid columns.GroupId) ([]GroupMemberUser, error) {
+	rows, err := q.db.Query(ctx, selectUserTypeGroupMembers, gid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GroupMemberUser
+	for rows.Next() {
+		var i GroupMemberUser
+		if err := rows.Scan(
+			&i.Gmid,
+			&i.Gid,
+			&i.Member,
+			&i.Ginvid,
 			&i.CreatedAt,
 			&i.DeletedAt,
 		); err != nil {

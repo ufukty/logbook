@@ -49,10 +49,11 @@ func Main() error {
 	agent := reception.NewAgent(deplcfg, l)
 	err = agent.RegisterEndpoints(
 		map[api.Endpoint]http.HandlerFunc{
-			apicfg.Groups.Public.Create: pub.CreateGroup,
+			apicfg.Groups.Public.GroupCreate: pub.CreateGroup,
 		},
 		map[api.Endpoint]http.HandlerFunc{
-			apicfg.Groups.Private.MembershipCheck: pri.MembershipCheck,
+			apicfg.Groups.Private.GroupMembersCheck:         pri.CheckMembership,
+			apicfg.Groups.Private.GroupMembersCheckEventual: pri.CheckMembershipEventual,
 		},
 	)
 	if err != nil {

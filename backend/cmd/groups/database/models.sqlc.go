@@ -90,8 +90,8 @@ type GroupInviteUser struct {
 
 type GroupMemberGroup struct {
 	Gmid      columns.GroupMembershipId
-	Gid       interface{}
-	Member    interface{}
+	Gid       columns.GroupId
+	Member    columns.GroupId
 	Ginvid    columns.GroupInviteId
 	CreatedAt pgtype.Timestamp
 	DeletedAt pgtype.Timestamp
@@ -99,8 +99,8 @@ type GroupMemberGroup struct {
 
 type GroupMemberUser struct {
 	Gmid      columns.GroupMembershipId
-	Gid       interface{}
-	Member    interface{}
+	Gid       columns.GroupId
+	Member    columns.UserId
 	Ginvid    columns.GroupInviteId
 	CreatedAt pgtype.Timestamp
 	DeletedAt pgtype.Timestamp

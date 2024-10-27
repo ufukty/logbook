@@ -19,6 +19,10 @@ func NewClient(lb *balancer.LoadBalancer, apicfg *api.Config) *Client {
 	}
 }
 
-func (c *Client) MembershipCheck(bq *private.MembershipCheckRequest) (*private.MembershipCheckResponse, error) {
-	return requests.BalancedSend(c.lb, "", c.servicecfg.Private.MembershipCheck, bq, &private.MembershipCheckResponse{})
+func (c *Client) MembershipCheck(bq *private.CheckMembershipRequest) (*private.CheckMembershipResponse, error) {
+	return requests.BalancedSend(c.lb, "", c.servicecfg.Private.GroupMembersCheck, bq, &private.CheckMembershipResponse{})
+}
+
+func (c *Client) MembershipCheckEventual(bq *private.CheckMembershipEventualRequest) (*private.CheckMembershipEventualResponse, error) {
+	return requests.BalancedSend(c.lb, "", c.servicecfg.Private.GroupMembersCheckEventual, bq, &private.CheckMembershipEventualResponse{})
 }
