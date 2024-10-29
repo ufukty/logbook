@@ -24,6 +24,8 @@ CREATE DOMAIN "VersionId" AS uuid;
 
 CREATE DOMAIN "BottomUpPropsId" AS uuid;
 
+CREATE DOMAIN "GroupId" AS uuid;
+
 CREATE TABLE "active"(
     "oid" "ObjectiveId" NOT NULL UNIQUE,
     "vid" "VersionId" NOT NULL
@@ -235,3 +237,4 @@ CREATE TABLE "collaborator_group"(
     "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "deleted_at" timestamp
 );
+
