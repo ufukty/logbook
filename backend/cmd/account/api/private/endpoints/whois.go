@@ -10,7 +10,7 @@ import (
 )
 
 type WhoIsRequest struct {
-	SessionToken columns.SessionToken `json:"session_token"`
+	SessionToken requests.Cookie[columns.SessionToken] `json:"session_token"`
 }
 
 type WhoIsResponse struct {
@@ -31,7 +31,7 @@ func (e Endpoints) WhoIs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	profile, err := e.a.WhoIs(r.Context(), bq.SessionToken)
+	profile, err := e.a.WhoIs(r.Context(), bq.SessionToken.Value)
 	if err != nil {
 		e.l.Println(fmt.Errorf("WhoIs: %w", err))
 		http.Error(w, fmt.Errorf("app.WhoIs :%w", err).Error(), http.StatusInternalServerError)
