@@ -1,0 +1,45 @@
+sequenceDiagram
+autonumber
+
+actor usr as User
+participant obj as Objectives
+participant acc as Accounts
+participant pdp as PDP
+participant col as Collaboration
+participant gro as Groups
+
+usr ->> obj: perform <action><br>on <resource>
+activate obj
+    obj ->> acc: <session token>
+    acc ->> obj: <user>
+    note over obj: PEP interrupts
+    obj ->> pdp: can <user> perform <action> on <resource> ?
+
+    activate pdp
+        note over pdp: perform checks & return<br>early if any succeeds
+        note over pdp: compare <owner> and <user>
+        
+        pdp ->> col: <[]collaborator><br>of <resource> ?
+        activate col
+            col ->> pdp: <[]collaborator>
+        deactivate col
+
+        note over pdp: compare<br><[]collaborator> and <user>
+
+        note over pdp: for each <group><br>in <[]collaborator>
+        pdp ->> gro: does <user><br>belong to <group> ?
+        
+        activate gro
+            note over gro: intensive & recursive<br>database accesses
+            gro ->> pdp: <status>
+        deactivate gro
+        
+        note over pdp: PDP decides
+        pdp ->> obj: <allowance>
+    deactivate pdp
+
+    note over obj: PEP allows | rejects
+    note over obj: handler continues | returns
+
+    obj ->> usr: success | error
+deactivate obj
