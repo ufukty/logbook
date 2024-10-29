@@ -83,6 +83,47 @@ func parseUrlFragments[T any](src *http.Request, dst T) error {
 	return nil
 }
 
+func parseQueryParams[T any](src *http.Request, dst T) error {
+	t := reflect.TypeOf(dst).Elem()
+	v := reflect.ValueOf(dst).Elem()
+	fields := v.NumField()
+	errs := []string{}
+
+	for i := 0; i < fields; i++ {
+		ft := t.Field(i)
+		fv := v.Field(i)
+
+		key, ok := ft.Tag.Lookup("query")
+		if !ok {
+			continue
+		}
+		values, ok := src.URL.Query()[key]
+		if !ok || len(values) < 1 {
+			errs = append(errs, fmt.Sprintf("no value for %s in the query", key))
+			continue
+		}
+
+		if fv.Kind() == reflect.Ptr && fv.IsNil() {
+			fv.Set(reflect.New(fv.Type().Elem())) // init
+		}
+
+		sa, ok := fv.Addr().Interface().(StringAssignable)
+		if !ok {
+			errs = append(errs, fmt.Sprintf("checking if %T.%s.Value is StringAssignable", dst, ft.Name))
+			continue
+		}
+
+		if err := sa.Set(values[0]); err != nil {
+			errs = append(errs, fmt.Sprintf("%T.%s.Set(): %s", dst, ft.Name, err.Error()))
+		}
+	}
+
+	if len(errs) > 0 {
+		return fmt.Errorf("%d errors found:\n%s", len(errs), lines.Join(errs, "+ "))
+	}
+	return nil
+}
+
 func parseCookies[Request any](src *http.Request, dst *Request) error {
 	t := reflect.TypeOf(dst).Elem()
 	v := reflect.ValueOf(dst).Elem()
@@ -154,6 +195,9 @@ func ParseRequest[Request any](w http.ResponseWriter, r *http.Request, dst *Requ
 	}
 	if err := parseUrlFragments(r, dst); err != nil {
 		return fmt.Errorf("parsing url fragments: %w", err)
+	}
+	if err := parseQueryParams(r, dst); err != nil {
+		return fmt.Errorf("parsing query fragments: %w", err)
 	}
 	if err := parseCookies(r, dst); err != nil {
 		return fmt.Errorf("parsing cookies: %w", err)
