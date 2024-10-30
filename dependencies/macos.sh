@@ -20,6 +20,8 @@ which gonfique || # backend
   go install "github.com/ufukty/gonfique@v1.3.1"
 which sqlc || # backend
   go install "github.com/sqlc-dev/sqlc/cmd/sqlc@latest"
+which govalid || # backend
+  go install github.com/ufukty/govalid@v0.1.0
 which d2 || # docs
   go install "oss.terrastruct.com/d2@v0.6.3"
 
