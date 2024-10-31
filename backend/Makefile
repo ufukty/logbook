@@ -1,6 +1,7 @@
 all: \
 	config/api/schema.go
 	$(MAKE) -C cmd
+	$(MAKE) -C models
 
 config/api/schema.go: api.yml config/api/directives.yml
 	gonfique generate \
