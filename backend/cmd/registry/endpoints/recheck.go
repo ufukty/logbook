@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"logbook/cmd/registry/app"
 	"logbook/internal/web/requests"
+	"logbook/internal/web/validate"
 	"logbook/models"
 	"net/http"
 )
@@ -19,6 +20,12 @@ func (e *Endpoints) RecheckInstance(w http.ResponseWriter, r *http.Request) {
 	if err := requests.ParseRequest(w, r, bq); err != nil {
 		e.l.Println(fmt.Errorf("parsing request: %w", err))
 		http.Error(w, redact(err), http.StatusBadRequest)
+		return
+	}
+
+	if err := validate.RequestFields(bq); err != nil {
+		e.l.Println(fmt.Errorf("validating request parameters: %w", err))
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
 

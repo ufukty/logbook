@@ -26,6 +26,9 @@ func (bq RegisterInstanceRequest) validate() error {
 	if err != nil {
 		return fmt.Errorf("declared address and port %q is invalid", u)
 	}
+	if err := bq.Service.Validate(); err != nil {
+		return fmt.Errorf("service: %w", err)
+	}
 	return nil
 }
 

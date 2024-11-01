@@ -1,12 +1,10 @@
 package models
 
-import "fmt"
-
 type Service string
 
-var (
-	Auth       = Service("auth")
+const (
 	Account    = Service("account")
+	Auth       = Service("auth")
 	Discovery  = Service("discovery")
 	Groups     = Service("groups")
 	Internal   = Service("internal")
@@ -15,18 +13,6 @@ var (
 )
 
 func (s *Service) Set(v string) error {
-	switch v {
-	case
-		string(Auth),
-		string(Account),
-		string(Discovery),
-		string(Groups),
-		string(Internal),
-		string(Objectives),
-		string(Tags):
-		*s = Service(v)
-	default:
-		return fmt.Errorf("invalid service name: %s", v)
-	}
+	*s = Service(v)
 	return nil
 }
