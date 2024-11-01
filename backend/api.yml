@@ -33,10 +33,6 @@ groups:
     group_members_check: GET /group/{gid}/member/{uid}
     group_members_check_eventual: GET /group/{gid}/member/{uid}/eventual
 
-idp:
-  private:
-    group_check_eventual_membership: GET /group/membership/{gid}/{uid}
-
 objectives:
   public:
     attach: POST /attach

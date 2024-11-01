@@ -8,44 +8,32 @@ import (
 	"os"
 )
 
-func (i Idp) Range() map[string]IdpPrivate {
-	return map[string]IdpPrivate{"private": i.Private}
-}
-func (i InternalGateway) Range() map[string]InternalGatewayServices {
-	return map[string]InternalGatewayServices{"services": i.Services}
-}
-func (o ObjectivesPublic) Range() map[string]Endpoint {
-	return map[string]Endpoint{"attach": o.Attach, "create": o.Create, "delete": o.Delete, "mark": o.Mark, "placement": o.Placement}
-}
 func (a ApiGateway) Range() map[string]Services {
 	return map[string]Services{"services": a.Services}
-}
-func (s Services) Range() map[string]string {
-	return map[string]string{"account": s.Account, "groups": s.Groups, "objectives": s.Objectives, "tags": s.Tags}
-}
-func (i IdpPrivate) Range() map[string]Endpoint {
-	return map[string]Endpoint{"group_check_eventual_membership": i.GroupCheckEventualMembership}
-}
-func (g GroupsPublic) Range() map[string]Endpoint {
-	return map[string]Endpoint{"group_create": g.GroupCreate, "group_members_list": g.GroupMembersList}
-}
-func (p Public) Range() map[string]Endpoint {
-	return map[string]Endpoint{"create_account": p.CreateAccount, "create_profile": p.CreateProfile, "login": p.Login, "logout": p.Logout, "register": p.Register, "reserve_username": p.ReserveUsername, "totp": p.Totp, "verify_email": p.VerifyEmail, "verify_phone": p.VerifyPhone, "whoami": p.Whoami}
-}
-func (i InternalGatewayServices) Range() map[string]string {
-	return map[string]string{"registry": i.Registry}
 }
 func (g GroupsPrivate) Range() map[string]Endpoint {
 	return map[string]Endpoint{"group_members_check": g.GroupMembersCheck, "group_members_check_eventual": g.GroupMembersCheckEventual, "group_members_list": g.GroupMembersList}
 }
-func (t Tags) Range() map[string]TagsPublic {
-	return map[string]TagsPublic{"public": t.Public}
+func (g GroupsPublic) Range() map[string]Endpoint {
+	return map[string]Endpoint{"group_create": g.GroupCreate, "group_members_list": g.GroupMembersList}
+}
+func (i InternalGateway) Range() map[string]InternalGatewayServices {
+	return map[string]InternalGatewayServices{"services": i.Services}
+}
+func (i InternalGatewayServices) Range() map[string]string {
+	return map[string]string{"registry": i.Registry}
+}
+func (o ObjectivesPrivate) Range() map[string]Endpoint {
+	return map[string]Endpoint{"rock-create": o.RockCreate}
+}
+func (o ObjectivesPublic) Range() map[string]Endpoint {
+	return map[string]Endpoint{"attach": o.Attach, "create": o.Create, "delete": o.Delete, "mark": o.Mark, "placement": o.Placement}
 }
 func (p Private) Range() map[string]Endpoint {
 	return map[string]Endpoint{"who-is": p.WhoIs}
 }
-func (t TagsPublic) Range() map[string]Endpoint {
-	return map[string]Endpoint{"assign": t.Assign, "creation": t.Creation}
+func (p Public) Range() map[string]Endpoint {
+	return map[string]Endpoint{"create_account": p.CreateAccount, "create_profile": p.CreateProfile, "login": p.Login, "logout": p.Logout, "register": p.Register, "reserve_username": p.ReserveUsername, "totp": p.Totp, "verify_email": p.VerifyEmail, "verify_phone": p.VerifyPhone, "whoami": p.Whoami}
 }
 func (r Registry) Range() map[string]RegistryPrivate {
 	return map[string]RegistryPrivate{"private": r.Private}
@@ -53,8 +41,14 @@ func (r Registry) Range() map[string]RegistryPrivate {
 func (r RegistryPrivate) Range() map[string]Endpoint {
 	return map[string]Endpoint{"list-instances": r.ListInstances, "recheck-instance": r.RecheckInstance, "register-instance": r.RegisterInstance}
 }
-func (o ObjectivesPrivate) Range() map[string]Endpoint {
-	return map[string]Endpoint{"rock-create": o.RockCreate}
+func (s Services) Range() map[string]string {
+	return map[string]string{"account": s.Account, "groups": s.Groups, "objectives": s.Objectives, "tags": s.Tags}
+}
+func (t Tags) Range() map[string]TagsPublic {
+	return map[string]TagsPublic{"public": t.Public}
+}
+func (t TagsPublic) Range() map[string]Endpoint {
+	return map[string]Endpoint{"assign": t.Assign, "creation": t.Creation}
 }
 
 type Account struct {
@@ -76,12 +70,6 @@ type GroupsPrivate struct {
 type GroupsPublic struct {
 	GroupCreate      Endpoint `yaml:"group_create"`
 	GroupMembersList Endpoint `yaml:"group_members_list"`
-}
-type Idp struct {
-	Private IdpPrivate `yaml:"private"`
-}
-type IdpPrivate struct {
-	GroupCheckEventualMembership Endpoint `yaml:"group_check_eventual_membership"`
 }
 type InternalGateway struct {
 	Services InternalGatewayServices `yaml:"services"`
@@ -143,7 +131,6 @@ type Config struct {
 	Account         Account         `yaml:"account"`
 	ApiGateway      ApiGateway      `yaml:"api-gateway"`
 	Groups          Groups          `yaml:"groups"`
-	Idp             Idp             `yaml:"idp"`
 	InternalGateway InternalGateway `yaml:"internal-gateway"`
 	Objectives      Objectives      `yaml:"objectives"`
 	Registry        Registry        `yaml:"registry"`
