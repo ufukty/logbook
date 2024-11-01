@@ -8,7 +8,7 @@ import (
 )
 
 type ListInstancesRequest struct {
-	Service models.Service `url:"service"`
+	Service models.Service `route:"service"`
 }
 
 type ListInstancesResponse struct {

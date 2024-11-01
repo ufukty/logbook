@@ -8,8 +8,8 @@ import (
 
 //go:generate serdeser module-ast-pkg.go
 type SeparateParamsTest struct {
-	ArchiveId string       `url:"aid"`
-	Folder    string       `url:"folder"`
+	ArchiveId string       `route:"aid"`
+	Folder    string       `route:"folder"`
 	Package   *ast.Package `json:"package"`
 }
 

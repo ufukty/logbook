@@ -10,8 +10,8 @@ import (
 )
 
 type CheckMembershipRequest struct {
-	Uid columns.UserId  `url:"uid"`
-	Gid columns.GroupId `url:"gid"`
+	Uid columns.UserId  `route:"uid"`
+	Gid columns.GroupId `route:"gid"`
 }
 
 type CheckMembershipResponse struct {
@@ -55,8 +55,8 @@ func (e *Endpoints) CheckMembership(w http.ResponseWriter, r *http.Request) {
 }
 
 type CheckMembershipEventualRequest struct {
-	Uid columns.UserId  `url:"uid"`
-	Gid columns.GroupId `url:"gid"`
+	Uid columns.UserId  `route:"uid"`
+	Gid columns.GroupId `route:"gid"`
 }
 
 type CheckMembershipEventualResponse struct {

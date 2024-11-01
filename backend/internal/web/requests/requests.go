@@ -46,7 +46,7 @@ type StringAssignable interface {
 	Set(string) error
 }
 
-func parseUrlFragments[T any](src *http.Request, dst T) error {
+func parseRouteParams[T any](src *http.Request, dst T) error {
 	t := reflect.TypeOf(dst).Elem()
 	v := reflect.ValueOf(dst).Elem()
 	fields := v.NumField()
@@ -56,11 +56,11 @@ func parseUrlFragments[T any](src *http.Request, dst T) error {
 		ft := t.Field(i)
 		fv := v.Field(i)
 
-		fragmentkey, ok := ft.Tag.Lookup("url")
+		key, ok := ft.Tag.Lookup("route")
 		if !ok {
 			continue
 		}
-		fragmentvalue := src.PathValue(fragmentkey)
+		value := src.PathValue(key)
 
 		if fv.Kind() == reflect.Ptr && fv.IsNil() {
 			fv.Set(reflect.New(fv.Type().Elem())) // init
@@ -72,7 +72,7 @@ func parseUrlFragments[T any](src *http.Request, dst T) error {
 			continue
 		}
 
-		if err := sa.Set(fragmentvalue); err != nil {
+		if err := sa.Set(value); err != nil {
 			errs = append(errs, fmt.Sprintf("%T.%s.Set(): %s", dst, ft.Name, err.Error()))
 		}
 	}
@@ -193,11 +193,11 @@ func ParseRequest[Request any](w http.ResponseWriter, r *http.Request, dst *Requ
 			return fmt.Errorf("parsing the request body: %w", err)
 		}
 	}
-	if err := parseUrlFragments(r, dst); err != nil {
-		return fmt.Errorf("parsing url fragments: %w", err)
+	if err := parseRouteParams(r, dst); err != nil {
+		return fmt.Errorf("parsing route params: %w", err)
 	}
 	if err := parseQueryParams(r, dst); err != nil {
-		return fmt.Errorf("parsing query fragments: %w", err)
+		return fmt.Errorf("parsing query params: %w", err)
 	}
 	if err := parseCookies(r, dst); err != nil {
 		return fmt.Errorf("parsing cookies: %w", err)

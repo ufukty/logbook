@@ -32,7 +32,7 @@ func (m *MockIntType) Set(s string) error {
 
 type TestRequest struct {
 	SessionToken Cookie[MockIntType] `cookie:"session_token"`
-	UserID       MockIntType         `url:"user_id"`
+	UserID       MockIntType         `route:"user_id"`
 	Name         MockStringType      `json:"name"`
 }
 
