@@ -25,6 +25,9 @@ which govalid || # backend
 which d2 || # docs
   go install "oss.terrastruct.com/d2@v0.6.3"
 
+which gohandlers ||
+  (echo "install gohandlers" && exit 1)
+
 test -f "/usr/local/bin/bash" ||
   brew install "bash"
 which gsed ||
