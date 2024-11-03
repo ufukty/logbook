@@ -1,4 +1,4 @@
-package public
+package endpoints
 
 import (
 	"fmt"
@@ -25,7 +25,7 @@ type DelegateObjectiveResponse struct {
 
 // TODO: only last active delegee or the owner (if there is no delegee) can delegeate
 // TODO: ensure there is no active collaboration
-func (e *Endpoints) DelegateObjective(w http.ResponseWriter, r *http.Request) {
+func (e *Public) DelegateObjective(w http.ResponseWriter, r *http.Request) {
 	bq := &DelegateObjectiveRequest{}
 
 	if err := requests.ParseRequest(w, r, bq); err != nil {

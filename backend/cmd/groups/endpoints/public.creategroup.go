@@ -1,4 +1,4 @@
-package public
+package endpoints
 
 import (
 	"fmt"
@@ -21,7 +21,7 @@ type CreateGroupResponse struct {
 	GroupId columns.GroupId `json:"gid"`
 }
 
-func (e *Endpoints) CreateGroup(w http.ResponseWriter, r *http.Request) {
+func (e *Public) CreateGroup(w http.ResponseWriter, r *http.Request) {
 	bq := &CreateGroupRequest{}
 
 	if err := requests.ParseRequest(w, r, bq); err != nil {

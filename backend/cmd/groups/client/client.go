@@ -1,7 +1,7 @@
 package objectives
 
 import (
-	"logbook/cmd/groups/endpoints/private"
+	"logbook/cmd/groups/endpoints"
 	"logbook/config/api"
 	"logbook/internal/web/balancer"
 	"logbook/internal/web/requests"
@@ -19,10 +19,10 @@ func NewClient(lb *balancer.LoadBalancer, apicfg *api.Config) *Client {
 	}
 }
 
-func (c *Client) MembershipCheck(bq *private.CheckMembershipRequest) (*private.CheckMembershipResponse, error) {
-	return requests.BalancedSend(c.lb, "", c.servicecfg.Private.GroupMembersCheck, bq, &private.CheckMembershipResponse{})
+func (c *Client) MembershipCheck(bq *endpoints.CheckMembershipRequest) (*endpoints.CheckMembershipResponse, error) {
+	return requests.BalancedSend(c.lb, "", c.servicecfg.Private.GroupMembersCheck, bq, &endpoints.CheckMembershipResponse{})
 }
 
-func (c *Client) MembershipCheckEventual(bq *private.CheckMembershipEventualRequest) (*private.CheckMembershipEventualResponse, error) {
-	return requests.BalancedSend(c.lb, "", c.servicecfg.Private.GroupMembersCheckEventual, bq, &private.CheckMembershipEventualResponse{})
+func (c *Client) MembershipCheckEventual(bq *endpoints.CheckMembershipEventualRequest) (*endpoints.CheckMembershipEventualResponse, error) {
+	return requests.BalancedSend(c.lb, "", c.servicecfg.Private.GroupMembersCheckEventual, bq, &endpoints.CheckMembershipEventualResponse{})
 }

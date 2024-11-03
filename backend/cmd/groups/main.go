@@ -4,11 +4,9 @@ import (
 	"context"
 	"fmt"
 	"logbook/cmd/groups/app"
-	"logbook/cmd/groups/endpoints/private"
-	"logbook/cmd/groups/endpoints/public"
+	"logbook/cmd/groups/endpoints"
 	"logbook/cmd/groups/service"
 	registry "logbook/cmd/registry/client"
-	"logbook/config/api"
 	"logbook/internal/startup"
 	"logbook/internal/web/balancer"
 	"logbook/internal/web/reception"
@@ -16,7 +14,6 @@ import (
 	"logbook/internal/web/router"
 	"logbook/internal/web/sidecar"
 	"logbook/models"
-	"net/http"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -43,19 +40,11 @@ func Main() error {
 	defer sc.Stop()
 
 	a := app.New(pool)
-	pub := public.New(a, l)
-	pri := private.New(a, l)
+	pub := endpoints.NewPublic(a, l)
+	pri := endpoints.NewPrivate(a, l)
 
 	agent := reception.NewAgent(deplcfg, l)
-	err = agent.RegisterEndpoints(
-		map[api.Endpoint]http.HandlerFunc{
-			apicfg.Groups.Public.GroupCreate: pub.CreateGroup,
-		},
-		map[api.Endpoint]http.HandlerFunc{
-			apicfg.Groups.Private.GroupMembersCheck:         pri.CheckMembership,
-			apicfg.Groups.Private.GroupMembersCheckEventual: pri.CheckMembershipEventual,
-		},
-	)
+	err = agent.RegisterEndpoints(pub, pri)
 	if err != nil {
 		return fmt.Errorf("agent.RegisterEndpoints: %w", err)
 	}

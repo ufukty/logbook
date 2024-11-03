@@ -1,27 +1,26 @@
-package public
+package endpoints
 
 import (
 	"fmt"
 	"logbook/internal/web/requests"
 	"logbook/internal/web/validate"
-	"logbook/models/columns"
-	"logbook/models/incoming"
 	"net/http"
 )
 
-type RespondToInviteRequest struct {
-	SessionToken requests.Cookie[columns.SessionToken] `cookie:"session_token"`
-	Ginvid       columns.GroupInviteId                 `json:"ginvid"`
-	Response     incoming.InviteResponse               `json:"response"`
-	MemberType   incoming.MemberType                   `json:"member-type"`
-}
-
-type RespondToInviteResponse struct {
+type RemoveDelegationRequest struct {
 	// TODO:
 }
 
-func (e *Endpoints) RespondToInvite(w http.ResponseWriter, r *http.Request) {
-	bq := &RespondToInviteRequest{}
+func (bq RemoveDelegationRequest) validate() error {
+	return validate.RequestFields(bq) // TODO: customize?
+}
+
+type RemoveDelegationResponse struct {
+	// TODO:
+}
+
+func (e *Public) RemoveDelegation(w http.ResponseWriter, r *http.Request) {
+	bq := &RemoveDelegationRequest{}
 
 	if err := requests.ParseRequest(w, r, bq); err != nil {
 		e.l.Println(fmt.Errorf("parsing request: %w", err))
@@ -29,7 +28,7 @@ func (e *Endpoints) RespondToInvite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := validate.RequestFields(bq); err != nil {
+	if err := bq.validate(); err != nil {
 		e.l.Println(fmt.Errorf("validating request parameters: %w", err))
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
@@ -37,7 +36,7 @@ func (e *Endpoints) RespondToInvite(w http.ResponseWriter, r *http.Request) {
 
 	panic("to implement") // TODO:
 
-	bs := RespondToInviteResponse{} // TODO:
+	bs := RemoveDelegationResponse{} // TODO:
 	if err := requests.WriteJsonResponse(bs, w); err != nil {
 		e.l.Println(fmt.Errorf("writing json response: %w", err))
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)

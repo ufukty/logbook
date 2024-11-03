@@ -1,4 +1,4 @@
-package private
+package endpoints
 
 import (
 	"fmt"
@@ -18,7 +18,7 @@ type CheckMembershipResponse struct {
 	Membership bool `json:"membership"`
 }
 
-func (e *Endpoints) CheckMembership(w http.ResponseWriter, r *http.Request) {
+func (e *Private) CheckMembership(w http.ResponseWriter, r *http.Request) {
 	bq := &CheckMembershipRequest{}
 
 	if err := requests.ParseRequest(w, r, bq); err != nil {
@@ -63,7 +63,7 @@ type CheckMembershipEventualResponse struct {
 	Membership bool `json:"membership"`
 }
 
-func (e *Endpoints) CheckMembershipEventual(w http.ResponseWriter, r *http.Request) {
+func (e *Private) CheckMembershipEventual(w http.ResponseWriter, r *http.Request) {
 	bq := &CheckMembershipEventualRequest{}
 
 	if err := requests.ParseRequest(w, r, bq); err != nil {
