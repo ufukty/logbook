@@ -1,4 +1,7 @@
-all: handlers.go
+all: build.gh.go list.gh.go
 
-handlers.go: $(shell find . -name '*.go' ! -name 'handlers.go')
-	gohandlers -dir . -type "reception.HandlerInfo" -import "logbook/internal/web/reception"
+list.gh.go: $(shell find . -name '*.go' ! -name '*.gh.go')
+	gohandlers list -dir .
+
+build.gh.go: $(shell find . -name '*.go' ! -name '*.gh.go')
+	gohandlers build -dir . -recv Private
