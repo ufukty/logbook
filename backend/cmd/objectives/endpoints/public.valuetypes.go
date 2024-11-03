@@ -1,4 +1,4 @@
-package public
+package endpoints
 
 import (
 	"logbook/internal/web/validate"

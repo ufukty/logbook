@@ -1,4 +1,4 @@
-package public
+package endpoints
 
 import (
 	"logbook/cmd/objectives/database"
@@ -12,6 +12,6 @@ type GetPlacementArrayResponse struct {
 	List []database.Objective
 }
 
-func (ep *Endpoints) GetPlacementArray(w http.ResponseWriter, r *http.Request) {
+func (ep *Public) GetPlacementArray(w http.ResponseWriter, r *http.Request) {
 	panic("to implement")
 }

@@ -1,4 +1,4 @@
-package private
+package endpoints
 
 import (
 	"fmt"
@@ -16,7 +16,7 @@ func (bq RockCreateRequest) validate() error {
 	return validate.RequestFields(bq)
 }
 
-func (e *Endpoints) RockCreate(w http.ResponseWriter, r *http.Request) {
+func (e *Private) RockCreate(w http.ResponseWriter, r *http.Request) {
 	bq := &RockCreateRequest{}
 
 	err := requests.ParseRequest(w, r, bq)

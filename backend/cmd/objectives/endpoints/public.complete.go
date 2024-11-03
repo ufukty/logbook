@@ -1,4 +1,4 @@
-package public
+package endpoints
 
 import (
 	"fmt"
@@ -6,21 +6,21 @@ import (
 	"net/http"
 )
 
-type ReattachObjectiveRequest struct {
+type MarkCompleteRequest struct {
 	// TODO:
 }
 
-func (bq ReattachObjectiveRequest) validate() error {
+func (bq MarkCompleteRequest) validate() error {
 	panic("to implement") // TODO:
 	return nil
 }
 
-type ReattachObjectiveResponse struct {
+type MarkCompleteResponse struct {
 	// TODO:
 }
 
-func (e *Endpoints) ReattachObjective(w http.ResponseWriter, r *http.Request) {
-	bq := &ReattachObjectiveRequest{}
+func (e *Public) MarkComplete(w http.ResponseWriter, r *http.Request) {
+	bq := &MarkCompleteRequest{}
 
 	if err := requests.ParseRequest(w, r, bq); err != nil {
 		e.l.Println(fmt.Errorf("parsing request: %w", err))
@@ -36,10 +36,10 @@ func (e *Endpoints) ReattachObjective(w http.ResponseWriter, r *http.Request) {
 
 	panic("to implement") // TODO:
 
-	bs := ReattachObjectiveResponse{} // TODO:
+	bs := MarkCompleteResponse{} // TODO:
 	if err := requests.WriteJsonResponse(bs, w); err != nil {
 		e.l.Println(fmt.Errorf("writing json response: %w", err))
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
-
 }

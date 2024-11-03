@@ -1,4 +1,4 @@
-package public
+package endpoints
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func getTestDependencies() (*Endpoints, error) {
+func getTestDependencies() (*Public, error) {
 	l, srvcnf, _, _, err := startup.TestDependenciesWithServiceConfig("objectives", service.ReadConfig)
 	if err != nil {
 		return nil, fmt.Errorf("startup.TestDependenciesWithServiceConfig: %w", err)
@@ -27,6 +27,6 @@ func getTestDependencies() (*Endpoints, error) {
 		return nil, fmt.Errorf("pgxpool.New: %w", err)
 	}
 	app := app.New(pool, l)
-	ep := New(app, l)
+	ep := NewPublic(app, l)
 	return ep, nil
 }

@@ -5,11 +5,9 @@ import (
 	"fmt"
 	"log"
 	"logbook/cmd/objectives/app"
-	"logbook/cmd/objectives/endpoints/private"
-	"logbook/cmd/objectives/endpoints/public"
+	"logbook/cmd/objectives/endpoints"
 	"logbook/cmd/objectives/service"
 	registry "logbook/cmd/registry/client"
-	"logbook/config/api"
 	"logbook/internal/startup"
 	"logbook/internal/web/balancer"
 	"logbook/internal/web/reception"
@@ -17,7 +15,6 @@ import (
 	"logbook/internal/web/router"
 	"logbook/internal/web/sidecar"
 	"logbook/models"
-	"net/http"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -44,21 +41,11 @@ func Main() error {
 	defer sc.Stop()
 
 	a := app.New(pool, l)
-	pub := public.New(a, l)
-	priv := private.New(a, l)
+	pub := endpoints.NewPublic(a, l)
+	priv := endpoints.NewPrivate(a, l)
 
 	agent := reception.NewAgent(deplcfg, l)
-
-	err = agent.RegisterEndpoints(
-		map[api.Endpoint]http.HandlerFunc{
-			apicfg.Objectives.Public.Attach:    pub.ReattachObjective,
-			apicfg.Objectives.Public.Create:    pub.CreateObjective,
-			apicfg.Objectives.Public.Mark:      pub.MarkComplete,
-			apicfg.Objectives.Public.Placement: pub.GetPlacementArray,
-		}, map[api.Endpoint]http.HandlerFunc{
-			apicfg.Objectives.Private.RockCreate: priv.RockCreate,
-		},
-	)
+	err = agent.RegisterEndpoints(pub, priv)
 	if err != nil {
 		return fmt.Errorf("agent.RegisterEndpoints: %w", err)
 	}

@@ -1,4 +1,4 @@
-package public
+package endpoints
 
 import (
 	"logbook/cmd/objectives/app"
@@ -7,17 +7,17 @@ import (
 	"logbook/internal/rates"
 )
 
-type Endpoints struct {
+type Public struct {
 	a *app.App
 	l *logger.Logger
 	r *rates.Layered
 	p *permissions.Decider
 }
 
-func New(a *app.App, l *logger.Logger) *Endpoints {
-	return &Endpoints{
+func NewPublic(a *app.App, l *logger.Logger) *Public {
+	return &Public{
 		a: a,
-		l: l.Sub("Endpoints"),
+		l: l.Sub("endpoints/public"),
 		r: rates.NewLayered(rates.LimiterParams{}, rates.LimiterParams{}),
 	}
 }

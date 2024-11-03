@@ -1,4 +1,4 @@
-package public
+package endpoints
 
 import (
 	"fmt"
@@ -24,7 +24,7 @@ type CreateObjectiveResponse struct {
 }
 
 // TODO: Check user input for script tags in order to prevent XSS attempts
-func (e *Endpoints) CreateObjective(w http.ResponseWriter, r *http.Request) {
+func (e *Public) CreateObjective(w http.ResponseWriter, r *http.Request) {
 	bq := &CreateObjectiveRequest{}
 
 	if err := requests.ParseRequest(w, r, bq); err != nil {
