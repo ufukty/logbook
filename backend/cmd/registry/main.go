@@ -5,15 +5,13 @@ import (
 	"log"
 	"logbook/cmd/registry/app"
 	"logbook/cmd/registry/endpoints"
-	"logbook/config/api"
 	"logbook/internal/startup"
 	"logbook/internal/web/reception"
 	"logbook/internal/web/router"
-	"net/http"
 )
 
 func Main() error {
-	l, args, deplycfg, apicfg, err := startup.Service("registry")
+	l, args, deplycfg, _, err := startup.Service("registry")
 	if err != nil {
 		return fmt.Errorf("reading config: %w", err)
 	}
@@ -22,13 +20,8 @@ func Main() error {
 	defer a.Stop()
 	e := endpoints.New(a, l)
 
-	s := apicfg.Registry.Private
 	agent := reception.NewAgent(deplycfg, l)
-	err = agent.RegisterEndpoints(nil, map[api.Endpoint]http.HandlerFunc{
-		s.ListInstances:    e.ListInstances,
-		s.RecheckInstance:  e.RecheckInstance,
-		s.RegisterInstance: e.RegisterInstance,
-	})
+	err = agent.RegisterEndpoints(nil, e)
 	if err != nil {
 		return fmt.Errorf("agent.RegisterEndpoints: %w", err)
 	}
