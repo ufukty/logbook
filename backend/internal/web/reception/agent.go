@@ -2,7 +2,6 @@ package reception
 
 import (
 	"fmt"
-	"logbook/config/api"
 	"logbook/config/deployment"
 	"logbook/internal/logger"
 	"logbook/internal/web/forwarder"
@@ -30,7 +29,17 @@ func (a *Agent) Mux() *http.ServeMux {
 	return a.r
 }
 
-func (ag *Agent) RegisterEndpoints(public, private map[api.Endpoint]http.HandlerFunc) error {
+type HandlerInfo struct {
+	Method string
+	Path   string
+	Ref    http.HandlerFunc
+}
+
+type Lister interface {
+	ListHandlers() map[string]HandlerInfo
+}
+
+func (ag *Agent) RegisterEndpoints(public, private Lister) error {
 	origin, err := url.JoinPath(ag.deplcfg.Router.Cors.AllowOrigin)
 	if err != nil {
 		return fmt.Errorf("url.JoinPath: %w", err)
@@ -41,21 +50,21 @@ func (ag *Agent) RegisterEndpoints(public, private map[api.Endpoint]http.Handler
 		headers.Authorization,
 	}
 
-	for ep, handler := range public {
-		c := newCors(handler, origin, []string{ep.GetMethod()}, corsheaders)
-		pl := newReceptionist(ag.deplcfg, ag.l.Sub(ep.GetPath()), c)
+	for hn, info := range public.ListHandlers() {
+		c := newCors(info.Ref, origin, []string{info.Method}, corsheaders)
+		pl := newReceptionist(ag.deplcfg, ag.l.Sub(info.Path), c)
 
-		ag.l.Printf("registering: %s, OPTIONS %s -> %p\n", ep.GetMethod(), ep.GetPath(), pl)
-		for _, method := range []string{ep.GetMethod(), "OPTIONS"} {
-			pattern := fmt.Sprintf("%s %s", method, ep.GetPath())
+		ag.l.Printf("registering: %s (%s, OPTIONS %s) -> %p\n", hn, info.Method, info.Path, pl)
+		for _, method := range []string{info.Method, "OPTIONS"} {
+			pattern := fmt.Sprintf("%s %s", method, info.Path)
 			ag.r.Handle(pattern, pl)
 		}
 	}
 
-	for ep, handler := range private {
-		pl := newReceptionist(ag.deplcfg, ag.l.Sub(ep.GetPath()), handler)
-		pattern := fmt.Sprintf("%s %s", ep.GetMethod(), ep.GetPath())
-		ag.l.Printf("registering: %s -> %p\n", pattern, pl)
+	for hn, info := range private.ListHandlers() {
+		pl := newReceptionist(ag.deplcfg, ag.l.Sub(info.Path), info.Ref)
+		pattern := fmt.Sprintf("%s %s", info.Method, info.Path)
+		ag.l.Printf("registering: %s (%s) -> %p\n", hn, pattern, pl)
 		ag.r.Handle(pattern, pl)
 	}
 
