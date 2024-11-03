@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"log"
 	registry "logbook/cmd/registry/client"
-	"logbook/cmd/tags/api/public"
+	"logbook/cmd/tags/app"
+	"logbook/cmd/tags/endpoints"
+
 	"logbook/cmd/tags/service"
 	"logbook/internal/startup"
 	"logbook/internal/web/balancer"
@@ -38,10 +40,11 @@ func Main() error {
 	sc := sidecar.New(registry.NewClient(balancer.New(internalsd), apicfg, true), deplcfg, []models.Service{}, l)
 	defer sc.Stop()
 
-	pub := public.New(apicfg, deplcfg, pool, internalsd, l)
+	a := app.New(pool, apicfg, internalsd)
+	e := endpoints.New(a, l)
 
 	agent := reception.NewAgent(deplcfg, l)
-	err = agent.RegisterEndpoints(pub.Endpoints(), nil)
+	err = agent.RegisterEndpoints(e, nil)
 	if err != nil {
 		return fmt.Errorf("agent.RegisterEndpoints: %w", err)
 	}
