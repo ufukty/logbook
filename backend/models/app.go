@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"logbook/internal/web/validate"
 	"logbook/models/columns"
+	"strings"
 )
 
 // ObjectiveVersionedId: use to describe specific version of an objective
@@ -23,4 +24,21 @@ func (ovid Ovid) Validate() error {
 		"oid": ovid.Oid,
 		"vid": ovid.Vid,
 	})
+}
+
+func (ovid *Ovid) FromRoute(s string) error {
+	if len(s) != 33 {
+		return fmt.Errorf("invalid length")
+	}
+	us := strings.Split(s, ":")
+	if len(us) != 2 {
+		return fmt.Errorf("invalid number of fragments")
+	}
+	ovid.Oid = columns.ObjectiveId(us[0])
+	ovid.Vid = columns.VersionId(us[0])
+	return nil
+}
+
+func (ovid *Ovid) ToRoute() (string, error) {
+	return fmt.Sprintf("%s:%s", ovid.Oid, ovid.Vid), nil
 }
