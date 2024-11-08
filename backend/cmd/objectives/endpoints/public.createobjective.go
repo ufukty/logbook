@@ -11,12 +11,9 @@ import (
 )
 
 type CreateObjectiveRequest struct {
-	Parent  models.Ovid      `json:"parent"`
-	Content ObjectiveContent `json:"content"`
-}
-
-func (ct CreateObjectiveRequest) validate() error {
-	return validate.RequestFields(ct)
+	SessionToken requests.Cookie[columns.SessionToken] `cookie:"session_token"`
+	Parent       models.Ovid                           `json:"parent"`
+	Content      ObjectiveContent                      `json:"content"`
 }
 
 type CreateObjectiveResponse struct {
@@ -24,16 +21,17 @@ type CreateObjectiveResponse struct {
 }
 
 // TODO: Check user input for script tags in order to prevent XSS attempts
+// POST
 func (e *Public) CreateObjective(w http.ResponseWriter, r *http.Request) {
 	bq := &CreateObjectiveRequest{}
 
-	if err := requests.ParseRequest(w, r, bq); err != nil {
+	if err := bq.Parse(r); err != nil {
 		fmt.Println(fmt.Errorf("parsing request: %w", err))
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
 
-	if err := bq.validate(); err != nil {
+	if err := validate.RequestFields(bq); err != nil {
 		fmt.Println(fmt.Errorf("validating request parameters: %w", err))
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
