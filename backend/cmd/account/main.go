@@ -42,7 +42,7 @@ func Main() error {
 	}, l)
 	defer sc.Stop()
 
-	objectives := objectives.NewClient(balancer.New(sc.InstanceSource(models.Objectives)), apicfg)
+	objectives := objectives.NewClient(balancer.New(sc.InstanceSource(models.Objectives)))
 
 	a := app.New(pool, apicfg, objectives)
 
