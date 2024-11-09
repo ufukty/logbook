@@ -1,5 +1,6 @@
 all: \
 	database/dbtx.sqlc.go \
+	client/client.go \
 	service/config.go
 	$(MAKE) -C endpoints
 
