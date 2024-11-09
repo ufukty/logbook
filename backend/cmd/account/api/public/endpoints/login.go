@@ -10,19 +10,19 @@ import (
 	"net/http"
 )
 
-type CreateSessionRequest struct {
+type LoginRequest struct {
 	Email    columns.Email `json:"email"`
 	Password string        `json:"password"`
 }
 
-func (bq CreateSessionRequest) validate() error {
+func (bq LoginRequest) validate() error {
 	return validate.All(map[string]validate.Validator{
 		"email": bq.Email,
 	})
 }
 
 func (e Endpoints) Login(w http.ResponseWriter, r *http.Request) {
-	bq := &CreateSessionRequest{}
+	bq := &LoginRequest{}
 
 	if err := requests.ParseRequest(w, r, bq); err != nil {
 		e.l.Println(fmt.Errorf("binding: %w", err))
