@@ -8,7 +8,13 @@ import (
 
 // TODO: add anti-CSRF token checks
 func (e Endpoints) Logout(w http.ResponseWriter, r *http.Request) {
-	st := columns.SessionToken(r.Header.Get("session_token"))
+	cookie, err := r.Cookie("session_token")
+	if err != nil {
+		e.l.Println(fmt.Errorf("no session_token found"))
+		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+		return
+	}
+	st := columns.SessionToken(cookie.Value)
 
 	if err := st.Validate(); err != nil {
 		e.l.Println(fmt.Errorf("invalid session_token: %w", err))
@@ -16,7 +22,7 @@ func (e Endpoints) Logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := e.a.Logout(r.Context(), st)
+	err = e.a.Logout(r.Context(), st)
 	if err != nil {
 		e.l.Println(fmt.Errorf("saving session deletion to database: %w", err))
 		http.Error(w, redact(err), http.StatusInternalServerError)
