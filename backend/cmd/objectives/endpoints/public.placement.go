@@ -16,7 +16,7 @@ type GetPlacementArrayRequest struct {
 }
 
 type GetPlacementArrayResponse struct {
-	List []database.Objective
+	Items []database.Objective `json:"items"`
 }
 
 // GET
