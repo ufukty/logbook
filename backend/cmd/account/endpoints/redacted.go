@@ -2,7 +2,7 @@ package endpoints
 
 import (
 	"errors"
-	"logbook/cmd/account/api/public/app"
+	"logbook/cmd/account/app"
 	"logbook/cmd/account/permissions"
 	"logbook/cmd/account/sessions"
 )

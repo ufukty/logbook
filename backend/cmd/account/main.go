@@ -4,9 +4,10 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"logbook/cmd/account/api/private"
-	"logbook/cmd/account/api/public"
+	"logbook/cmd/account/app"
+	"logbook/cmd/account/endpoints"
 	"logbook/cmd/account/service"
+	objectives "logbook/cmd/objectives/client"
 	registry "logbook/cmd/registry/client"
 	"logbook/internal/startup"
 	"logbook/internal/web/balancer"
@@ -41,11 +42,15 @@ func Main() error {
 	}, l)
 	defer sc.Stop()
 
-	pub := public.New(apicfg, pool, sc, l)
-	pri := private.New(apicfg, pool, l)
+	objectives := objectives.NewClient(balancer.New(sc.InstanceSource(models.Objectives)), apicfg)
+
+	a := app.New(pool, apicfg, objectives)
+
+	pub := endpoints.NewPublic(a, l)
+	pri := endpoints.NewPrivate(a, l)
 
 	agent := reception.NewAgent(deplcfg, l)
-	err = agent.RegisterEndpoints(pub.Endpoints(), pri.Endpoints())
+	err = agent.RegisterEndpoints(pub, pri)
 	if err != nil {
 		return fmt.Errorf("agent.RegisterEndpoints: %w", err)
 	}

@@ -3,7 +3,7 @@ package endpoints
 import (
 	"context"
 	"fmt"
-	"logbook/cmd/account/api/public/app"
+	"logbook/cmd/account/app"
 	"logbook/cmd/account/database"
 	"logbook/cmd/account/service"
 	"logbook/internal/startup"
@@ -55,7 +55,7 @@ func TestCreateAccount(t *testing.T) {
 	defer pool.Close()
 
 	a := app.New(pool, apicfg, nil) // FIXME: mock objectives service?
-	ep := New(a, l)
+	ep := NewPublic(a, l)
 
 	ep.CreateAccount(w, r)
 

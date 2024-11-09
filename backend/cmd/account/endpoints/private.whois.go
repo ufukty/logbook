@@ -21,19 +21,19 @@ type WhoIsResponse struct {
 }
 
 // TODO: What it should return for missing body, invalid token or IO errors?
-func (e Endpoints) WhoIs(w http.ResponseWriter, r *http.Request) {
+func (p *Private) WhoIs(w http.ResponseWriter, r *http.Request) {
 	bq := &WhoIsRequest{}
 
 	err := requests.ParseRequest(w, r, bq)
 	if err != nil {
-		e.l.Println(fmt.Errorf("ParseRequest: %w", err))
+		p.l.Println(fmt.Errorf("ParseRequest: %w", err))
 		http.Error(w, fmt.Errorf("ParseRequest :%w", err).Error(), http.StatusInternalServerError)
 		return
 	}
 
-	profile, err := e.a.WhoIs(r.Context(), bq.SessionToken.Value)
+	profile, err := p.a.WhoAmI(r.Context(), bq.SessionToken.Value)
 	if err != nil {
-		e.l.Println(fmt.Errorf("WhoIs: %w", err))
+		p.l.Println(fmt.Errorf("WhoAmI: %w", err))
 		http.Error(w, fmt.Errorf("app.WhoIs :%w", err).Error(), http.StatusInternalServerError)
 		return
 	}
@@ -47,7 +47,7 @@ func (e Endpoints) WhoIs(w http.ResponseWriter, r *http.Request) {
 
 	err = requests.WriteJsonResponse(bs, w)
 	if err != nil {
-		e.l.Println(fmt.Errorf("write json response: %w", err))
+		p.l.Println(fmt.Errorf("write json response: %w", err))
 		return
 	}
 }

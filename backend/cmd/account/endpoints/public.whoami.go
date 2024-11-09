@@ -2,7 +2,7 @@ package endpoints
 
 import (
 	"fmt"
-	"logbook/cmd/account/api/public/app"
+	"logbook/cmd/account/app"
 	"logbook/internal/web/requests"
 	"logbook/models/columns"
 	"net/http"
@@ -17,19 +17,19 @@ type WhoAmIResponse struct {
 	CreatedAt pgtype.Timestamp `json:"created_at"`
 }
 
-func (e Endpoints) WhoAmI(w http.ResponseWriter, r *http.Request) {
+func (p *Public) WhoAmI(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("session_token")
 	if err != nil {
-		e.l.Println(fmt.Errorf("no session_token found"))
+		p.l.Println(fmt.Errorf("no session_token found"))
 		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 		return
 	}
 
 	sessionToken := cookie.Value
 
-	profile, err := e.a.WhoAmI(r.Context(), columns.SessionToken(sessionToken))
+	profile, err := p.a.WhoAmI(r.Context(), columns.SessionToken(sessionToken))
 	if err != nil {
-		e.l.Println(fmt.Errorf("app.WhoAmI: %w", err))
+		p.l.Println(fmt.Errorf("app.WhoAmI: %w", err))
 		switch err {
 		case
 			app.ErrProfileNotFound,

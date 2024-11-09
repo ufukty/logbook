@@ -2,7 +2,7 @@ package endpoints
 
 import (
 	"fmt"
-	"logbook/cmd/account/api/public/app"
+	"logbook/cmd/account/app"
 	"logbook/internal/web/requests"
 	"logbook/internal/web/validate"
 	"logbook/models/columns"
@@ -37,29 +37,30 @@ func (bq CreateAccountRequest) validate() error {
  * TODO: Create first bookmark
  * TODO: Wrap creation of user-task-bookmark with transaction, rollback on failure to not-lock person to re-register with same email
  */
-func (e *Endpoints) CreateAccount(w http.ResponseWriter, r *http.Request) {
+// POST
+func (p *Public) CreateAccount(w http.ResponseWriter, r *http.Request) {
 	bq := &CreateAccountRequest{}
 
 	if err := requests.ParseRequest(w, r, bq); err != nil {
-		e.l.Println(fmt.Errorf("binding: %w", err))
+		p.l.Println(fmt.Errorf("binding: %w", err))
 		http.Error(w, redact(err), http.StatusBadRequest)
 		return
 	}
 
 	if err := bq.validate(); err != nil {
-		e.l.Println(fmt.Errorf("validation: %w", err))
+		p.l.Println(fmt.Errorf("validation: %w", err))
 		http.Error(w, redact(err), http.StatusBadRequest)
 		return
 	}
 
-	err := e.a.CreateAccount(r.Context(), app.CreateAccountRequest{
+	err := p.a.CreateAccount(r.Context(), app.CreateAccountRequest{
 		Firstname: bq.Firstname,
 		Lastname:  bq.Lastname,
 		Email:     bq.Email,
 		Password:  bq.Password,
 	})
 	if err != nil {
-		e.l.Println(fmt.Errorf("app.Register: %w", err))
+		p.l.Println(fmt.Errorf("app.Register: %w", err))
 		http.Error(w, redact(err), http.StatusInternalServerError)
 		return
 	}
