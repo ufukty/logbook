@@ -47,3 +47,12 @@ func (lb *LoadBalancer) Next() (*models.Instance, error) {
 	lb.index = (lb.index + 1) % len(hosts)
 	return &next, nil
 }
+
+// to comply `Pool` interfaces defined in `client` packages
+func (lb *LoadBalancer) Host() (string, error) {
+	h, err := lb.Next()
+	if err != nil {
+		return "", fmt.Errorf("next: %w", err)
+	}
+	return h.String(), nil
+}
