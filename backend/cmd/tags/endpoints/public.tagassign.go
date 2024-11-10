@@ -21,7 +21,7 @@ type TagAssignResponse struct {
 }
 
 // POST
-func (e *Endpoints) TagAssign(w http.ResponseWriter, r *http.Request) {
+func (e *Public) TagAssign(w http.ResponseWriter, r *http.Request) {
 	bq := &TagAssignRequest{}
 
 	if err := bq.Parse(r); err != nil {

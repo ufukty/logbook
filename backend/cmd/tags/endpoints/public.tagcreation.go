@@ -18,7 +18,7 @@ type TagCreationResponse struct {
 }
 
 // POST
-func (e *Endpoints) TagCreation(w http.ResponseWriter, r *http.Request) {
+func (e *Public) TagCreation(w http.ResponseWriter, r *http.Request) {
 	bq := &TagCreationRequest{}
 
 	if err := bq.Parse(r); err != nil {
