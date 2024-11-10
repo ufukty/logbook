@@ -17,6 +17,7 @@ type TagCreationResponse struct {
 	// TODO:
 }
 
+// POST
 func (e *Endpoints) TagCreation(w http.ResponseWriter, r *http.Request) {
 	bq := &TagCreationRequest{}
 
