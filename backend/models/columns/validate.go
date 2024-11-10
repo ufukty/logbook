@@ -93,6 +93,10 @@ func (v TagId) Validate() error {
 	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
 }
 
+func (v TagTitle) Validate() error {
+	return validate.StringBasics(string(v), min_length_tag_title, max_length_tag_title, regexp_tag_title)
+}
+
 func (v UserId) Validate() error {
 	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
 }

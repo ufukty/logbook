@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"logbook/cmd/account/app"
 	"logbook/internal/average"
-	"logbook/internal/web/requests"
 	"logbook/internal/web/validate"
 	"logbook/models/columns"
 	"net/http"
@@ -25,7 +24,7 @@ func (bq LoginRequest) validate() error {
 func (p *Public) Login(w http.ResponseWriter, r *http.Request) {
 	bq := &LoginRequest{}
 
-	if err := requests.ParseRequest(w, r, bq); err != nil {
+	if err := bq.Parse(r); err != nil {
 		p.l.Println(fmt.Errorf("binding: %w", err))
 		http.Error(w, redact(err), http.StatusBadRequest)
 		return

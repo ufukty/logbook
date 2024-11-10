@@ -11,6 +11,7 @@ type RockCreateRequest struct {
 	UserId columns.UserId `json:"uid"`
 }
 
+// POST
 func (e *Private) RockCreate(w http.ResponseWriter, r *http.Request) {
 	bq := &RockCreateRequest{}
 

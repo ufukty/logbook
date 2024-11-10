@@ -10,27 +10,25 @@ import (
 )
 
 type CreateGroupRequest struct {
-	Name columns.GroupName `json:"name"`
-}
-
-func (bq CreateGroupRequest) validate() error {
-	return validate.RequestFields(bq)
+	SessionToken requests.Cookie[columns.SessionToken] `cookie:"session_token"`
+	Name         columns.GroupName                     `json:"name"`
 }
 
 type CreateGroupResponse struct {
 	GroupId columns.GroupId `json:"gid"`
 }
 
+// POST
 func (e *Public) CreateGroup(w http.ResponseWriter, r *http.Request) {
 	bq := &CreateGroupRequest{}
 
-	if err := requests.ParseRequest(w, r, bq); err != nil {
+	if err := bq.Parse(r); err != nil {
 		e.l.Println(fmt.Errorf("parsing request: %w", err))
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
 
-	if err := bq.validate(); err != nil {
+	if err := validate.RequestFields(bq); err != nil {
 		e.l.Println(fmt.Errorf("validating request parameters: %w", err))
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return

@@ -198,6 +198,15 @@ func (v *TagId) FromQuery(src string) error {
 	return nil
 }
 
+func (v TagTitle) ToQuery() (string, bool, error) {
+	return string(v), true, nil
+}
+
+func (v *TagTitle) FromQuery(src string) error {
+	*v = TagTitle(src)
+	return nil
+}
+
 func (v UserId) ToQuery() (string, bool, error) {
 	return string(v), true, nil
 }

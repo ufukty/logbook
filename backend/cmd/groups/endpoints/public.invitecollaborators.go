@@ -9,11 +9,8 @@ import (
 )
 
 type InviteCollaboratorsRequest struct {
-	Collaborators []columns.UserId
-}
-
-func (bq InviteCollaboratorsRequest) validate() error {
-	return validate.RequestFields(bq) // TODO: customize?
+	SessionToken  requests.Cookie[columns.SessionToken] `cookie:"session_token"`
+	Collaborators []columns.UserId                      `json:"collaborators"`
 }
 
 type InviteCollaboratorsResponse struct {
@@ -22,16 +19,17 @@ type InviteCollaboratorsResponse struct {
 
 // TODO: check the inviter is owner; or the last delegee if there is any active delegation.
 // TODO: check if the owner actually have right (connection) to send invites to invitees
+// POST
 func (e *Public) InviteCollaborators(w http.ResponseWriter, r *http.Request) {
 	bq := &InviteCollaboratorsRequest{}
 
-	if err := requests.ParseRequest(w, r, bq); err != nil {
+	if err := bq.Parse(r); err != nil {
 		e.l.Println(fmt.Errorf("parsing request: %w", err))
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
 
-	if err := bq.validate(); err != nil {
+	if err := validate.RequestFields(bq); err != nil {
 		e.l.Println(fmt.Errorf("validating request parameters: %w", err))
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return

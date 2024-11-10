@@ -3,7 +3,6 @@ package endpoints
 import (
 	"fmt"
 	"logbook/cmd/account/app"
-	"logbook/internal/web/requests"
 	"logbook/internal/web/validate"
 	"logbook/models/columns"
 	"net/http"
@@ -41,7 +40,7 @@ func (bq CreateAccountRequest) validate() error {
 func (p *Public) CreateAccount(w http.ResponseWriter, r *http.Request) {
 	bq := &CreateAccountRequest{}
 
-	if err := requests.ParseRequest(w, r, bq); err != nil {
+	if err := bq.Parse(r); err != nil {
 		p.l.Println(fmt.Errorf("binding: %w", err))
 		http.Error(w, redact(err), http.StatusBadRequest)
 		return

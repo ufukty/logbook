@@ -36,10 +36,11 @@ type RegisterInstanceResponse struct {
 	InstanceId app.InstanceId `json:"instance-id"`
 }
 
+// POST
 func (e *Endpoints) RegisterInstance(w http.ResponseWriter, r *http.Request) {
 	bq := &RegisterInstanceRequest{}
 
-	if err := requests.ParseRequest(w, r, bq); err != nil {
+	if err := bq.Parse(r); err != nil {
 		e.l.Println(fmt.Errorf("parsing request: %w", err))
 		http.Error(w, redact(err), http.StatusBadRequest)
 		return

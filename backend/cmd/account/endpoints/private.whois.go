@@ -10,7 +10,7 @@ import (
 )
 
 type WhoIsRequest struct {
-	SessionToken requests.Cookie[columns.SessionToken] `json:"session_token"`
+	SessionToken requests.Cookie[columns.SessionToken] `json:"session_token"` // body because a service is asking
 }
 
 type WhoIsResponse struct {
@@ -21,10 +21,11 @@ type WhoIsResponse struct {
 }
 
 // TODO: What it should return for missing body, invalid token or IO errors?
+// POST
 func (p *Private) WhoIs(w http.ResponseWriter, r *http.Request) {
 	bq := &WhoIsRequest{}
 
-	err := requests.ParseRequest(w, r, bq)
+	err := bq.Parse(r)
 	if err != nil {
 		p.l.Println(fmt.Errorf("ParseRequest: %w", err))
 		http.Error(w, fmt.Errorf("ParseRequest :%w", err).Error(), http.StatusInternalServerError)

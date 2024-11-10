@@ -4,31 +4,30 @@ import (
 	"fmt"
 	"logbook/internal/web/requests"
 	"logbook/internal/web/validate"
+	"logbook/models/columns"
 	"net/http"
 )
 
 type RemoveDelegationRequest struct {
-	// TODO:
-}
-
-func (bq RemoveDelegationRequest) validate() error {
-	return validate.RequestFields(bq) // TODO: customize?
+	SessionToken requests.Cookie[columns.SessionToken] `cookie:"sesion_token"`
+	Delid        columns.DelegationId                  `json:"delid"`
 }
 
 type RemoveDelegationResponse struct {
 	// TODO:
 }
 
+// POST
 func (e *Public) RemoveDelegation(w http.ResponseWriter, r *http.Request) {
 	bq := &RemoveDelegationRequest{}
 
-	if err := requests.ParseRequest(w, r, bq); err != nil {
+	if err := bq.Parse(r); err != nil {
 		e.l.Println(fmt.Errorf("parsing request: %w", err))
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
 
-	if err := bq.validate(); err != nil {
+	if err := validate.RequestFields(bq); err != nil {
 		e.l.Println(fmt.Errorf("validating request parameters: %w", err))
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return

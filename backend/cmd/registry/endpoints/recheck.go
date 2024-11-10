@@ -3,7 +3,6 @@ package endpoints
 import (
 	"fmt"
 	"logbook/cmd/registry/app"
-	"logbook/internal/web/requests"
 	"logbook/internal/web/validate"
 	"logbook/models"
 	"net/http"
@@ -14,10 +13,11 @@ type RecheckInstanceRequest struct {
 	InstanceId app.InstanceId `json:"instance-id"`
 }
 
+// POST
 func (e *Endpoints) RecheckInstance(w http.ResponseWriter, r *http.Request) {
 	bq := &RecheckInstanceRequest{}
 
-	if err := requests.ParseRequest(w, r, bq); err != nil {
+	if err := bq.Parse(r); err != nil {
 		e.l.Println(fmt.Errorf("parsing request: %w", err))
 		http.Error(w, redact(err), http.StatusBadRequest)
 		return

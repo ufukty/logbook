@@ -44,4 +44,5 @@ type (
 type (
 	LinkType string
 	TagId    string
+	TagTitle string
 )

@@ -10,6 +10,10 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type WhoAmIRequest struct {
+	SessionToken requests.Cookie[columns.SessionToken] `cookie:"session_token"`
+}
+
 type WhoAmIResponse struct {
 	Uid       columns.UserId   `json:"uid"`
 	Firstname string           `json:"firstname"`
@@ -17,6 +21,7 @@ type WhoAmIResponse struct {
 	CreatedAt pgtype.Timestamp `json:"created_at"`
 }
 
+// GET
 func (p *Public) WhoAmI(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("session_token")
 	if err != nil {

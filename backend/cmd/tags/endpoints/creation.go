@@ -3,16 +3,14 @@ package endpoints
 import (
 	"fmt"
 	"logbook/internal/web/requests"
+	"logbook/internal/web/validate"
+	"logbook/models/columns"
 	"net/http"
 )
 
 type TagCreationRequest struct {
-	// TODO:
-}
-
-func (bq TagCreationRequest) validate() error {
-	panic("to implement") // TODO:
-	return nil
+	SessionToken requests.Cookie[columns.SessionToken] `cookie:"session_token"`
+	Title        columns.TagTitle                      `json:"title"`
 }
 
 type TagCreationResponse struct {
@@ -22,13 +20,13 @@ type TagCreationResponse struct {
 func (e *Endpoints) TagCreation(w http.ResponseWriter, r *http.Request) {
 	bq := &TagCreationRequest{}
 
-	if err := requests.ParseRequest(w, r, bq); err != nil {
+	if err := bq.Parse(r); err != nil {
 		e.l.Println(fmt.Errorf("parsing request: %w", err))
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
 
-	if err := bq.validate(); err != nil {
+	if err := validate.RequestFields(bq); err != nil {
 		e.l.Println(fmt.Errorf("validating request parameters: %w", err))
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return

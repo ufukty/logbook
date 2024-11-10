@@ -11,18 +11,20 @@ import (
 
 // TODO:
 type TagAssignRequest struct {
-	Subject models.Ovid   `json:"subject"`
-	Tid     columns.TagId `json:"tid"`
+	SessionToken requests.Cookie[columns.SessionToken] `cookie:"session_token"`
+	Subject      models.Ovid                           `json:"subject"`
+	Tid          columns.TagId                         `json:"tid"`
 }
 
 type TagAssignResponse struct {
 	// TODO:
 }
 
+// POST
 func (e *Endpoints) TagAssign(w http.ResponseWriter, r *http.Request) {
 	bq := &TagAssignRequest{}
 
-	if err := requests.ParseRequest(w, r, bq); err != nil {
+	if err := bq.Parse(r); err != nil {
 		e.l.Println(fmt.Errorf("parsing request: %w", err))
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return

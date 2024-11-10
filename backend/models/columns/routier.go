@@ -198,6 +198,15 @@ func (v *TagId) FromRoute(src string) error {
 	return nil
 }
 
+func (v TagTitle) ToRoute() (string, error) {
+	return string(v), nil
+}
+
+func (v *TagTitle) FromRoute(src string) error {
+	*v = TagTitle(src)
+	return nil
+}
+
 func (v UserId) ToRoute() (string, error) {
 	return string(v), nil
 }

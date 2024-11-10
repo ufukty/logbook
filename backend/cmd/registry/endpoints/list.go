@@ -16,10 +16,11 @@ type ListInstancesResponse struct {
 	Instances []models.Instance `json:"instances"`
 }
 
+// GET
 func (e *Endpoints) ListInstances(w http.ResponseWriter, r *http.Request) {
 	bq := &ListInstancesRequest{}
 
-	if err := requests.ParseRequest(w, r, bq); err != nil {
+	if err := bq.Parse(r); err != nil {
 		e.l.Println(fmt.Errorf("parsing request: %w", err))
 		http.Error(w, redact(err), http.StatusBadRequest)
 		return

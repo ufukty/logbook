@@ -2,29 +2,25 @@ package endpoints
 
 import (
 	"fmt"
+	"logbook/cmd/groups/app"
 	"logbook/internal/web/requests"
 	"logbook/internal/web/validate"
-	"logbook/models"
 	"logbook/models/columns"
 	"net/http"
 )
 
-type DelegateObjectiveRequest struct {
-	SessionToken requests.Cookie[columns.SessionToken] `cookie:"session_token"`
-	Delegator    columns.UserId                        `json:"delegator"`
-	Delegee      columns.UserId                        `json:"delegee"`
-	Objective    models.Ovid                           `json:"objective"`
+type CheckMembershipEventualRequest struct {
+	Uid columns.UserId  `route:"uid"`
+	Gid columns.GroupId `route:"gid"`
 }
 
-type DelegateObjectiveResponse struct {
-	Delid columns.DelegationId `json:"delid"`
+type CheckMembershipEventualResponse struct {
+	Membership bool `json:"membership"`
 }
 
-// TODO: only last active delegee or the owner (if there is no delegee) can delegeate
-// TODO: ensure there is no active collaboration
-// POST
-func (e *Public) DelegateObjective(w http.ResponseWriter, r *http.Request) {
-	bq := &DelegateObjectiveRequest{}
+// GET
+func (e *Private) CheckMembershipEventual(w http.ResponseWriter, r *http.Request) {
+	bq := &CheckMembershipEventualRequest{}
 
 	if err := bq.Parse(r); err != nil {
 		e.l.Println(fmt.Errorf("parsing request: %w", err))
@@ -38,9 +34,20 @@ func (e *Public) DelegateObjective(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	panic("to implement") // TODO:
+	membership, err := e.a.CheckMembership(r.Context(), app.CheckMembershipParams{
+		Uid:      bq.Uid,
+		Gid:      bq.Gid,
+		Eventual: true,
+	})
+	if err != nil {
+		e.l.Println(fmt.Errorf("a.CheckMembership: %w", err))
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
 
-	bs := DelegateObjectiveResponse{} // TODO:
+	bs := CheckMembershipEventualResponse{
+		Membership: membership,
+	}
 	if err := requests.WriteJsonResponse(bs, w); err != nil {
 		e.l.Println(fmt.Errorf("writing json response: %w", err))
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
