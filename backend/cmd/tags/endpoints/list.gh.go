@@ -4,9 +4,9 @@ package endpoints
 
 import "logbook/internal/web/reception"
 
-func (en *Public) ListHandlers() map[string]reception.HandlerInfo {
+func (pu *Public) ListHandlers() map[string]reception.HandlerInfo {
 	return map[string]reception.HandlerInfo{
-		"TagAssign":   {Method: "POST", Path: "/tag-assign", Ref: en.TagAssign},
-		"TagCreation": {Method: "POST", Path: "/tag-creation", Ref: en.TagCreation},
+		"TagAssign":   {Method: "POST", Path: "/tag-assign", Ref: pu.TagAssign},
+		"TagCreation": {Method: "POST", Path: "/tag-creation", Ref: pu.TagCreation},
 	}
 }
