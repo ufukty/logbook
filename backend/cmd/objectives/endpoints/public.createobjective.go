@@ -39,7 +39,7 @@ func (e *Public) CreateObjective(w http.ResponseWriter, r *http.Request) {
 
 	obj, err := e.a.CreateSubtask(r.Context(), app.CreateSubtaskParams{
 		Parent:  bq.Parent,
-		Content: string(bq.Content),
+		Content: bq.Content,
 		Creator: "00000000-0000-0000-0000-000000000000", // TODO: check auth header
 	})
 	if err != nil {
