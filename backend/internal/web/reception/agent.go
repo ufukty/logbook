@@ -50,22 +50,26 @@ func (ag *Agent) RegisterEndpoints(public, private Lister) error {
 		headers.Authorization,
 	}
 
-	for hn, info := range public.ListHandlers() {
-		c := newCors(info.Ref, origin, []string{info.Method}, corsheaders)
-		pl := newReceptionist(ag.deplcfg, ag.l.Sub(info.Path), c)
+	if public != nil {
+		for hn, info := range public.ListHandlers() {
+			c := newCors(info.Ref, origin, []string{info.Method}, corsheaders)
+			pl := newReceptionist(ag.deplcfg, ag.l.Sub(info.Path), c)
 
-		ag.l.Printf("registering: %s (%s, OPTIONS %s) -> %p\n", hn, info.Method, info.Path, pl)
-		for _, method := range []string{info.Method, "OPTIONS"} {
-			pattern := fmt.Sprintf("%s %s", method, info.Path)
-			ag.r.Handle(pattern, pl)
+			ag.l.Printf("registering: %s (%s, OPTIONS %s) -> %p\n", hn, info.Method, info.Path, pl)
+			for _, method := range []string{info.Method, "OPTIONS"} {
+				pattern := fmt.Sprintf("%s %s", method, info.Path)
+				ag.r.Handle(pattern, pl)
+			}
 		}
 	}
 
-	for hn, info := range private.ListHandlers() {
-		pl := newReceptionist(ag.deplcfg, ag.l.Sub(info.Path), info.Ref)
-		pattern := fmt.Sprintf("%s %s", info.Method, info.Path)
-		ag.l.Printf("registering: %s (%s) -> %p\n", hn, pattern, pl)
-		ag.r.Handle(pattern, pl)
+	if private != nil {
+		for hn, info := range private.ListHandlers() {
+			pl := newReceptionist(ag.deplcfg, ag.l.Sub(info.Path), info.Ref)
+			pattern := fmt.Sprintf("%s %s", info.Method, info.Path)
+			ag.l.Printf("registering: %s (%s) -> %p\n", hn, pattern, pl)
+			ag.r.Handle(pattern, pl)
+		}
 	}
 
 	ag.r.Handle("GET /ping", newReceptionist(ag.deplcfg, ag.l.Sub("ping"), http.HandlerFunc(pong)))
