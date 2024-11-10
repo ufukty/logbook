@@ -2,6 +2,7 @@ package balancer
 
 import (
 	"fmt"
+	"logbook/internal/utils/urls"
 	"logbook/models"
 )
 
@@ -22,7 +23,7 @@ func (p Proxied) Host() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("Lb.Host: %w", err)
 	}
-	return h + p.Suffix, nil
+	return urls.Join(h, p.Suffix), nil
 }
 
 var _ Pool = Proxied{}

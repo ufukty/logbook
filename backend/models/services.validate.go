@@ -18,6 +18,8 @@ func (s Service) Validate() error {
 		return nil
 	case Objectives:
 		return nil
+	case Registry:
+		return nil
 	case Tags:
 		return nil
 	}

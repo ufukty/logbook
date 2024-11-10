@@ -38,7 +38,7 @@ func Main() error {
 	}, l)
 	defer internalsd.Stop()
 
-	reg := registry.NewClient(balancer.NewProxied(internalsd, models.Internal))
+	reg := registry.NewClient(balancer.NewProxied(internalsd, models.Registry))
 	sc := sidecar.New(reg, deplcfg, []models.Service{}, l)
 	defer sc.Stop()
 

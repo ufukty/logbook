@@ -27,7 +27,7 @@ func Main() error {
 	defer internalsd.Stop()
 
 	// NOTE: service registry needs to be accessed through internal gateway
-	reg := registry.NewClient(balancer.NewProxied(internalsd, models.Internal))
+	reg := registry.NewClient(balancer.NewProxied(internalsd, models.Registry))
 	sc := sidecar.New(reg, deplcfg, []models.Service{
 		models.Account,
 		models.Objectives,
