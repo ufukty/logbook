@@ -22,13 +22,18 @@ func join(segments ...string) string {
 	return url
 }
 
-func (bq ListInstancesRequest) Build(host string) (*http.Request, error) {
-	uri := "/list-instances/{service}"
-	encoded, err := bq.Service.ToRoute()
+func (bq CheckMembershipRequest) Build(host string) (*http.Request, error) {
+	uri := "/check-membership/{uid}/{gid}"
+	encoded, err := bq.Gid.ToRoute()
 	if err != nil {
-		return nil, fmt.Errorf("ListInstancesRequest.Service.ToRoute: %w", err)
+		return nil, fmt.Errorf("CheckMembershipRequest.Gid.ToRoute: %w", err)
 	}
-	uri = strings.Replace(uri, "{service}", encoded, 1)
+	uri = strings.Replace(uri, "{gid}", encoded, 1)
+	encoded, err = bq.Uid.ToRoute()
+	if err != nil {
+		return nil, fmt.Errorf("CheckMembershipRequest.Uid.ToRoute: %w", err)
+	}
+	uri = strings.Replace(uri, "{uid}", encoded, 1)
 	r, err := http.NewRequest("GET", join(host, uri), nil)
 	if err != nil {
 		return nil, fmt.Errorf("http.NewRequest: %w", err)
@@ -36,15 +41,19 @@ func (bq ListInstancesRequest) Build(host string) (*http.Request, error) {
 	return r, nil
 }
 
-func (bq *ListInstancesRequest) Parse(rq *http.Request) error {
-	err := bq.Service.FromRoute(rq.PathValue("service"))
+func (bq *CheckMembershipRequest) Parse(rq *http.Request) error {
+	err := bq.Gid.FromRoute(rq.PathValue("gid"))
 	if err != nil {
-		return fmt.Errorf("ListInstancesRequest.Service.FromRoute: %w", err)
+		return fmt.Errorf("CheckMembershipRequest.Gid.FromRoute: %w", err)
+	}
+	err = bq.Uid.FromRoute(rq.PathValue("uid"))
+	if err != nil {
+		return fmt.Errorf("CheckMembershipRequest.Uid.FromRoute: %w", err)
 	}
 	return nil
 }
 
-func (bs ListInstancesResponse) Write(w http.ResponseWriter) error {
+func (bs CheckMembershipResponse) Write(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", mime.TypeByExtension(".json"))
 	w.WriteHeader(http.StatusOK)
 	err := json.NewEncoder(w).Encode(bs)
@@ -54,7 +63,7 @@ func (bs ListInstancesResponse) Write(w http.ResponseWriter) error {
 	return nil
 }
 
-func (bs *ListInstancesResponse) Parse(rs *http.Response) error {
+func (bs *CheckMembershipResponse) Parse(rs *http.Response) error {
 	ct := rs.Header.Get("Content-Type")
 	if ct != mime.TypeByExtension(".json") {
 		return fmt.Errorf("unsupported Content-Type: %s", ct)
@@ -66,8 +75,8 @@ func (bs *ListInstancesResponse) Parse(rs *http.Response) error {
 	return nil
 }
 
-func (bq RecheckInstanceRequest) Build(host string) (*http.Request, error) {
-	uri := "/recheck-instance"
+func (bq CreateGroupRequest) Build(host string) (*http.Request, error) {
+	uri := "/create-group"
 	body := bytes.NewBuffer([]byte{})
 	err := json.NewEncoder(body).Encode(bq)
 	if err != nil {
@@ -82,7 +91,7 @@ func (bq RecheckInstanceRequest) Build(host string) (*http.Request, error) {
 	return r, nil
 }
 
-func (bq *RecheckInstanceRequest) Parse(rq *http.Request) error {
+func (bq *CreateGroupRequest) Parse(rq *http.Request) error {
 	err := json.NewDecoder(rq.Body).Decode(bq)
 	if err != nil {
 		return fmt.Errorf("decoding body: %w", err)
@@ -90,8 +99,30 @@ func (bq *RecheckInstanceRequest) Parse(rq *http.Request) error {
 	return nil
 }
 
-func (bq RegisterInstanceRequest) Build(host string) (*http.Request, error) {
-	uri := "/register-instance"
+func (bs CreateGroupResponse) Write(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", mime.TypeByExtension(".json"))
+	w.WriteHeader(http.StatusOK)
+	err := json.NewEncoder(w).Encode(bs)
+	if err != nil {
+		return fmt.Errorf("encoding the body: %w", err)
+	}
+	return nil
+}
+
+func (bs *CreateGroupResponse) Parse(rs *http.Response) error {
+	ct := rs.Header.Get("Content-Type")
+	if ct != mime.TypeByExtension(".json") {
+		return fmt.Errorf("unsupported Content-Type: %s", ct)
+	}
+	err := json.NewDecoder(rs.Body).Decode(bs)
+	if err != nil {
+		return fmt.Errorf("decoding the body: %w", err)
+	}
+	return nil
+}
+
+func (bq RespondToInviteRequest) Build(host string) (*http.Request, error) {
+	uri := "/respond-to-invite"
 	body := bytes.NewBuffer([]byte{})
 	err := json.NewEncoder(body).Encode(bq)
 	if err != nil {
@@ -106,32 +137,10 @@ func (bq RegisterInstanceRequest) Build(host string) (*http.Request, error) {
 	return r, nil
 }
 
-func (bq *RegisterInstanceRequest) Parse(rq *http.Request) error {
+func (bq *RespondToInviteRequest) Parse(rq *http.Request) error {
 	err := json.NewDecoder(rq.Body).Decode(bq)
 	if err != nil {
 		return fmt.Errorf("decoding body: %w", err)
-	}
-	return nil
-}
-
-func (bs RegisterInstanceResponse) Write(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", mime.TypeByExtension(".json"))
-	w.WriteHeader(http.StatusOK)
-	err := json.NewEncoder(w).Encode(bs)
-	if err != nil {
-		return fmt.Errorf("encoding the body: %w", err)
-	}
-	return nil
-}
-
-func (bs *RegisterInstanceResponse) Parse(rs *http.Response) error {
-	ct := rs.Header.Get("Content-Type")
-	if ct != mime.TypeByExtension(".json") {
-		return fmt.Errorf("unsupported Content-Type: %s", ct)
-	}
-	err := json.NewDecoder(rs.Body).Decode(bs)
-	if err != nil {
-		return fmt.Errorf("decoding the body: %w", err)
 	}
 	return nil
 }

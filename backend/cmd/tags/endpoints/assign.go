@@ -3,16 +3,16 @@ package endpoints
 import (
 	"fmt"
 	"logbook/internal/web/requests"
+	"logbook/internal/web/validate"
+	"logbook/models"
+	"logbook/models/columns"
 	"net/http"
 )
 
+// TODO:
 type TagAssignRequest struct {
-	// TODO:
-}
-
-func (bq TagAssignRequest) validate() error {
-	panic("to implement") // TODO:
-	return nil
+	Subject models.Ovid   `json:"subject"`
+	Tid     columns.TagId `json:"tid"`
 }
 
 type TagAssignResponse struct {
@@ -28,7 +28,7 @@ func (e *Endpoints) TagAssign(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := bq.validate(); err != nil {
+	if err := validate.RequestFields(bq); err != nil {
 		e.l.Println(fmt.Errorf("validating request parameters: %w", err))
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
