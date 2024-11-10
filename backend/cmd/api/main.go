@@ -27,7 +27,8 @@ func Main() error {
 	defer internalsd.Stop()
 
 	// NOTE: service registry needs to be accessed through internal gateway
-	sc := sidecar.New(registry.NewClient(balancer.New(internalsd), apicfg, true), deplcfg, []models.Service{
+	reg := registry.NewClient(balancer.NewProxied(internalsd, models.Internal))
+	sc := sidecar.New(reg, deplcfg, []models.Service{
 		models.Account,
 		models.Objectives,
 	}, l)
@@ -41,10 +42,6 @@ func Main() error {
 	if err != nil {
 		return fmt.Errorf("agent.RegisterForwarders: %w", err)
 	}
-	// err = agent.RegisterCommonalities()
-	// if err != nil {
-	// 	return fmt.Errorf("agent.RegisterCommonalities: %w", err)
-	// }
 
 	err = router.StartServer(router.ServerParameters{
 		Port:     deplcfg.Ports.Gateway,

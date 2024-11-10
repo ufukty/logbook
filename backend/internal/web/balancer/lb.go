@@ -48,7 +48,6 @@ func (lb *LoadBalancer) Next() (*models.Instance, error) {
 	return &next, nil
 }
 
-// to comply `Pool` interfaces defined in `client` packages
 func (lb *LoadBalancer) Host() (string, error) {
 	h, err := lb.Next()
 	if err != nil {
@@ -56,3 +55,5 @@ func (lb *LoadBalancer) Host() (string, error) {
 	}
 	return h.String(), nil
 }
+
+var _ Pool = &LoadBalancer{}

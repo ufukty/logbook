@@ -7,7 +7,6 @@ import (
 	registry "logbook/cmd/registry/client"
 	"logbook/cmd/tags/app"
 	"logbook/cmd/tags/endpoints"
-
 	"logbook/cmd/tags/service"
 	"logbook/internal/startup"
 	"logbook/internal/web/balancer"
@@ -21,7 +20,7 @@ import (
 )
 
 func Main() error {
-	l, args, srvcfg, deplcfg, apicfg, err := startup.ServiceWithCustomConfig("tags", service.ReadConfig)
+	l, args, srvcfg, deplcfg, _, err := startup.ServiceWithCustomConfig("tags", service.ReadConfig)
 	if err != nil {
 		return fmt.Errorf("reading configs: %w", err)
 	}
@@ -37,10 +36,12 @@ func Main() error {
 		Tls:  true,
 	}, l)
 	defer internalsd.Stop()
-	sc := sidecar.New(registry.NewClient(balancer.New(internalsd), apicfg, true), deplcfg, []models.Service{}, l)
+
+	reg := registry.NewClient(balancer.NewProxied(internalsd, models.Internal))
+	sc := sidecar.New(reg, deplcfg, []models.Service{}, l)
 	defer sc.Stop()
 
-	a := app.New(pool, apicfg, internalsd)
+	a := app.New(pool, internalsd)
 	e := endpoints.New(a, l)
 
 	agent := reception.NewAgent(deplcfg, l)

@@ -37,9 +37,9 @@ func Main() error {
 		Tls:  true,
 	}, l)
 	defer internalsd.Stop()
-	sc := sidecar.New(registry.NewClient(balancer.New(internalsd), apicfg, true), deplcfg, []models.Service{
-		models.Objectives,
-	}, l)
+
+	reg := registry.NewClient(balancer.NewProxied(internalsd, models.Internal))
+	sc := sidecar.New(reg, deplcfg, []models.Service{models.Objectives}, l)
 	defer sc.Stop()
 
 	objectives := objectives.NewClient(balancer.New(sc.InstanceSource(models.Objectives)))

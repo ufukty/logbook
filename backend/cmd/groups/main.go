@@ -19,7 +19,7 @@ import (
 )
 
 func Main() error {
-	l, args, srvcfg, deplcfg, apicfg, err := startup.ServiceWithCustomConfig("groups", service.ReadConfig)
+	l, args, srvcfg, deplcfg, _, err := startup.ServiceWithCustomConfig("groups", service.ReadConfig)
 	if err != nil {
 		return fmt.Errorf("reading configs: %w", err)
 	}
@@ -36,7 +36,9 @@ func Main() error {
 		Tls:  true,
 	}, l)
 	defer internalsd.Stop()
-	sc := sidecar.New(registry.NewClient(balancer.New(internalsd), apicfg, true), deplcfg, []models.Service{}, l)
+
+	reg := registry.NewClient(balancer.NewProxied(internalsd, models.Internal))
+	sc := sidecar.New(reg, deplcfg, []models.Service{}, l)
 	defer sc.Stop()
 
 	a := app.New(pool)
