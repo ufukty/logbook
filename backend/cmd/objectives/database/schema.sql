@@ -14,6 +14,8 @@ CREATE DOMAIN "LinkId" AS uuid;
 
 CREATE DOMAIN "ObjectiveId" AS uuid;
 
+CREATE DOMAIN "ObjectiveContent" AS uuid;
+
 CREATE DOMAIN "OperationId" AS uuid;
 
 CREATE DOMAIN "PropertiesId" AS uuid;
@@ -46,7 +48,7 @@ CREATE INDEX "index_objective" ON "objective"("created_at");
 
 CREATE TABLE "props"(
     "pid" "PropertiesId" NOT NULL UNIQUE DEFAULT gen_random_uuid(),
-    "content" text NOT NULL,
+    "content" "ObjectiveContent" NOT NULL,
     "completed" boolean NOT NULL,
     "creator" "UserId" NOT NULL,
     "owner" "UserId" NOT NULL,
@@ -130,13 +132,13 @@ CREATE TABLE "op_obj_completion"(
 CREATE TABLE "op_obj_content"(
     "id" uuid NOT NULL UNIQUE DEFAULT gen_random_uuid(),
     "opid" "OperationId" NOT NULL,
-    "content" text NOT NULL
+    "content" "ObjectiveContent" NOT NULL
 );
 
 CREATE TABLE "op_obj_init"(
     "id" uuid NOT NULL UNIQUE DEFAULT gen_random_uuid(),
     "opid" "OperationId" NOT NULL,
-    "content" text NOT NULL
+    "content" "ObjectiveContent" NOT NULL
 );
 
 CREATE TABLE "op_obj_create_subtask"(

@@ -77,7 +77,7 @@ func TestStorageScale(t *testing.T) {
 				Oid: parent,
 				Vid: vid,
 			},
-			Content: strconv.Itoa(i),
+			Content: columns.ObjectiveContent(strconv.Itoa(i)),
 		})
 		if err != nil {
 			t.Fatal(fmt.Errorf("CreateSubtask(%d, %s, %s): %w", i, parent, vid, err))

@@ -19,7 +19,7 @@ RETURNING
 `
 
 type InsertPropertiesParams struct {
-	Content   string
+	Content   columns.ObjectiveContent
 	Completed bool
 	Creator   columns.UserId
 	Owner     columns.UserId

@@ -13,7 +13,7 @@ import (
 type CreateObjectiveRequest struct {
 	SessionToken requests.Cookie[columns.SessionToken] `cookie:"session_token"`
 	Parent       models.Ovid                           `json:"parent"`
-	Content      ObjectiveContent                      `json:"content"`
+	Content      columns.ObjectiveContent              `json:"content"`
 }
 
 type CreateObjectiveResponse struct {

@@ -23,6 +23,11 @@ sql:
               import: "logbook/models/columns"
               type: ObjectiveId
 
+          - db_type: ObjectiveContent
+            go_type:
+              import: "logbook/models/columns"
+              type: ObjectiveContent
+
           - db_type: UserId
             go_type:
               import: "logbook/models/columns"

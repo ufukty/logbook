@@ -16,7 +16,7 @@ var ErrTooManySubitems = fmt.Errorf("limit for subitems per objective has been r
 type CreateSubtaskParams struct {
 	Creator columns.UserId
 	Parent  models.Ovid
-	Content string
+	Content columns.ObjectiveContent
 }
 
 // TODO: check privileges on parent

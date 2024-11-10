@@ -37,11 +37,11 @@ type OperationHistoryItem struct {
 }
 
 type ObjectiveMergedProps struct {
-	Content          string         `json:"content"`
-	Completed        bool           `json:"completed"`
-	SubtreeSize      int32          `json:"subtree_size"`
-	SubtreeCompleted int32          `json:"subtree_completed"`
-	Creator          columns.UserId `json:"creator"`
-	Owner            columns.UserId `json:"owner"`
-	CreatedAt        time.Time      `json:"created_at"`
+	Content          columns.ObjectiveContent `json:"content"`
+	Completed        bool                     `json:"completed"`
+	SubtreeSize      int32                    `json:"subtree_size"`
+	SubtreeCompleted int32                    `json:"subtree_completed"`
+	Creator          columns.UserId           `json:"creator"`
+	Owner            columns.UserId           `json:"owner"`
+	CreatedAt        time.Time                `json:"created_at"`
 }

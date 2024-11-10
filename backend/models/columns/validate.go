@@ -1,6 +1,8 @@
 package columns
 
-import "logbook/internal/web/validate"
+import (
+	"logbook/internal/web/validate"
+)
 
 func (v NonNegativeNumber) Validate() error {
 	if v < 0 {
@@ -71,6 +73,10 @@ func (v LoginId) Validate() error {
 
 func (v ObjectiveId) Validate() error {
 	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
+}
+
+func (v ObjectiveContent) Validate() error {
+	return validate.StringBasics(string(v), min_length_objective_content, max_length_objective_content, regexp_objective_content)
 }
 
 func (v OperationId) Validate() error {

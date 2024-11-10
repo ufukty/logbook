@@ -28,16 +28,17 @@ type (
 
 // objectives
 type (
-	ControlAreaId   string
-	BookmarkId      string
-	BottomUpPropsId string
-	CollaborationId string
-	CollaboratorId  string
-	LinkId          string
-	ObjectiveId     string
-	OperationId     string
-	PropertiesId    string
-	VersionId       string
+	ControlAreaId    string
+	BookmarkId       string
+	BottomUpPropsId  string
+	CollaborationId  string
+	CollaboratorId   string
+	LinkId           string
+	ObjectiveId      string
+	ObjectiveContent string
+	OperationId      string
+	PropertiesId     string
+	VersionId        string
 )
 
 // tags

@@ -23,8 +23,8 @@ import (
 )
 
 type testfilenode struct {
-	Content  string         `json:"content"`
-	Children []testfilenode `json:"children"`
+	Content  columns.ObjectiveContent `json:"content"`
+	Children []testfilenode           `json:"children"`
 }
 
 func testname(tc map[*testfilenode]*testfilenode) string {

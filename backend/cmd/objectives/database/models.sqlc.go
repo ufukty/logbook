@@ -265,7 +265,7 @@ type OpObjCompletion struct {
 type OpObjContent struct {
 	ID      pgtype.UUID
 	Opid    columns.OperationId
-	Content string
+	Content columns.ObjectiveContent
 }
 
 type OpObjCreateSubtask struct {
@@ -292,7 +292,7 @@ type OpObjDetach struct {
 type OpObjInit struct {
 	ID      pgtype.UUID
 	Opid    columns.OperationId
-	Content string
+	Content columns.ObjectiveContent
 }
 
 type OpObjReorder struct {
@@ -320,7 +320,7 @@ type Operation struct {
 
 type Props struct {
 	Pid       columns.PropertiesId
-	Content   string
+	Content   columns.ObjectiveContent
 	Completed bool
 	Creator   columns.UserId
 	Owner     columns.UserId

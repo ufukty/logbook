@@ -107,7 +107,7 @@ RETURNING
 
 type InsertOpObjContentParams struct {
 	Opid    columns.OperationId
-	Content string
+	Content columns.ObjectiveContent
 }
 
 func (q *Queries) InsertOpObjContent(ctx context.Context, arg InsertOpObjContentParams) (OpObjContent, error) {
@@ -200,7 +200,7 @@ RETURNING
 
 type InsertOpObjInitParams struct {
 	Opid    columns.OperationId
-	Content string
+	Content columns.ObjectiveContent
 }
 
 func (q *Queries) InsertOpObjInit(ctx context.Context, arg InsertOpObjInitParams) (OpObjInit, error) {
