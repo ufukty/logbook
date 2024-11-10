@@ -131,7 +131,7 @@ func createSubtask(l *logger.Logger) error {
 	obj, err := a.CreateSubtask(context.Background(), app.CreateSubtaskParams{
 		Creator: columns.UserId(flags.UserId),
 		Parent:  models.Ovid{columns.ObjectiveId(flags.ParentOid), columns.VersionId(flags.ParentVid)},
-		Content: flags.Content,
+		Content: columns.ObjectiveContent(flags.Content),
 	})
 	if err != nil {
 		return fmt.Errorf("a.CreateSubtask: %w", err)
