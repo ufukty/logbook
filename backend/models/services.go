@@ -9,6 +9,7 @@ const (
 	Groups     Service = "groups"
 	Internal   Service = "internal"
 	Objectives Service = "objectives"
+	Pdp        Service = "pdp"
 	Registry   Service = "registry"
 	Tags       Service = "tags"
 )
