@@ -15,10 +15,10 @@ type App struct {
 	oneshot *database.Queries
 	s       *sessions.Sessions
 
-	objectives *objectives.Client
+	objectives objectives.Interface
 }
 
-func New(pool *pgxpool.Pool, objectivesctl *objectives.Client) *App {
+func New(pool *pgxpool.Pool, objectivesctl objectives.Interface) *App {
 	return &App{
 		pd:         permissions.New(database.New(pool)),
 		pool:       pool,

@@ -79,14 +79,11 @@ func (a *App) CreateAccount(ctx context.Context, params CreateAccountRequest) er
 		return fmt.Errorf("inserting profile information into database: %w", err)
 	}
 
-	r, err := a.objectives.RockCreate(&endpoints.RockCreateRequest{
+	_, err = a.objectives.RockCreate(&endpoints.RockCreateRequest{
 		UserId: user.Uid,
 	})
 	if err != nil {
-		return fmt.Errorf("calling objectives service to create the rock for user: %w", err)
-	}
-	if r.StatusCode != 200 {
-		return fmt.Errorf("objectives service returned non-200 status code for the request to create rock for user: %s", r.Body)
+		return fmt.Errorf("creating rock for user via objectives service: %w", err)
 	}
 
 	err = tx.Commit(ctx)

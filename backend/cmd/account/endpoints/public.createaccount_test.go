@@ -6,6 +6,7 @@ import (
 	"logbook/cmd/account/app"
 	"logbook/cmd/account/database"
 	"logbook/cmd/account/service"
+	objectives "logbook/cmd/objectives/client"
 	"logbook/internal/startup"
 	"mime"
 	"net/http"
@@ -42,7 +43,7 @@ func TestCreateAccount(t *testing.T) {
 	}
 	defer pool.Close()
 
-	a := app.New(pool, nil) // FIXME: mock objectives service?
+	a := app.New(pool, &objectives.Mock{})
 	pu := NewPublic(a, l)
 
 	pu.CreateAccount(w, r)
