@@ -55,5 +55,5 @@ func (p *Public) WhoAmI(w http.ResponseWriter, r *http.Request) {
 		CreatedAt: profile.CreatedAt,
 	}
 
-	requests.WriteJsonResponse(bs, w)
+	bs.Write(w)
 }

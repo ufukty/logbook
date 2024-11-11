@@ -3,7 +3,6 @@ package endpoints
 import (
 	"fmt"
 	"logbook/cmd/registry/app"
-	"logbook/internal/web/requests"
 	"logbook/models"
 	"net/http"
 	"net/url"
@@ -66,7 +65,7 @@ func (e *Endpoints) RegisterInstance(w http.ResponseWriter, r *http.Request) {
 	bs := RegisterInstanceResponse{
 		InstanceId: iid,
 	}
-	if err := requests.WriteJsonResponse(bs, w); err != nil {
+	if err := bs.Write(w); err != nil {
 		e.l.Println(fmt.Errorf("writing json response: %w", err))
 		http.Error(w, redact(err), http.StatusInternalServerError)
 		return

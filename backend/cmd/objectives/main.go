@@ -20,7 +20,7 @@ import (
 )
 
 func Main() error {
-	l, args, srvcfg, deplcfg, _, err := startup.ServiceWithCustomConfig("objectives", service.ReadConfig)
+	l, args, srvcfg, deplcfg, err := startup.ServiceWithCustomConfig("objectives", service.ReadConfig)
 	if err != nil {
 		return fmt.Errorf("reading configs: %w", err)
 	}

@@ -2,7 +2,6 @@ package endpoints
 
 import (
 	"fmt"
-	"logbook/internal/web/requests"
 	"logbook/internal/web/validate"
 	"logbook/models"
 	"net/http"
@@ -40,7 +39,7 @@ func (e *Endpoints) ListInstances(w http.ResponseWriter, r *http.Request) {
 	}
 	bs := ListInstancesResponse{instances}
 
-	if err := requests.WriteJsonResponse(bs, w); err != nil {
+	if err := bs.Write(w); err != nil {
 		e.l.Println(fmt.Errorf("writing json response: %w", err))
 		http.Error(w, redact(err), http.StatusInternalServerError)
 		return

@@ -1,8 +1,0 @@
-"**":
-  export: true
-
-"*.public.**":
-  declare: Endpoint
-
-"*.private.*":
-  declare: Endpoint

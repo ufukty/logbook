@@ -8,10 +8,11 @@ import (
 	"logbook/internal/web/reception"
 	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router"
+	"logbook/models"
 )
 
 func Main() error {
-	l, args, deplcfg, apicfg, err := startup.InternalGateway()
+	l, args, deplcfg, err := startup.InternalGateway()
 	if err != nil {
 		return fmt.Errorf("reading configs: %w", err)
 	}
@@ -23,8 +24,8 @@ func Main() error {
 	defer registrysd.Stop()
 
 	agent := reception.NewAgent(deplcfg, l)
-	err = agent.RegisterForwarders(map[string]*forwarder.LoadBalancedReverseProxy{
-		apicfg.InternalGateway.Services.Registry: forwarder.New(registrysd, deplcfg, l),
+	err = agent.RegisterForwarders(map[models.Service]*forwarder.LoadBalancedReverseProxy{
+		models.Registry: forwarder.New(registrysd, deplcfg, l),
 	})
 	if err != nil {
 		return fmt.Errorf("agent.RegisterForwarders: %w", err)

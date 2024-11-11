@@ -19,7 +19,7 @@ import (
 )
 
 func Main() error {
-	l, args, deplcfg, _, err := startup.Service("pdp")
+	l, args, deplcfg, err := startup.Service("pdp")
 	if err != nil {
 		return fmt.Errorf("reading configs: %w", err)
 	}

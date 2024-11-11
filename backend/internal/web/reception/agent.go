@@ -6,6 +6,7 @@ import (
 	"logbook/internal/logger"
 	"logbook/internal/web/forwarder"
 	"logbook/internal/web/headers"
+	"logbook/models"
 	"net/http"
 	"net/url"
 )
@@ -78,11 +79,11 @@ func (ag *Agent) RegisterEndpoints(public, private Lister) error {
 	return nil
 }
 
-func (ag *Agent) RegisterForwarders(fwds map[string]*forwarder.LoadBalancedReverseProxy) error {
+func (ag *Agent) RegisterForwarders(fwds map[models.Service]*forwarder.LoadBalancedReverseProxy) error {
 	for addr, fwd := range fwds {
 		ag.l.Printf("registering forwarder for: %s -> %p\n", addr, fwd)
 		l := ag.l.Sub(fmt.Sprintf("strip-prefix(%s)", addr))
-		ag.r.Handle(addr+"/", newReceptionist(ag.deplcfg, l, http.StripPrefix(addr, fwd)))
+		ag.r.Handle(string(addr)+"/", newReceptionist(ag.deplcfg, l, http.StripPrefix(string(addr), fwd)))
 	}
 
 	ag.r.Handle("/ping", newReceptionist(ag.deplcfg, ag.l.Sub("ping"), http.HandlerFunc(pong)))

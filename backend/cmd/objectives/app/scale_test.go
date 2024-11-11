@@ -27,7 +27,7 @@ func TestStorageScale(t *testing.T) {
 	if err != nil {
 		t.Fatal(fmt.Errorf("prep, uid: %w", err))
 	}
-	l, srvcnf, _, _, err := startup.TestDependenciesWithServiceConfig("objectives", service.ReadConfig)
+	l, srvcnf, _, err := startup.TestDependenciesWithServiceConfig("objectives", service.ReadConfig)
 	if err != nil {
 		t.Fatal(fmt.Errorf("startup.TestDependenciesWithServiceConfig: %w", err))
 	}

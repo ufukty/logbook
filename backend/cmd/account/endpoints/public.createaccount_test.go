@@ -7,7 +7,6 @@ import (
 	"logbook/cmd/account/database"
 	"logbook/cmd/account/service"
 	"logbook/internal/startup"
-	"logbook/models"
 	"mime"
 	"net/http"
 	"net/http/httptest"
@@ -17,14 +16,8 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type MockInstanceSource []models.Instance
-
-func (m *MockInstanceSource) Instances() ([]models.Instance, error) {
-	return *m, nil
-}
-
 func TestCreateAccount(t *testing.T) {
-	l, srvcfg, _, apicfg, err := startup.TestDependenciesWithServiceConfig("account", service.ReadConfig)
+	l, srvcfg, _, err := startup.TestDependenciesWithServiceConfig("account", service.ReadConfig)
 	if err != nil {
 		t.Fatal(fmt.Errorf("startup.TestDependenciesWithServiceConfig: %w", err))
 	}
@@ -34,17 +27,12 @@ func TestCreateAccount(t *testing.T) {
 		t.Fatal(fmt.Errorf("running migration: %w", err))
 	}
 
-	r := httptest.NewRequest(
-		apicfg.Account.Public.CreateAccount.GetMethod(),
-		apicfg.Account.Public.CreateAccount.GetPath(),
-		// strings.NewReader(`{"firstname": "Tiésto","lastname": "McSingleton","email": "test@test.balaasad.com","password": "123456789"}`),
-		strings.NewReader(`{
-			"firstname": "Tiésto",
-			"lastname": "McSingleton",
-			"email": "test@test.balaasad.com",
-			"password": "123456789"
-		}`),
-	)
+	r := httptest.NewRequest("DUMMY", "/DUMMY", strings.NewReader(`{
+		"firstname": "Tiésto",
+		"lastname": "McSingleton",
+		"email": "test@test.balaasad.com",
+		"password": "123456789"
+	}`))
 	r.Header.Add("Content-Type", mime.TypeByExtension(".json"))
 	w := httptest.NewRecorder()
 
@@ -54,10 +42,10 @@ func TestCreateAccount(t *testing.T) {
 	}
 	defer pool.Close()
 
-	a := app.New(pool, apicfg, nil) // FIXME: mock objectives service?
-	ep := NewPublic(a, l)
+	a := app.New(pool, nil) // FIXME: mock objectives service?
+	pu := NewPublic(a, l)
 
-	ep.CreateAccount(w, r)
+	pu.CreateAccount(w, r)
 
 	if w.Result().StatusCode != http.StatusOK {
 		t.Fatal("status is not ok")

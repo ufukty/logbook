@@ -11,7 +11,7 @@ import (
 )
 
 func Main() error {
-	l, args, deplycfg, _, err := startup.Service("registry")
+	l, args, deplycfg, err := startup.Service("registry")
 	if err != nil {
 		return fmt.Errorf("reading config: %w", err)
 	}

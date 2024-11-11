@@ -12,7 +12,7 @@ import (
 )
 
 func getTestDependencies() (*Public, error) {
-	l, srvcnf, _, apicfg, err := startup.TestDependenciesWithServiceConfig("account", service.ReadConfig)
+	l, srvcnf, _, err := startup.TestDependenciesWithServiceConfig("account", service.ReadConfig)
 	if err != nil {
 		return nil, fmt.Errorf("startup.TestDependenciesWithServiceConfig: %w", err)
 	}
@@ -28,6 +28,6 @@ func getTestDependencies() (*Public, error) {
 	}
 	defer pool.Close()
 
-	a := app.New(pool, apicfg, nil) // FIXME: mock objectives service?
+	a := app.New(pool, nil) // FIXME: mock objectives service?
 	return NewPublic(a, l), nil
 }

@@ -5,7 +5,6 @@ import (
 	"logbook/cmd/account/permissions"
 	"logbook/cmd/account/sessions"
 	objectives "logbook/cmd/objectives/client"
-	"logbook/config/api"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -19,7 +18,7 @@ type App struct {
 	objectives *objectives.Client
 }
 
-func New(pool *pgxpool.Pool, apicfg *api.Config, objectivesctl *objectives.Client) *App {
+func New(pool *pgxpool.Pool, objectivesctl *objectives.Client) *App {
 	return &App{
 		pd:         permissions.New(database.New(pool)),
 		pool:       pool,

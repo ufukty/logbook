@@ -12,7 +12,7 @@ import (
 )
 
 func getTestDependencies() (*Public, error) {
-	l, srvcnf, _, _, err := startup.TestDependenciesWithServiceConfig("groups", service.ReadConfig)
+	l, srvcnf, _, err := startup.TestDependenciesWithServiceConfig("groups", service.ReadConfig)
 	if err != nil {
 		return nil, fmt.Errorf("startup: %w", err)
 	}

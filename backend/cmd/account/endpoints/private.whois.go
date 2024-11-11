@@ -46,7 +46,7 @@ func (p *Private) WhoIs(w http.ResponseWriter, r *http.Request) {
 		CreatedAt: profile.CreatedAt,
 	}
 
-	err = requests.WriteJsonResponse(bs, w)
+	err = bs.Write(w)
 	if err != nil {
 		p.l.Println(fmt.Errorf("write json response: %w", err))
 		return

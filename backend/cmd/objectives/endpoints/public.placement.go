@@ -38,7 +38,7 @@ func (e *Public) GetPlacementArray(w http.ResponseWriter, r *http.Request) {
 	panic("to implement") // TODO:
 
 	bs := GetPlacementArrayResponse{} // TODO:
-	if err := requests.WriteJsonResponse(bs, w); err != nil {
+	if err := bs.Write(w); err != nil {
 		e.l.Println(fmt.Errorf("writing json response: %w", err))
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return

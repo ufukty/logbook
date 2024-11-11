@@ -17,7 +17,7 @@ func (mis *mockInstanceSource) Instances() ([]models.Instance, error) {
 }
 
 func TestConcurrentMapWrites(t *testing.T) {
-	l, deplcfg, _, err := startup.TestDependencies()
+	l, deplcfg, err := startup.TestDependencies()
 	if err != nil {
 		t.Fatal(fmt.Errorf("startup: %w", err))
 	}

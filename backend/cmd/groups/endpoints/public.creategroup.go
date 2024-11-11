@@ -49,7 +49,7 @@ func (e *Public) CreateGroup(w http.ResponseWriter, r *http.Request) {
 	bs := CreateGroupResponse{
 		GroupId: gid,
 	}
-	if err := requests.WriteJsonResponse(bs, w); err != nil {
+	if err := bs.Write(w); err != nil {
 		e.l.Println(fmt.Errorf("writing json response: %w", err))
 		return
 	}

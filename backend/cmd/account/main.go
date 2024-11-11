@@ -21,7 +21,7 @@ import (
 )
 
 func Main() error {
-	l, args, srvcfg, deplcfg, apicfg, err := startup.ServiceWithCustomConfig("account", service.ReadConfig)
+	l, args, srvcfg, deplcfg, err := startup.ServiceWithCustomConfig("account", service.ReadConfig)
 	if err != nil {
 		return fmt.Errorf("reading configs: %w", err)
 	}
@@ -44,7 +44,7 @@ func Main() error {
 
 	objectives := objectives.NewClient(balancer.New(sc.InstanceSource(models.Objectives)))
 
-	a := app.New(pool, apicfg, objectives)
+	a := app.New(pool, objectives)
 
 	pub := endpoints.NewPublic(a, l)
 	pri := endpoints.NewPrivate(a, l)

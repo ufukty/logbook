@@ -17,7 +17,7 @@ func testdeps() (*App, columns.UserId, error) {
 	if err != nil {
 		return nil, columns.ZeroUserId, fmt.Errorf("prep, uid: %w", err)
 	}
-	l, srvcnf, _, _, err := startup.TestDependenciesWithServiceConfig("objectives", service.ReadConfig)
+	l, srvcnf, _, err := startup.TestDependenciesWithServiceConfig("objectives", service.ReadConfig)
 	if err != nil {
 		return nil, columns.ZeroUserId, fmt.Errorf("startup.TestDependenciesWithServiceConfig: %w", err)
 	}

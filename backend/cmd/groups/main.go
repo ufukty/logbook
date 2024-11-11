@@ -19,7 +19,7 @@ import (
 )
 
 func Main() error {
-	l, args, srvcfg, deplcfg, _, err := startup.ServiceWithCustomConfig("groups", service.ReadConfig)
+	l, args, srvcfg, deplcfg, err := startup.ServiceWithCustomConfig("groups", service.ReadConfig)
 	if err != nil {
 		return fmt.Errorf("reading configs: %w", err)
 	}

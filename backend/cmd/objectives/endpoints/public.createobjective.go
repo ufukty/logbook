@@ -51,7 +51,7 @@ func (e *Public) CreateObjective(w http.ResponseWriter, r *http.Request) {
 	bs := CreateObjectiveResponse{
 		Oid: obj.Oid,
 	}
-	if err := requests.WriteJsonResponse(bs, w); err != nil {
+	if err := bs.Write(w); err != nil {
 		fmt.Println(fmt.Errorf("writing json response: %w", err))
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return

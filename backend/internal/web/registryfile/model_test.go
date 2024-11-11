@@ -7,7 +7,7 @@ import (
 )
 
 func TestFileReader(t *testing.T) {
-	l, deplcfg, _, err := startup.TestDependencies()
+	l, deplcfg, err := startup.TestDependencies()
 	if err != nil {
 		t.Fatal(fmt.Errorf("startup: %w", err))
 	}

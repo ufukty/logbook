@@ -15,7 +15,7 @@ import (
 )
 
 func Main() error {
-	l, args, deplcfg, apicfg, err := startup.ApiGateway("api-gateway")
+	l, args, deplcfg, err := startup.ApiGateway("api-gateway")
 	if err != nil {
 		return fmt.Errorf("reading configs: %w", err)
 	}
@@ -35,9 +35,9 @@ func Main() error {
 	defer sc.Stop()
 
 	agent := reception.NewAgent(deplcfg, l)
-	err = agent.RegisterForwarders(map[string]*forwarder.LoadBalancedReverseProxy{
-		apicfg.ApiGateway.Services.Account:    forwarder.New(sc.InstanceSource(models.Account), deplcfg, l),
-		apicfg.ApiGateway.Services.Objectives: forwarder.New(sc.InstanceSource(models.Objectives), deplcfg, l),
+	err = agent.RegisterForwarders(map[models.Service]*forwarder.LoadBalancedReverseProxy{
+		models.Account:    forwarder.New(sc.InstanceSource(models.Account), deplcfg, l),
+		models.Objectives: forwarder.New(sc.InstanceSource(models.Objectives), deplcfg, l),
 	})
 	if err != nil {
 		return fmt.Errorf("agent.RegisterForwarders: %w", err)
