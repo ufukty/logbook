@@ -69,7 +69,7 @@ func (a *App) Login(ctx context.Context, params CreateSessionParameters) (databa
 		return database.SessionStandard{}, ErrHashMismatch
 	}
 
-	if time.Now().Sub(login.CreatedAt.Time) > average.Month {
+	if time.Since(login.CreatedAt.Time) > average.Month {
 		if err := renewHash(a.oneshot, ctx, login, params); err != nil {
 			return database.SessionStandard{}, fmt.Errorf("could not renew hash for user (uid: %q, old hash date %s): %w", login.Uid, login.CreatedAt.Time, err)
 		}
