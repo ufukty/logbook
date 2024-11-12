@@ -2,24 +2,17 @@ package endpoints
 
 import (
 	"fmt"
-	"logbook/models/columns"
+	"logbook/internal/cookies"
 	"net/http"
 )
 
 // TODO: add anti-CSRF token checks
 // POST
 func (p *Public) Logout(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("session_token")
+	st, err := cookies.GetSessionToken(r)
 	if err != nil {
-		p.l.Println(fmt.Errorf("no session_token found"))
+		p.l.Println(fmt.Errorf("checking session token"))
 		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
-		return
-	}
-	st := columns.SessionToken(cookie.Value)
-
-	if err := st.Validate(); err != nil {
-		p.l.Println(fmt.Errorf("invalid session_token: %w", err))
-		http.Error(w, redact(err), http.StatusUnauthorized)
 		return
 	}
 
@@ -30,9 +23,6 @@ func (p *Public) Logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.SetCookie(w, &http.Cookie{
-		Name:   "session_token",
-		MaxAge: -1,
-	})
+	cookies.ExpireSessionToken(w)
 	w.WriteHeader(http.StatusOK)
 }

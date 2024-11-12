@@ -29,3 +29,10 @@ func SetSessionToken(w http.ResponseWriter, st columns.SessionToken, sessionstar
 		Secure:   true,
 	})
 }
+
+func ExpireSessionToken(w http.ResponseWriter) {
+	http.SetCookie(w, &http.Cookie{
+		Name:   sessionTokenKey,
+		MaxAge: -1,
+	})
+}
