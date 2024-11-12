@@ -13,10 +13,10 @@ type WhoIsRequest struct {
 }
 
 type WhoIsResponse struct {
-	Uid       columns.UserId   `json:"uid"`
-	Firstname string           `json:"firstname"`
-	Lastname  string           `json:"lastname"`
-	CreatedAt pgtype.Timestamp `json:"created_at"`
+	Uid       columns.UserId    `json:"uid"`
+	Firstname columns.HumanName `json:"firstname"`
+	Lastname  columns.HumanName `json:"lastname"`
+	CreatedAt pgtype.Timestamp  `json:"created_at"`
 }
 
 // TODO: What it should return for missing body, invalid token or IO errors?

@@ -15,10 +15,6 @@ func (v AccessId) Validate() error {
 	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
 }
 
-func (v ControlAreaId) Validate() error {
-	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
-}
-
 func (v BookmarkId) Validate() error {
 	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
 }
@@ -32,6 +28,10 @@ func (v CollaborationId) Validate() error {
 }
 
 func (v CollaboratorId) Validate() error {
+	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
+}
+
+func (v ControlAreaId) Validate() error {
 	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
 }
 
@@ -51,11 +51,11 @@ func (v GroupInviteId) Validate() error {
 	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
 }
 
-func (v GroupName) Validate() error {
+func (v GroupMembershipId) Validate() error {
 	return validate.StringBasics(string(v), min_length_group_title, max_length_group_title, regexp_group_title)
 }
 
-func (v GroupMembershipId) Validate() error {
+func (v GroupName) Validate() error {
 	return validate.StringBasics(string(v), min_length_group_title, max_length_group_title, regexp_group_title)
 }
 
@@ -71,12 +71,12 @@ func (v LoginId) Validate() error {
 	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
 }
 
-func (v ObjectiveId) Validate() error {
-	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
-}
-
 func (v ObjectiveContent) Validate() error {
 	return validate.StringBasics(string(v), min_length_objective_content, max_length_objective_content, regexp_objective_content)
+}
+
+func (v ObjectiveId) Validate() error {
+	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
 }
 
 func (v OperationId) Validate() error {
@@ -101,6 +101,10 @@ func (v TagId) Validate() error {
 
 func (v TagTitle) Validate() error {
 	return validate.StringBasics(string(v), min_length_tag_title, max_length_tag_title, regexp_tag_title)
+}
+
+func (v UserAgent) Validate() error {
+	return validate.StringBasics(string(v), min_length_user_agent, max_length_user_agent, nil)
 }
 
 func (v UserId) Validate() error {

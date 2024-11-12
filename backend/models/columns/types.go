@@ -13,6 +13,7 @@ type (
 	LoginId      string
 	SessionId    string
 	SessionToken string
+	UserAgent    string
 	UserId       string
 	Username     string
 )

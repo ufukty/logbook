@@ -46,7 +46,7 @@ func (a *App) CreateAccount(ctx context.Context, params CreateAccountRequest) er
 	defer tx.Rollback(ctx)
 	q := database.New(tx)
 
-	_, err = q.SelectLatestLoginByEmail(ctx, string(params.Email))
+	_, err = q.SelectLatestLoginByEmail(ctx, params.Email)
 	if err == nil {
 		return ErrEmailExists
 	}
@@ -63,7 +63,7 @@ func (a *App) CreateAccount(ctx context.Context, params CreateAccountRequest) er
 
 	_, err = q.InsertLogin(ctx, database.InsertLoginParams{
 		Uid:   user.Uid,
-		Email: string(params.Email),
+		Email: params.Email,
 		Hash:  hash,
 	})
 	if err != nil {
@@ -72,8 +72,8 @@ func (a *App) CreateAccount(ctx context.Context, params CreateAccountRequest) er
 
 	_, err = q.InsertProfileInformation(ctx, database.InsertProfileInformationParams{
 		Uid:       user.Uid,
-		Firstname: string(params.Firstname),
-		Lastname:  string(params.Lastname),
+		Firstname: params.Firstname,
+		Lastname:  params.Lastname,
 	})
 	if err != nil {
 		return fmt.Errorf("inserting profile information into database: %w", err)

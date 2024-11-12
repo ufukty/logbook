@@ -8,14 +8,15 @@ import (
 	"logbook/cmd/account/database"
 	"logbook/internal/average"
 	"logbook/models/columns"
+	transport "logbook/models/transports"
 	"time"
 
 	"github.com/alexedwards/argon2id"
 )
 
 type CreateSessionParameters struct {
-	Email    string
-	Password string
+	Email    columns.Email
+	Password transport.Password
 }
 
 var ErrHashMismatch = fmt.Errorf("given password's hash doesn't match with stored hash")
@@ -31,7 +32,7 @@ func generateToken(length int) (columns.SessionToken, error) {
 }
 
 func renewHash(q *database.Queries, ctx context.Context, login database.Login, params CreateSessionParameters) error {
-	hash, err := argon2id.CreateHash(params.Password, argon2idParams)
+	hash, err := argon2id.CreateHash(string(params.Password), argon2idParams)
 	if err != nil {
 		return fmt.Errorf("generating hash for password: %w", err)
 	}
@@ -60,7 +61,7 @@ func (a *App) Login(ctx context.Context, params CreateSessionParameters) (databa
 		return database.SessionStandard{}, fmt.Errorf("selecting latest hash from database: %w", err)
 	}
 
-	match, _, err := argon2id.CheckHash(params.Password, login.Hash)
+	match, _, err := argon2id.CheckHash(string(params.Password), login.Hash)
 	if err != nil {
 		return database.SessionStandard{}, fmt.Errorf("comparing hashes: %w", err)
 	}

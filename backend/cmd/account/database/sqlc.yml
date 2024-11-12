@@ -32,3 +32,15 @@ sql:
             go_type:
               import: "logbook/models/columns"
               type: SessionToken
+          - db_type: Email
+            go_type:
+              import: "logbook/models/columns"
+              type: Email
+          - db_type: HumanName
+            go_type:
+              import: "logbook/models/columns"
+              type: HumanName
+          - db_type: UserAgent
+            go_type:
+              import: "logbook/models/columns"
+              type: UserAgent

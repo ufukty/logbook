@@ -27,8 +27,8 @@ func (a App) CreateProfile(ctx context.Context, params CreateProfileParams) erro
 
 	_, err = a.oneshot.InsertProfileInformation(ctx, database.InsertProfileInformationParams{
 		Uid:       params.Uid,
-		Firstname: string(params.Firstname),
-		Lastname:  string(params.Lastname),
+		Firstname: params.Firstname,
+		Lastname:  params.Lastname,
 	})
 	if err != nil {
 		return fmt.Errorf("insert profile information into db: %w", err)

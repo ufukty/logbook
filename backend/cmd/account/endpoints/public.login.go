@@ -6,6 +6,7 @@ import (
 	"logbook/internal/cookies"
 	"logbook/internal/web/validate"
 	"logbook/models/columns"
+	"logbook/models/transports"
 	"net/http"
 )
 
@@ -37,8 +38,8 @@ func (p *Public) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	session, err := p.a.Login(r.Context(), app.CreateSessionParameters{
-		Email:    string(bq.Email),
-		Password: string(bq.Password),
+		Email:    bq.Email,
+		Password: transports.Password(bq.Password),
 	})
 	if err != nil {
 		p.l.Println(fmt.Errorf("Login: %w", err))

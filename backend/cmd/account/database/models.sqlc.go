@@ -14,7 +14,7 @@ import (
 type Access struct {
 	Aid       columns.AccessId
 	Uid       columns.UserId
-	Useragent pgtype.Text
+	Useragent columns.UserAgent
 	Ipaddress netip.Addr
 	CreatedAt pgtype.Timestamp
 }
@@ -22,7 +22,7 @@ type Access struct {
 type Login struct {
 	Lid       columns.LoginId
 	Uid       columns.UserId
-	Email     string
+	Email     columns.Email
 	Hash      string
 	Deleted   bool
 	CreatedAt pgtype.Timestamp
@@ -30,15 +30,15 @@ type Login struct {
 
 type Profile struct {
 	Uid       columns.UserId
-	Firstname string
-	Lastname  string
+	Firstname columns.HumanName
+	Lastname  columns.HumanName
 	CreatedAt pgtype.Timestamp
 }
 
 type SessionAccountRead struct {
 	Sid       columns.SessionId
 	Uid       columns.UserId
-	Token     string
+	Token     columns.SessionToken
 	Deleted   bool
 	CreatedAt pgtype.Timestamp
 }
@@ -46,7 +46,7 @@ type SessionAccountRead struct {
 type SessionAccountWrite struct {
 	Sid       columns.SessionId
 	Uid       columns.UserId
-	Token     string
+	Token     columns.SessionToken
 	Deleted   bool
 	CreatedAt pgtype.Timestamp
 }

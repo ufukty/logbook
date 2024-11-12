@@ -16,7 +16,7 @@ func (a *App) ActiveLoginsForUser(ctx context.Context, uid columns.UserId) ([]da
 }
 
 func (a *App) LatestLoginForEmail(ctx context.Context, email columns.Email) (database.Login, error) {
-	login, err := a.oneshot.SelectLatestLoginByEmail(ctx, string(email))
+	login, err := a.oneshot.SelectLatestLoginByEmail(ctx, email)
 	if err != nil {
 		return database.Login{}, fmt.Errorf("marking login information as deleted in database: %w", err)
 	}

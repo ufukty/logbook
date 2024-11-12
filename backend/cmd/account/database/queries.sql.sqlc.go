@@ -9,7 +9,6 @@ import (
 	"context"
 	"net/netip"
 
-	"github.com/jackc/pgx/v5/pgtype"
 	"logbook/models/columns"
 )
 
@@ -78,7 +77,7 @@ RETURNING
 
 type InsertAccessParams struct {
 	Uid       columns.UserId
-	Useragent pgtype.Text
+	Useragent columns.UserAgent
 	Ipaddress netip.Addr
 }
 
@@ -104,7 +103,7 @@ RETURNING
 
 type InsertLoginParams struct {
 	Uid   columns.UserId
-	Email string
+	Email columns.Email
 	Hash  string
 }
 
@@ -131,8 +130,8 @@ RETURNING
 
 type InsertProfileInformationParams struct {
 	Uid       columns.UserId
-	Firstname string
-	Lastname  string
+	Firstname columns.HumanName
+	Lastname  columns.HumanName
 }
 
 func (q *Queries) InsertProfileInformation(ctx context.Context, arg InsertProfileInformationParams) (Profile, error) {
@@ -181,7 +180,7 @@ RETURNING
 
 type InsertSessionAccountReadParams struct {
 	Uid   columns.UserId
-	Token string
+	Token columns.SessionToken
 }
 
 func (q *Queries) InsertSessionAccountRead(ctx context.Context, arg InsertSessionAccountReadParams) (SessionAccountRead, error) {
@@ -206,7 +205,7 @@ RETURNING
 
 type InsertSessionAccountWriteParams struct {
 	Uid   columns.UserId
-	Token string
+	Token columns.SessionToken
 }
 
 func (q *Queries) InsertSessionAccountWrite(ctx context.Context, arg InsertSessionAccountWriteParams) (SessionAccountWrite, error) {
@@ -285,7 +284,7 @@ ORDER BY
 LIMIT 1
 `
 
-func (q *Queries) SelectLatestLoginByEmail(ctx context.Context, email string) (Login, error) {
+func (q *Queries) SelectLatestLoginByEmail(ctx context.Context, email columns.Email) (Login, error) {
 	row := q.db.QueryRow(ctx, selectLatestLoginByEmail, email)
 	var i Login
 	err := row.Scan(

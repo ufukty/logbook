@@ -28,6 +28,7 @@ var (
 	max_length_objective_content = len("Ensure that the input conforms to your business logic. For example, check if a user is allowed to perform a certain action, if the data respects certain business rules, or if relationships between data entities are maintained.")
 	max_length_session_token     = 256
 	max_length_tag_title         = 40
+	max_length_user_agent        = 2048
 	max_length_username          = 20
 	max_length_uuid              = len("00000000-0000-0000-0000-000000000000")
 )
@@ -39,6 +40,7 @@ var (
 	min_length_objective_content = 1
 	min_length_session_token     = 256
 	min_length_tag_title         = 2
+	min_length_user_agent        = 0
 	min_length_username          = 6
 	min_length_uuid              = len("00000000-0000-0000-0000-000000000000")
 )

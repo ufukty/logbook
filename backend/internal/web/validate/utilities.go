@@ -20,7 +20,7 @@ func StringBasics(s string, min, max int, pattern *regexp.Regexp) error {
 		return ErrShort
 	} else if l > max {
 		return ErrLong
-	} else if !pattern.MatchString(string(s)) {
+	} else if pattern != nil && !pattern.MatchString(string(s)) {
 		return ErrPattern
 	}
 	return nil
