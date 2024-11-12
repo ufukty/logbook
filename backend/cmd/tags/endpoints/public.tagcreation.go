@@ -2,15 +2,14 @@ package endpoints
 
 import (
 	"fmt"
-	"logbook/internal/web/requests"
+	"logbook/internal/cookies"
 	"logbook/internal/web/validate"
 	"logbook/models/columns"
 	"net/http"
 )
 
 type TagCreationRequest struct {
-	SessionToken requests.Cookie[columns.SessionToken] `cookie:"session_token"`
-	Title        columns.TagTitle                      `json:"title"`
+	Title columns.TagTitle `json:"title"`
 }
 
 type TagCreationResponse struct {
@@ -18,17 +17,24 @@ type TagCreationResponse struct {
 }
 
 // POST
-func (e *Public) TagCreation(w http.ResponseWriter, r *http.Request) {
+func (p *Public) TagCreation(w http.ResponseWriter, r *http.Request) {
+	st, err := cookies.GetSessionToken(r)
+	if err != nil {
+		p.l.Println(fmt.Errorf("checking session token"))
+		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+		return
+	}
+
 	bq := &TagCreationRequest{}
 
 	if err := bq.Parse(r); err != nil {
-		e.l.Println(fmt.Errorf("parsing request: %w", err))
+		p.l.Println(fmt.Errorf("parsing request: %w", err))
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
 
 	if err := validate.RequestFields(bq); err != nil {
-		e.l.Println(fmt.Errorf("validating request parameters: %w", err))
+		p.l.Println(fmt.Errorf("validating request parameters: %w", err))
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
@@ -37,7 +43,7 @@ func (e *Public) TagCreation(w http.ResponseWriter, r *http.Request) {
 
 	bs := TagCreationResponse{} // TODO:
 	if err := bs.Write(w); err != nil {
-		e.l.Println(fmt.Errorf("writing json response: %w", err))
+		p.l.Println(fmt.Errorf("writing json response: %w", err))
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}

@@ -3,7 +3,7 @@ package endpoints
 import (
 	"fmt"
 	"logbook/cmd/objectives/app"
-	"logbook/internal/web/requests"
+	"logbook/internal/cookies"
 	"logbook/internal/web/validate"
 	"logbook/models"
 	"logbook/models/columns"
@@ -11,9 +11,8 @@ import (
 )
 
 type CreateObjectiveRequest struct {
-	SessionToken requests.Cookie[columns.SessionToken] `cookie:"session_token"`
-	Parent       models.Ovid                           `json:"parent"`
-	Content      columns.ObjectiveContent              `json:"content"`
+	Parent  models.Ovid              `json:"parent"`
+	Content columns.ObjectiveContent `json:"content"`
 }
 
 type CreateObjectiveResponse struct {
@@ -22,7 +21,14 @@ type CreateObjectiveResponse struct {
 
 // TODO: Check user input for script tags in order to prevent XSS attempts
 // POST
-func (e *Public) CreateObjective(w http.ResponseWriter, r *http.Request) {
+func (p *Public) CreateObjective(w http.ResponseWriter, r *http.Request) {
+	st, err := cookies.GetSessionToken(r)
+	if err != nil {
+		p.l.Println(fmt.Errorf("checking session token"))
+		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+		return
+	}
+
 	bq := &CreateObjectiveRequest{}
 
 	if err := bq.Parse(r); err != nil {
@@ -37,7 +43,7 @@ func (e *Public) CreateObjective(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	obj, err := e.a.CreateSubtask(r.Context(), app.CreateSubtaskParams{
+	obj, err := p.a.CreateSubtask(r.Context(), app.CreateSubtaskParams{
 		Parent:  bq.Parent,
 		Content: bq.Content,
 		Creator: "00000000-0000-0000-0000-000000000000", // TODO: check auth header

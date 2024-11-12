@@ -3,15 +3,14 @@ package endpoints
 import (
 	"fmt"
 	"logbook/cmd/groups/app"
-	"logbook/internal/web/requests"
+	"logbook/internal/cookies"
 	"logbook/internal/web/validate"
 	"logbook/models/columns"
 	"net/http"
 )
 
 type CreateGroupRequest struct {
-	SessionToken requests.Cookie[columns.SessionToken] `cookie:"session_token"`
-	Name         columns.GroupName                     `json:"name"`
+	Name columns.GroupName `json:"name"`
 }
 
 type CreateGroupResponse struct {
@@ -19,29 +18,36 @@ type CreateGroupResponse struct {
 }
 
 // POST
-func (e *Public) CreateGroup(w http.ResponseWriter, r *http.Request) {
+func (p *Public) CreateGroup(w http.ResponseWriter, r *http.Request) {
+	st, err := cookies.GetSessionToken(r)
+	if err != nil {
+		p.l.Println(fmt.Errorf("checking session token"))
+		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+		return
+	}
+
 	bq := &CreateGroupRequest{}
 
 	if err := bq.Parse(r); err != nil {
-		e.l.Println(fmt.Errorf("parsing request: %w", err))
+		p.l.Println(fmt.Errorf("parsing request: %w", err))
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
 
 	if err := validate.RequestFields(bq); err != nil {
-		e.l.Println(fmt.Errorf("validating request parameters: %w", err))
+		p.l.Println(fmt.Errorf("validating request parameters: %w", err))
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
 
 	panic("decide user id")
 
-	gid, err := e.a.CreateGroup(r.Context(), app.CreateGroupParams{
+	gid, err := p.a.CreateGroup(r.Context(), app.CreateGroupParams{
 		Actor:     "", // FIXME:
 		GroupName: bq.Name,
 	})
 	if err != nil {
-		e.l.Println(fmt.Errorf("CreateGroup: %w", err))
+		p.l.Println(fmt.Errorf("CreateGroup: %w", err))
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
@@ -50,7 +56,7 @@ func (e *Public) CreateGroup(w http.ResponseWriter, r *http.Request) {
 		GroupId: gid,
 	}
 	if err := bs.Write(w); err != nil {
-		e.l.Println(fmt.Errorf("writing json response: %w", err))
+		p.l.Println(fmt.Errorf("writing json response: %w", err))
 		return
 	}
 }

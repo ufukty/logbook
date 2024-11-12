@@ -3,16 +3,12 @@ package endpoints
 import (
 	"fmt"
 	"logbook/cmd/account/app"
-	"logbook/internal/web/requests"
+	"logbook/internal/cookies"
 	"logbook/models/columns"
 	"net/http"
 
 	"github.com/jackc/pgx/v5/pgtype"
 )
-
-type WhoAmIRequest struct {
-	SessionToken requests.Cookie[columns.SessionToken] `cookie:"session_token"`
-}
 
 type WhoAmIResponse struct {
 	Uid       columns.UserId   `json:"uid"`
@@ -23,16 +19,14 @@ type WhoAmIResponse struct {
 
 // GET
 func (p *Public) WhoAmI(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("session_token")
+	st, err := cookies.GetSessionToken(r)
 	if err != nil {
-		p.l.Println(fmt.Errorf("no session_token found"))
+		p.l.Println(fmt.Errorf("checking session token"))
 		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 		return
 	}
 
-	sessionToken := cookie.Value
-
-	profile, err := p.a.WhoAmI(r.Context(), columns.SessionToken(sessionToken))
+	profile, err := p.a.WhoAmI(r.Context(), st)
 	if err != nil {
 		p.l.Println(fmt.Errorf("app.WhoAmI: %w", err))
 		switch err {

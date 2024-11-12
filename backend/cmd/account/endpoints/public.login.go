@@ -3,7 +3,7 @@ package endpoints
 import (
 	"fmt"
 	"logbook/cmd/account/app"
-	"logbook/internal/average"
+	"logbook/internal/cookies"
 	"logbook/internal/web/validate"
 	"logbook/models/columns"
 	"net/http"
@@ -46,12 +46,6 @@ func (p *Public) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.SetCookie(w, &http.Cookie{
-		Name:     "session_token",
-		Value:    string(session.Token),
-		Expires:  session.CreatedAt.Time.Add(average.Week),
-		HttpOnly: true,
-		Secure:   true,
-	})
+	cookies.SetSessionToken(w, session.Token, session.CreatedAt.Time)
 	w.WriteHeader(http.StatusOK)
 }

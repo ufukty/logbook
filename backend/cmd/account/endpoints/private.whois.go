@@ -2,7 +2,6 @@ package endpoints
 
 import (
 	"fmt"
-	"logbook/internal/web/requests"
 	"logbook/models/columns"
 	"net/http"
 
@@ -10,7 +9,7 @@ import (
 )
 
 type WhoIsRequest struct {
-	SessionToken requests.Cookie[columns.SessionToken] `json:"session_token"` // body because a service is asking
+	SessionToken columns.SessionToken `json:"session_token"` // body because a service is asking
 }
 
 type WhoIsResponse struct {
@@ -32,7 +31,7 @@ func (p *Private) WhoIs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	profile, err := p.a.WhoAmI(r.Context(), bq.SessionToken.Value)
+	profile, err := p.a.WhoAmI(r.Context(), bq.SessionToken)
 	if err != nil {
 		p.l.Println(fmt.Errorf("WhoAmI: %w", err))
 		http.Error(w, fmt.Errorf("app.WhoIs :%w", err).Error(), http.StatusInternalServerError)

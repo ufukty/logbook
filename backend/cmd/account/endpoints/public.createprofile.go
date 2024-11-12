@@ -3,31 +3,37 @@ package endpoints
 import (
 	"fmt"
 	"logbook/cmd/account/app"
-	"logbook/internal/web/requests"
+
+	"logbook/internal/cookies"
 	"logbook/internal/web/validate"
 	"logbook/models/columns"
 	"net/http"
 )
 
 type CreateProfileRequest struct {
-	SessionToken requests.Cookie[columns.SessionToken] `cookie:"session_token"`
-	Uid          columns.UserId                        `json:"uid"`
-	Firstname    columns.HumanName                     `json:"firstname"`
-	Lastname     columns.HumanName                     `json:"lastname"`
+	Uid       columns.UserId    `json:"uid"`
+	Firstname columns.HumanName `json:"firstname"`
+	Lastname  columns.HumanName `json:"lastname"`
 }
 
 func (params CreateProfileRequest) Validate() error {
 	return validate.All(map[string]validate.Validator{
-		"session_token": params.SessionToken,
-		"uid":           params.Uid,
-		"firstname":     params.Firstname,
-		"lastname":      params.Lastname,
+		"uid":       params.Uid,
+		"firstname": params.Firstname,
+		"lastname":  params.Lastname,
 	})
 }
 
 // TODO: Authorization
 // POST
 func (p *Public) CreateProfile(w http.ResponseWriter, r *http.Request) {
+	st, err := cookies.GetSessionToken(r)
+	if err != nil {
+		p.l.Println(fmt.Errorf("checking session token"))
+		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+		return
+	}
+
 	bq := &CreateProfileRequest{}
 
 	if err := bq.Parse(r); err != nil {
@@ -42,8 +48,8 @@ func (p *Public) CreateProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := p.a.CreateProfile(r.Context(), app.CreateProfileParams{
-		SessionToken: bq.SessionToken.Value,
+	err = p.a.CreateProfile(r.Context(), app.CreateProfileParams{
+		SessionToken: st,
 		Uid:          bq.Uid,
 		Firstname:    bq.Firstname,
 		Lastname:     bq.Lastname,
