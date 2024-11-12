@@ -5,14 +5,14 @@ import (
 	"logbook/cmd/pdp/decider"
 	"logbook/internal/web/validate"
 	"logbook/models/columns"
-	"logbook/models/incoming"
+	"logbook/models/transports"
 	"net/http"
 )
 
 type OidGidRequest struct {
-	Actor    columns.GroupId       `route:"gid"`
-	Resource columns.ObjectiveId   `route:"oid"`
-	Action   incoming.PolicyAction `route:"action"`
+	Actor    columns.GroupId         `route:"gid"`
+	Resource columns.ObjectiveId     `route:"oid"`
+	Action   transports.PolicyAction `route:"action"`
 }
 
 // GET

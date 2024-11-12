@@ -5,14 +5,14 @@ import (
 	"logbook/internal/cookies"
 	"logbook/internal/web/validate"
 	"logbook/models/columns"
-	"logbook/models/incoming"
+	"logbook/models/transports"
 	"net/http"
 )
 
 type RespondToInviteRequest struct {
-	Ginvid     columns.GroupInviteId   `json:"ginvid"`
-	Response   incoming.InviteResponse `json:"response"`
-	MemberType incoming.MemberType     `json:"member-type"`
+	Ginvid     columns.GroupInviteId     `json:"ginvid"`
+	Response   transports.InviteResponse `json:"response"`
+	MemberType transports.MemberType     `json:"member-type"`
 }
 
 type RespondToInviteResponse struct {
