@@ -2,6 +2,8 @@ package endpoints
 
 import (
 	"fmt"
+	"logbook/cmd/account/endpoints"
+	"logbook/cmd/groups/app"
 	"logbook/internal/cookies"
 	"logbook/internal/web/validate"
 	"logbook/models/columns"
@@ -9,18 +11,15 @@ import (
 	"net/http"
 )
 
-type RespondToInviteRequest struct {
+type RespondToGroupInviteRequest struct {
+	Gid        columns.GroupId           `json:"ginvid"`
 	Ginvid     columns.GroupInviteId     `json:"ginvid"`
 	Response   transports.InviteResponse `json:"response"`
 	MemberType transports.MemberType     `json:"member-type"`
 }
 
-type RespondToInviteResponse struct {
-	// TODO:
-}
-
 // POST
-func (p *Public) RespondToInvite(w http.ResponseWriter, r *http.Request) {
+func (p *Public) RespondToGroupInvite(w http.ResponseWriter, r *http.Request) {
 	st, err := cookies.GetSessionToken(r)
 	if err != nil {
 		p.l.Println(fmt.Errorf("checking session token"))
@@ -28,7 +27,14 @@ func (p *Public) RespondToInvite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	bq := &RespondToInviteRequest{}
+	rp, err := p.accounts.WhoIs(&endpoints.WhoIsRequest{SessionToken: st})
+	if err != nil {
+		p.l.Println(fmt.Errorf("who is: %w", err))
+		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+		return
+	}
+
+	bq := &RespondToGroupInviteRequest{}
 
 	if err := bq.Parse(r); err != nil {
 		p.l.Println(fmt.Errorf("parsing request: %w", err))
@@ -42,11 +48,15 @@ func (p *Public) RespondToInvite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	panic("to implement") // TODO:
-
-	bs := RespondToInviteResponse{} // TODO:
-	if err := bs.Write(w); err != nil {
-		p.l.Println(fmt.Errorf("writing json response: %w", err))
+	err = p.a.RespondToGroupInvite(r.Context(), app.RespondToGroupInviteParams{
+		Actor:      rp.Uid,
+		Behalf:     bq.Gid,
+		Ginvid:     bq.Ginvid,
+		MemberType: bq.MemberType,
+		Response:   bq.Response,
+	})
+	if err != nil {
+		p.l.Println(fmt.Errorf("app.RespondToGroupInvite: %w", err))
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}

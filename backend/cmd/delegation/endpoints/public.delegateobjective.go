@@ -2,6 +2,7 @@ package endpoints
 
 import (
 	"fmt"
+	"logbook/cmd/account/endpoints"
 	"logbook/internal/cookies"
 	"logbook/internal/web/validate"
 	"logbook/models"
@@ -26,6 +27,13 @@ func (p *Public) DelegateObjective(w http.ResponseWriter, r *http.Request) {
 	st, err := cookies.GetSessionToken(r)
 	if err != nil {
 		p.l.Println(fmt.Errorf("checking session token"))
+		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+		return
+	}
+
+	rp, err := p.accounts.WhoIs(&endpoints.WhoIsRequest{SessionToken: st})
+	if err != nil {
+		p.l.Println(fmt.Errorf("who is: %w", err))
 		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 		return
 	}

@@ -12,4 +12,11 @@ var ErrCircularMembership = fmt.Errorf("two group directly or indirectly joining
 // TODO: enforce per-group member limit, 50?
 // TODO: enforce per-user membership limit, 50?
 
-func (a *App) InviteUserTypeMember(ctx context.Context, gid columns.GroupId, uid columns.UserId) (columns.GroupInviteId, error)
+type InviteMembersParams struct {
+	Actor            columns.UserId
+	Gid              columns.GroupId
+	GroupTypeMembers []columns.GroupId
+	UserTypeMembers  []columns.UserId
+}
+
+func (a *App) InviteMembers(ctx context.Context, params InviteMembersParams) error

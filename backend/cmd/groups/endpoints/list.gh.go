@@ -13,11 +13,9 @@ func (pr *Private) ListHandlers() map[string]reception.HandlerInfo {
 
 func (pu *Public) ListHandlers() map[string]reception.HandlerInfo {
 	return map[string]reception.HandlerInfo{
-		"CreateGroup":         {Method: "POST", Path: "/create-group", Ref: pu.CreateGroup},
-		"DelegateObjective":   {Method: "POST", Path: "/delegate-objective", Ref: pu.DelegateObjective},
-		"InviteCollaborators": {Method: "POST", Path: "/invite-collaborators", Ref: pu.InviteCollaborators},
-		"ListDelegationChain": {Method: "GET", Path: "/list-delegation-chain/{subject}", Ref: pu.ListDelegationChain},
-		"RemoveDelegation":    {Method: "POST", Path: "/remove-delegation", Ref: pu.RemoveDelegation},
-		"RespondToInvite":     {Method: "POST", Path: "/respond-to-invite", Ref: pu.RespondToInvite},
+		"CreateGroup":          {Method: "POST", Path: "/create-group", Ref: pu.CreateGroup},
+		"InviteMembers":        {Method: "POST", Path: "/invite-members/{gid}", Ref: pu.InviteMembers},
+		"RespondToGroupInvite": {Method: "POST", Path: "/respond-to-group-invite", Ref: pu.RespondToGroupInvite},
+		"RespondToUserInvite":  {Method: "POST", Path: "/respond-to-user-invite", Ref: pu.RespondToUserInvite},
 	}
 }

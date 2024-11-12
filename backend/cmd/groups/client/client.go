@@ -92,31 +92,7 @@ func (c *Client) CreateGroup(bq *endpoints.CreateGroupRequest) (*endpoints.Creat
 	return bs, nil
 }
 
-func (c *Client) DelegateObjective(bq *endpoints.DelegateObjectiveRequest) (*endpoints.DelegateObjectiveResponse, error) {
-	h, err := c.p.Host()
-	if err != nil {
-		return nil, fmt.Errorf("Host: %w", err)
-	}
-	rq, err := bq.Build(h)
-	if err != nil {
-		return nil, fmt.Errorf("Build: %w", err)
-	}
-	rs, err := http.DefaultClient.Do(rq)
-	if err != nil {
-		return nil, fmt.Errorf("Do: %w", err)
-	}
-	if rs.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("non-200 status code: %d (%s)", rs.StatusCode, http.StatusText(rs.StatusCode))
-	}
-	bs := &endpoints.DelegateObjectiveResponse{}
-	err = bs.Parse(rs)
-	if err != nil {
-		return nil, fmt.Errorf("Parse: %w", err)
-	}
-	return bs, nil
-}
-
-func (c *Client) InviteCollaborators(bq *endpoints.InviteCollaboratorsRequest) (*http.Response, error) {
+func (c *Client) InviteMembers(bq *endpoints.InviteMembersRequest) (*http.Response, error) {
 	h, err := c.p.Host()
 	if err != nil {
 		return nil, fmt.Errorf("Host: %w", err)
@@ -135,7 +111,7 @@ func (c *Client) InviteCollaborators(bq *endpoints.InviteCollaboratorsRequest) (
 	return rs, nil
 }
 
-func (c *Client) ListDelegationChain(bq *endpoints.ListDelegationChainRequest) (*http.Response, error) {
+func (c *Client) RespondToGroupInvite(bq *endpoints.RespondToGroupInviteRequest) (*http.Response, error) {
 	h, err := c.p.Host()
 	if err != nil {
 		return nil, fmt.Errorf("Host: %w", err)
@@ -154,26 +130,7 @@ func (c *Client) ListDelegationChain(bq *endpoints.ListDelegationChainRequest) (
 	return rs, nil
 }
 
-func (c *Client) RemoveDelegation(bq *endpoints.RemoveDelegationRequest) (*http.Response, error) {
-	h, err := c.p.Host()
-	if err != nil {
-		return nil, fmt.Errorf("Host: %w", err)
-	}
-	rq, err := bq.Build(h)
-	if err != nil {
-		return nil, fmt.Errorf("Build: %w", err)
-	}
-	rs, err := http.DefaultClient.Do(rq)
-	if err != nil {
-		return nil, fmt.Errorf("Do: %w", err)
-	}
-	if rs.StatusCode != http.StatusOK {
-		return rs, fmt.Errorf("non-200 status code: %d (%s)", rs.StatusCode, http.StatusText(rs.StatusCode))
-	}
-	return rs, nil
-}
-
-func (c *Client) RespondToInvite(bq *endpoints.RespondToInviteRequest) (*http.Response, error) {
+func (c *Client) RespondToUserInvite(bq *endpoints.RespondToUserInviteRequest) (*http.Response, error) {
 	h, err := c.p.Host()
 	if err != nil {
 		return nil, fmt.Errorf("Host: %w", err)

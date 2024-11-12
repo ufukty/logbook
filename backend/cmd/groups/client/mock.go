@@ -11,11 +11,9 @@ type Interface interface {
 	CheckMembership(*endpoints.CheckMembershipRequest) (*endpoints.CheckMembershipResponse, error)
 	CheckMembershipEventual(*endpoints.CheckMembershipEventualRequest) (*endpoints.CheckMembershipEventualResponse, error)
 	CreateGroup(*endpoints.CreateGroupRequest) (*endpoints.CreateGroupResponse, error)
-	DelegateObjective(*endpoints.DelegateObjectiveRequest) (*endpoints.DelegateObjectiveResponse, error)
-	InviteCollaborators(*endpoints.InviteCollaboratorsRequest) (*http.Response, error)
-	ListDelegationChain(*endpoints.ListDelegationChainRequest) (*http.Response, error)
-	RemoveDelegation(*endpoints.RemoveDelegationRequest) (*http.Response, error)
-	RespondToInvite(*endpoints.RespondToInviteRequest) (*http.Response, error)
+	InviteMembers(*endpoints.InviteMembersRequest) (*http.Response, error)
+	RespondToGroupInvite(*endpoints.RespondToGroupInviteRequest) (*http.Response, error)
+	RespondToUserInvite(*endpoints.RespondToUserInviteRequest) (*http.Response, error)
 }
 
 type Mock struct {
@@ -33,22 +31,14 @@ func (m *Mock) CreateGroup(*endpoints.CreateGroupRequest) (*endpoints.CreateGrou
 	return nil, nil
 }
 
-func (m *Mock) DelegateObjective(*endpoints.DelegateObjectiveRequest) (*endpoints.DelegateObjectiveResponse, error) {
+func (m *Mock) InviteMembers(*endpoints.InviteMembersRequest) (*http.Response, error) {
 	return nil, nil
 }
 
-func (m *Mock) InviteCollaborators(*endpoints.InviteCollaboratorsRequest) (*http.Response, error) {
+func (m *Mock) RespondToGroupInvite(*endpoints.RespondToGroupInviteRequest) (*http.Response, error) {
 	return nil, nil
 }
 
-func (m *Mock) ListDelegationChain(*endpoints.ListDelegationChainRequest) (*http.Response, error) {
-	return nil, nil
-}
-
-func (m *Mock) RemoveDelegation(*endpoints.RemoveDelegationRequest) (*http.Response, error) {
-	return nil, nil
-}
-
-func (m *Mock) RespondToInvite(*endpoints.RespondToInviteRequest) (*http.Response, error) {
+func (m *Mock) RespondToUserInvite(*endpoints.RespondToUserInviteRequest) (*http.Response, error) {
 	return nil, nil
 }

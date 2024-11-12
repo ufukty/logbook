@@ -174,8 +174,41 @@ func (bs *CreateGroupResponse) Parse(rs *http.Response) error {
 	return nil
 }
 
-func (bq DelegateObjectiveRequest) Build(host string) (*http.Request, error) {
-	uri := "/delegate-objective"
+func (bq InviteMembersRequest) Build(host string) (*http.Request, error) {
+	uri := "/invite-members/{gid}"
+	encoded, err := bq.Gid.ToRoute()
+	if err != nil {
+		return nil, fmt.Errorf("InviteMembersRequest.Gid.ToRoute: %w", err)
+	}
+	uri = strings.Replace(uri, "{gid}", encoded, 1)
+	body := bytes.NewBuffer([]byte{})
+	err = json.NewEncoder(body).Encode(bq)
+	if err != nil {
+		return nil, fmt.Errorf("json.Encoder.Encode: %w", err)
+	}
+	r, err := http.NewRequest("POST", join(host, uri), body)
+	if err != nil {
+		return nil, fmt.Errorf("http.NewRequest: %w", err)
+	}
+	r.Header.Set("Content-Type", mime.TypeByExtension(".json"))
+	r.Header.Set("Content-Length", fmt.Sprintf("%d", body.Len()))
+	return r, nil
+}
+
+func (bq *InviteMembersRequest) Parse(rq *http.Request) error {
+	err := bq.Gid.FromRoute(rq.PathValue("gid"))
+	if err != nil {
+		return fmt.Errorf("InviteMembersRequest.Gid.FromRoute: %w", err)
+	}
+	err = json.NewDecoder(rq.Body).Decode(bq)
+	if err != nil {
+		return fmt.Errorf("decoding body: %w", err)
+	}
+	return nil
+}
+
+func (bq RespondToGroupInviteRequest) Build(host string) (*http.Request, error) {
+	uri := "/respond-to-group-invite"
 	body := bytes.NewBuffer([]byte{})
 	err := json.NewEncoder(body).Encode(bq)
 	if err != nil {
@@ -190,7 +223,7 @@ func (bq DelegateObjectiveRequest) Build(host string) (*http.Request, error) {
 	return r, nil
 }
 
-func (bq *DelegateObjectiveRequest) Parse(rq *http.Request) error {
+func (bq *RespondToGroupInviteRequest) Parse(rq *http.Request) error {
 	err := json.NewDecoder(rq.Body).Decode(bq)
 	if err != nil {
 		return fmt.Errorf("decoding body: %w", err)
@@ -198,30 +231,8 @@ func (bq *DelegateObjectiveRequest) Parse(rq *http.Request) error {
 	return nil
 }
 
-func (bs DelegateObjectiveResponse) Write(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", mime.TypeByExtension(".json"))
-	w.WriteHeader(http.StatusOK)
-	err := json.NewEncoder(w).Encode(bs)
-	if err != nil {
-		return fmt.Errorf("encoding the body: %w", err)
-	}
-	return nil
-}
-
-func (bs *DelegateObjectiveResponse) Parse(rs *http.Response) error {
-	ct := rs.Header.Get("Content-Type")
-	if ct != mime.TypeByExtension(".json") {
-		return fmt.Errorf("unsupported Content-Type: %s", ct)
-	}
-	err := json.NewDecoder(rs.Body).Decode(bs)
-	if err != nil {
-		return fmt.Errorf("decoding the body: %w", err)
-	}
-	return nil
-}
-
-func (bq InviteCollaboratorsRequest) Build(host string) (*http.Request, error) {
-	uri := "/invite-collaborators"
+func (bq RespondToUserInviteRequest) Build(host string) (*http.Request, error) {
+	uri := "/respond-to-user-invite"
 	body := bytes.NewBuffer([]byte{})
 	err := json.NewEncoder(body).Encode(bq)
 	if err != nil {
@@ -236,77 +247,7 @@ func (bq InviteCollaboratorsRequest) Build(host string) (*http.Request, error) {
 	return r, nil
 }
 
-func (bq *InviteCollaboratorsRequest) Parse(rq *http.Request) error {
-	err := json.NewDecoder(rq.Body).Decode(bq)
-	if err != nil {
-		return fmt.Errorf("decoding body: %w", err)
-	}
-	return nil
-}
-
-func (bq ListDelegationChainRequest) Build(host string) (*http.Request, error) {
-	uri := "/list-delegation-chain/{subject}"
-	encoded, err := bq.Subject.ToRoute()
-	if err != nil {
-		return nil, fmt.Errorf("ListDelegationChainRequest.Subject.ToRoute: %w", err)
-	}
-	uri = strings.Replace(uri, "{subject}", encoded, 1)
-	r, err := http.NewRequest("GET", join(host, uri), nil)
-	if err != nil {
-		return nil, fmt.Errorf("http.NewRequest: %w", err)
-	}
-	return r, nil
-}
-
-func (bq *ListDelegationChainRequest) Parse(rq *http.Request) error {
-	err := bq.Subject.FromRoute(rq.PathValue("subject"))
-	if err != nil {
-		return fmt.Errorf("ListDelegationChainRequest.Subject.FromRoute: %w", err)
-	}
-	return nil
-}
-
-func (bq RemoveDelegationRequest) Build(host string) (*http.Request, error) {
-	uri := "/remove-delegation"
-	body := bytes.NewBuffer([]byte{})
-	err := json.NewEncoder(body).Encode(bq)
-	if err != nil {
-		return nil, fmt.Errorf("json.Encoder.Encode: %w", err)
-	}
-	r, err := http.NewRequest("POST", join(host, uri), body)
-	if err != nil {
-		return nil, fmt.Errorf("http.NewRequest: %w", err)
-	}
-	r.Header.Set("Content-Type", mime.TypeByExtension(".json"))
-	r.Header.Set("Content-Length", fmt.Sprintf("%d", body.Len()))
-	return r, nil
-}
-
-func (bq *RemoveDelegationRequest) Parse(rq *http.Request) error {
-	err := json.NewDecoder(rq.Body).Decode(bq)
-	if err != nil {
-		return fmt.Errorf("decoding body: %w", err)
-	}
-	return nil
-}
-
-func (bq RespondToInviteRequest) Build(host string) (*http.Request, error) {
-	uri := "/respond-to-invite"
-	body := bytes.NewBuffer([]byte{})
-	err := json.NewEncoder(body).Encode(bq)
-	if err != nil {
-		return nil, fmt.Errorf("json.Encoder.Encode: %w", err)
-	}
-	r, err := http.NewRequest("POST", join(host, uri), body)
-	if err != nil {
-		return nil, fmt.Errorf("http.NewRequest: %w", err)
-	}
-	r.Header.Set("Content-Type", mime.TypeByExtension(".json"))
-	r.Header.Set("Content-Length", fmt.Sprintf("%d", body.Len()))
-	return r, nil
-}
-
-func (bq *RespondToInviteRequest) Parse(rq *http.Request) error {
+func (bq *RespondToUserInviteRequest) Parse(rq *http.Request) error {
 	err := json.NewDecoder(rq.Body).Decode(bq)
 	if err != nil {
 		return fmt.Errorf("decoding body: %w", err)

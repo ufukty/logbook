@@ -7,19 +7,18 @@ import (
 	"logbook/internal/cookies"
 	"logbook/internal/web/validate"
 	"logbook/models/columns"
+	"logbook/models/transports"
 	"net/http"
 )
 
-type CreateGroupRequest struct {
-	Name columns.GroupName `json:"name"`
-}
-
-type CreateGroupResponse struct {
-	GroupId columns.GroupId `json:"gid"`
+type RespondToUserInviteRequest struct {
+	Ginvid     columns.GroupInviteId     `json:"ginvid"`
+	Response   transports.InviteResponse `json:"response"`
+	MemberType transports.MemberType     `json:"member-type"`
 }
 
 // POST
-func (p *Public) CreateGroup(w http.ResponseWriter, r *http.Request) {
+func (p *Public) RespondToUserInvite(w http.ResponseWriter, r *http.Request) {
 	st, err := cookies.GetSessionToken(r)
 	if err != nil {
 		p.l.Println(fmt.Errorf("checking session token"))
@@ -34,7 +33,7 @@ func (p *Public) CreateGroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	bq := &CreateGroupRequest{}
+	bq := &RespondToUserInviteRequest{}
 
 	if err := bq.Parse(r); err != nil {
 		p.l.Println(fmt.Errorf("parsing request: %w", err))
@@ -48,21 +47,15 @@ func (p *Public) CreateGroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	gid, err := p.a.CreateGroup(r.Context(), app.CreateGroupParams{
-		Actor:     rp.Uid,
-		GroupName: bq.Name,
+	err = p.a.RespondToUserInvite(r.Context(), app.RespondToUserInviteParams{
+		Actor: rp.Uid,
+		Ginvid:     bq.Ginvid,
+		MemberType: bq.MemberType,
+		Response:   bq.Response,
 	})
 	if err != nil {
-		p.l.Println(fmt.Errorf("CreateGroup: %w", err))
+		p.l.Println(fmt.Errorf("app.RespondToUserInvite: %w", err))
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
-
-	bs := CreateGroupResponse{
-		GroupId: gid,
-	}
-	if err := bs.Write(w); err != nil {
-		p.l.Println(fmt.Errorf("writing json response: %w", err))
 		return
 	}
 }
