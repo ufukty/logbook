@@ -6,6 +6,7 @@ import (
 	"logbook/cmd/account/database"
 	"logbook/cmd/objectives/endpoints"
 	"logbook/models/columns"
+	"logbook/models/transports"
 	"time"
 
 	"github.com/alexedwards/argon2id"
@@ -33,7 +34,7 @@ type CreateAccountRequest struct {
 	// Phone      columns.Phone
 	// PhoneGrant columns.PhoneGrant
 
-	Password string
+	Password transports.Password
 }
 
 var ErrEmailExists = fmt.Errorf("email in use")
@@ -56,7 +57,7 @@ func (a *App) CreateAccount(ctx context.Context, params CreateAccountRequest) er
 		return fmt.Errorf("inserting record to database: %w", err)
 	}
 
-	hash, err := argon2id.CreateHash(params.Password, argon2idParams)
+	hash, err := argon2id.CreateHash(string(params.Password), argon2idParams)
 	if err != nil {
 		return fmt.Errorf("generating hash: %w", err)
 	}

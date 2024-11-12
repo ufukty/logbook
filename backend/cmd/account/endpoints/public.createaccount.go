@@ -5,22 +5,15 @@ import (
 	"logbook/cmd/account/app"
 	"logbook/internal/web/validate"
 	"logbook/models/columns"
+	"logbook/models/transports"
 	"net/http"
 )
 
 type CreateAccountRequest struct {
-	Email     columns.Email     `json:"email"`
-	Password  string            `json:"password"`
-	Firstname columns.HumanName `json:"firstname"`
-	Lastname  columns.HumanName `json:"lastname"`
-}
-
-func (bq CreateAccountRequest) validate() error {
-	return validate.All(map[string]validate.Validator{
-		"email":     bq.Email,
-		"firstname": bq.Firstname,
-		"lastname":  bq.Lastname,
-	})
+	Email     columns.Email       `json:"email"`
+	Password  transports.Password `json:"password"`
+	Firstname columns.HumanName   `json:"firstname"`
+	Lastname  columns.HumanName   `json:"lastname"`
 }
 
 /*
@@ -46,7 +39,7 @@ func (p *Public) CreateAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := bq.validate(); err != nil {
+	if err := validate.RequestFields(bq); err != nil {
 		p.l.Println(fmt.Errorf("validation: %w", err))
 		http.Error(w, redact(err), http.StatusBadRequest)
 		return

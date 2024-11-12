@@ -16,14 +16,6 @@ type CreateProfileRequest struct {
 	Lastname  columns.HumanName `json:"lastname"`
 }
 
-func (params CreateProfileRequest) Validate() error {
-	return validate.All(map[string]validate.Validator{
-		"uid":       params.Uid,
-		"firstname": params.Firstname,
-		"lastname":  params.Lastname,
-	})
-}
-
 // TODO: Authorization
 // POST
 func (p *Public) CreateProfile(w http.ResponseWriter, r *http.Request) {
@@ -42,7 +34,7 @@ func (p *Public) CreateProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := bq.Validate(); err != nil {
+	if err := validate.RequestFields(bq); err != nil {
 		p.l.Println(fmt.Errorf("validating the request parameters: %w", err))
 		http.Error(w, redact(err), http.StatusBadRequest)
 		return
