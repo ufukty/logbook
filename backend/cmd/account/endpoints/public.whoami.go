@@ -11,10 +11,10 @@ import (
 )
 
 type WhoAmIResponse struct {
-	Uid       columns.UserId   `json:"uid"`
-	Firstname string           `json:"firstname"`
-	Lastname  string           `json:"lastname"`
-	CreatedAt pgtype.Timestamp `json:"created_at"`
+	Uid       columns.UserId    `json:"uid"`
+	Firstname columns.HumanName `json:"firstname"`
+	Lastname  columns.HumanName `json:"lastname"`
+	CreatedAt pgtype.Timestamp  `json:"created_at"`
 }
 
 // GET

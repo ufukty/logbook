@@ -5,12 +5,13 @@ import (
 	"logbook/internal/cookies"
 	"logbook/internal/web/validate"
 	"logbook/models"
+	"logbook/models/basics"
 	"net/http"
 )
 
 type MarkCompleteRequest struct {
-	Subject    models.Ovid `json:"subject"`
-	Completion bool        `json:"completion"`
+	Subject    models.Ovid    `json:"subject"`
+	Completion basics.Boolean `json:"completion"`
 }
 
 type MarkCompleteResponse struct {

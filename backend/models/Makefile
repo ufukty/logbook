@@ -1,4 +1,5 @@
 all: services.validate.go
+	$(MAKE) -C basics
 	$(MAKE) -C columns
 	$(MAKE) -C incoming
 
