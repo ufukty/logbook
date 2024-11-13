@@ -2,8 +2,8 @@ package endpoints
 
 import (
 	"fmt"
-	"logbook/cmd/account/endpoints"
 	"logbook/cmd/groups/app"
+	"logbook/cmd/sessions/endpoints"
 	"logbook/internal/cookies"
 	"logbook/internal/web/validate"
 	"logbook/models/columns"
@@ -27,7 +27,7 @@ func (p *Public) CreateGroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rp, err := p.accounts.WhoIs(&endpoints.WhoIsRequest{SessionToken: st})
+	rp, err := p.sessions.WhoIs(&endpoints.WhoIsRequest{SessionToken: st})
 	if err != nil {
 		p.l.Println(fmt.Errorf("who is: %w", err))
 		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)

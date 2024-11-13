@@ -1,0 +1,18 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    queries: "queries.sql"
+    schema: "schema.sql"
+    gen:
+      go:
+        package: "database"
+        out: "."
+        sql_package: "pgx/v5"
+        output_db_file_name: dbtx.sqlc.go
+        output_models_file_name: models.sqlc.go
+        output_files_suffix: .sqlc
+        overrides:
+          - db_type: UserId
+            go_type:
+              import: "logbook/models/columns"
+              type: UserId

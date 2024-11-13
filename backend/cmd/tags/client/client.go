@@ -39,7 +39,7 @@ func (c *Client) TagAssign(bq *endpoints.TagAssignRequest) (*http.Response, erro
 	return rs, nil
 }
 
-func (c *Client) TagCreation(bq *endpoints.TagCreationRequest) (*http.Response, error) {
+func (c *Client) TagCreation(bq *endpoints.TagCreationRequest) (*endpoints.TagCreationResponse, error) {
 	h, err := c.p.Host()
 	if err != nil {
 		return nil, fmt.Errorf("Host: %w", err)
@@ -53,7 +53,12 @@ func (c *Client) TagCreation(bq *endpoints.TagCreationRequest) (*http.Response, 
 		return nil, fmt.Errorf("Do: %w", err)
 	}
 	if rs.StatusCode != http.StatusOK {
-		return rs, fmt.Errorf("non-200 status code: %d (%s)", rs.StatusCode, http.StatusText(rs.StatusCode))
+		return nil, fmt.Errorf("non-200 status code: %d (%s)", rs.StatusCode, http.StatusText(rs.StatusCode))
 	}
-	return rs, nil
+	bs := &endpoints.TagCreationResponse{}
+	err = bs.Parse(rs)
+	if err != nil {
+		return nil, fmt.Errorf("Parse: %w", err)
+	}
+	return bs, nil
 }

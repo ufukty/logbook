@@ -6,8 +6,6 @@ import "fmt"
 
 func (s Service) Validate() error {
 	switch s {
-	case Account:
-		return nil
 	case Auth:
 		return nil
 	case Discovery:
@@ -20,9 +18,17 @@ func (s Service) Validate() error {
 		return nil
 	case Pdp:
 		return nil
+	case Profiles:
+		return nil
+	case Registration:
+		return nil
 	case Registry:
 		return nil
+	case Sessions:
+		return nil
 	case Tags:
+		return nil
+	case Users:
 		return nil
 	}
 	return fmt.Errorf("invalid value")

@@ -3,10 +3,10 @@
 package deployment
 
 import (
+	"fmt"
 	"gopkg.in/yaml.v3"
 	"os"
 	"time"
-	"fmt"
 )
 
 type Router struct {
@@ -21,12 +21,16 @@ type Router struct {
 type Config struct {
 	Environment string `yaml:"environment"`
 	Ports       struct {
-		Accounts   int `yaml:"accounts"`
-		Gateway    int `yaml:"gateway"`
-		Internal   int `yaml:"internal"`
-		Objectives int `yaml:"objectives"`
-		Registry   int `yaml:"registry"`
-		Tags       int `yaml:"tags"`
+		Gateway      int `yaml:"gateway"`
+		Internal     int `yaml:"internal"`
+		Objectives   int `yaml:"objectives"`
+		Pdp          int `yaml:"pdp"`
+		Profiles     int `yaml:"profiles"`
+		Registration int `yaml:"registration"`
+		Registry     int `yaml:"registry"`
+		Sessions     int `yaml:"sessions"`
+		Tags         int `yaml:"tags"`
+		Users        int `yaml:"users"`
 	} `yaml:"ports"`
 	Reception struct {
 		RequestTimeout time.Duration `yaml:"request-timeout"`

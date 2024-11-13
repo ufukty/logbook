@@ -12,7 +12,7 @@ type ReattachParams struct {
 	Actor         columns.UserId
 	CurrentParent models.Ovid
 	NextParent    models.Ovid
-	ComesAfter    columns.ObjectiveId
+	ComesAfter    columns.ObjectiveId // TODO: remove
 	Subject       columns.ObjectiveId
 }
 

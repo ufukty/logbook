@@ -6,6 +6,7 @@ import (
 	"logbook/cmd/objectives/app"
 	"logbook/cmd/objectives/database"
 	"logbook/cmd/objectives/service"
+	sessions "logbook/cmd/sessions/client"
 	"logbook/internal/startup"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -27,6 +28,6 @@ func getTestDependencies() (*Public, error) {
 		return nil, fmt.Errorf("pgxpool.New: %w", err)
 	}
 	app := app.New(pool, l)
-	ep := NewPublic(app, l)
+	ep := NewPublic(app, &sessions.Mock{}, l)
 	return ep, nil
 }

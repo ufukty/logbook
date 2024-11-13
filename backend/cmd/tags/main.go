@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	registry "logbook/cmd/registry/client"
+	sessions "logbook/cmd/sessions/client"
 	"logbook/cmd/tags/app"
 	"logbook/cmd/tags/endpoints"
 	"logbook/cmd/tags/service"
@@ -38,11 +39,15 @@ func Main() error {
 	defer internalsd.Stop()
 
 	reg := registry.NewClient(balancer.NewProxied(internalsd, models.Registry))
-	sc := sidecar.New(reg, deplcfg, []models.Service{}, l)
+	sc := sidecar.New(reg, deplcfg, []models.Service{
+		models.Sessions,
+	}, l)
 	defer sc.Stop()
 
+	sessions := sessions.NewClient(balancer.New(sc.InstanceSource(models.Sessions)))
+
 	a := app.New(pool, internalsd)
-	e := endpoints.New(a, l)
+	e := endpoints.New(a, sessions, l)
 
 	agent := reception.NewAgent(deplcfg, l)
 	err = agent.RegisterEndpoints(e, nil)

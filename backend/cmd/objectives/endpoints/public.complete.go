@@ -2,6 +2,7 @@ package endpoints
 
 import (
 	"fmt"
+	"logbook/cmd/sessions/endpoints"
 	"logbook/internal/cookies"
 	"logbook/internal/web/validate"
 	"logbook/models"
@@ -23,6 +24,15 @@ func (p *Public) MarkComplete(w http.ResponseWriter, r *http.Request) {
 	st, err := cookies.GetSessionToken(r)
 	if err != nil {
 		p.l.Println(fmt.Errorf("checking session token"))
+		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+		return
+	}
+
+	_, err = p.sessions.WhoIs(&endpoints.WhoIsRequest{
+		SessionToken: st,
+	})
+	if err != nil {
+		p.l.Println(fmt.Errorf("sessions.WhoIs: %w", err))
 		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 		return
 	}

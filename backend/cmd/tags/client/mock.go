@@ -9,7 +9,7 @@ import (
 
 type Interface interface {
 	TagAssign(*endpoints.TagAssignRequest) (*http.Response, error)
-	TagCreation(*endpoints.TagCreationRequest) (*http.Response, error)
+	TagCreation(*endpoints.TagCreationRequest) (*endpoints.TagCreationResponse, error)
 }
 
 type Mock struct {
@@ -19,6 +19,6 @@ func (m *Mock) TagAssign(*endpoints.TagAssignRequest) (*http.Response, error) {
 	return nil, nil
 }
 
-func (m *Mock) TagCreation(*endpoints.TagCreationRequest) (*http.Response, error) {
+func (m *Mock) TagCreation(*endpoints.TagCreationRequest) (*endpoints.TagCreationResponse, error) {
 	return nil, nil
 }

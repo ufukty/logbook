@@ -3,6 +3,7 @@ package endpoints
 import (
 	"fmt"
 	"logbook/cmd/objectives/app"
+	"logbook/cmd/sessions/endpoints"
 	"logbook/internal/cookies"
 	"logbook/internal/web/validate"
 	"logbook/models"
@@ -29,6 +30,13 @@ func (p *Public) CreateObjective(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	wi, err := p.sessions.WhoIs(&endpoints.WhoIsRequest{SessionToken: st})
+	if err != nil {
+		p.l.Println(fmt.Errorf("sessions.WhoIs: %w", err))
+		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+		return
+	}
+
 	bq := &CreateObjectiveRequest{}
 
 	if err := bq.Parse(r); err != nil {
@@ -46,10 +54,10 @@ func (p *Public) CreateObjective(w http.ResponseWriter, r *http.Request) {
 	obj, err := p.a.CreateSubtask(r.Context(), app.CreateSubtaskParams{
 		Parent:  bq.Parent,
 		Content: bq.Content,
-		Creator: "00000000-0000-0000-0000-000000000000", // TODO: check auth header
+		Creator: wi.Uid,
 	})
 	if err != nil {
-		fmt.Println(fmt.Errorf("app.createObjective: %w", err))
+		fmt.Println(fmt.Errorf("app.CreateSubtask: %w", err))
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}

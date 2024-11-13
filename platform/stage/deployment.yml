@@ -29,10 +29,15 @@ sidecar:
   querying-ticker-period: 1s # only needs to be smaller than registry.instance-timeout
 
 ports:
+  objectives: 0
+  pdp: 0
+  profiles: 0
+  registration: 0
+  sessions: 0
+  tags: 0
+  users: 0
+
+  gateway: 0
   internal: 8080 # fixed
   registry: 8080 # fixed
 
-  accounts: 0
-  gateway: 0
-  objectives: 0
-  tags: 0

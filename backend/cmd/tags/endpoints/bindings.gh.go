@@ -69,3 +69,25 @@ func (bq *TagCreationRequest) Parse(rq *http.Request) error {
 	}
 	return nil
 }
+
+func (bs TagCreationResponse) Write(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", mime.TypeByExtension(".json"))
+	w.WriteHeader(http.StatusOK)
+	err := json.NewEncoder(w).Encode(bs)
+	if err != nil {
+		return fmt.Errorf("encoding the body: %w", err)
+	}
+	return nil
+}
+
+func (bs *TagCreationResponse) Parse(rs *http.Response) error {
+	ct := rs.Header.Get("Content-Type")
+	if ct != mime.TypeByExtension(".json") {
+		return fmt.Errorf("unsupported Content-Type: %s", ct)
+	}
+	err := json.NewDecoder(rs.Body).Decode(bs)
+	if err != nil {
+		return fmt.Errorf("decoding the body: %w", err)
+	}
+	return nil
+}

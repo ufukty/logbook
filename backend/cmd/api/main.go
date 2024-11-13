@@ -29,15 +29,19 @@ func Main() error {
 	// NOTE: service registry needs to be accessed through internal gateway
 	reg := registry.NewClient(balancer.NewProxied(internalsd, models.Registry))
 	sc := sidecar.New(reg, deplcfg, []models.Service{
-		models.Account,
 		models.Objectives,
+		models.Profiles,
+		models.Registration,
+		models.Users,
 	}, l)
 	defer sc.Stop()
 
 	agent := reception.NewAgent(deplcfg, l)
 	err = agent.RegisterForwarders(map[models.Service]*forwarder.LoadBalancedReverseProxy{
-		models.Account:    forwarder.New(sc.InstanceSource(models.Account), deplcfg, l),
-		models.Objectives: forwarder.New(sc.InstanceSource(models.Objectives), deplcfg, l),
+		models.Users:        forwarder.New(sc.InstanceSource(models.Users), deplcfg, l),
+		models.Objectives:   forwarder.New(sc.InstanceSource(models.Objectives), deplcfg, l),
+		models.Profiles:     forwarder.New(sc.InstanceSource(models.Profiles), deplcfg, l),
+		models.Registration: forwarder.New(sc.InstanceSource(models.Registration), deplcfg, l),
 	})
 	if err != nil {
 		return fmt.Errorf("agent.RegisterForwarders: %w", err)

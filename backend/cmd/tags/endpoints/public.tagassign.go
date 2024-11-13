@@ -2,6 +2,7 @@ package endpoints
 
 import (
 	"fmt"
+	"logbook/cmd/sessions/endpoints"
 	"logbook/internal/cookies"
 	"logbook/internal/web/validate"
 	"logbook/models"
@@ -15,15 +16,20 @@ type TagAssignRequest struct {
 	Tid     columns.TagId `json:"tid"`
 }
 
-type TagAssignResponse struct {
-	// TODO:
-}
-
 // POST
 func (p *Public) TagAssign(w http.ResponseWriter, r *http.Request) {
 	st, err := cookies.GetSessionToken(r)
 	if err != nil {
 		p.l.Println(fmt.Errorf("checking session token"))
+		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+		return
+	}
+
+	_, err = p.sessions.WhoIs(&endpoints.WhoIsRequest{
+		SessionToken: st,
+	})
+	if err != nil {
+		p.l.Println(fmt.Errorf("sessions.WhoIs: %w", err))
 		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 		return
 	}
@@ -43,11 +49,4 @@ func (p *Public) TagAssign(w http.ResponseWriter, r *http.Request) {
 	}
 
 	panic("to implement") // TODO:
-
-	bs := TagAssignResponse{} // TODO:
-	if err := bs.Write(w); err != nil {
-		p.l.Println(fmt.Errorf("writing json response: %w", err))
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
 }

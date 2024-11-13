@@ -52,7 +52,7 @@ func Main() error {
 	// TODO: tls between services needs certs per host(name)
 	err = router.StartServer(router.ServerParameters{
 		Address:  args.PrivateNetworkIp,
-		Port:     deplcfg.Ports.Accounts,
+		Port:     deplcfg.Ports.Pdp,
 		Router:   deplcfg.Router,
 		Service:  models.Pdp,
 		ServeMux: agent.Mux(),

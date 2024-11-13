@@ -1,5 +1,8 @@
 all:
-	$(MAKE) -C account
+	$(MAKE) -C users
+	$(MAKE) -C profiles
+	$(MAKE) -C sessions
+	$(MAKE) -C registration
 	$(MAKE) -C auth
 	$(MAKE) -C groups
 	$(MAKE) -C objectives

@@ -8,6 +8,7 @@ import (
 	"logbook/cmd/objectives/endpoints"
 	"logbook/cmd/objectives/service"
 	registry "logbook/cmd/registry/client"
+	sessions "logbook/cmd/sessions/client"
 	"logbook/internal/startup"
 	"logbook/internal/web/balancer"
 	"logbook/internal/web/reception"
@@ -39,11 +40,11 @@ func Main() error {
 	defer internalsd.Stop()
 
 	reg := registry.NewClient(balancer.NewProxied(internalsd, models.Registry))
-	sc := sidecar.New(reg, deplcfg, []models.Service{}, l)
+	sc := sidecar.New(reg, deplcfg, []models.Service{models.Sessions}, l)
 	defer sc.Stop()
 
 	a := app.New(pool, l)
-	pub := endpoints.NewPublic(a, l)
+	pub := endpoints.NewPublic(a, sessions.NewClient(balancer.New(sc.InstanceSource(models.Sessions))), l)
 	priv := endpoints.NewPrivate(a, l)
 
 	agent := reception.NewAgent(deplcfg, l)
