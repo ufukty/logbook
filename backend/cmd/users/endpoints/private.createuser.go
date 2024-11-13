@@ -7,6 +7,8 @@ import (
 	"net/http"
 )
 
+type CreateUserRequest struct{}
+
 type CreateUserResponse struct {
 	Uid columns.UserId `json:"uid"`
 }
@@ -16,7 +18,7 @@ type CreateUserResponse struct {
 func (p *Private) CreateUser(w http.ResponseWriter, r *http.Request) {
 	uid, err := p.a.CreateUser(r.Context())
 	if err != nil {
-		p.l.Println(fmt.Errorf("app: %w", err))
+		p.l.Println(fmt.Errorf("a.CreateUser: %w", err))
 		http.Error(w, redact(err), http.StatusInternalServerError)
 		return
 	}
@@ -27,7 +29,7 @@ func (p *Private) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	err = bq.Write(w)
 	if err != nil {
-		p.l.Println(fmt.Errorf(": %w", err))
+		p.l.Println(fmt.Errorf("bq.Write: %w", err))
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}

@@ -6,6 +6,7 @@ import (
 
 	profiles "logbook/cmd/profiles/endpoints"
 	sessions "logbook/cmd/sessions/endpoints"
+	"logbook/cmd/users/endpoints"
 	"logbook/models/columns"
 	"logbook/models/transports"
 	"time"
@@ -44,7 +45,7 @@ var ErrEmailExists = fmt.Errorf("email in use")
  * TODO: Wrap creation of user-task-bookmark with transaction, rollback on failure to not-lock person to re-register with same email
  */
 func (a *App) Register(ctx context.Context, params RegisterRequest) error {
-	uid, err := a.Users.CreateUser()
+	cu, err := a.Users.CreateUser(&endpoints.CreateUserRequest{})
 	if err != nil {
 		return fmt.Errorf("User.CreateUser: %w", err)
 	}
@@ -57,11 +58,14 @@ func (a *App) Register(ctx context.Context, params RegisterRequest) error {
 		return fmt.Errorf("a.Sessions.SaveCredentials: %w", err)
 	}
 
-	a.Profiles.CreateProfile(&profiles.CreateProfileRequest{
-		Uid:       uid,
-		Firstname: "",
-		Lastname:  "",
+	_, err = a.Profiles.CreateProfile(&profiles.CreateProfileRequest{
+		Uid:       cu.Uid,
+		Firstname: params.Firstname,
+		Lastname:  params.Lastname,
 	})
+	if err != nil {
+		return fmt.Errorf("profiles.CreateProfile: %w", err)
+	}
 
 	// _, err = q.SelectLatestLoginByEmail(ctx, params.Email)
 	// if err == nil {
