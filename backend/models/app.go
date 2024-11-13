@@ -13,7 +13,7 @@ type Ovid struct {
 	Vid columns.VersionId   `json:"vid"`
 }
 
-var ZeroOvid = Ovid{Oid: columns.ZeroObjectId, Vid: columns.ZeroVersionId}
+var ZeroOvid = Ovid{Oid: columns.ZeroObjectiveId, Vid: columns.ZeroVersionId}
 
 func (ovid Ovid) String() string {
 	return fmt.Sprintf("(Oid: %q, Vid: %q)", ovid.Oid, ovid.Vid)
@@ -27,7 +27,7 @@ func (ovid Ovid) Validate() error {
 }
 
 func (ovid *Ovid) FromRoute(s string) error {
-	if len(s) != len(columns.ZeroObjectId)+len(columns.ZeroVersionId)+1 {
+	if len(s) != len(columns.ZeroObjectiveId)+len(columns.ZeroVersionId)+1 {
 		return fmt.Errorf("invalid length")
 	}
 	us := strings.Split(s, ":")

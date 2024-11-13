@@ -13,7 +13,7 @@ const (
 	ZeroGroupInviteId     GroupInviteId     = zeroUUID
 	ZeroGroupMembershipId GroupMembershipId = zeroUUID
 	ZeroLinkId            LinkId            = zeroUUID
-	ZeroObjectId          ObjectiveId       = zeroUUID
+	ZeroObjectiveId       ObjectiveId       = zeroUUID
 	ZeroOperationId       OperationId       = zeroUUID
 	ZeroPropertyId        PropertiesId      = zeroUUID
 	ZeroUserId            UserId            = zeroUUID

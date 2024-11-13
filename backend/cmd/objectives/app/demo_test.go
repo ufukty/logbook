@@ -12,11 +12,11 @@ import (
 func createRock(ctx context.Context, a *App, uid columns.UserId, debug bool) (columns.ObjectiveId, error) {
 	err := a.RockCreate(ctx, uid)
 	if err != nil {
-		return columns.ZeroObjectId, fmt.Errorf("RockCreate: %w", err)
+		return columns.ZeroObjectiveId, fmt.Errorf("RockCreate: %w", err)
 	}
 	rock, err := a.RockGet(ctx, uid)
 	if err != nil {
-		return columns.ZeroObjectId, fmt.Errorf("RockGet: %w", err)
+		return columns.ZeroObjectiveId, fmt.Errorf("RockGet: %w", err)
 	}
 	if debug {
 		fmt.Println("rock:", rock)
@@ -27,7 +27,7 @@ func createRock(ctx context.Context, a *App, uid columns.UserId, debug bool) (co
 func registerObjectives(ctx context.Context, a *App, uid columns.UserId, parent columns.ObjectiveId, n testfilenode, debug bool) (columns.ObjectiveId, error) {
 	vid, err := a.GetActiveVersion(ctx, parent)
 	if err != nil {
-		return columns.ZeroObjectId, fmt.Errorf("GetActiveVersion: %w", err)
+		return columns.ZeroObjectiveId, fmt.Errorf("GetActiveVersion: %w", err)
 	}
 	if debug {
 		fmt.Printf("registering (%s %s) <- (%s)\n", parent, vid, n.Content)
@@ -38,7 +38,7 @@ func registerObjectives(ctx context.Context, a *App, uid columns.UserId, parent 
 		Content: n.Content,
 	})
 	if err != nil {
-		return columns.ZeroObjectId, fmt.Errorf("CreateSubtask: %w", err)
+		return columns.ZeroObjectiveId, fmt.Errorf("CreateSubtask: %w", err)
 	}
 	if debug {
 		fmt.Printf("registered: %s\n", registered)
@@ -46,7 +46,7 @@ func registerObjectives(ctx context.Context, a *App, uid columns.UserId, parent 
 	for i := 0; i < len(n.Children); i++ {
 		_, err := registerObjectives(ctx, a, uid, registered.Oid, n.Children[i], debug)
 		if err != nil {
-			return columns.ZeroObjectId, fmt.Errorf("register(%s/%d): %w", parent, i, err)
+			return columns.ZeroObjectiveId, fmt.Errorf("register(%s/%d): %w", parent, i, err)
 		}
 	}
 	return registered.Oid, nil
