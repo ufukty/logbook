@@ -27,7 +27,7 @@ func (ovid Ovid) Validate() error {
 }
 
 func (ovid *Ovid) FromRoute(s string) error {
-	if len(s) != 33 {
+	if len(s) != len(columns.ZeroObjectId)+len(columns.ZeroVersionId)+1 {
 		return fmt.Errorf("invalid length")
 	}
 	us := strings.Split(s, ":")
