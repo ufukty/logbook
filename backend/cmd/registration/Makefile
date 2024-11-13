@@ -5,10 +5,10 @@ all: \
 	$(MAKE) -C endpoints
 
 client/client.go: $(shell find endpoints -name '*.go' ! -name '*.gh.go')
-	gohandlers clients -dir endpoints -out client/client.go -pkg account -import logbook/cmd/account/endpoints
+	gohandlers clients -dir endpoints -out client/client.go -pkg registration -import logbook/cmd/registration/endpoints
 
 client/mock.go: $(shell find endpoints -name '*.go' ! -name '*.gh.go')
-	gohandlers mock -dir endpoints -out client/mock.go -pkg account -import "logbook/cmd/account/endpoints"
+	gohandlers mock -dir endpoints -out client/mock.go -pkg registration -import "logbook/cmd/registration/endpoints"
 
 service/config.go: local.yml
 	gonfique generate -in local.yml -pkg service -out service/config.go 
