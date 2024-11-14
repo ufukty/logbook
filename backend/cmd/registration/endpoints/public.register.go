@@ -7,24 +7,19 @@ import (
 	"logbook/models/columns"
 	"logbook/models/transports"
 	"net/http"
-	"time"
 )
 
 type CreateAccountRequest struct {
-	CsrfToken string
+	AntiCsrfToken transports.AntiCsrfToken `json:"acsrft"`
 
-	Firstname columns.HumanName `json:"firstname"`
-	Lastname  columns.HumanName `json:"lastname"`
-	Birthday  time.Time
-	// Country   columns.Country
+	Firstname columns.HumanName        `json:"firstname"`
+	Lastname  columns.HumanName        `json:"lastname"`
+	Birthday  transports.HumanBirthday `json:"birthday"`
+	Country   transports.Country       `json:"country"`
 
-	Email columns.Email `json:"email"`
-	// EmailGrant columns.EmailGrant
-
-	// Phone      columns.Phone
-	// PhoneGrant columns.PhoneGrant
-
-	Password transports.Password `json:"password"`
+	EmailGrant    transports.EmailGrant    `json:"email-grant"`
+	PhoneGrant    transports.PhoneGrant    `json:"phone-grant"`
+	PasswordGrant transports.PasswordGrant `json:"password-grant"`
 }
 
 // POST
@@ -44,10 +39,14 @@ func (p *Public) CreateAccount(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err := p.a.Register(r.Context(), app.RegisterRequest{
-		Firstname: bq.Firstname,
-		Lastname:  bq.Lastname,
-		Email:     bq.Email,
-		Password:  bq.Password,
+		AntiCsrfToken: bq.AntiCsrfToken,
+		Firstname:     bq.Firstname,
+		Lastname:      bq.Lastname,
+		Birthday:      bq.Birthday,
+		Country:       bq.Country,
+		EmailGrant:    bq.EmailGrant,
+		PhoneGrant:    bq.PhoneGrant,
+		PasswordGrant: bq.PasswordGrant,
 	})
 	if err != nil {
 		p.l.Println(fmt.Errorf("app.Register: %w", err))

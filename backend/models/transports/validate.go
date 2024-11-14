@@ -20,3 +20,15 @@ func (hb HumanBirthday) Validate() error {
 func (v Password) Validate() error {
 	return validate.StringBasics(string(v), min_length_password, max_length_password, nil)
 }
+
+func (v PhoneGrant) Validate() error {
+	return validate.StringBasics(string(v), length_uuid, length_uuid, regexp_uuid)
+}
+
+func (v EmailGrant) Validate() error {
+	return validate.StringBasics(string(v), length_uuid, length_uuid, regexp_uuid)
+}
+
+func (v PasswordGrant) Validate() error {
+	return validate.StringBasics(string(v), length_uuid, length_uuid, regexp_uuid)
+}

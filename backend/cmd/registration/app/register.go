@@ -9,24 +9,19 @@ import (
 	"logbook/cmd/users/endpoints"
 	"logbook/models/columns"
 	"logbook/models/transports"
-	"time"
 )
 
 type RegisterRequest struct {
-	CsrfToken string
+	AntiCsrfToken transports.AntiCsrfToken
 
 	Firstname columns.HumanName
 	Lastname  columns.HumanName
-	Birthday  time.Time
-	// Country   columns.Country
+	Birthday  transports.HumanBirthday
+	Country   transports.Country
 
-	Email columns.Email
-	// EmailGrant columns.EmailGrant
-
-	// Phone      columns.Phone
-	// PhoneGrant columns.PhoneGrant
-
-	Password transports.Password
+	EmailGrant    transports.EmailGrant
+	PhoneGrant    transports.PhoneGrant
+	PasswordGrant transports.PasswordGrant
 }
 
 var ErrEmailExists = fmt.Errorf("email in use")
@@ -50,9 +45,20 @@ func (a *App) Register(ctx context.Context, params RegisterRequest) error {
 		return fmt.Errorf("User.CreateUser: %w", err)
 	}
 
+	email, ok := a.grants.email.Get(params.EmailGrant)
+	if !ok {
+		return fmt.Errorf("invalid email grant")
+	}
+
+	password, ok := a.grants.password.Get(params.PasswordGrant)
+	if !ok {
+		return fmt.Errorf("invalid password grant")
+	}
+
 	_, err = a.Sessions.SaveCredentials(&sessions.SaveCredentialsRequest{
-		Email:    params.Email,
-		Password: params.Password,
+		Uid:      cu.Uid,
+		Email:    email,
+		Password: password,
 	})
 	if err != nil {
 		return fmt.Errorf("a.Sessions.SaveCredentials: %w", err)
