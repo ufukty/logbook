@@ -26,6 +26,7 @@ var (
 	max_length_group_title       = 100
 	max_length_human_name        = 100
 	max_length_objective_content = len("Ensure that the input conforms to your business logic. For example, check if a user is allowed to perform a certain action, if the data respects certain business rules, or if relationships between data entities are maintained.")
+	max_length_phone_number      = 15
 	max_length_session_token     = 256
 	max_length_tag_title         = 40
 	max_length_user_agent        = 2048
@@ -38,6 +39,7 @@ var (
 	min_length_group_title       = 2
 	min_length_human_name        = 6
 	min_length_objective_content = 1
+	min_length_phone_number      = 10
 	min_length_session_token     = 256
 	min_length_tag_title         = 2
 	min_length_user_agent        = 0

@@ -5,17 +5,30 @@ type (
 	NonNegativeNumber int
 )
 
+// users
+type (
+	UserId   string
+	Username string
+)
+
+// profiles
+type (
+	HumanName string
+)
+
 // accounts
 type (
+	Email string
+	Phone string
+)
+
+// sessions
+type (
 	AccessId     string
-	Email        string
-	HumanName    string
 	LoginId      string
 	SessionId    string
 	SessionToken string
 	UserAgent    string
-	UserId       string
-	Username     string
 )
 
 // groups

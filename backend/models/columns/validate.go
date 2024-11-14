@@ -83,6 +83,10 @@ func (v OperationId) Validate() error {
 	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
 }
 
+func (v Phone) Validate() error {
+	return validate.StringBasics(string(v), min_length_phone_number, max_length_phone_number, regexp_phone_number)
+}
+
 func (v PropertiesId) Validate() error {
 	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
 }

@@ -1,4 +1,4 @@
-all: enums.linktype.go
+all: linktype.validate.go
 
-enums.linktype.go: enums.go
-	govalid -in enums.go -type LinkType -out enums.linktype.go
+linktype.validate.go: linktype.go
+	govalid -in linktype.go -type LinkType -out linktype.validate.go
