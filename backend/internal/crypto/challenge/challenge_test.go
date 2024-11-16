@@ -6,6 +6,10 @@ import (
 	"time"
 )
 
+func Example_encode() {
+	fmt.Println(encode([]byte("Hello world"))) // Output: JBSWY3DPEB3W64TMMQ
+}
+
 func TestSolve(t *testing.T) {
 	type tc struct {
 		input_l, input_n int
@@ -39,7 +43,7 @@ func TestSolve(t *testing.T) {
 			if err != nil {
 				t.Fatalf("failed to create challenge: %v", err)
 			}
-			// t.Log("Challange:", ch)
+			t.Log("Challange:", ch)
 			solved, err := Solve(ch.N, ch.Que, ch.Hash)
 			if err != nil {
 				t.Fatalf("failed to solve challenge: %v", err)
