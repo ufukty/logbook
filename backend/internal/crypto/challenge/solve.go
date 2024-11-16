@@ -1,37 +1,34 @@
 package challenge
 
 import (
-	"crypto/sha256"
-	"encoding/base64"
 	"fmt"
 )
 
-func Solve(que, hash string) (string, error) {
-	if len(hash) == 0 || len(que) == 0 {
+func Solve(n int, que, hash_ string) (string, error) {
+	if len(hash_) == 0 || n == 0 {
 		return "", fmt.Errorf("invalid challenge: que or hash is empty")
 	}
-
-	for attempt := 0; true; attempt++ {
-		fmt.Println("attempt:", attempt)
-		candidate, err := generateCandidate(len(que), attempt)
-		if err != nil {
-			return "", fmt.Errorf("failed to generate candidate: %w", err)
-		}
-
-		h := sha256.Sum256([]byte(candidate))
-		cand := base64.URLEncoding.EncodeToString(h[:])
-		if cand == hash {
-			return candidate, nil
+	l := len(alphabet) ^ n
+	for i := 0; i < l; i++ {
+		comb := combinate(n, i)
+		cand := comb + que
+		if hash(cand) == hash_ {
+			return cand, nil
 		}
 	}
-
 	return "", fmt.Errorf("not found")
 }
 
-func generateCandidate(length, attempt int) (string, error) {
-	b := make([]byte, length)
-	for i := range b {
-		b[i] = byte((attempt + i) % 256)
+// generates the i'th value in the range from "AAA...A" to "7777...7"
+func combinate(n int, i int) string {
+	if n <= 0 || i < 0 {
+		return ""
 	}
-	return base64.URLEncoding.EncodeToString(b), nil
+	base := len(alphabet)
+	result := make([]byte, n)
+	for j := n - 1; j >= 0; j-- {
+		result[j] = alphabet[i%base]
+		i /= base
+	}
+	return string(result)
 }
