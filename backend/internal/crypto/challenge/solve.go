@@ -4,11 +4,19 @@ import (
 	"fmt"
 )
 
+func pow(number, power int) int {
+	for i := 1; i < power; i++ {
+		number *= number
+	}
+	return number
+}
+
 func Solve(n int, que, hash_ string) (string, error) {
 	if len(hash_) == 0 || n == 0 {
 		return "", fmt.Errorf("invalid challenge: que or hash is empty")
 	}
-	l := len(alphabet) ^ n
+	l := pow(len(alphabet), n)
+	fmt.Println(l)
 	for i := 0; i < l; i++ {
 		comb := combinate(n, i)
 		cand := comb + que

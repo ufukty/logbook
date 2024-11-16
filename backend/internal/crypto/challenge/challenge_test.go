@@ -16,6 +16,8 @@ func TestCombinate(t *testing.T) {
 		{combinate(2, 0), "AA"},
 		{combinate(2, 2), "AC"},
 		{combinate(4, 4), "AAAE"},
+		{combinate(1, 31), "7"},
+		{combinate(4, 31), "AAA7"},
 		{combinate(1, 32), "A"},
 		{combinate(1, 33), "B"},
 	}
