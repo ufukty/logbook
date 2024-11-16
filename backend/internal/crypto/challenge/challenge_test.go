@@ -3,31 +3,8 @@ package challenge
 import (
 	"fmt"
 	"testing"
+	"time"
 )
-
-func TestCombinate(t *testing.T) {
-	type tc struct {
-		got  string
-		want string
-	}
-
-	tcs := []tc{
-		{combinate(1, 0), "A"},
-		{combinate(2, 0), "AA"},
-		{combinate(2, 2), "AC"},
-		{combinate(4, 4), "AAAE"},
-		{combinate(1, 31), "7"},
-		{combinate(4, 31), "AAA7"},
-		{combinate(1, 32), "A"},
-		{combinate(1, 33), "B"},
-	}
-
-	for _, tc := range tcs {
-		if tc.got != tc.want {
-			t.Errorf("want %s got %s", tc.want, tc.got)
-		}
-	}
-}
 
 func TestSolve(t *testing.T) {
 	type tc struct {
@@ -39,16 +16,30 @@ func TestSolve(t *testing.T) {
 		{20, 2},
 		{20, 3},
 		{20, 4},
-		{20, 5},
-		{20, 6},
+
+		{50, 1},
+		{50, 2},
+		{50, 3},
+		{50, 4},
+
+		{100, 1},
+		{100, 2},
+		{100, 3},
+		{100, 4},
+
+		{200, 1},
+		{200, 2},
+		{200, 3},
+		{200, 4},
 	}
 	for _, tc := range tcs {
 		t.Run(fmt.Sprintf("%d-%d", tc.input_l, tc.input_n), func(t *testing.T) {
+			defer func(s time.Time) { t.Log("took", time.Since(s)) }(time.Now())
 			ch, err := NewChallenge(tc.input_l, tc.input_n)
 			if err != nil {
 				t.Fatalf("failed to create challenge: %v", err)
 			}
-			t.Log(ch)
+			// t.Log("Challange:", ch)
 			solved, err := Solve(ch.N, ch.Que, ch.Hash)
 			if err != nil {
 				t.Fatalf("failed to solve challenge: %v", err)
@@ -60,11 +51,11 @@ func TestSolve(t *testing.T) {
 	}
 }
 
-func BenchmarkSolve(b *testing.B) {
-	n := 0
+func BenchmarkDeviation(b *testing.B) {
+	ts := []time.Duration{}
 	for i := 0; i < b.N; i++ {
-		n = b.N
-		ch, err := NewChallenge(20, 1)
+		t := time.Now()
+		ch, err := NewChallenge(500, 4)
 		if err != nil {
 			b.Fatal(fmt.Errorf("prep: %w", err))
 		}
@@ -75,6 +66,35 @@ func BenchmarkSolve(b *testing.B) {
 		if ch.Original != solved {
 			b.Fatalf("assert got %s want %s", solved, ch.Original)
 		}
+		ts = append(ts, time.Since(t))
 	}
-	fmt.Println(">", n)
+	b.Log(statistics(ts))
+}
+
+func statistics(ts []time.Duration) string {
+	// Calculate statistics
+	total := time.Duration(0)
+	min := ts[0]
+	max := ts[0]
+
+	for _, t := range ts {
+		total += t
+		if t < min {
+			min = t
+		}
+		if t > max {
+			max = t
+		}
+	}
+	avg := total / time.Duration(len(ts))
+
+	// Calculate standard deviation
+	var varianceSum float64
+	for _, t := range ts {
+		diff := float64(t-avg) / float64(time.Millisecond)
+		varianceSum += diff * diff
+	}
+	stdDev := time.Duration(float64(time.Millisecond) * (varianceSum / float64(len(ts))))
+
+	return fmt.Sprintf("Benchmark results: runs=%d avg=%v min=%v max=%v stdDev=%v", len(ts), avg, min, max, stdDev)
 }
