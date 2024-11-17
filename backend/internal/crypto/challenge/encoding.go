@@ -1,12 +1,12 @@
 package challenge
 
 import (
-	"encoding/base32"
+	"encoding/base64"
 )
 
-var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"
+var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 
-var encoder = base32.StdEncoding.WithPadding(base32.NoPadding)
+var encoder = base64.StdEncoding.WithPadding(base64.NoPadding)
 
 func encode(s []byte) string {
 	return encoder.EncodeToString(s)

@@ -7,7 +7,7 @@ import (
 )
 
 func Example_encode() {
-	fmt.Println(encode([]byte("Hello world"))) // Output: JBSWY3DPEB3W64TMMQ
+	fmt.Println(encode([]byte("Hello world"))) // Output: SGVsbG8gd29ybGQ
 }
 
 func TestSolve(t *testing.T) {
