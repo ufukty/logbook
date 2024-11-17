@@ -9,5 +9,6 @@
   ],
   "go.testEnvVars": {
     "WORKSPACE": "${workspaceFolder}"
-  }
+  },
+  "go.testTimeout": "30s",
 }
