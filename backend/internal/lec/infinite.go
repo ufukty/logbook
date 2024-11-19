@@ -41,7 +41,7 @@ func (c *Infinite) Save(t time.Time, v int) {
 	cell := int(float64(t.Sub(c.start).Nanoseconds()) / float64(c.res)) // virtual index in first layer
 	for level := 0; level < len(c.levels); level++ {
 		if cell%2 == 0 { // stored cell
-			missingcells := (cell/2 + 1) - len(c.levels[level])
+			missingcells := cell/2 - (len(c.levels[level]) - 1)
 			if missingcells > 0 { // not initialized yet
 				m := make([]int, missingcells)
 				for j := range missingcells {
@@ -49,7 +49,7 @@ func (c *Infinite) Save(t time.Time, v int) {
 				}
 				c.levels[level] = slices.Concat(c.levels[level], m)
 			}
-			c.levels[level][cell] += v
+			c.levels[level][cell/2] += v
 		}
 		cell /= 2 // floor
 	}
