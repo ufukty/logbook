@@ -40,15 +40,48 @@ func TestInfinite(t *testing.T) {
 		t.Fatal(fmt.Errorf("prep: %w", err))
 	}
 
-	inf := New(ts[0], average.Year, average.Day)
+	var (
+		from = ts[0].Truncate(average.Day)
+		to   = ts[len(ts)-1].Truncate(average.Day)
+	)
+
+	fmt.Println(ts[0])
+	fmt.Println(from)
+	fmt.Println(ts[len(ts)-1])
+	fmt.Println(to)
+
+	inf := New(from, average.Year, average.Day)
 	for _, t := range ts {
-		fmt.Println(t)
 		inf.Save(t, 1)
 	}
 
-	q, err := inf.Query(ts[0], ts[len(ts)-1])
-	if err != nil {
-		t.Fatal(fmt.Errorf("act, query: %w", err))
+	type (
+		input struct {
+			from, to time.Time
+		}
+		output struct {
+			number int
+		}
+		tc struct {
+			input
+			output
+		}
+	)
+	tcs := map[string]tc{
+		"full range": {input{from, to.Add(average.Day)}, output{1000}},
+		"overflow":   {input{from, to.Add(average.Day * 10)}, output{1000}},
+		"half range": {input{from, from.Add(time.Duration(int64(0.5 * float64(int64(to.Sub(from).Nanoseconds())))))}, output{496}},
 	}
-	fmt.Println(q)
+
+	for tn, tc := range tcs {
+		t.Run(tn, func(t *testing.T) {
+			q, err := inf.Query(tc.from, tc.to)
+			if err != nil {
+				t.Fatal(fmt.Errorf("act, query: %w", err))
+			}
+			if q != tc.output.number {
+				t.Errorf("expected to get '%d', got '%d'", tc.output.number, q)
+			}
+		})
+	}
 }
