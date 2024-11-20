@@ -11,10 +11,11 @@ func pow(number, power int) int {
 	if power == 0 {
 		return 1
 	}
-	for i := 1; i < power; i++ {
-		number *= number
+	result := 1
+	for i := 0; i < power; i++ {
+		result *= number
 	}
-	return number
+	return result
 }
 
 type Infinite struct {
