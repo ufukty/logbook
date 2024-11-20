@@ -1,6 +1,7 @@
 package lec
 
 import (
+	"bytes"
 	"fmt"
 	"math"
 	"slices"
@@ -59,14 +60,18 @@ func (c *Infinite) cellvalue(level, cell int) int {
 	}
 	if cell%2 == 0 {
 		return c.levels[level][cell/2] // virtual index -> array index
-	} else {
+	} else if level != len(c.levels)-1 {
 		parent := c.cellvalue(level+1, cell/2) // floor
 		sibling := c.cellvalue(level, cell-1)
 		return parent - sibling
 	}
+	return 0
 }
 
 func (c *Infinite) query(from, to, level int) (int, error) {
+	if from > to {
+		return 0, fmt.Errorf("'from' must be less than or equal to 'to'")
+	}
 	total := 0
 	res := pow(2, level)
 	l := int(math.Ceil(float64(from) / float64(res)))
@@ -100,6 +105,9 @@ func (c *Infinite) query(from, to, level int) (int, error) {
 }
 
 func (c *Infinite) Query(from, to time.Time) (int, error) {
+	if from.Before(c.start) || to.Before(c.start) {
+		return -1, fmt.Errorf("none of the 'from' and 'to' should not before 'start'")
+	}
 	if from.Sub(c.start).Nanoseconds()%c.res.Nanoseconds() != 0 {
 		return -1, fmt.Errorf("value 'from' doesn't align with resolution")
 	} else if to.Sub(c.start).Nanoseconds()%c.res.Nanoseconds() != 0 {
@@ -111,4 +119,70 @@ func (c *Infinite) Query(from, to time.Time) (int, error) {
 		int(to.Sub(c.start).Nanoseconds()/c.res.Nanoseconds()),
 		len(c.levels)-1,
 	)
+}
+
+func twodim(rows, columns int, def int) [][]int {
+	row := []int{}
+	for range columns {
+		row = append(row, def)
+	}
+	dst := [][]int{}
+	for i := 0; i < rows; i++ {
+		dst = append(dst, slices.Clone(row))
+	}
+	return dst
+}
+
+func longestline(src [][]int) int {
+	chars := -1
+	for i := 0; i < len(src); i++ {
+		if chars < len(src[i]) {
+			chars = len(src[i])
+		}
+	}
+	return chars
+}
+
+func transpose(src [][]int) [][]int {
+	dst := twodim(longestline(src), len(src), -1)
+	for i := 0; i < len(src); i++ {
+		for j := 0; j < len(src[i]); j++ {
+			dst[j][i] = src[i][j]
+		}
+	}
+	return dst
+}
+
+func (c *Infinite) Dump() string {
+	b := bytes.NewBuffer([]byte{})
+	g := -1
+	for i := 0; i < len(c.levels); i++ {
+		lastci := len(c.levels[i]) - 1
+		lastreal := pow(2, i) * (2*lastci + 1)
+		if g < lastreal {
+			g = lastreal
+		}
+	}
+	d := twodim(len(c.levels), g+1, -1)
+
+	for level := len(c.levels) - 1; level >= 0; level-- {
+		for ci := 0; ci < len(c.levels[level]); ci++ {
+			d[level][(2*ci)*pow(2, level)] = c.cellvalue(level, ci*2)
+			if level != len(c.levels)-1 {
+				d[level][(2*ci+1)*pow(2, level)] = c.cellvalue(level, ci*2+1)
+			}
+		}
+	}
+	d = transpose(d)
+	for i := 0; i < len(d); i++ {
+		for j := len(d[i]) - 1; j >= 0; j-- {
+			if d[i][j] != -1 {
+				fmt.Fprintf(b, "%-5d", d[i][j])
+			} else {
+				fmt.Fprintf(b, "     ")
+			}
+		}
+		fmt.Fprintln(b)
+	}
+	return b.String()
 }
