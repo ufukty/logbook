@@ -57,10 +57,12 @@ func (c *Infinite) Save(t time.Time, v int) {
 }
 
 func (c *Infinite) cellvalue(level, cell int) int {
+	nores := len(c.levels) <= level
+	nodata := len(c.levels[level]) <= cell/2
+	if nores || nodata {
+		return 0
+	}
 	if cell%2 == 0 {
-		if len(c.levels[level]) < cell/2 { // no data
-			return 0
-		}
 		return c.levels[level][cell/2] // virtual index -> array index
 	} else {
 		parent := c.cellvalue(level+1, cell/2) // floor
