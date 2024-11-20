@@ -1,6 +1,10 @@
 # LEC - Layered Event Counter
 
-LEC can group high resolution discrete time series in lower resolution while the cutoff value shift without the need to cumulate individual values each time.
+LEC is compute & storage efficient data structure for creating real time histograms for time series which the cutoff between intervals shift to match presentation time. LEC compansates its disadvantages as the ratio of interval period/refresh duration grows. It is designed for the case 1 hour interval and 5 seconds refresh (720x).
+
+**How it works**
+
+LEV aggregates data in multiple layers, each layer store the sum of events happened in longer period of time. This reduces the number of additions needed to perform to refresh presentation.
 
 **Example**
 
