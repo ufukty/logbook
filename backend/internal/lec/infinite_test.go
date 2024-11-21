@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-const testformat = "2006-01-02T15:04:05-07:00"
+const testFileTimeFormat = "2006-01-02T15:04:05-07:00"
 
 func read() ([]time.Time, error) {
 	f, err := os.Open("testdata/ts.txt")
@@ -22,7 +22,7 @@ func read() ([]time.Time, error) {
 	r := []time.Time{}
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
-		t, err := time.Parse(testformat, scanner.Text())
+		t, err := time.Parse(testFileTimeFormat, scanner.Text())
 		if err != nil {
 			return nil, fmt.Errorf("parse: %w", err)
 		}
@@ -63,10 +63,16 @@ func TestInfinite(t *testing.T) {
 		to   = ts[len(ts)-1].Truncate(average.Day).Add(average.Day)
 	)
 
-	fmt.Println(ts[0])
-	fmt.Println(from)
-	fmt.Println(ts[len(ts)-1])
-	fmt.Println(to)
+	fmt.Printf("testdata: (%s -> %s)\n", ts[0], ts[len(ts)-1])
+	fmt.Printf("testdata: (%s -> %s) truncated\n", from, to)
+
+	realdiff := ts[len(ts)-1].Sub(ts[0])
+	truncateddiff := to.Sub(from)
+	fmt.Printf("(real period: %s [%f years]) (Δtruncated: %s [%f years]) (diff: %s)\n",
+		realdiff, float64(realdiff)/float64(average.Year),
+		truncateddiff, float64(truncateddiff)/float64(average.Year),
+		time.Duration(truncateddiff-realdiff).Abs(),
+	)
 
 	inf := New(from, average.Year+average.Day, average.Day)
 	for _, t := range ts {
@@ -78,7 +84,7 @@ func TestInfinite(t *testing.T) {
 		t.Fatal(fmt.Errorf("dump: %w", err))
 	}
 
-	julyTwo, err := time.Parse(testformat, "2024-07-02T14:45:22+03:00")
+	julyTwo, err := time.Parse(testFileTimeFormat, "2024-07-02T14:45:22+03:00")
 	if err != nil {
 		t.Fatal(fmt.Errorf("prep, julyTwo: %w", err))
 	}
@@ -89,7 +95,8 @@ func TestInfinite(t *testing.T) {
 			from, to time.Time
 		}
 		output struct {
-			number int
+			q   int
+			err bool
 		}
 		tc struct {
 			input
@@ -97,29 +104,35 @@ func TestInfinite(t *testing.T) {
 		}
 	)
 	tcs := map[string]tc{
-		"Empty range": {input{from, from}, output{0}},
+		"Empty range": {input{from, from}, output{err: true}},
 
-		"Full range (adjusted)": {input{from, to.Add(average.Day)}, output{len(ts)}},
-		"Full range (year)":     {input{from, from.Add(average.Year + average.Day)}, output{len(ts) - 1}},
+		"Overflow range":               {input{from, to.Add(average.Day * 10)}, output{err: true}},
+		"Out of bound (1 day after)":   {input{to.Add(average.Day), to.Add(average.Day * 2)}, output{err: true}},
+		"Out of bound (2 days after)":  {input{to.Add(average.Day * 2), to.Add(average.Day * 3)}, output{err: true}},
+		"Out of bound (1 week after)":  {input{to.Add(average.Week), to.Add(average.Week * 2)}, output{err: true}},
+		"Out of bound (1 week before)": {input{from.Add(-3 * average.Week), from.Add(-2 * average.Week)}, output{err: true}},
 
-		"Overflow range":               {input{from, to.Add(average.Day * 10)}, output{len(ts)}},
-		"Out of bound":                 {input{to.Add(average.Day), to.Add(average.Day * 2)}, output{0}},
-		"Out of bound (2 days after)":  {input{to.Add(average.Day * 2), to.Add(average.Day * 3)}, output{0}},
-		"Out of bound (1 week after)":  {input{to.Add(average.Week), to.Add(average.Week * 2)}, output{0}},
-		"Out of bound (1 week before)": {input{from.Add(-3 * average.Week), from.Add(-2 * average.Week)}, output{0}},
+		"Full range (adjusted)": {input{from, to.Add(average.Day)}, output{q: 1000}},
+		"Full range (year)":     {input{from, from.Add(average.Year + average.Day)}, output{q: 1000}},
 
-		"Single day": {input{from, from.Add(average.Day)}, output{1}},
-		"July 2nd":   {input{julyTwo, julyTwo.Add(average.Day)}, output{6}},
+		"Single day": {input{from, from.Add(average.Day)}, output{q: 1}},
+		"July 2nd":   {input{julyTwo, julyTwo.Add(average.Day)}, output{q: 6}},
 	}
 
 	for tn, tc := range tcs {
 		t.Run(tn, func(t *testing.T) {
 			q, err := inf.Query(tc.input.from, tc.input.to)
-			if err != nil {
-				t.Fatalf("query failed: %v", err)
+			if tc.output.err {
+				if err == nil {
+					t.Fatalf("act, expected error. got '%d'", q)
+				}
+				return
 			}
-			if q != tc.output.number {
-				t.Errorf("expected %d, got %d, input range [%s, %s]", tc.output.number, q, tc.input.from, tc.input.to)
+			if err != nil {
+				t.Fatalf("act: %v", err)
+			}
+			if q != tc.output.q {
+				t.Errorf("assert, expected %d, got %d, input range [%s, %s]", tc.output.q, q, tc.input.from, tc.input.to)
 			}
 		})
 	}
