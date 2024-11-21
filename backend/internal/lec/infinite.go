@@ -187,6 +187,9 @@ func (c *Infinite) Dump() string {
 	}
 	d = transpose(d)
 	for i := 0; i < len(d); i++ {
+		if i != 0 {
+			fmt.Fprintln(b)
+		}
 		for j := len(d[i]) - 1; j >= 0; j-- {
 			if d[i][j] != -1 {
 				fmt.Fprintf(b, "%-5d", d[i][j])
@@ -194,7 +197,6 @@ func (c *Infinite) Dump() string {
 				fmt.Fprintf(b, "     ")
 			}
 		}
-		fmt.Fprintln(b)
 	}
 	return b.String()
 }

@@ -47,7 +47,7 @@ func dump(inf *Infinite) error {
 		return fmt.Errorf("create file: %w", err)
 	}
 	defer f.Close()
-	fmt.Fprintln(f, inf.Dump())
+	fmt.Fprint(f, inf.Dump())
 	return nil
 }
 
