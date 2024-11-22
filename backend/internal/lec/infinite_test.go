@@ -1,63 +1,11 @@
 package lec
 
 import (
-	"bufio"
 	"fmt"
 	"logbook/internal/average"
-	"os"
-	"path/filepath"
 	"testing"
 	"time"
 )
-
-const testFileTimeFormat = "2006-01-02T15:04:05-07:00"
-
-func read() ([]time.Time, error) {
-	f, err := os.Open("testdata/ts.txt")
-	if err != nil {
-		return nil, fmt.Errorf("prep, load doc: %w", err)
-	}
-	defer f.Close()
-
-	r := []time.Time{}
-	scanner := bufio.NewScanner(f)
-	for scanner.Scan() {
-		t, err := time.Parse(testFileTimeFormat, scanner.Text())
-		if err != nil {
-			return nil, fmt.Errorf("parse: %w", err)
-		}
-		r = append(r, t)
-	}
-
-	err = scanner.Err()
-	if err != nil {
-		return nil, fmt.Errorf("scanner: %w", err)
-	}
-
-	return r, nil
-}
-
-func dump(inf *Infinite) error {
-	err := os.MkdirAll("testresults", 0755)
-	if err != nil {
-		return fmt.Errorf("mkdir testresults: %w", err)
-	}
-	f, err := os.Create(filepath.Join("testresults", fmt.Sprintf("%s.txt", time.Now().Format("2006-01-02-15-04-05"))))
-	if err != nil {
-		return fmt.Errorf("create file: %w", err)
-	}
-	defer f.Close()
-	fmt.Fprint(f, inf.Dump())
-	return nil
-}
-
-func parse(t *testing.T, s string) time.Time {
-	tt, err := time.Parse(testFileTimeFormat, s)
-	if err != nil {
-		t.Fatal(fmt.Errorf("parse: %w", err))
-	}
-	return tt.Truncate(average.Day)
-}
 
 func TestInfinite(t *testing.T) {
 	// Use either read() or generateTestData to prepare timestamps
@@ -82,7 +30,7 @@ func TestInfinite(t *testing.T) {
 		time.Duration(truncateddiff-realdiff).Abs(),
 	)
 
-	inf := New(from, to.Sub(from), average.Day)
+	inf := NewInfinite(from, average.Day)
 	for _, t := range ts {
 		inf.Save(t, 1)
 	}

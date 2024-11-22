@@ -4,44 +4,54 @@ import (
 	"bytes"
 	"fmt"
 	"math"
-	"slices"
 	"time"
 )
 
-func pow(number, power int) int {
-	if power == 0 {
-		return 1
-	}
-	result := 1
-	for i := 0; i < power; i++ {
-		result *= number
-	}
-	return result
-}
-
 type Infinite struct {
-	start       time.Time
-	length, res time.Duration // TODO: Make another version with fixed length, new data overwritting old data
-	levels      [][]int
+	start  time.Time
+	res    time.Duration
+	levels [][]int
 }
 
-func New(start time.Time, length, resolution time.Duration) *Infinite {
-	i := &Infinite{
+func NewInfinite(start time.Time, resolution time.Duration) *Infinite {
+	return &Infinite{
 		start:  start,
-		length: length,
 		res:    resolution,
 		levels: [][]int{},
 	}
-	n := 1
-	for cellres := resolution; cellres < length*2; cellres *= 2 {
-		i.levels = append(i.levels, make([]int, n))
-		n *= 2
+}
+
+func (c *Infinite) grow(to time.Time) {
+	neededlevels := minpow(int(to.Sub(c.start)/c.res)+1) + 1
+	if neededlevels > 20 {
+		panic("neededlevels > 20")
 	}
-	slices.Reverse(i.levels)
-	return i
+	missinglevels := neededlevels - len(c.levels)
+	if missinglevels > 0 {
+		fmt.Println("adding levels", missinglevels)
+		c.levels = append(c.levels, make([][]int, missinglevels)...)
+	}
+
+	neededcells := pow(2, neededlevels)
+	for l := 0; l < len(c.levels); l++ {
+		missingcells := (neededcells+1)/2 - len(c.levels[l])
+		if missingcells > 0 {
+			fmt.Println("adding cells:", l, missingcells)
+			c.levels[l] = append(c.levels[l], make([]int, missingcells)...)
+			if l > 0 {
+				for j := len(c.levels[l]) - missingcells; j < len(c.levels[l]); j++ {
+					if j%4 == 0 {
+						c.levels[l][j] = c.levels[l-1][j*2] // no virtual child cell
+					}
+				}
+			}
+		}
+		neededcells /= 2
+	}
 }
 
 func (c *Infinite) Save(t time.Time, v int) {
+	c.grow(t)
 	cell := int(float64(t.Sub(c.start).Nanoseconds()) / float64(c.res)) // virtual index in first layer
 	for level := 0; level < len(c.levels); level++ {
 		if cell%2 == 0 { // stored cell
@@ -112,28 +122,20 @@ func (c *Infinite) query(from, to, level int) (int, error) {
 }
 
 func (c *Infinite) Query(from, to time.Time) (int, error) {
-	end := c.start.Add(c.length)
 	if from == to {
 		return -1, fmt.Errorf("values 'from' and 'to' are same")
 	}
 	if to.Before(c.start) {
-		return -1, fmt.Errorf("period of query ends before stored period starts: %s", c.start)
-	}
-	if from.After(end) {
-		return -1, fmt.Errorf("period of query starts after stored period ends: %s", end)
+		return -1, fmt.Errorf("ends before series start: %s", c.start)
 	}
 	if from.Before(c.start) {
-		return -1, fmt.Errorf("period of query starts before stored period starts: %s", c.start)
-	}
-	if to.After(end) {
-		return -1, fmt.Errorf("period of query ends after stored period ends: %s", end)
+		return -1, fmt.Errorf("starts before the series: %s", c.start)
 	}
 	if from.Sub(c.start).Nanoseconds()%c.res.Nanoseconds() != 0 {
 		return -1, fmt.Errorf("value 'from' doesn't align with resolution")
 	} else if to.Sub(c.start).Nanoseconds()%c.res.Nanoseconds() != 0 {
 		return -1, fmt.Errorf("value 'to' doesn't align with resolution")
 	}
-
 	return c.query(
 		int(from.Sub(c.start).Nanoseconds()/c.res.Nanoseconds()),
 		int(to.Sub(c.start).Nanoseconds()/c.res.Nanoseconds()),
@@ -141,39 +143,7 @@ func (c *Infinite) Query(from, to time.Time) (int, error) {
 	)
 }
 
-func twodim(rows, columns int, def int) [][]int {
-	row := []int{}
-	for range columns {
-		row = append(row, def)
-	}
-	dst := [][]int{}
-	for i := 0; i < rows; i++ {
-		dst = append(dst, slices.Clone(row))
-	}
-	return dst
-}
-
-func longestline(src [][]int) int {
-	chars := -1
-	for i := 0; i < len(src); i++ {
-		if chars < len(src[i]) {
-			chars = len(src[i])
-		}
-	}
-	return chars
-}
-
-func transpose(src [][]int) [][]int {
-	dst := twodim(longestline(src), len(src), -1)
-	for i := 0; i < len(src); i++ {
-		for j := 0; j < len(src[i]); j++ {
-			dst[j][i] = src[i][j]
-		}
-	}
-	return dst
-}
-
-func (c *Infinite) Dump() string {
+func (c *Infinite) dump() string {
 	b := bytes.NewBuffer([]byte{})
 	g := -1
 	for i := 0; i < len(c.levels); i++ {
