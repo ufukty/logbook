@@ -82,7 +82,7 @@ func TestInfinite(t *testing.T) {
 		time.Duration(truncateddiff-realdiff).Abs(),
 	)
 
-	inf := New(from, average.Year, average.Day)
+	inf := New(from, to.Sub(from), average.Day)
 	for _, t := range ts {
 		inf.Save(t, 1)
 	}
@@ -116,12 +116,16 @@ func TestInfinite(t *testing.T) {
 		{"Out of bound (1 week before)", input{from.Add(-3 * average.Week), from.Add(-2 * average.Week)}, output{err: true}},
 
 		{"Full range (adjusted)", input{from, to}, output{q: 1000}},
-		{"Full range (year)", input{from, from.Add(average.Year)}, output{q: 1000}},
+		{"Full range (year)", input{from, from.Add(average.Year + average.Day)}, output{q: 1000}},
 
-		{"First day", input{from, from.Add(average.Day)}, output{q: 1}},
-		{"July 2nd", input{parse(t, "2024-07-02T00:00:00+00:00"), parse(t, "2024-07-03T00:00:00+00:00")}, output{q: 6}},
-		{"July 4th", input{parse(t, "2024-07-04T00:00:00+00:00"), parse(t, "2024-07-05T00:00:00+00:00")}, output{q: 3}},
-		{"July 2nd-5th", input{parse(t, "2024-07-02T00:00:00+00:00"), parse(t, "2024-07-05T00:00:00+00:00")}, output{q: 10}},
+		{"Jun, 1st", input{from, from.Add(average.Day)}, output{q: 3}},
+		{"Feb, 1st", input{parse(t, "2024-02-01T00:00:00+00:00"), parse(t, "2024-02-02T00:00:00+00:00")}, output{q: 3}},
+		{"Feb, 1st-30th", input{parse(t, "2024-02-01T00:00:00+00:00"), parse(t, "2024-03-01T00:00:00+00:00")}, output{q: 85}},
+		{"Mar, 1st-31th", input{parse(t, "2024-03-01T00:00:00+00:00"), parse(t, "2024-04-01T00:00:00+00:00")}, output{q: 72}},
+		{"Feb, 1st to Mar, 31th", input{parse(t, "2024-02-01T00:00:00+00:00"), parse(t, "2024-04-01T00:00:00+00:00")}, output{q: 157}},
+		{"July, 2nd", input{parse(t, "2024-07-02T00:00:00+00:00"), parse(t, "2024-07-03T00:00:00+00:00")}, output{q: 6}},
+		{"July, 4th", input{parse(t, "2024-07-04T00:00:00+00:00"), parse(t, "2024-07-05T00:00:00+00:00")}, output{q: 3}},
+		{"July, 2nd-5th", input{parse(t, "2024-07-02T00:00:00+00:00"), parse(t, "2024-07-05T00:00:00+00:00")}, output{q: 10}},
 	}
 
 	for _, tc := range tcs {
