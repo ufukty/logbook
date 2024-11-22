@@ -115,20 +115,21 @@ func (c *Infinite) query(from, to, level int) (int, error) {
 }
 
 func (c *Infinite) Query(from, to time.Time) (int, error) {
+	end := c.start.Add(c.length)
 	if from == to {
 		return -1, fmt.Errorf("values 'from' and 'to' are same")
 	}
 	if to.Before(c.start) {
-		return -1, fmt.Errorf("period of query ends before stored period starts")
+		return -1, fmt.Errorf("period of query ends before stored period starts: %s", c.start)
 	}
-	if from.After(c.start.Add(c.length)) {
-		return -1, fmt.Errorf("period of query starts after stored period ends")
+	if from.After(end) {
+		return -1, fmt.Errorf("period of query starts after stored period ends: %s", end)
 	}
 	if from.Before(c.start) {
-		return -1, fmt.Errorf("period of query starts before stored period starts")
+		return -1, fmt.Errorf("period of query starts before stored period starts: %s", c.start)
 	}
-	if to.After(c.start.Add(c.length)) {
-		return -1, fmt.Errorf("period of query ends after stored period ends")
+	if to.After(end) {
+		return -1, fmt.Errorf("period of query ends after stored period ends: %s", end)
 	}
 	if from.Sub(c.start).Nanoseconds()%c.res.Nanoseconds() != 0 {
 		return -1, fmt.Errorf("value 'from' doesn't align with resolution")
