@@ -26,26 +26,24 @@ type Infinite struct {
 }
 
 func New(start time.Time, length, resolution time.Duration) *Infinite {
-	i := int(math.Ceil(float64(length.Nanoseconds()) / float64(resolution.Nanoseconds())))
-	levels := 1
-	for j := 1; j < i; j *= 2 {
-		levels += 1
-	}
-	return &Infinite{
+	i := &Infinite{
 		start:  start,
 		length: length,
 		res:    resolution,
-		levels: make([][]int, levels),
+		levels: [][]int{},
 	}
+	n := 1
+	for cellres := resolution; cellres < length*2; cellres *= 2 {
+		i.levels = slices.Insert(i.levels, 0, make([]int, n))
+		n *= 2
+	}
+	return i
 }
 
 func (c *Infinite) Save(t time.Time, v int) {
 	cell := int(float64(t.Sub(c.start).Nanoseconds()) / float64(c.res)) // virtual index in first layer
 	for level := 0; level < len(c.levels); level++ {
 		if cell%2 == 0 { // stored cell
-			if missingcells := cell/2 - (len(c.levels[level]) - 1); missingcells > 0 { // not initialized yet
-				c.levels[level] = slices.Concat(c.levels[level], make([]int, missingcells)) // zero value is already "0"s
-			}
 			c.levels[level][cell/2] += v
 		}
 		cell /= 2 // floor
@@ -53,9 +51,7 @@ func (c *Infinite) Save(t time.Time, v int) {
 }
 
 func (c *Infinite) cellvalue(level, cell int) int {
-	nores := len(c.levels) <= level
-	nodata := len(c.levels[level]) <= cell/2
-	if nores || nodata {
+	if len(c.levels) <= level {
 		return 0
 	}
 	if cell%2 == 0 {
