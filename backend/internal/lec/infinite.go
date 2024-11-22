@@ -34,9 +34,10 @@ func New(start time.Time, length, resolution time.Duration) *Infinite {
 	}
 	n := 1
 	for cellres := resolution; cellres < length*2; cellres *= 2 {
-		i.levels = slices.Insert(i.levels, 0, make([]int, n))
+		i.levels = append(i.levels, make([]int, n))
 		n *= 2
 	}
+	slices.Reverse(i.levels)
 	return i
 }
 
