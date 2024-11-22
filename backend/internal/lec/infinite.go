@@ -76,6 +76,16 @@ func (c *Infinite) query(from, to, level int) (int, error) {
 	res := pow(2, level)
 	l := int(math.Ceil(float64(from) / float64(res)))
 	r := int(math.Floor(float64(to) / float64(res)))
+	if r < l {
+		if level == 0 {
+			return -1, fmt.Errorf("bad developer") // FIXME:
+		}
+		q, err := c.query(from, to, level-1)
+		if err != nil {
+			return -1, fmt.Errorf("c.query on lower level: %w", err)
+		}
+		return q, nil
+	}
 	for i := l; i < r; i++ {
 		total += c.cellvalue(level, i)
 	}

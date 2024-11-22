@@ -51,6 +51,14 @@ func dump(inf *Infinite) error {
 	return nil
 }
 
+func parse(t *testing.T, s string) time.Time {
+	tt, err := time.Parse(testFileTimeFormat, s)
+	if err != nil {
+		t.Fatal(fmt.Errorf("parse: %w", err))
+	}
+	return tt.Truncate(average.Day)
+}
+
 func TestInfinite(t *testing.T) {
 	// Use either read() or generateTestData to prepare timestamps
 	ts, err := read()
@@ -74,7 +82,7 @@ func TestInfinite(t *testing.T) {
 		time.Duration(truncateddiff-realdiff).Abs(),
 	)
 
-	inf := New(from, average.Year+average.Day, average.Day)
+	inf := New(from, average.Year, average.Day)
 	for _, t := range ts {
 		inf.Save(t, 1)
 	}
@@ -83,12 +91,6 @@ func TestInfinite(t *testing.T) {
 	if err != nil {
 		t.Fatal(fmt.Errorf("dump: %w", err))
 	}
-
-	julyTwo, err := time.Parse(testFileTimeFormat, "2024-07-02T14:45:22+03:00")
-	if err != nil {
-		t.Fatal(fmt.Errorf("prep, julyTwo: %w", err))
-	}
-	julyTwo = julyTwo.Truncate(average.Day)
 
 	type (
 		input struct {
@@ -99,28 +101,31 @@ func TestInfinite(t *testing.T) {
 			err bool
 		}
 		tc struct {
+			name string
 			input
 			output
 		}
 	)
-	tcs := map[string]tc{
-		"Empty range": {input{from, from}, output{err: true}},
+	tcs := []tc{
+		{"Empty range", input{from, from}, output{err: true}},
 
-		"Overflow range":               {input{from, to.Add(average.Day * 10)}, output{err: true}},
-		"Out of bound (1 day after)":   {input{to.Add(average.Day), to.Add(average.Day * 2)}, output{err: true}},
-		"Out of bound (2 days after)":  {input{to.Add(average.Day * 2), to.Add(average.Day * 3)}, output{err: true}},
-		"Out of bound (1 week after)":  {input{to.Add(average.Week), to.Add(average.Week * 2)}, output{err: true}},
-		"Out of bound (1 week before)": {input{from.Add(-3 * average.Week), from.Add(-2 * average.Week)}, output{err: true}},
+		{"Overflow range", input{from, to.Add(average.Day * 10)}, output{err: true}},
+		{"Out of bound (1 day after)", input{to.Add(average.Day), to.Add(average.Day * 2)}, output{err: true}},
+		{"Out of bound (2 days after)", input{to.Add(average.Day * 2), to.Add(average.Day * 3)}, output{err: true}},
+		{"Out of bound (1 week after)", input{to.Add(average.Week), to.Add(average.Week * 2)}, output{err: true}},
+		{"Out of bound (1 week before)", input{from.Add(-3 * average.Week), from.Add(-2 * average.Week)}, output{err: true}},
 
-		"Full range (adjusted)": {input{from, to.Add(average.Day)}, output{q: 1000}},
-		"Full range (year)":     {input{from, from.Add(average.Year + average.Day)}, output{q: 1000}},
+		{"Full range (adjusted)", input{from, to}, output{q: 1000}},
+		{"Full range (year)", input{from, from.Add(average.Year)}, output{q: 1000}},
 
-		"Single day": {input{from, from.Add(average.Day)}, output{q: 1}},
-		"July 2nd":   {input{julyTwo, julyTwo.Add(average.Day)}, output{q: 6}},
+		{"First day", input{from, from.Add(average.Day)}, output{q: 1}},
+		{"July 2nd", input{parse(t, "2024-07-02T00:00:00+00:00"), parse(t, "2024-07-03T00:00:00+00:00")}, output{q: 6}},
+		{"July 4th", input{parse(t, "2024-07-04T00:00:00+00:00"), parse(t, "2024-07-05T00:00:00+00:00")}, output{q: 3}},
+		{"July 2nd-5th", input{parse(t, "2024-07-02T00:00:00+00:00"), parse(t, "2024-07-05T00:00:00+00:00")}, output{q: 10}},
 	}
 
-	for tn, tc := range tcs {
-		t.Run(tn, func(t *testing.T) {
+	for _, tc := range tcs {
+		t.Run(tc.name, func(t *testing.T) {
 			q, err := inf.Query(tc.input.from, tc.input.to)
 			if tc.output.err {
 				if err == nil {
@@ -132,7 +137,7 @@ func TestInfinite(t *testing.T) {
 				t.Fatalf("act: %v", err)
 			}
 			if q != tc.output.q {
-				t.Errorf("assert, expected %d, got %d, input range [%s, %s]", tc.output.q, q, tc.input.from, tc.input.to)
+				t.Errorf("assert, expected %d, got %d", tc.output.q, q)
 			}
 		})
 	}
