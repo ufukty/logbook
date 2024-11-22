@@ -23,12 +23,8 @@ func NewInfinite(start time.Time, resolution time.Duration) *Infinite {
 
 func (c *Infinite) grow(to time.Time) {
 	neededlevels := minpow(int(to.Sub(c.start)/c.res)+1) + 1
-	if neededlevels > 20 {
-		panic("neededlevels > 20")
-	}
 	missinglevels := neededlevels - len(c.levels)
 	if missinglevels > 0 {
-		fmt.Println("adding levels", missinglevels)
 		c.levels = append(c.levels, make([][]int, missinglevels)...)
 	}
 
@@ -36,7 +32,6 @@ func (c *Infinite) grow(to time.Time) {
 	for l := 0; l < len(c.levels); l++ {
 		missingcells := (neededcells+1)/2 - len(c.levels[l])
 		if missingcells > 0 {
-			fmt.Println("adding cells:", l, missingcells)
 			c.levels[l] = append(c.levels[l], make([]int, missingcells)...)
 			if l > 0 {
 				for j := len(c.levels[l]) - missingcells; j < len(c.levels[l]); j++ {
