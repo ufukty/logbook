@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "commonjs",
+    "outDir": "../src/.assets/compiled",
+    "rootDir": "./src",
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "es2016"
+  },
+  "exclude": [
+    "node_modules"
+  ],
+  "include": [
+    "src/**/*"
+  ]
+}
