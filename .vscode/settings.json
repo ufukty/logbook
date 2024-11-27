@@ -1,14 +1,19 @@
 {
+  "[markdown]": {
+    "prettier.tabWidth": 2
+  },
   "editor.wordWrap": "off",
-  "runOnSave.commands": [
-    {
-      "match": "\\.(mmd|d2)$",
-      "command": "echo && cd '${fileDirname}' && test -e Makefile && make all && echo",
-      "runningStatusMessage": "make..."
-    }
-  ],
   "go.testEnvVars": {
     "WORKSPACE": "${workspaceFolder}"
   },
   "go.testTimeout": "30s",
+  "prettier.printWidth": 120,
+  "prettier.tabWidth": 4,
+  "runOnSave.commands": [
+    {
+      "command": "echo && cd '${fileDirname}' && test -e Makefile && make all && echo",
+      "match": "\\.(mmd|d2)$",
+      "runningStatusMessage": "make..."
+    }
+  ]
 }
