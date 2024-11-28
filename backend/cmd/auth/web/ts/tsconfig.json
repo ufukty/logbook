@@ -5,8 +5,9 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "module": "commonjs",
-    "outDir": "../src/.assets/compiled",
-    "rootDir": "./src",
+    "noImplicitThis": true,
+    "outDir": "../build/.assets/ts",
+    "rootDir": "src",
     "skipLibCheck": true,
     "strict": true,
     "target": "es2016"

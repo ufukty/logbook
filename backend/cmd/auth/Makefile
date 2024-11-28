@@ -1,8 +1,9 @@
 all: web/build
 
-web/build: web/src/**
+web/build: web/kask/** web/ts/src/**
 	rm -rfv web/build
-	kask build -in web/src -out web/build -domain "/"
+	kask build -in web/kask -out web/build -domain "/"
+	cd web/ts && npx tsc
 
 watch:
-	fswatch web/src | while read l; do $(MAKE) -B web/build; done
+	fswatch web/kask | while read l; do $(MAKE) -B web/build; done
