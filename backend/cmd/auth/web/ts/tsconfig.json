@@ -4,13 +4,14 @@
     "allowUnusedLabels": false,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "module": "commonjs",
+    "module": "ESNext",
     "noImplicitThis": true,
     "outDir": "../build/.assets/ts",
+    "removeComments": true,
     "rootDir": "src",
     "skipLibCheck": true,
     "strict": true,
-    "target": "es2016"
+    "target": "ESNext"
   },
   "exclude": [
     "node_modules"
