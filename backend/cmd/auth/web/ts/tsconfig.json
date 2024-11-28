@@ -4,6 +4,10 @@
     "allowUnusedLabels": false,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
+    "lib": [
+      "DOM",
+      "ESNext",
+    ],
     "module": "ESNext",
     "noImplicitThis": true,
     "outDir": "../build/.assets/ts",
