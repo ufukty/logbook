@@ -63,3 +63,5 @@ which npm ||
   (open "https://nodejs.org/en/download" && exit 1)
 which mmdc || # docs
   npm install -g "@mermaid-js/mermaid-cli"
+which tsc ||
+  npm install -g typescript
