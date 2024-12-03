@@ -1,17 +1,59 @@
-const worker = new Worker("solver.js");
+const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-const n = 2;
-const que =
-    "4QYD5OASOT7NAPFKN4DXWRJSSPSIN7GUJUS3LL2XP33XJ5XJTUTTEX6GIDS6G4YUZ5YWUWSG2DIMPOZ2WXHYRUZ3GJZXIZWSI2NL3NRC4NT3YOQWX2Q4THRV5EKEXQDMVBQWJ4ZHSXP45BKPHBIJ7YPC674BNUFTKX7HAPEKSLSAFOIECVGQFE6GS5EAGPICWAVANKJBR4BBWTBYIAIUS2IAHKK7FBMUMVJV2J3FOW2JSRF";
-const hash_ = "CZZVTBQASPQJLUGY4LTE7GKCVFBDD6NFYHHSFINMUNF55DPF6MYQ";
+const encoder = new TextEncoder();
 
-worker.onmessage = function (e) {
-    if (e.data.success) {
-        console.log("Found:", e.data.result);
-    } else {
-        console.error("Error:", e.data.error);
+async function hash(input: string): Promise<string> {
+    try {
+        const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(input));
+        const binary = String.fromCharCode(...new Uint8Array(buf));
+        return window.btoa(binary);
+    } catch (error) {
+        console.error("Hashing failed:", error);
+        throw error;
     }
-};
+}
 
-// Send data to the worker to start the computation
-worker.postMessage({ n, que, hash_ });
+class Prefix {
+    value: string;
+
+    constructor(value: string) {
+        this.value = value;
+    }
+
+    iterate() {
+        let pb = this.value.split("");
+        for (let i = pb.length - 1; i >= 0; i--) {
+            if (i === 0 && pb[i] === alphabet[alphabet.length - 1]) {
+                return false;
+            }
+            let j = alphabet.indexOf(pb[i]);
+            pb[i] = alphabet[(j + 1) % alphabet.length];
+            this.value = pb.join("");
+            if (pb[i] !== alphabet[0]) {
+                return true;
+            }
+        }
+        return true;
+    }
+}
+
+function start(n: number) {
+    return new Prefix(alphabet[0].repeat(n));
+}
+
+export const ErrNotFound = new Error("not found");
+export const ErrInvalidChallange = new Error("invalid challenge: que or hash is empty");
+
+export async function Solve(n: number, que: string, hash_: string): Promise<string> {
+    if (hash_.length === 0 || n === 0) {
+        throw ErrInvalidChallange;
+    }
+    let p = start(n);
+    do {
+        let cand = p.value + que;
+        if ((await hash(cand)) === hash_) {
+            return cand;
+        }
+    } while (p.iterate());
+    throw ErrNotFound;
+}

@@ -6,7 +6,7 @@
     "forceConsistentCasingInFileNames": true,
     "lib": [
       "DOM",
-      "ESNext",
+      "ESNext"
     ],
     "module": "ESNext",
     "noImplicitThis": true,
@@ -18,7 +18,8 @@
     "target": "ESNext"
   },
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "src/*.test.ts"
   ],
   "include": [
     "src/**/*"

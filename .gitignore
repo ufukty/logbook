@@ -151,7 +151,6 @@ _.so
 /build
 /coverage
 /Godeps/
-/node_modules
 \*.dylib
 \*.lcov
 \*.out
@@ -194,10 +193,6 @@ lint/tmp/
 local.properties
 logs
 Network Trash Folder
-node_modules
-node_modules/
-npm-debug.log_
-npm-debug.log*
 out
 out/
 override.tf
