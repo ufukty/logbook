@@ -1,6 +1,15 @@
 import * as vitest from "vitest";
 import * as solve from "./solve";
 
+vitest.describe("Encode", () => {
+    vitest.it("should pass", (t) => {
+        const input = "Hello world";
+        const expected = "SGVsbG8gd29ybGQ";
+        const got = solve.encode(input);
+        t.expect(got).toBe(expected);
+    });
+});
+
 vitest.describe("SolveChallange", async () => {
     // cases are generated with the unit test of server part (Go's) named TestSolve function
     const cases = [
@@ -111,16 +120,16 @@ vitest.describe("SolveChallange", async () => {
     ];
 
     for (const c of cases) {
-        vitest.it(`should pass for length=${c.Original.length} n=${c.N}`, async () => {
-            vitest.expect(solve.Solve(c.N, c.Que, c.Hash)).resolves.toBe(c.Original);
+        vitest.it(`should pass for length=${c.Original.length} n=${c.N}`, { timeout: 10 * 60 * 1000 }, async (t) => {
+            await t.expect(solve.Solve(c.N, c.Que, c.Hash)).resolves.toBe(c.Original);
         });
     }
 
-    vitest.it("should fail with 'invalid challange'", async () => {
-        await vitest.expect(solve.Solve(1, "", "")).rejects.toThrow(solve.ErrInvalidChallange);
+    vitest.it("should fail with 'invalid challange'", async (t) => {
+        await t.expect(solve.Solve(1, "", "")).rejects.toThrow(solve.ErrInvalidChallange);
     });
 
-    vitest.it("should fail with 'not found'", async () => {
-        await vitest.expect(solve.Solve(1, "", "definitely not empty")).rejects.toThrow(solve.ErrNotFound);
+    vitest.it("should fail with 'not found'", async (t) => {
+        await t.expect(solve.Solve(1, "", "definitely not empty")).rejects.toThrow(solve.ErrNotFound);
     });
 });

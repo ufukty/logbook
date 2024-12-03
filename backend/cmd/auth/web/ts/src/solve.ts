@@ -1,17 +1,19 @@
-const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
-const encoder = new TextEncoder();
+export function encode(input: string): string {
+    return window.btoa(input).replaceAll("=", "");
+}
 
 async function hash(input: string): Promise<string> {
     try {
         const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(input));
         const binary = String.fromCharCode(...new Uint8Array(buf));
-        return window.btoa(binary);
+        return encode(binary);
     } catch (error) {
         console.error("Hashing failed:", error);
         throw error;
     }
 }
+
+const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 class Prefix {
     value: string;
