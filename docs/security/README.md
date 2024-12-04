@@ -6,11 +6,13 @@
 
 An equalizer requires a client to spend significant effort to make a request to a service. Which reduces the weakness of server against automated requests.
 
-**Criteria for questionary**
+**Criteria**
 
-- Computation cost of questionary to client should be at least the same with the cost of user actions to the server
-- A Javascript client should be able to solve the questionary as easy as others (or legitimate users are in disadvantage)
-- Difficulty should not vary too much, so the completion time.
+- **Effectiveness** - Solving the challenge must be more difficult than serving to an anonymous user
+- **Frictionless** - User doesn't need to interact to pass the challenge.
+- **Equality** - A JavaScript client should not have disadvantage against an attacker using 3rd-party client written in another language using an ASIC
+- **Predictability** - Completion time should not vary too much between runs with same parameters
+- **Adjustability** - The difficulty needs to be adjusted with minimal increments based on the volume of invalid requests originating from IPs/blocks.
 
 **Questionary**
 
@@ -26,10 +28,11 @@ There are `m` questions created by `server` and solved by `client`. Flow for a q
    1. compares `D` and `hash`
    1. answers when `D == hash`
 
-Notes:
+**Notes**
 
-- Difficulty increases exponentially with `n`, linearly with `m`.
+- Difficulty for client increases exponentially with `n`, linearly with `m`.
 - Increase the `m` against `n` to reduce deviation in completion time.
+- Increasing `m` over `n` reduces the disparity between difficulties for the server to create challenges and the client to solve them.
 - Responder only needs to find answers of a percentage of all questions (~90%).
 - Responder should not spend more than 2 times of expected completion time on any question.
 
@@ -67,7 +70,7 @@ There are not much information available throughout the registration to mark att
 
 **Attacker classification**
 
-Failed equalizer challanges in last hour, day, week etc.
+Failed equalizer challenges in last hour, day, week etc.
 
 **Setting rules**
 
@@ -84,7 +87,7 @@ Consider using white listing:
 
 **Penalties**
 
-- Exponentially increase the equalizer challange difficulty on marked IP blocks.
+- Exponentially increase the equalizer challenge difficulty on marked IP blocks.
 
 **Consequences**
 
