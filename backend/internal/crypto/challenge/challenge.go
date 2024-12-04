@@ -7,14 +7,14 @@ import (
 )
 
 type Challange struct {
-	Que      string
+	Cue      string
 	Hash     string
 	Original string
 	N        int
 }
 
 func (c Challange) String() string {
-	return fmt.Sprintf("(Que: %s) (Hash: %s) (Original: %s) (N: %d)\n", c.Que, c.Hash, c.Original, c.N)
+	return fmt.Sprintf("(Cue: %s) (Hash: %s) (Original: %s) (N: %d)\n", c.Cue, c.Hash, c.Original, c.N)
 }
 
 func randstring(n int) (string, error) {
@@ -46,7 +46,7 @@ func NewChallenge(l, n int) (Challange, error) {
 	q := mask(o, n)
 	c := Challange{
 		N:        n,
-		Que:      q,
+		Cue:      q,
 		Hash:     h,
 		Original: o,
 	}

@@ -44,7 +44,7 @@ func TestSolve(t *testing.T) {
 				t.Fatalf("failed to create challenge: %v", err)
 			}
 			t.Log("Challange:", ch)
-			solved, err := Solve(ch.N, ch.Que, ch.Hash)
+			solved, err := Solve(ch.N, ch.Cue, ch.Hash)
 			if err != nil {
 				t.Fatalf("failed to solve challenge: %v", err)
 			}
@@ -59,11 +59,11 @@ func BenchmarkDeviation(b *testing.B) {
 	ts := []time.Duration{}
 	for i := 0; i < b.N; i++ {
 		t := time.Now()
-		ch, err := NewChallenge(500, 4)
+		ch, err := NewChallenge(500, 3)
 		if err != nil {
 			b.Fatal(fmt.Errorf("prep: %w", err))
 		}
-		solved, err := Solve(ch.N, ch.Que, ch.Hash)
+		solved, err := Solve(ch.N, ch.Cue, ch.Hash)
 		if err != nil {
 			b.Fatal(fmt.Errorf("act, solve: %w", err))
 		}

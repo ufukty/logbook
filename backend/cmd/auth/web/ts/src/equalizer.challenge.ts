@@ -1,4 +1,4 @@
-export function EqualizerChallange(n: number, que: string, hash_: string): Promise<string> {
+export function EqualizerChallange(n: number, cue: string, hash_: string): Promise<string> {
     return new Promise<string>((resolve, reject) => {
         const worker: Worker = new Worker("solve.worker.js");
 
@@ -15,6 +15,6 @@ export function EqualizerChallange(n: number, que: string, hash_: string): Promi
         };
 
         // Send data to the worker to start the computation
-        worker.postMessage({ n, que, hash_ });
+        worker.postMessage({ n, cue, hash_ });
     });
 }
