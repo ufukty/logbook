@@ -1,64 +1,70 @@
 package challenge
 
 import (
-	"crypto/rand"
-	"crypto/sha256"
 	"fmt"
 )
 
-type Challange struct {
-	Cue      string
-	Hash     string
+const (
+	ML = 3
+	HL = 20
+)
+
+type Challenge struct {
+	Masked   string
+	Hashed   string
 	Original string
-	N        int
 }
 
-func (c Challange) String() string {
-	return fmt.Sprintf("(Cue: %s) (Hash: %s) (Original: %s) (N: %d)\n", c.Cue, c.Hash, c.Original, c.N)
+func (c Challenge) String() string {
+	return fmt.Sprintf("(Original: %s) (Masked: %s) (Hash: %s) \n", c.Original, c.Masked, c.Hashed)
 }
 
-func randstring(n int) (string, error) {
-	b := make([]byte, n)
-	if _, err := rand.Read(b); err != nil {
-		return "", fmt.Errorf("read")
-	}
-	return encode(b), nil
+func mask(o string) string {
+	return string(o[ML:])
 }
 
-func hash(a string) string {
-	h := sha256.Sum256([]byte(a))
-	return encode(h[:])
-}
-
-func mask(s string, n int) string {
-	return string(s[n:])
-}
-
-func NewChallenge(l, n int) (Challange, error) {
-	if l <= n {
-		return Challange{}, fmt.Errorf("ques should be longer than masks")
-	}
-	o, err := randstring(l)
+func createOriginal(difficulty int) (string, error) {
+	o1, err := randstring(alphabet[:difficulty], ML)
 	if err != nil {
-		return Challange{}, fmt.Errorf("randstring: %w", err)
+		return "", fmt.Errorf("randstring for masked part: %w", err)
 	}
-	h := hash(o)
-	q := mask(o, n)
-	c := Challange{
-		N:        n,
-		Cue:      q,
-		Hash:     h,
+	o2, err := randstring(alphabet, HL-ML)
+	if err != nil {
+		return "", fmt.Errorf("randstring for clear part: %w", err)
+	}
+	return o1 + o2, nil
+}
+
+func CreateChallenge(difficulty int) (Challenge, error) {
+	o, err := createOriginal(difficulty)
+	if err != nil {
+		return Challenge{}, fmt.Errorf("randstring: %w", err)
+	}
+	c := Challenge{
+		Masked:   mask(o),
+		Hashed:   hash(o),
 		Original: o,
 	}
 	return c, nil
 }
 
-func NewBatch(l, n, m int) ([]Challange, error) {
-	cs := []Challange{}
-	for range m {
-		c, err := NewChallenge(l, n)
+var (
+	ErrMinDifficulty = fmt.Errorf("difficulty needs to be bigger than 1")
+	ErrMaxDifficulty = fmt.Errorf("difficulty needs to be smaller than the alphabet size")
+)
+
+func CreateBatch(difficulty, CPB int) ([]Challenge, error) {
+	if difficulty <= 2 {
+		return nil, ErrMinDifficulty
+	}
+	if len(alphabet) <= difficulty {
+		return nil, ErrMaxDifficulty
+	}
+	cs := []Challenge{}
+	for range CPB {
+		c, err := CreateChallenge(difficulty)
 		if err != nil {
-			return nil, fmt.Errorf("newchallenge: %w", err)
+			return nil, fmt.Errorf("CreateChallenge: %w", err)
 		}
 		cs = append(cs, c)
 	}

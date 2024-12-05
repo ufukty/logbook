@@ -1,10 +1,6 @@
 package challenge
 
-import (
-	"encoding/base64"
-)
-
-var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+import "encoding/base64"
 
 var encoder = base64.StdEncoding.WithPadding(base64.NoPadding)
 

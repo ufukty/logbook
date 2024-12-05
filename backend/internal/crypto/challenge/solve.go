@@ -5,21 +5,27 @@ import (
 	"slices"
 )
 
-func start(n int) prefix {
-	return prefix(slices.Repeat([]byte{alphabet[0]}, n))
+func start(difficulty int) prefix {
+	return prefix{
+		value:      slices.Repeat([]byte{alphabet[0]}, ML),
+		difficulty: difficulty,
+	}
 }
 
-type prefix string
+type prefix struct {
+	value      []byte
+	difficulty int
+}
 
 func (p *prefix) iterate() bool {
-	pb := []byte(*p)
+	pb := slices.Clone(p.value)
 	for i := len(pb) - 1; i >= 0; i-- {
-		if i == 0 && pb[i] == alphabet[len(alphabet)-1] {
+		if i == 0 && pb[i] == alphabet[p.difficulty-1] {
 			return false
 		}
 		j := slices.Index([]byte(alphabet), pb[i])
-		pb[i] = alphabet[(j+1)%len(alphabet)]
-		*p = prefix(string(pb))
+		pb[i] = alphabet[(j+1)%p.difficulty]
+		p.value = pb
 		if pb[i] != alphabet[0] {
 			return true
 		}
@@ -27,15 +33,23 @@ func (p *prefix) iterate() bool {
 	return true
 }
 
-func Solve(n int, que, hash_ string) (string, error) {
-	if len(hash_) == 0 || n == 0 {
-		return "", fmt.Errorf("invalid challenge: que or hash is empty")
+var ErrNotFound = fmt.Errorf("not found")
+
+func SolveChallenge(difficulty int, masked, hashed string) (string, error) {
+	if len(hashed) == 0 {
+		return "", fmt.Errorf("hashed is empty")
 	}
-	for p := start(n); p.iterate(); {
-		cand := string(p) + que
-		if hash(cand) == hash_ {
-			return cand, nil
+	if len(masked) == 0 {
+		return "", fmt.Errorf("masked is empty")
+	}
+	p := start(difficulty)
+	for {
+		cand := string(p.value) + masked
+		if hash(cand) == hashed {
+			return string(p.value), nil
+		}
+		if !p.iterate() {
+			return "", ErrNotFound
 		}
 	}
-	return "", fmt.Errorf("not found")
 }

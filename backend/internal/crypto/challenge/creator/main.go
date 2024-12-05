@@ -9,17 +9,12 @@ import (
 )
 
 func Main() error {
-	cs := []challenge.Challange{}
-
-	for i := 0; i < 100; i++ {
-		c, err := challenge.NewChallenge(500, 3)
-		if err != nil {
-			return fmt.Errorf("creating a challenge: %w", err)
-		}
-		cs = append(cs, c)
+	cs, err := challenge.CreateBatch(30, 100)
+	if err != nil {
+		return fmt.Errorf("CreateBatch: %w", err)
 	}
 
-	err := json.NewEncoder(os.Stdout).Encode(cs)
+	err = json.NewEncoder(os.Stdout).Encode(cs)
 	if err != nil {
 		return fmt.Errorf("printing json: %w", err)
 	}
