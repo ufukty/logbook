@@ -14,38 +14,99 @@ An equalizer requires a client to spend significant effort to make a request to 
 - **Predictability** - Completion time should not vary too much between runs with same parameters
 - **Adjustability** - The difficulty needs to be adjusted with minimal increments based on the volume of invalid requests originating from IPs/blocks.
 
-**Questionary**
+**Design**
 
-There are `m` questions created by `server` and solved by `client`. Flow for a question is like:
+| Variable | Description          | Default |
+| -------- | -------------------- | ------- |
+| CPB      | Challenges per batch | 100     |
+| HL       | Hash length          | 500     |
+| ML       | Mask length          | 3       |
 
-1. Server creates question:
-   1. Creates a random string in base32: `original`
-   1. Hashes original: `hash`
-   1. Replaces the first `n` digits of the `original` with spaces: `que`
-   1. `[que, hash, n]`: `question`
-1. Client tries to solve each question:
-   1. hashes the every `32^n` combination on `que`: C
-   1. compares `D` and `hash`
-   1. answers when `D == hash`
+Create
 
-**Notes**
+```python
+alphabet = "012...ABC...abc..."
 
-- Difficulty for client increases exponentially with `n`, linearly with `m`.
-- Increase the `m` against `n` to reduce deviation in completion time.
-- Increasing `m` over `n` reduces the disparity between difficulties for the server to create challenges and the client to solve them.
-- Responder only needs to find answers of a percentage of all questions (~90%).
-- Responder should not spend more than 2 times of expected completion time on any question.
+def CreateChallenge(difficulty: number):
+  original = randomstring(ML,      alphabet[:difficulty]) +
+             randomstring(HL - ML, alphabet)
+  hashed = hashfunction(original)
+  masked = hashed[ML:]
+  return (original, masked, hashed)
+
+def CreateBatch(difficulty: number):
+  return [CreateChallenge(difficulty) for _ in range(CPB)]
+```
+
+Solve
+
+```python
+alphabet = "012...ABC...abc..."
+
+def SolveChallenge(difficulty: number, masked: string, hashed: string):
+  combination = combinate(ML, alphabet[:difficulty])
+  for {
+    if hashfunction(combination + masked) == hashed {
+      return combination
+    }
+    if !combination.iterate() {
+      return nil
+    }
+  }
+
+def SolveBatch(difficulty: number, challenges: [](masked, hashed)):
+  cs = {}
+  for masked, hashed in challenges:
+    combination = SolveChallenge(difficulty, masked, hashed)
+    if combination == NIL {
+      return Error("failed for {combination}")
+    }
+    cs[hashed] = combination
+  return cs
+```
+
+Validate
+
+```python
+def ValidateBatch(batchid: number, combinations: [](hashed, combination)):
+  challenges, ok = store[batchid]
+  if !ok:
+    return Error("invalid batch id")
+  if len(challenges) != len(combinations):
+    return Error("wrong number of answers")
+  if !compare_hashed_values(challenges, combinations):
+    return Error("wrong questions")
+  if compare_combinations(challenges, combinations):
+    return Error("wrong answers")
+  return nil
+```
+
+- **Challenges per batch**  
+  It is picked as such to make sure the batch gets balanced selection of quick and slow challenges. Which the speed of solution determined by how late the solution is placed in the set of possible values. The algorithm doesn't contain logic to make sure equal number of early/late solutions by intention to not give attackers means to guess the direction for trials for sequent challenges.
+- **Hash function**  
+  outputs text that is in transport safe encoding. the result should be unguessable.
+- **Alphabet limiting**  
+  is applied only to the generation of masked part, to reduce weakness against rainbow tables.
+
+**Review**
+
+Increasing difficulty
+
+| Growth      | Parameter                       | Example terms               |
+| ----------- | ------------------------------- | --------------------------- |
+| exponential | # of masked characters          | `ML^2`, `ML^3`, `ML^4`      |
+| polynomial  | # of characters in the alphabet | `x^3`, `(x+1)^3`, `(x+2)^3` |
+| linear      | # of challenges per batch       | `CPB`, `2CPB`, `3CPB`       |
+
+> Increase the `CPB` against rest to reduce deviation in completion time.
+
+> Increasing `CPB` over `ML` reduces the disparity between difficulties for the server to create challenges and the client to solve them.
 
 **Transparency**
 
 A form utilizes an equalizer may notify users about the usage through friendly text such:
 
 > This form is made computationally difficult for browsers to make one valid submission in order to increase the cost of automated signups for attackers. This technic reduces the need to require users solve puzzles to prove they are not robots. [More info]()
-
-**Function properties**
-
-- Output should be unguessable (uncachable).
-- Using ASICs for clients should not provide an advantage over a regular JS client on average device.
 
 ## Measures
 
