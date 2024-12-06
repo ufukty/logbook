@@ -1,35 +1,25 @@
-export function encode(input: string): string {
-    return window.btoa(input).replaceAll("=", "");
-}
+import { hash } from "./hash";
+import { alphabet } from "./alphabet";
 
-async function hash(input: string): Promise<string> {
-    try {
-        const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(input));
-        const binary = String.fromCharCode(...new Uint8Array(buf));
-        return encode(binary);
-    } catch (error) {
-        console.error("Hashing failed:", error);
-        throw error;
-    }
-}
-
-const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+const ML = 3;
 
 class Prefix {
     value: string;
+    alphabetSize: number;
 
-    constructor(value: string) {
-        this.value = value;
+    constructor(alphabetSize: number) {
+        this.value = alphabet[0].repeat(ML);
+        this.alphabetSize = alphabetSize;
     }
 
     iterate() {
         let pb = this.value.split("");
         for (let i = pb.length - 1; i >= 0; i--) {
-            if (i === 0 && pb[i] === alphabet[alphabet.length - 1]) {
+            if (i === 0 && pb[i] === alphabet[this.alphabetSize - 1]) {
                 return false;
             }
             let j = alphabet.indexOf(pb[i]);
-            pb[i] = alphabet[(j + 1) % alphabet.length];
+            pb[i] = alphabet[(j + 1) % this.alphabetSize];
             this.value = pb.join("");
             if (pb[i] !== alphabet[0]) {
                 return true;
@@ -39,21 +29,29 @@ class Prefix {
     }
 }
 
-function start(n: number) {
-    return new Prefix(alphabet[0].repeat(n));
-}
-
+export const ErrEmptyHashed = new Error("'hashed' is empty");
+export const ErrEmptyMasked = new Error("'masked' is empty");
+export const ErrMaxDifficulty = new Error("difficulty needs to be smaller than the alphabet size");
+export const ErrMinDifficulty = new Error("difficulty needs to be bigger than 1");
 export const ErrNotFound = new Error("not found");
-export const ErrInvalidChallange = new Error("invalid challenge: que or hash is empty");
 
-export async function Solve(n: number, que: string, hash_: string): Promise<string> {
-    if (hash_.length === 0 || n === 0) {
-        throw ErrInvalidChallange;
+export async function Solve(difficulty: number, masked: string, hashed: string): Promise<string> {
+    if (difficulty < 2) {
+        throw ErrMinDifficulty;
     }
-    let p = start(n);
+    if (alphabet.length <= difficulty) {
+        throw ErrMaxDifficulty;
+    }
+    if (hashed.length === 0) {
+        throw ErrEmptyHashed;
+    }
+    if (masked.length === 0) {
+        throw ErrEmptyMasked;
+    }
+    let p = new Prefix(difficulty);
     do {
-        let cand = p.value + que;
-        if ((await hash(cand)) === hash_) {
+        let cand = p.value + masked;
+        if ((await hash(cand)) === hashed) {
             return cand;
         }
     } while (p.iterate());
