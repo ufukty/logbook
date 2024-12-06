@@ -10,9 +10,10 @@ const (
 )
 
 type Challenge struct {
-	Masked   string
-	Hashed   string
-	Original string
+	Difficulty int    `json:"D"`
+	Masked     string `json:"M"`
+	Hashed     string `json:"H"`
+	Original   string `json:"O"`
 }
 
 func (c Challenge) String() string {
@@ -41,9 +42,10 @@ func CreateChallenge(difficulty int) (Challenge, error) {
 		return Challenge{}, fmt.Errorf("randstring: %w", err)
 	}
 	c := Challenge{
-		Masked:   mask(o),
-		Hashed:   hash(o),
-		Original: o,
+		Masked:     mask(o),
+		Hashed:     hash(o),
+		Original:   o,
+		Difficulty: difficulty,
 	}
 	return c, nil
 }
