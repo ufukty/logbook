@@ -56,7 +56,7 @@ var (
 )
 
 func CreateBatch(difficulty, CPB int) ([]Challenge, error) {
-	if difficulty <= 2 {
+	if difficulty < 2 {
 		return nil, ErrMinDifficulty
 	}
 	if len(alphabet) <= difficulty {

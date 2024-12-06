@@ -36,7 +36,7 @@ func (p *prefix) iterate() bool {
 var ErrNotFound = fmt.Errorf("not found")
 
 func SolveChallenge(difficulty int, masked, hashed string) (string, error) {
-	if difficulty <= 2 {
+	if difficulty < 2 {
 		return "", ErrMinDifficulty
 	}
 	if len(alphabet) <= difficulty {
