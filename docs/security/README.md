@@ -19,7 +19,7 @@ An equalizer requires a client to spend significant effort to make a request to 
 | Variable | Description          | Default |
 | -------- | -------------------- | ------- |
 | CPB      | Challenges per batch | 100     |
-| HL       | Hash length          | 500     |
+| IL       | Input length         | 20      |
 | ML       | Mask length          | 3       |
 
 Create
@@ -29,7 +29,7 @@ alphabet = "012...ABC...abc..."
 
 def CreateChallenge(difficulty: number):
   original = randomstring(ML,      alphabet[:difficulty]) +
-             randomstring(HL - ML, alphabet)
+             randomstring(IL - ML, alphabet)
   hashed = hashfunction(original)
   masked = hashed[ML:]
   return (original, masked, hashed)

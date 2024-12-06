@@ -6,7 +6,7 @@ import (
 
 const (
 	ML = 3
-	HL = 20
+	IL = 20
 )
 
 type Challenge struct {
@@ -29,7 +29,7 @@ func createOriginal(difficulty int) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("randstring for masked part: %w", err)
 	}
-	o2, err := randstring(alphabet, HL-ML)
+	o2, err := randstring(alphabet, IL-ML)
 	if err != nil {
 		return "", fmt.Errorf("randstring for clear part: %w", err)
 	}
