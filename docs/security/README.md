@@ -102,6 +102,57 @@ Increasing difficulty
 
 > Increasing `CPB` over `ML` reduces the disparity between difficulties for the server to create challenges and the client to solve them.
 
+**JavaScript penalty**
+
+Found that a Go client can be far advantageous against a JS client for low input lengths in SHA-256 hashing.
+
+<table>
+<tr>
+<td>
+
+| Input length | JS (ms/hash) | Go (ms/hash) | JS/Go |
+| ------------ | ------------ | ------------ | ----- |
+| 10           | 0.0441       | 0.0004       | 110   |
+| 100          | 0.0500       | 0.0008       | 63    |
+| 1,000        | 0.0549       | 0.0032       | 17    |
+| 10,000       | 0.1541       | 0.0240       | 6     |
+| 100,000      | 1.3051       | 0.2432       | 5     |
+
+</td>
+<td>
+<img style="width:auto;height:250px" src="assets/equalizer-js-vs-go.png">
+</td>
+</tr>
+</table>
+
+Zooming to `[1,000, 10,000]` range:
+
+<table>
+<tr>
+<td>
+
+| Input length | JS (ms/hash) | Go (ms/hash) | JS/Go |
+| ------------ | ------------ | ------------ | ----- |
+| 1,000        | 0.0590       | 0.0027       | 22    |
+| 2,000        | 0.0698       | 0.0053       | 13    |
+| 3,000        | 0.0695       | 0.0075       | 9     |
+| 4,000        | 0.0882       | 0.0095       | 9     |
+| 5,000        | 0.1199       | 0.0118       | 10    |
+| 6,000        | 0.1134       | 0.0142       | 9     |
+| 7,000        | 0.1197       | 0.0190       | 6     |
+| 8,000        | 0.1304       | 0.0186       | 7     |
+| 9,000        | 0.1448       | 0.0199       | 7     |
+| 10,000       | 0.1604       | 0.0226       | 7     |
+
+</td>
+<td>
+<img style="width:auto;height:250px" src="assets/equalizer-js-vs-go-zoom.png">
+</td>
+</tr>
+</table>
+
+Note: Values are for average of 100,000 iterations
+
 **Transparency**
 
 A form utilizes an equalizer may notify users about the usage through friendly text such:
