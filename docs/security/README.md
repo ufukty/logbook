@@ -17,25 +17,30 @@ An equalizer requires a client to spend significant effort to make a request to 
 **Design**
 
 | Variable | Description          | Default |
-| -------- | -------------------- | ------- |
-| CPB      | Challenges per batch | 100     |
-| IL       | Input length         | 20      |
-| ML       | Mask length          | 3       |
+| -------- | -------------------- | ------: |
+| BL       | Batch Id length      |      40 |
+| CPB      | Challenges per batch |      10 |
+| ML       | Mask length          |      2+ |
+| OL       | Original length      |      20 |
+| PHL      | Pre-hash length      |    1000 |
 
 Create
 
 ```python
 alphabet = "012...ABC...abc..."
+pseudo = "..."
 
-def CreateChallenge(difficulty: number):
+def CreateChallenge(bid string, difficulty: number):
   original = randomstring(ML,      alphabet[:difficulty]) +
-             randomstring(IL - ML, alphabet)
-  hashed = hashfunction(original)
+             randomstring(OL - ML, alphabet) +
+  prehash = original + bid + pseudo[:PHL-BL-OL]
+  hashed = hashfunction(prehash)
   masked = hashed[ML:]
   return (original, masked, hashed)
 
 def CreateBatch(difficulty: number):
-  return [CreateChallenge(difficulty) for _ in range(CPB)]
+  bid = randomstring(BL, alphabet)
+  return bid, [CreateChallenge(bid, difficulty) for _ in range(CPB)]
 ```
 
 Solve
@@ -43,10 +48,11 @@ Solve
 ```python
 alphabet = "012...ABC...abc..."
 
-def SolveChallenge(difficulty: number, masked: string, hashed: string):
+def SolveChallenge(difficulty: number, bid: string, masked: string, hashed: string):
   combination = combinate(ML, alphabet[:difficulty])
   for {
-    if hashfunction(combination + masked) == hashed {
+    prehash = combination + masked + bid + pseudo[:PHL-BL-OL]
+    if hashfunction(prehash) == hashed {
       return combination
     }
     if !combination.iterate() {
@@ -54,10 +60,10 @@ def SolveChallenge(difficulty: number, masked: string, hashed: string):
     }
   }
 
-def SolveBatch(difficulty: number, challenges: [](masked, hashed)):
+def SolveBatch(difficulty: number, bid: string, challenges: [](masked, hashed)):
   cs = {}
   for masked, hashed in challenges:
-    combination = SolveChallenge(difficulty, masked, hashed)
+    combination = SolveChallenge(difficulty, bid, masked, hashed)
     if combination == NIL {
       return Error("failed for {combination}")
     }
@@ -152,6 +158,10 @@ Zooming to `[1,000, 10,000]` range:
 </table>
 
 Note: Values are for average of 100,000 iterations
+
+Thus, pre-hash length is better to be as long as possible to reduce the disadvantage of JavaScript against 3rd party clients written in compiled languages since JS is what all of the legitimate visitors will be using. It has seen that the JS/Go ratio against input length looses its reduction rate significantly between 1,000 and 10,000. It makes 2,000 and 3,000 good choices for such purpose if the overhead of transfering longer text is considered.
+
+Extension that will be made on the pre-hash input in this purpose have no need to kept as a secret, unique or unguessable. Even a pseudo public string suits.
 
 **Transparency**
 
