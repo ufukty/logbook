@@ -5,8 +5,10 @@ import (
 )
 
 const (
-	ML = 3
-	IL = 20
+	BL  = 40   // batch id length
+	ML  = 3    // mask length
+	OL  = 20   // 'original' length
+	PHL = 1000 // pre-hash length
 )
 
 type Challenge struct {
@@ -29,22 +31,22 @@ func createOriginal(difficulty int) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("randstring for masked part: %w", err)
 	}
-	o2, err := randstring(alphabet, IL-ML)
+	o2, err := randstring(alphabet, OL-ML)
 	if err != nil {
 		return "", fmt.Errorf("randstring for clear part: %w", err)
 	}
 	return o1 + o2, nil
 }
 
-func CreateChallenge(difficulty int) (Challenge, error) {
-	o, err := createOriginal(difficulty)
+func CreateChallenge(bid string, difficulty int) (Challenge, error) {
+	r, err := createOriginal(difficulty)
 	if err != nil {
 		return Challenge{}, fmt.Errorf("randstring: %w", err)
 	}
 	c := Challenge{
-		Masked:     mask(o),
-		Hashed:     hash(o),
-		Original:   o,
+		Masked:     mask(r),
+		Hashed:     hash(r + bid + pseudo[:PHL-BL-OL]),
+		Original:   r,
 		Difficulty: difficulty,
 	}
 	return c, nil
@@ -55,20 +57,31 @@ var (
 	ErrMaxDifficulty = fmt.Errorf("difficulty needs to be smaller than the alphabet size")
 )
 
-func CreateBatch(difficulty, CPB int) ([]Challenge, error) {
+type Batch struct {
+	BatchId    string      `json:"bid"`
+	Challenges []Challenge `json:"challenges"`
+}
+
+func CreateBatch(difficulty, CPB int) (*Batch, error) {
 	if difficulty < 2 {
 		return nil, ErrMinDifficulty
 	}
 	if len(alphabet) <= difficulty {
 		return nil, ErrMaxDifficulty
 	}
-	cs := []Challenge{}
+	bid, err := randstring(alphabet, BL)
+	if err != nil {
+		return nil, fmt.Errorf("creating batch id: %w", err)
+	}
+	b := &Batch{
+		BatchId: bid,
+	}
 	for range CPB {
-		c, err := CreateChallenge(difficulty)
+		c, err := CreateChallenge(bid, difficulty)
 		if err != nil {
 			return nil, fmt.Errorf("CreateChallenge: %w", err)
 		}
-		cs = append(cs, c)
+		b.Challenges = append(b.Challenges, c)
 	}
-	return cs, nil
+	return b, nil
 }

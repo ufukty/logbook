@@ -35,7 +35,7 @@ func (p *prefix) iterate() bool {
 
 var ErrNotFound = fmt.Errorf("not found")
 
-func SolveChallenge(difficulty int, masked, hashed string) (string, error) {
+func SolveChallenge(difficulty int, bid, masked, hashed string) (string, error) {
 	if difficulty < 2 {
 		return "", ErrMinDifficulty
 	}
@@ -50,7 +50,8 @@ func SolveChallenge(difficulty int, masked, hashed string) (string, error) {
 	}
 	p := start(difficulty)
 	for {
-		cand := string(p.value) + masked
+		cand := string(p.value) + masked + bid
+		cand += pseudo[:1000-len(cand)]
 		if hash(cand) == hashed {
 			return string(p.value), nil
 		}

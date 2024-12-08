@@ -6,15 +6,20 @@ import (
 )
 
 func TestSolveChallenge(t *testing.T) {
+	bid, err := randstring(alphabet, BL)
+	if err != nil {
+		t.Fatal(fmt.Errorf("prep, creating bid: %w", err))
+	}
+
 	for difficulty := 2; difficulty < len(alphabet)-1; difficulty++ {
 		t.Run(fmt.Sprintf("difficulty %d", difficulty), func(t *testing.T) {
-			c, err := CreateChallenge(difficulty)
+			c, err := CreateChallenge(bid, difficulty)
 			if err != nil {
 				t.Fatalf("NewChallenge: %v", err)
 			}
 			t.Log("Challange:", c)
 
-			combination, err := SolveChallenge(difficulty, c.Masked, c.Hashed)
+			combination, err := SolveChallenge(difficulty, bid, c.Masked, c.Hashed)
 			if err != nil {
 				t.Fatalf("SolveChallenge: %v", err)
 			}
