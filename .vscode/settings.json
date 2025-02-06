@@ -9,11 +9,5 @@
   "go.testTimeout": "30s",
   "prettier.printWidth": 120,
   "prettier.tabWidth": 4,
-  "runOnSave.commands": [
-    {
-      "command": "echo && cd '${fileDirname}' && test -e Makefile && make all && echo",
-      "match": "\\.(mmd|d2)$",
-      "runningStatusMessage": "make..."
-    }
-  ]
+  "window.title": "Logbook"
 }
