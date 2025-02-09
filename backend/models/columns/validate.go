@@ -2,6 +2,7 @@ package columns
 
 import (
 	"logbook/internal/web/validate"
+	"regexp"
 )
 
 func (v NonNegativeNumber) Validate() error {
@@ -11,114 +12,132 @@ func (v NonNegativeNumber) Validate() error {
 	return nil
 }
 
+type pmm struct {
+	pattern  *regexp.Regexp
+	min, max int
+}
+
+func (b pmm) Validate(v string) error {
+	return validate.StringBasics(v, b.min, b.max, b.pattern)
+}
+
+func r(s string) *regexp.Regexp {
+	return regexp.MustCompile(s)
+}
+
+var (
+	// creditCard   = pmm{r(`^(?:4[0-9]{12}(?:[0-9]{3})?)$`), 13, 19}
+	// htmlDate     = pmm{r(`^\d{4}-\d{2}-\d{2}$`), 6, 8}
+	// htmlDatetime = pmm{r(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$`), 9, 13}
+	// htmlTime     = pmm{r(`^\d{2}:\d{2}$`), 3, 5}
+	// numeric      = pmm{r(`^[1-9][0-9]*$`), 0, 100}
+	// text         = pmm{r(`^[\p{L}0-9 ,.?!'’“”-]+$`), 0, 10000}
+	// url          = pmm{r(`^[\p{L}0-9._%+-]+@[\p{L}0-9.-]+\.[\p{L}]{2,}$`), 0, 10000}
+	email        = pmm{r(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`), 6, 150}
+	groupTitle   = pmm{r(`[\p{L} ]+`), 2, 100}
+	humanName    = pmm{r(`^\p{L}+([ '-]\p{L}+)*$`), 6, 100}
+	phoneNumber  = pmm{r(`^\+?(\d{1,3})?[ -]?(\d{3})[ -]?(\d{3})[ -]?(\d{4})$`), 10, 15}
+	sessionToken = pmm{r(`[A-Za-z0-9-_]+$`), 256, 256} // pattern is as defined in std lib base64.URLEncoding
+	username     = pmm{r(`^[a-zA-Z]+[a-zA-Z0-9\_\.\-]*$`), 3, 50}
+	uuid_        = pmm{r(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`), len("00000000-0000-0000-0000-000000000000"), len("00000000-0000-0000-0000-000000000000")}
+)
+
 func (v AccessId) Validate() error {
-	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
+	return uuid_.Validate(string(v))
 }
 
 func (v BookmarkId) Validate() error {
-	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
+	return uuid_.Validate(string(v))
 }
 
 func (v BottomUpPropsId) Validate() error {
-	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
+	return uuid_.Validate(string(v))
 }
 
 func (v CollaborationId) Validate() error {
-	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
+	return uuid_.Validate(string(v))
 }
 
 func (v CollaboratorId) Validate() error {
-	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
+	return uuid_.Validate(string(v))
 }
 
 func (v ControlAreaId) Validate() error {
-	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
+	return uuid_.Validate(string(v))
 }
 
 func (v DelegationId) Validate() error {
-	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
+	return uuid_.Validate(string(v))
 }
 
 func (v Email) Validate() error {
-	return validate.StringBasics(string(v), min_length_email, max_length_email, regexp_email)
+	return email.Validate(string(v))
 }
 
 func (v GroupId) Validate() error {
-	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
+	return uuid_.Validate(string(v))
 }
 
 func (v GroupInviteId) Validate() error {
-	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
+	return uuid_.Validate(string(v))
 }
 
 func (v GroupMembershipId) Validate() error {
-	return validate.StringBasics(string(v), min_length_group_title, max_length_group_title, regexp_group_title)
+	return groupTitle.Validate(string(v))
 }
 
 func (v GroupName) Validate() error {
-	return validate.StringBasics(string(v), min_length_group_title, max_length_group_title, regexp_group_title)
+	return groupTitle.Validate(string(v))
 }
 
 func (v HumanName) Validate() error {
-	return validate.StringBasics(string(v), min_length_human_name, max_length_human_name, regexp_human_name)
+	return humanName.Validate(string(v))
 }
 
 func (v LinkId) Validate() error {
-	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
+	return uuid_.Validate(string(v))
 }
 
 func (v LoginId) Validate() error {
-	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
-}
-
-func (v ObjectiveContent) Validate() error {
-	return validate.StringBasics(string(v), min_length_objective_content, max_length_objective_content, regexp_objective_content)
+	return uuid_.Validate(string(v))
 }
 
 func (v ObjectiveId) Validate() error {
-	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
+	return uuid_.Validate(string(v))
 }
 
 func (v OperationId) Validate() error {
-	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
+	return uuid_.Validate(string(v))
 }
 
 func (v Phone) Validate() error {
-	return validate.StringBasics(string(v), min_length_phone_number, max_length_phone_number, regexp_phone_number)
+	return phoneNumber.Validate(string(v))
 }
 
 func (v PropertiesId) Validate() error {
-	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
+	return uuid_.Validate(string(v))
 }
 
 func (v SessionId) Validate() error {
-	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
+	return uuid_.Validate(string(v))
 }
 
 func (v SessionToken) Validate() error {
-	return validate.StringBasics(string(v), min_length_session_token, max_length_session_token, regexp_base64_url)
+	return sessionToken.Validate(string(v))
 }
 
 func (v TagId) Validate() error {
-	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
-}
-
-func (v TagTitle) Validate() error {
-	return validate.StringBasics(string(v), min_length_tag_title, max_length_tag_title, regexp_tag_title)
-}
-
-func (v UserAgent) Validate() error {
-	return validate.StringBasics(string(v), min_length_user_agent, max_length_user_agent, nil)
+	return uuid_.Validate(string(v))
 }
 
 func (v UserId) Validate() error {
-	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
+	return uuid_.Validate(string(v))
 }
 
 func (v Username) Validate() error {
-	return validate.StringBasics(string(v), min_length_username, max_length_username, regexp_username)
+	return username.Validate(string(v))
 }
 
 func (v VersionId) Validate() error {
-	return validate.StringBasics(string(v), min_length_uuid, max_length_uuid, regexp_uuid)
+	return uuid_.Validate(string(v))
 }
