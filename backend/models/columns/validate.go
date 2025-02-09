@@ -34,7 +34,7 @@ var (
 	// text         = pmm{r(`^[\p{L}0-9 ,.?!'’“”-]+$`), 0, 10000}
 	// url          = pmm{r(`^[\p{L}0-9._%+-]+@[\p{L}0-9.-]+\.[\p{L}]{2,}$`), 0, 10000}
 	email        = pmm{r(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`), 6, 150}
-	groupTitle   = pmm{r(`[\p{L} ]+`), 2, 100}
+	groupName    = pmm{r(`[\p{L} ]+`), 2, 100}
 	humanName    = pmm{r(`^\p{L}+([ '-]\p{L}+)*$`), 6, 100}
 	phoneNumber  = pmm{r(`^\+?(\d{1,3})?[ -]?(\d{3})[ -]?(\d{3})[ -]?(\d{4})$`), 10, 15}
 	sessionToken = pmm{r(`[A-Za-z0-9-_]+$`), 256, 256} // pattern is as defined in std lib base64.URLEncoding
@@ -52,8 +52,8 @@ func (v DelegationId) Validate() error      { return uuid_.Validate(string(v)) }
 func (v Email) Validate() error             { return email.Validate(string(v)) }
 func (v GroupId) Validate() error           { return uuid_.Validate(string(v)) }
 func (v GroupInviteId) Validate() error     { return uuid_.Validate(string(v)) }
-func (v GroupMembershipId) Validate() error { return groupTitle.Validate(string(v)) }
-func (v GroupName) Validate() error         { return groupTitle.Validate(string(v)) }
+func (v GroupMembershipId) Validate() error { return uuid_.Validate(string(v)) }
+func (v GroupName) Validate() error         { return groupName.Validate(string(v)) }
 func (v HumanName) Validate() error         { return humanName.Validate(string(v)) }
 func (v LinkId) Validate() error            { return uuid_.Validate(string(v)) }
 func (v LoginId) Validate() error           { return uuid_.Validate(string(v)) }
