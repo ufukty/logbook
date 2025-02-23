@@ -33,11 +33,7 @@ func RequestFields(i any) error {
 		if val, ok := fv.Interface().(Validator); ok {
 			ft := t.Field(i)
 			if err := val.Validate(); err != nil {
-				if k, ok := ft.Tag.Lookup("json"); ok {
-					return fmt.Errorf("invalid value for %q: %q", k, v)
-				} else {
-					panic(fmt.Sprintf("%q.%q doesn't have %q key in field tags", t.Name(), ft.Name, "json"))
-				}
+				return fmt.Errorf("%s.Validate: %s", ft.Name, err)
 			}
 		}
 	}
