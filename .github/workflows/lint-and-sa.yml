@@ -1,0 +1,57 @@
+name: Lint & Static Analysis
+
+on:
+  push: {}
+  pull_request: {}
+
+jobs:
+  go-lint:
+    name: Go fmt & golangci-lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.20"
+
+      - name: Cache Go modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/go-build
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Run go fmt
+        run: |
+          echo "::group::Checking go fmt"
+          go fmt ./...
+          echo "::endgroup::"
+
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v4
+        with:
+          version: v1.58.0
+          args: |
+            run
+            --timeout 5m
+            ./...
+
+  shell-lint:
+    name: Shell script linting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install shellcheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+      - name: Run shellcheck
+        run: |
+          echo "::group::Running shellcheck"
+          shellcheck **/*.sh
+          echo "::endgroup::"
