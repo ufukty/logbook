@@ -21,24 +21,19 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.cache/go-build
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
+          key: ${{ runner.os }}-go-${{ hashFiles('backend/go.sum') }}
+          restore-keys: ${{ runner.os }}-go-
 
       - name: Run go fmt
-        run: |
-          echo "::group::Checking go fmt"
-          go fmt ./...
-          echo "::endgroup::"
+        working-directory: backend
+        run: go fmt ./...
 
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v4
+        working-directory: backend
         with:
           version: v1.58.0
-          args: |
-            run
-            --timeout 5m
-            ./...
+          args: run --timeout 5m ./...
 
   shell-lint:
     name: Shell script linting
@@ -51,7 +46,4 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y shellcheck
 
       - name: Run shellcheck
-        run: |
-          echo "::group::Running shellcheck"
-          shellcheck **/*.sh
-          echo "::endgroup::"
+        run: shellcheck **/*.sh
