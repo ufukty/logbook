@@ -1,4 +1,4 @@
-name: Lint & Static Analysis
+name: CI
 
 on:
   push: {}
