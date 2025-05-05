@@ -9,5 +9,5 @@
   "go.testTimeout": "30s",
   "prettier.printWidth": 120,
   "prettier.tabWidth": 4,
-  "window.title": "Logbook"
+  "window.title": "Logbook",
 }
