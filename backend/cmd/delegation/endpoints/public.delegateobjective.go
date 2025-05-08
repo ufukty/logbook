@@ -2,7 +2,6 @@ package endpoints
 
 import (
 	"fmt"
-
 	"logbook/cmd/sessions/endpoints"
 	"logbook/internal/cookies"
 	"logbook/internal/web/validate"
