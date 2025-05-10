@@ -1,6 +1,7 @@
 #!/usr/local/bin/bash
 
-set -e # exit on error
+set -xe
+PS4='\033[31m$0:$LINENO: \033[0m'
 
 test -f "$HOME/venv/bin/activate" ||
   python3 -m venv "$HOME/venv"
