@@ -3,9 +3,7 @@
 set -xe
 PS4='\033[31m$0:$LINENO: \033[0m'
 
-test -f "$HOME/venv/bin/activate" ||
-  python3 -m venv "$HOME/venv"
-source "$HOME/venv/bin/activate"
+test -d .git || (echo "Run from root folder" && exit 1)
 
 test -f ".venv/bin/activate" ||
   python3 -m venv ".venv"
