@@ -1,6 +1,9 @@
-#!/bin/bash
-set -e -E
-set -o pipefail
+#!/usr/local/bin/bash
+
+set -xeEo pipefail
+PS4='\033[31m$0:$LINENO: \033[0m'
+
+test -d .git || (echo "Run from root folder" && exit 1)
 
 for port in {8080..8082}; do
   until curl --fail "https://localhost:${port}/ping" >/dev/null 2>&1; do sleep 1; done
