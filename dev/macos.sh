@@ -1,12 +1,13 @@
 #!/usr/local/bin/bash
 
-set -e # exit on error
+set -xe
+PS4='\033[31m$0:$LINENO: \033[0m'
 
-test -f "$HOME/venv/bin/activate" ||
-  python3 -m venv "$HOME/venv"
-source "$HOME/venv/bin/activate"
+test -d .git || (echo "Run from root folder" && exit 1)
 
-: "${WORKSPACE:?}"
+test -f ".venv/bin/activate" ||
+  python3 -m venv ".venv"
+source ".venv/bin/activate"
 
 which make ||
   xcode-select --install
@@ -15,13 +16,13 @@ which go ||
   (open "https://go.dev/dl" && exit 1)
 
 which stringer || # backend
-  go install "golang.org/x/tools/cmd/stringer"
+  go install "golang.org/x/tools/cmd/stringer@latest"
 which gonfique || # backend
   go install "github.com/ufukty/gonfique@v1.3.1"
 which sqlc || # backend
   go install "github.com/sqlc-dev/sqlc/cmd/sqlc@latest"
 which govalid || # backend
-  go install github.com/ufukty/govalid@v0.1.0
+  go install "github.com/ufukty/govalid@v0.1.0"
 which d2 || # docs
   go install "oss.terrastruct.com/d2@v0.6.3"
 
@@ -54,7 +55,7 @@ which magick || # docs (dark versions of schemas)
   brew install imagemagick
 
 (which ansible && which qr) ||
-  pip install -r "$WORKSPACE/dependencies/requirements.txt"
+  pip install -r "dev/requirements.txt"
 
 which argon2 ||
   (open "https://github.com/P-H-C/phc-winner-argon2/releases/tag/20190702" && exit 1)

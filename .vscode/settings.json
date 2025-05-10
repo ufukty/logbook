@@ -9,5 +9,6 @@
   "go.testTimeout": "30s",
   "prettier.printWidth": 120,
   "prettier.tabWidth": 4,
-  "window.title": "Logbook",
+  "python.defaultInterpreterPath": ".venv/bin/python3",
+  "window.title": "Logbook"
 }

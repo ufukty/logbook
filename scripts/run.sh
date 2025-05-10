@@ -1,8 +1,30 @@
-#!/bin/bash
-set -e -E
-set -o pipefail
+#!/usr/local/bin/bash
 
-function cleanports() {
+set -xeEo pipefail
+PS4='\033[31m$0:$LINENO: \033[0m'
+
+test -d .git || (echo "Run from root folder" && exit 1)
+
+RED="$(printf '\033[31m')"
+# GREEN="$(printf '\033[32m')"
+YELLOW="$(printf '\033[33m')"
+BLUE="$(printf '\033[34m')"
+MAGENTA="$(printf '\033[35m')"
+CYAN="$(printf '\033[36m')"
+
+prefix() {
+  COLOR_CODE="${1:?}"
+  COLOR_RESET="$(printf '\033\[0m')"
+  TOTAL_LENGTH=20
+  shift 1
+  PREFIX="$(echo "$@" | tr -d ';')"
+  PREFIX="${PREFIX:0:$TOTAL_LENGTH}"
+  SPACE_COUNT=$((TOTAL_LENGTH - ${#PREFIX}))
+  PADDING=$(printf "%${SPACE_COUNT}s")
+  gsed "s;^;${COLOR_CODE}${PREFIX}${PADDING}:${COLOR_RESET} ;g"
+}
+
+cleanports() {
   # to clean before & after
   echo "cleanports is running..."
   ports=({8080..8099})
@@ -12,7 +34,7 @@ function cleanports() {
   return 0
 }
 
-function service() {
+service() {
   SERVICENAME="${1:?}"
   if test -d "cmd/${SERVICENAME}/database"; then
     /usr/local/go/bin/go test -timeout 10s -run '^TestMigration$' "logbook/cmd/${SERVICENAME}/database" -v -count=1
@@ -27,7 +49,7 @@ function service() {
     -key "../platform/local/tls/localhost.key"
 }
 
-function registry() {
+registry() {
   go run "logbook/cmd/registry" \
     -api api.yml \
     -deployment "../platform/local/deployment.yml" \
@@ -35,7 +57,7 @@ function registry() {
     -key "../platform/local/tls/localhost.key"
 }
 
-function api-gateway() {
+api-gateway() {
   go run "logbook/cmd/api" \
     -api api.yml \
     -deployment "../platform/local/deployment.yml" \
@@ -44,7 +66,7 @@ function api-gateway() {
     -key "../platform/local/tls/localhost.key"
 }
 
-function internal-gateway() {
+internal-gateway() {
   go run "logbook/cmd/internal" \
     -api api.yml \
     -deployment "../platform/local/deployment.yml" \
@@ -55,6 +77,8 @@ function internal-gateway() {
 
 trap cleanports EXIT
 cleanports
+
+cd backend
 
 registry 2>&1 | prefix "$BLUE" registry &
 internal-gateway 2>&1 | prefix "$CYAN" internal &
