@@ -55,7 +55,7 @@ which magick || # docs (dark versions of schemas)
   brew install imagemagick
 
 (which ansible && which qr) ||
-  pip install -r "$WORKSPACE/dependencies/requirements.txt"
+  pip install -r "dev/requirements.txt"
 
 which argon2 ||
   (open "https://github.com/P-H-C/phc-winner-argon2/releases/tag/20190702" && exit 1)
