@@ -64,3 +64,10 @@ which npm ||
   (open "https://nodejs.org/en/download" && exit 1)
 which mmdc || # docs
   npm install -g "@mermaid-js/mermaid-cli"
+
+type -f ~/.bash_include/autosource.sh ||
+  (mkdir -p ~/.bash_include && cp data/autosource.sh ~/.bash_include/autosource.sh)
+
+# shellcheck disable=2016
+grep ". ~/.bash_include" ~/.bash_profile >/dev/null ||
+  echo 'for f in ~/.bash_include/*.sh; do . $f; done' >>~/.bash_profile
