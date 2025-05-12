@@ -1,9 +1,7 @@
 #!/usr/local/bin/bash
 
-_check_ssh() {
-  SSH_KEY_NAME="mbp-ed"
-  ssh-add -l | grep ${SSH_KEY_NAME} >/dev/null
-}
+(ssh-add -l | grep logbook >/dev/null) ||
+  (echo "calling ssh-agent" && ssh-agent && ssh-add)
 
 _enable_ssh() {
   note "Calling ssh-agent" && ssh-agent && ssh-add
