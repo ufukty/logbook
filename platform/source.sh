@@ -3,13 +3,8 @@
 (ssh-add -l | grep logbook >/dev/null) ||
   (echo "calling ssh-agent" && ssh-agent && ssh-add)
 
-_enable_ssh() {
-  note "Calling ssh-agent" && ssh-agent && ssh-add
-}
-
-_check_ssh || _enable_ssh
-
-test "$VIRTUAL_ENV" || . "$HOME/venv/bin/activate"
+# shellcheck disable=1091
+test "$VIRTUAL_ENV" || . "$WORKSPACE/.venv/bin/activate"
 
 is_newer_than_all() {
   local TARGET="$1"
