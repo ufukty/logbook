@@ -10,8 +10,7 @@
 (ssh-add -l | grep logbook >/dev/null) ||
   (echo "calling ssh-agent" && ssh-agent && ssh-add secrets/ssh/do.pub)
 
-STAGE="${WORKSPACE:?}/platform/stage"
-export STAGE
+export STAGE="${WORKSPACE:?}/platform/stage"
 
 # shellcheck disable=SC2155
 export TF_VAR_DO_SSH_FINGERPRINT="$(
