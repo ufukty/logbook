@@ -1,5 +1,12 @@
 #!/usr/local/bin/bash
 
+: "${DIGITALOCEAN_ACCESS_TOKEN:?}"
+: "${TF_VAR_DIGITALOCEAN_TOKEN:?}"
+: "${TF_VAR_OVPN_AUTH_USERNAME:?}"
+: "${TF_VAR_OVPN_AUTH_HASH:?}"
+: "${TF_VAR_OVPN_AUTH_TOTP:?}"
+: "${ANSIBLE_SUDO_USER_PASSWD_HASH:?}"
+
 (ssh-add -l | grep logbook >/dev/null) ||
   (echo "calling ssh-agent" && ssh-agent && ssh-add secrets/ssh/do.pub)
 
@@ -10,15 +17,6 @@ export STAGE
 
 alias ssh="ssh -F '${STAGE:?}/artifacts/ssh.conf'"
 alias scp="scp -F '${STAGE:?}/artifacts/ssh.conf'"
-_check_env_vars() {
-  : "${DIGITALOCEAN_ACCESS_TOKEN:?}"
-  : "${TF_VAR_DIGITALOCEAN_TOKEN:?}"
-  : "${TF_VAR_OVPN_AUTH_USERNAME:?}"
-  : "${TF_VAR_OVPN_AUTH_HASH:?}"
-  : "${TF_VAR_OVPN_AUTH_TOTP:?}"
-  : "${ANSIBLE_SUDO_USER_PASSWD_HASH:?}"
-}
-_check_env_vars
 
 _ssh_completion() {
   local cur opts
