@@ -13,7 +13,12 @@
 STAGE="${WORKSPACE:?}/platform/stage"
 export STAGE
 
-# MARK: SSH overload
+# shellcheck disable=SC2155
+export TF_VAR_DO_SSH_FINGERPRINT="$(
+  doctl compute ssh-key list --no-header --output json |
+    jq -r '.[] | select(.name == "logbook") | .fingerprint' |
+    tail -n 1
+)"
 
 alias ssh="ssh -F '${STAGE:?}/artifacts/ssh.conf'"
 alias scp="scp -F '${STAGE:?}/artifacts/ssh.conf'"
