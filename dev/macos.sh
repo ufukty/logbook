@@ -7,6 +7,7 @@ test -d .git || (echo "Run from root folder" && exit 1)
 
 test -f ".venv/bin/activate" ||
   python3 -m venv ".venv"
+# shellcheck disable=SC1091
 source ".venv/bin/activate"
 
 which make ||
