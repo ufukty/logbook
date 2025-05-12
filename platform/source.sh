@@ -24,6 +24,7 @@ is_newer_than_all() {
 export -f is_newer_than_all
 
 is_up_to_date() {
+  # shellcheck disable=2046
   is_newer_than_all "$1" $(find . -type f | grep -v "$1")
 }
 export -f is_up_to_date
