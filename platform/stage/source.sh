@@ -1,5 +1,8 @@
 #!/usr/local/bin/bash
 
+(ssh-add -l | grep logbook >/dev/null) ||
+  (echo "calling ssh-agent" && ssh-agent && ssh-add secrets/ssh/do.pub)
+
 STAGE="${WORKSPACE:?}/platform/stage"
 export STAGE
 

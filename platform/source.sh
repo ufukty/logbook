@@ -1,8 +1,5 @@
 #!/usr/local/bin/bash
 
-(ssh-add -l | grep logbook >/dev/null) ||
-  (echo "calling ssh-agent" && ssh-agent && ssh-add)
-
 # shellcheck disable=1091
 test "$VIRTUAL_ENV" || . "$WORKSPACE/.venv/bin/activate"
 
