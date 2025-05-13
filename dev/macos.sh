@@ -16,15 +16,15 @@ which make ||
 which go ||
   (open "https://go.dev/dl" && exit 1)
 
-which stringer || # backend
+which stringer ||
   go install "golang.org/x/tools/cmd/stringer@latest"
-which gonfique || # backend
+which gonfique ||
   go install "github.com/ufukty/gonfique@v1.3.1"
-which sqlc || # backend
+which sqlc ||
   go install "github.com/sqlc-dev/sqlc/cmd/sqlc@latest"
-which govalid || # backend
+which govalid ||
   go install "github.com/ufukty/govalid@v0.1.0"
-which d2 || # docs
+which d2 ||
   go install "oss.terrastruct.com/d2@v0.6.3"
 which gohandlers ||
   go install "github.com/ufukty/gohandlers/cmd/gohandlers@latest"
