@@ -26,9 +26,8 @@ which govalid || # backend
   go install "github.com/ufukty/govalid@v0.1.0"
 which d2 || # docs
   go install "oss.terrastruct.com/d2@v0.6.3"
-
 which gohandlers ||
-  (echo "install gohandlers" && exit 1)
+  go install "github.com/ufukty/gohandlers/cmd/gohandlers@latest"
 
 test -f "/usr/local/bin/bash" ||
   brew install "bash"
