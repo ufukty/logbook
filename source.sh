@@ -3,4 +3,4 @@
 export WORKSPACE="$PWD"
 
 # shellcheck disable=SC1090
-for f in *.env; do . "$f"; done
+. ./*.env
