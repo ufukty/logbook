@@ -36,7 +36,7 @@ doctl compute droplet create "${DROPLET_NAME:?}" \
   --image "${BASE:?}" \
   --region "${REGION:?}" \
   --size "${SIZE:?}" \
-  --ssh-keys "${SSH_KEY_FINGERPRINT:?}" \
+  --ssh-keys "${DO_SSH_FINGERPRINT:?}" \
   --wait \
   --verbose \
   --output json >tmp/droplet.json
