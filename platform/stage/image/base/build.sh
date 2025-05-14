@@ -10,21 +10,24 @@ set -xeuo pipefail
 # ---------------------------------------------------------------------------- #
 
 : "${DO_SSH_FINGERPRINT}"
+: "${DO_SSH_PUBKEY:?}"
+
+: "${STAGE:?}"
+: "${VPS_SUDO_USER_PASSWD_HASH:?}"
 : "${VPS_SUDO_USER:?}"
 
 # ---------------------------------------------------------------------------- #
 # Values
 # ---------------------------------------------------------------------------- #
 
-BASE="${BASE:-"ubuntu-24-04-x64"}"
+BASE="ubuntu-24-04-x64"
 REGION="nyc3"
-SIZE="${SIZE:-"s-1vcpu-1gb"}"
+SIZE="s-1vcpu-1gb"
 
-TRANSFER_REGIONS=() # ("nyc3" "ams3")
-
-FOLDER="$(basename "$PWD")"
-DROPLET_NAME="builder-${FOLDER:?}-$(date +%y-%m-%d-%H-%M-%S)"
-SNAPSHOT_NAME="build_${FOLDER:?}_$(date +%y_%m_%d_%H_%M_%S)"
+SCM="$(git describe --always --dirty)"
+DROPLET_NAME="personal-base-$(date +%y-%m-%d-%H-%M-%S)-${SCM}"
+SNAPSHOT_NAME="personal_base_$(date +%y_%m_%d_%H_%M_%S)_${SCM}"
+LOG_FILE="logs/$(date +%y.%m.%d.%H.%M.%S)-${SCM}.log"
 
 # ---------------------------------------------------------------------------- #
 # Creation
@@ -77,7 +80,7 @@ mkdir -p logs
 
 ssh "root@${IP}" >"$LOG_FILE" 2>&1 <<EOF
   set -e
-  SSH_PUB_KEYS="${SSH_PUB_KEYS}" \
+  SSH_PUB_KEYS="${DO_SSH_PUBKEY}" \
   VPS_SUDO_USER_PASSWD_HASH="${VPS_SUDO_USER_PASSWD_HASH}" \
   VPS_SUDO_USER="${VPS_SUDO_USER}" \
   bash provision.sh
