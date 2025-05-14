@@ -6,10 +6,15 @@ PS4='\033[32m$(basename "${BASH_SOURCE}"):${LINENO}\033[0m\033[33m${FUNCNAME[0]:
 set -v -x -e
 
 # ---------------------------------------------------------------------------- #
+# Assertions
+# ---------------------------------------------------------------------------- #
+
+: "${VPS_SUDO_USER:?}"
+
+# ---------------------------------------------------------------------------- #
 # Values
 # ---------------------------------------------------------------------------- #
 
-VPS_SUDO_USER="olwgtzjzhnvexhpr"
 VPS_HOME="/home/${VPS_SUDO_USER:?}"
 # IPTABLES_PUBLIC_ETHERNET_INTERFACE="eth0"
 IPTABLES_PRIVATE_ETHERNET_INTERFACE="eth1"

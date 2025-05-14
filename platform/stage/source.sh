@@ -37,3 +37,8 @@ complete -F _ssh_completion ssh
 
 PING_URL="stage.logbook.balaasad.com:8080/api/v1.0.0/ping"
 
+# shellcheck disable=SC1090
+. ./*.env
+
+# env files to declare:
+: "${VPS_SUDO_USER:?}"
