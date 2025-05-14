@@ -29,14 +29,34 @@ SNAPSHOT_NAME="build_${FOLDER:?}_$(date +%y_%m_%d_%H_%M_%S)"
 # Creation
 # ---------------------------------------------------------------------------- #
 
-DROPLET="$(doctl compute droplet create "${DROPLET_NAME:?}" --image "${BASE:?}" --region "${REGION:?}" --size "${SIZE:?}" --ssh-keys "${SSH_KEY_IDs:?}" --tag-name "${FOLDER:?}" --wait --verbose --no-header)"
-ID="$(echo "$DROPLET" | tail -n 1 | awk '{ print  $1 }')"
-IP="$(echo "$DROPLET" | tail -n 1 | awk '{ print  $3 }')"
+mkdir -p tmp
+
+doctl compute droplet create "${DROPLET_NAME:?}" \
+  --image "${BASE:?}" \
+  --region "${REGION:?}" \
+  --size "${SIZE:?}" \
+  --ssh-keys "${SSH_KEY_IDs:?}" \
+  --wait \
+  --verbose \
+  --output json >tmp/droplet.json
+
+ID="$(jq -r '.[0].id' tmp/droplet.json)"
+IP="$(jq -r '.[0].networks.v4.[] | select(.type == "public").ip_address' tmp/droplet.json)"
+
+: "${IP:?}"
+
+# ---------------------------------------------------------------------------- #
+# Set cleanup
+# ---------------------------------------------------------------------------- #
 
 cleanup() {
   EC=$?
-  test "$ID" && test "$1" != "-d" && doctl compute droplet delete "$ID" --force
-  test $EC -eq 0 && touch .completion.timestamp
+  if test $EC -eq 0 && test "$ID"; then
+    doctl compute droplet delete "$ID" --force
+    rm -rv tmp
+  else
+    echo "Connect to troubleshoot: ssh root@${IP} or ssh ${VPS_SUDO_USER}@${IP}"
+  fi
   tput bel
   exit $EC
 }
@@ -47,13 +67,22 @@ trap cleanup EXIT
 # Provisioning
 # ---------------------------------------------------------------------------- #
 
-ping -o "${IP:?}" && until ssh "root@${IP:?}" exit; do sleep 5; done # wait
+ping -o "${IP}" && until ssh "root@${IP}" exit; do sleep 5; done # wait
 
-rsync --verbose --recursive -e ssh "./map" "root@${IP:?}:/root/"
+scp provision.sh "root@${IP}:provision.sh"
+rsync --verbose --recursive -e ssh "./map" "root@${IP}:"
 
-export ANSIBLE_CONFIG="ansible/ansible.cfg"
-ansible-playbook -i "${IP:?}," -u root ansible/playbook.yml
-ssh "${VPS_SUDO_USER:?}@${IP:?}" sudo shutdown -h now
+mkdir -p logs
+
+ssh "root@${IP}" >"$LOG_FILE" 2>&1 <<EOF
+  set -e
+  SSH_PUB_KEYS="${SSH_PUB_KEYS}" \
+  VPS_SUDO_USER_PASSWD_HASH="${VPS_SUDO_USER_PASSWD_HASH}" \
+  VPS_SUDO_USER="${VPS_SUDO_USER}" \
+  bash provision.sh
+  rm provision.sh
+  sudo shutdown -h now
+EOF
 
 # ---------------------------------------------------------------------------- #
 # Snapshot
@@ -61,10 +90,10 @@ ssh "${VPS_SUDO_USER:?}@${IP:?}" sudo shutdown -h now
 
 doctl compute droplet-action snapshot "${ID:?}" --snapshot-name "${SNAPSHOT_NAME:?}" --wait --verbose
 
-SNAPSHOT_ID="$(doctl compute snapshot list | grep "$ID" | awk '{ print $1 }')" # do not use the action id from previous output
+# SNAPSHOT_ID="$(doctl compute snapshot list | grep "$ID" | awk '{ print $1 }')" # do not use the action id from previous output
 
-for TRANSFER_REGION in "${TRANSFER_REGIONS[@]}"; do
-  doctl compute image-action transfer "$SNAPSHOT_ID" --region "$TRANSFER_REGION" --wait
-done
+# for TRANSFER_REGION in "${TRANSFER_REGIONS[@]}"; do
+#   doctl compute image-action transfer "$SNAPSHOT_ID" --region "$TRANSFER_REGION" --wait
+# done
 
-doctl compute snapshot list | grep -e "$SNAPSHOT_ID" -e "Created at"
+# doctl compute snapshot list | grep -e "$SNAPSHOT_ID" -e "Created at"

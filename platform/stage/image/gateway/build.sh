@@ -41,11 +41,11 @@ ID="$(echo "$DROPLET" | tail -n 1 | awk '{ print  $1 }')"
 IP="$(echo "$DROPLET" | tail -n 1 | awk '{ print  $2 }')"
 
 cleanup() {
-    EC=$?
-    test "$ID" && test "$1" != "-d" && doctl compute droplet delete "$ID" --force
-    test $EC -eq 0 && touch .completion.timestamp
-    tput bel
-    exit $EC
+  EC=$?
+  test "$ID" && test "$1" != "-d" && doctl compute droplet delete "$ID" --force
+  test $EC -eq 0 && touch .completion.timestamp
+  tput bel
+  exit $EC
 }
 
 trap cleanup EXIT
@@ -77,7 +77,7 @@ doctl compute droplet-action snapshot "${ID:?}" --snapshot-name "${SNAPSHOT_NAME
 SNAPSHOT_ID="$(doctl compute snapshot list | grep "$ID" | awk '{ print $1 }')" # do not use the action id from previous output
 
 for TRANSFER_REGION in "${TRANSFER_REGIONS[@]}"; do
-    doctl compute image-action transfer "$SNAPSHOT_ID" --region "$TRANSFER_REGION" --wait --verbose
+  doctl compute image-action transfer "$SNAPSHOT_ID" --region "$TRANSFER_REGION" --wait --verbose
 done
 
 doctl compute snapshot list | grep -e "$SNAPSHOT_ID" -e "Created at"

@@ -36,10 +36,10 @@ ID="$(echo "$DROPLET" | tail -n 1 | awk '{ print  $1 }')"
 IP="$(echo "$DROPLET" | tail -n 1 | awk '{ print  $2 }')"
 
 cleanup() {
-    EC=$?
-    test $EC -eq 0 && test "$ID" && doctl compute droplet delete "$ID" --force
-    tput bel
-    exit $EC
+  EC=$?
+  test $EC -eq 0 && test "$ID" && doctl compute droplet delete "$ID" --force
+  tput bel
+  exit $EC
 }
 
 trap cleanup EXIT
@@ -48,19 +48,19 @@ ping -o "${IP:?}" && until ssh "${VPS_SUDO_USER:?}@${IP:?}" exit; do sleep 5; do
 
 rsync --verbose --recursive -e ssh "./upload" "${VPS_SUDO_USER:?}@${IP:?}:${VPS_HOME:?}/"
 ssh "${VPS_SUDO_USER:?}@$IP" bash <<EOF
-    set -v -e
-    cd ${VPS_HOME:?}/upload
-    sudo --preserve-env bash image.sh
-    cd ${VPS_HOME:?}
-    rm -rf ${VPS_HOME:?}/upload
-    sudo shutdown -h now
+  set -v -e
+  cd ${VPS_HOME:?}/upload
+  sudo --preserve-env bash image.sh
+  cd ${VPS_HOME:?}
+  rm -rf ${VPS_HOME:?}/upload
+  sudo shutdown -h now
 EOF
 
 doctl compute droplet-action snapshot "${ID:?}" --snapshot-name "${SNAPSHOT_NAME:?}" --wait --verbose
 SNAPSHOT_ID="$(doctl compute snapshot list | grep "$ID" | awk '{ print $1 }')" # do not use the action id from previous output
 
 for TRANSFER_REGION in "${TRANSFER_REGIONS[@]}"; do
-    doctl compute image-action transfer "$SNAPSHOT_ID" --region "$TRANSFER_REGION" --wait --verbose
+  doctl compute image-action transfer "$SNAPSHOT_ID" --region "$TRANSFER_REGION" --wait --verbose
 done
 
 doctl compute snapshot list | grep -e "$SNAPSHOT_ID" -e "Created at"
