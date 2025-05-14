@@ -1,4 +1,5 @@
 #!/usr/local/bin/bash
+# shellcheck disable=SC2155
 
 : "${ANSIBLE_SUDO_USER_PASSWD_HASH:?}"
 : "${DIGITALOCEAN_ACCESS_TOKEN:?}"
@@ -12,12 +13,13 @@
 
 export STAGE="${WORKSPACE:?}/platform/stage"
 
-# shellcheck disable=SC2155
 export DO_SSH_FINGERPRINT="$(
   ssh-keygen -lf "$STAGE/secrets/ssh/do" -E md5 |
     perl -nE 'say $1 if /(?<=MD5:)([^\s]+)/'
 )"
 export TF_VAR_DO_SSH_FINGERPRINT="$DO_SSH_FINGERPRINT"
+
+export DO_SSH_PUBKEY="$(cat secrets/ssh/do.pub)"
 
 alias ssh="ssh -F '${STAGE:?}/artifacts/ssh.conf'"
 alias scp="scp -F '${STAGE:?}/artifacts/ssh.conf'"
