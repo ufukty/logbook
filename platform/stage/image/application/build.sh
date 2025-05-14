@@ -2,8 +2,8 @@
 
 test "$1" != "-B" && is_up_to_date .completion.timestamp && echo "up to date" && exit 0
 
-PS4='\033[32m$(basename "${BASH_SOURCE}"):${LINENO}\033[0m\033[33m${FUNCNAME[0]:+/${FUNCNAME[0]}():}\033[0m '
-set -v -x -e
+PS4='\033[31m''\D{%H:%M:%S} build:${LINENO}:''\033[0m '
+set -xeuo pipefail
 
 # ---------------------------------------------------------------------------- #
 # Assertions
