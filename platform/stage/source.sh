@@ -8,7 +8,7 @@
 : "${TF_VAR_OVPN_AUTH_USERNAME:?}"
 
 (ssh-add -l | grep "do" >/dev/null) ||
-  (echo "calling ssh-agent" && ssh-agent && ssh-add secrets/ssh/do.pub)
+  (echo "calling ssh-agent" && ssh-agent && ssh-add secrets/ssh/do)
 
 export STAGE="${WORKSPACE:?}/platform/stage"
 
