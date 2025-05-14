@@ -11,7 +11,6 @@ set -xeuo pipefail
 
 : "${DO_SSH_FINGERPRINT}"
 : "${DO_SSH_PUBKEY:?}"
-
 : "${STAGE:?}"
 : "${VPS_SUDO_USER_PASSWD_HASH:?}"
 : "${VPS_SUDO_USER:?}"
@@ -33,7 +32,7 @@ LOG_FILE="logs/$(date +%y.%m.%d.%H.%M.%S)-${SCM}.log"
 # Creation
 # ---------------------------------------------------------------------------- #
 
-mkdir -p tmp
+TMP="$(mktemp)"
 
 doctl compute droplet create "${DROPLET_NAME:?}" \
   --image "${BASE:?}" \
@@ -42,10 +41,10 @@ doctl compute droplet create "${DROPLET_NAME:?}" \
   --ssh-keys "${DO_SSH_FINGERPRINT:?}" \
   --wait \
   --verbose \
-  --output json >tmp/droplet.json
+  --output json >"$TMP"
 
-ID="$(jq -r '.[0].id' tmp/droplet.json)"
-IP="$(jq -r '.[0].networks.v4.[] | select(.type == "public").ip_address' tmp/droplet.json)"
+ID="$(jq -r '.[0].id' "$TMP")"
+IP="$(jq -r '.[0].networks.v4.[] | select(.type == "public").ip_address' "$TMP")"
 
 : "${IP:?}"
 
@@ -57,7 +56,7 @@ cleanup() {
   EC=$?
   if test $EC -eq 0 && test "$ID"; then
     doctl compute droplet delete "$ID" --force
-    rm -rv tmp
+    rm -rv "$TMP"
   else
     echo "Connect to troubleshoot: ssh root@${IP} or ssh ${VPS_SUDO_USER}@${IP}"
   fi
