@@ -1,7 +1,6 @@
 #!/usr/local/bin/bash
 # shellcheck disable=SC2155
 
-: "${ANSIBLE_SUDO_USER_PASSWD_HASH:?}"
 : "${DIGITALOCEAN_ACCESS_TOKEN:?}"
 : "${TF_VAR_DIGITALOCEAN_TOKEN:?}"
 : "${TF_VAR_OVPN_AUTH_HASH:?}"
