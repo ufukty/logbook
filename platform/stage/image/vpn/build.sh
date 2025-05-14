@@ -20,7 +20,7 @@ VPS_HOME="/home/${VPS_SUDO_USER:?}"
 
 BASE_IMAGE_PREFIX="build_base"
 BASE_IMAGE_ID="$(doctl compute image list-user --format Name,ID --no-header | grep "^$BASE_IMAGE_PREFIX" | sort | tail -n 1 | awk '{ print $2 }')"
-REGION="fra1"
+REGION="nyc3"
 SIZE="s-1vcpu-1gb"
 
 TRANSFER_REGIONS=("nyc3" "ams3")

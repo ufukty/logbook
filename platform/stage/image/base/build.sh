@@ -17,7 +17,7 @@ set -xeuo pipefail
 # ---------------------------------------------------------------------------- #
 
 BASE="${BASE:-"ubuntu-24-04-x64"}"
-REGION="${REGION:-"fra1"}"
+REGION="nyc3"
 SIZE="${SIZE:-"s-1vcpu-1gb"}"
 
 TRANSFER_REGIONS=() # ("nyc3" "ams3")
