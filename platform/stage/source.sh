@@ -13,11 +13,11 @@
 export STAGE="${WORKSPACE:?}/platform/stage"
 
 # shellcheck disable=SC2155
-export TF_VAR_DO_SSH_FINGERPRINT="$(
-  doctl compute ssh-key list --no-header --output json |
-    jq -r '.[] | select(.name == "logbook") | .fingerprint' |
-    tail -n 1
+export DO_SSH_FINGERPRINT="$(
+  ssh-keygen -lf "$STAGE/secrets/ssh/do" -E md5 |
+    perl -nE 'say $1 if /(?<=MD5:)([^\s]+)/'
 )"
+export TF_VAR_DO_SSH_FINGERPRINT="$DO_SSH_FINGERPRINT"
 
 alias ssh="ssh -F '${STAGE:?}/artifacts/ssh.conf'"
 alias scp="scp -F '${STAGE:?}/artifacts/ssh.conf'"

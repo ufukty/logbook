@@ -9,6 +9,7 @@ set -xeuo pipefail
 # Assertions
 # ---------------------------------------------------------------------------- #
 
+: "${DO_SSH_FINGERPRINT}"
 : "${VPS_SUDO_USER:?}"
 
 # ---------------------------------------------------------------------------- #
@@ -21,7 +22,6 @@ BASE_IMAGE_PREFIX="build_base"
 BASE_IMAGE_ID="$(doctl compute image list-user --format Name,ID --no-header | grep "^$BASE_IMAGE_PREFIX" | sort | tail -n 1 | awk '{ print $2 }')"
 REGION="fra1"
 SIZE="s-1vcpu-1gb"
-SSH_KEY_IDs="41814107"
 
 TRANSFER_REGIONS=("nyc3" "ams3")
 
@@ -29,7 +29,7 @@ FOLDER="$(basename "$PWD")"
 DROPLET_NAME="builder-${FOLDER:?}-$(date +%y-%m-%d-%H-%M-%S)"
 SNAPSHOT_NAME="build_${FOLDER:?}_$(date +%y_%m_%d_%H_%M_%S)"
 
-DROPLET="$(doctl compute droplet create "${DROPLET_NAME:?}" --image "${BASE_IMAGE_ID:?}" --region "${REGION:?}" --size "${SIZE:?}" --ssh-keys "${SSH_KEY_IDs:?}" --tag-name "${FOLDER:?}" --enable-private-networking --wait --verbose --no-header --format ID,PublicIPv4)"
+DROPLET="$(doctl compute droplet create "${DROPLET_NAME:?}" --image "${BASE_IMAGE_ID:?}" --region "${REGION:?}" --size "${SIZE:?}" --ssh-keys "${DO_SSH_FINGERPRINT:?}" --tag-name "${FOLDER:?}" --enable-private-networking --wait --verbose --no-header --format ID,PublicIPv4)"
 ID="$(echo "$DROPLET" | tail -n 1 | awk '{ print  $1 }')"
 IP="$(echo "$DROPLET" | tail -n 1 | awk '{ print  $2 }')"
 
