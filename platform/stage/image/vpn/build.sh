@@ -2,7 +2,7 @@
 
 test "$1" != "-B" && is_up_to_date .completion.timestamp && echo "up to date" && exit 0
 
-PS4='\033[31m''\D{%H:%M:%S} build:${LINENO}:''\033[0m '
+PS4="\033[34m\D{%H:%M:%S} ${PWD/"$WORKSPACE/"/}/$0:${LINENO}:\033[0m "
 set -xeuo pipefail
 
 # ---------------------------------------------------------------------------- #
