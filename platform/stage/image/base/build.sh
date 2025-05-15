@@ -70,14 +70,14 @@ trap cleanup EXIT
 # Provisioning
 # ---------------------------------------------------------------------------- #
 
-ping -o "${IP}" && until ssh "root@${IP}" exit; do sleep 5; done # wait
+ping -o "${IP}" && until ssh -i "$STAGE/secrets/ssh/do" "root@${IP}" exit; do sleep 5; done # wait
 
-scp provision.sh "root@${IP}:provision.sh"
-rsync --verbose --recursive -e ssh "./map" "root@${IP}:"
+scp -i "$STAGE/secrets/ssh/do" provision.sh "root@${IP}:provision.sh"
+rsync -e "ssh -i '$STAGE/secrets/ssh/do'" --verbose --recursive "./map" "root@${IP}:"
 
 mkdir -p logs
 
-ssh "root@${IP}" >"$LOG_FILE" 2>&1 <<EOF
+ssh -i "$STAGE/secrets/ssh/do" "root@${IP}" >"$LOG_FILE" 2>&1 <<EOF
   set -e
   SSH_PUB_KEYS="${DO_SSH_PUBKEY}" \
   VPS_SUDO_USER_PASSWD_HASH="${VPS_SUDO_USER_PASSWD_HASH}" \
