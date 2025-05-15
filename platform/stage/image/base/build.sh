@@ -9,7 +9,7 @@ set -xeuo pipefail
 # Assertions
 # ---------------------------------------------------------------------------- #
 
-: "${DO_SSH_FINGERPRINT}"
+: "${DO_SSH_KEY_ID}"
 : "${DO_SSH_PUBKEY:?}"
 : "${STAGE:?}"
 : "${VPS_SUDO_USER_PASSWD_HASH:?}"
@@ -38,7 +38,7 @@ doctl compute droplet create "${DROPLET_NAME:?}" \
   --image "${BASE:?}" \
   --region "${REGION:?}" \
   --size "${SIZE:?}" \
-  --ssh-keys "${DO_SSH_FINGERPRINT:?}" \
+  --ssh-keys "${DO_SSH_KEY_ID:?}" \
   --wait \
   --verbose \
   --output json >"$TMP"

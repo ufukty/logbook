@@ -17,6 +17,9 @@ export DO_SSH_FINGERPRINT="$(
     perl -nE 'say $1 if /(?<=MD5:)([^\s]+)/'
 )"
 export TF_VAR_DO_SSH_FINGERPRINT="$DO_SSH_FINGERPRINT"
+export DO_SSH_KEY_ID="$(
+  doctl compute ssh-key get "$DO_SSH_FINGERPRINT" --output json | jq -r '.[0].id'
+)"
 
 export DO_SSH_PUBKEY="$(cat secrets/ssh/do.pub)"
 
