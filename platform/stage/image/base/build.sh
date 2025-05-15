@@ -2,7 +2,7 @@
 
 test "$1" != "-B" && is_up_to_date .completion.timestamp && echo "up to date" && exit 0
 
-PS4='\033[31m''\D{%H:%M:%S} build:${LINENO}:''\033[0m '
+PS4="\033[31m\D{%H:%M:%S} ${PWD/$WORKSPACE/}/$0:${LINENO}:\033[0m "
 set -xeuo pipefail
 
 # ---------------------------------------------------------------------------- #
@@ -24,8 +24,8 @@ REGION="nyc3"
 SIZE="s-1vcpu-1gb"
 
 SCM="$(git describe --always --dirty)"
-DROPLET_NAME="personal-base-$(date +%y-%m-%d-%H-%M-%S)-${SCM}"
-SNAPSHOT_NAME="personal_base_$(date +%y_%m_%d_%H_%M_%S)_${SCM}"
+DROPLET_NAME="logbook-builder-base-$(date +%y-%m-%d-%H-%M-%S)-${SCM}"
+SNAPSHOT_NAME="${DROPLET_NAME//-/_}"
 LOG_FILE="logs/$(date +%y.%m.%d.%H.%M.%S)-${SCM}.log"
 
 # ---------------------------------------------------------------------------- #
