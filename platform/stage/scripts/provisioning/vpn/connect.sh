@@ -1,6 +1,9 @@
 #!/usr/local/bin/bash
 
-REGION_SLUG="$1" && shift
+PS4='\033[31m$0:$LINENO:\033[0m '
+set -xe
+
+REGION_SLUG="${1:?}"
 
 sudo -v
 sudo openvpn "${STAGE:?}/artifacts/vpn/dth-do-${REGION_SLUG:?}-provisioner.ovpn"

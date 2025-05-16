@@ -1,6 +1,9 @@
 #!/usr/local/bin/bash
 
-export PROGRAM_NAME="$1" && shift
+PS4='\033[31m$0:$LINENO:\033[0m '
+set -xe
+
+export PROGRAM_NAME="${1:?}"
 
 cd "${STAGE:?}/deployment"
 if test -z "$PROGRAM_NAME"; then
@@ -10,4 +13,3 @@ else
 fi
 
 test "$(curl -sSL "${PING_URL:?}")" = "pong" || error "API gateway didn't pong to ping"
-
