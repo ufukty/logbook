@@ -21,6 +21,7 @@ set -xeuo pipefail
 
 BASE="ubuntu-24-04-x64"
 REGION="nyc3"
+TRANSFER_REGIONS=(nyc1 nyc2 sfo2 sfo3)
 SIZE="s-1vcpu-1gb"
 
 SCM="$(git describe --always --dirty)"
@@ -93,10 +94,19 @@ EOF
 
 doctl compute droplet-action snapshot "${ID:?}" --snapshot-name "${SNAPSHOT_NAME:?}" --wait --verbose
 
-# SNAPSHOT_ID="$(doctl compute snapshot list | grep "$ID" | awk '{ print $1 }')" # do not use the action id from previous output
+# do not use the action id from previous output
+SNAPSHOT_ID="$(
+  doctl compute snapshot list --output json | jq -r --arg id "$ID" '.[] | select(.resource_id == $id).id'
+)"
 
-# for TRANSFER_REGION in "${TRANSFER_REGIONS[@]}"; do
-#   doctl compute image-action transfer "$SNAPSHOT_ID" --region "$TRANSFER_REGION" --wait
-# done
+for TRANSFER_REGION in "${TRANSFER_REGIONS[@]}"; do
+  doctl compute image-action transfer "$SNAPSHOT_ID" --region "$TRANSFER_REGION"
+done
 
-# doctl compute snapshot list | grep -e "$SNAPSHOT_ID" -e "Created at"
+sleep 100
+
+until test "$(doctl compute snapshot list --output json | jq --arg id "$ID" '.[] | select(.resource_id == $id).regions | length')" -eq "$((${#TRANSFER_REGIONS[@]} + 1))"; do
+  sleep 10
+done
+
+doctl compute snapshot list --output json | jq --arg id "$ID" '.[] | select(.resource_id == $id)'
