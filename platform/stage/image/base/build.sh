@@ -78,6 +78,7 @@ rsync -e "ssh -i '$STAGE/secrets/ssh/do'" --verbose --recursive "./map" "root@${
 
 mkdir -p logs
 
+# shellcheck disable=SC2087
 ssh -i "$STAGE/secrets/ssh/do" "root@${IP}" >"$LOG_FILE" 2>&1 <<EOF
   set -e
   SSH_PUB_KEYS="${DO_SSH_PUBKEY}" \
