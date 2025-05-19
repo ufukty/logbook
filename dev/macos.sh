@@ -65,7 +65,7 @@ which npm ||
 which mmdc || # docs
   npm install -g "@mermaid-js/mermaid-cli"
 
-type -f ~/.bash_include/autosource.sh ||
+test -f ~/.bash_include/autosource.sh ||
   (mkdir -p ~/.bash_include && cp dev/data/autosource.sh ~/.bash_include/autosource.sh)
 
 # shellcheck disable=2016
