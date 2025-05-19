@@ -1,4 +1,4 @@
-#!/usr/local/bin/bash
+#!/usr/bin/env bash
 
 test "$1" != "-B" && is_up_to_date .completion.timestamp && echo "up to date" && exit 0
 
