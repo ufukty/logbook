@@ -28,6 +28,7 @@ REGION="nyc3"
 SIZE="s-1vcpu-1gb"
 TRANSFER_REGIONS=(nyc1 nyc2 sfo2 sfo3)
 
+SCM="$(git describe --always --dirty)"
 DROPLET_NAME="logbook-builder-vpn-$(date +%y-%m-%d-%H-%M-%S)"
 SNAPSHOT_NAME="${DROPLET_NAME//-/_}"
 LOG_FILE="logs/$(date +%y.%m.%d.%H.%M.%S)-${SCM}.log"
