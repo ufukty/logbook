@@ -1,4 +1,4 @@
-#!/usr/local/bin/bash
+#!/usr/bin/env bash
 
 test "$(basename "$PWD")" == "stage" || (echo "Run from the stage folder." && exit 1)
 

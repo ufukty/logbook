@@ -1,4 +1,4 @@
-#!/usr/local/bin/bash
+#!/usr/bin/env bash
 
 # shellcheck disable=1091
 test "$VIRTUAL_ENV" || . "$WORKSPACE/.venv/bin/activate"

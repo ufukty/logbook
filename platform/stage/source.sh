@@ -1,4 +1,4 @@
-#!/usr/local/bin/bash
+#!/usr/bin/env bash
 # shellcheck disable=SC2155
 
 : "${DIGITALOCEAN_ACCESS_TOKEN:?}"
