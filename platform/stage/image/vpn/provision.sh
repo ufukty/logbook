@@ -28,14 +28,6 @@ apt-get install -y ca-certificates curl gnupg iptables openssl openvpn unbound w
 
 test -d /etc/openvpn/easy-rsa && rm -rfv /etc/openvpn/easy-rsa/*
 
-curl -sSL -o /etc/openvpn/ovpn-auth \
-  https://github.com/ufukty/ovpn-auth/releases/download/v1.0.9/ovpn-auth-v1.0.9-linux-amd64
-md5sum /etc/openvpn/ovpn-auth | grep "050f02af158934591c1a240e25ca93ab"
-chmod 755 /etc/openvpn/ovpn-auth
-chown root:root /etc/openvpn/ovpn-auth
-chmod 744 /etc/openvpn/ovpn_auth_database.yml
-chown root:root /etc/openvpn/ovpn_auth_database.yml
-
 # ---------------------------------------------------------------------------- #
 # Mapping
 # ---------------------------------------------------------------------------- #
@@ -45,6 +37,18 @@ find map -type f | while read FILE; do
   sudo mv -v "${FILE}" "${FILE/map/}"
 done
 rm -rfv /root/map
+
+# ---------------------------------------------------------------------------- #
+# Ovpn-auth
+# ---------------------------------------------------------------------------- #
+
+curl -sSL -o /etc/openvpn/ovpn-auth \
+  https://github.com/ufukty/ovpn-auth/releases/download/v1.0.9/ovpn-auth-v1.0.9-linux-amd64
+md5sum /etc/openvpn/ovpn-auth | grep "050f02af158934591c1a240e25ca93ab"
+chmod 755 /etc/openvpn/ovpn-auth
+chown root:root /etc/openvpn/ovpn-auth
+chmod 744 /etc/openvpn/ovpn_auth_database.yml
+chown root:root /etc/openvpn/ovpn_auth_database.yml
 
 # remove_password_change_requirement
 # sed --in-place -E 's/root:(.*):0:0:(.*):/root:\1:18770:0:\2:/g' /etc/shadow;
