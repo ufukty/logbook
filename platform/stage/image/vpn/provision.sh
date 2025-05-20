@@ -28,10 +28,10 @@ apt-get install -y ca-certificates curl gnupg iptables openssl openvpn unbound w
 
 test -d /etc/openvpn/easy-rsa && rm -rfv /etc/openvpn/easy-rsa/*
 
-# ovpn_auth
-chmod 755 /etc/openvpn/ovpn-auth-v1.0.7-linux-x64
-chown root:root /etc/openvpn/ovpn-auth-v1.0.7-linux-x64
-
+curl -sSL -o /etc/openvpn/ovpn-auth https://github.com/ufukty/ovpn-auth/releases/download/v1.0.9/ovpn-auth-v1.0.9-linux-amd64
+test "$(md5sum /etc/openvpn/ovpn-auth)" == "050f02af158934591c1a240e25ca93ab"
+chmod 755 /etc/openvpn/ovpn-auth
+chown root:root /etc/openvpn/ovpn-auth
 chmod 744 /etc/openvpn/ovpn_auth_database.yml
 chown root:root /etc/openvpn/ovpn_auth_database.yml
 
