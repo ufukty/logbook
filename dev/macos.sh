@@ -73,3 +73,15 @@ test -f ~/.bash_include/autosource.sh ||
 # shellcheck disable=2016
 grep ". ~/.bash_include" ~/.bash_profile >/dev/null ||
   echo 'for f in ~/.bash_include/*.sh; do . $f; done' >>~/.bash_profile
+
+# shellcheck disable=SC2016
+test -d platform/stage/provisioning/application/.terraform/providers ||
+  (platform/stage/provisioning/application && terraform init)
+
+# shellcheck disable=SC2016
+test -d platform/stage/provisioning/vpc/.terraform/providers ||
+  (platform/stage/provisioning/vpc && terraform init)
+
+# shellcheck disable=SC2016
+test -d platform/stage/provisioning/vpn/.terraform/providers ||
+  (platform/stage/provisioning/vpn && terraform init)
