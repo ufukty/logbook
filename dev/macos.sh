@@ -29,7 +29,7 @@ which d2 || # docs
 which gohandlers ||
   (echo "install gohandlers" && exit 1)
 
-test -f "/usr/local/bin/bash" ||
+(bash --version | grep "^GNU bash, version 5") ||
   brew install "bash"
 which gsed ||
   brew install coreutils
