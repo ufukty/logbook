@@ -76,12 +76,12 @@ grep ". ~/.bash_include" ~/.bash_profile >/dev/null ||
 
 # shellcheck disable=SC2016
 test -d platform/stage/provisioning/application/.terraform/providers ||
-  (platform/stage/provisioning/application && terraform init)
+  (cd platform/stage/provisioning/application && terraform init)
 
 # shellcheck disable=SC2016
 test -d platform/stage/provisioning/vpc/.terraform/providers ||
-  (platform/stage/provisioning/vpc && terraform init)
+  (cd platform/stage/provisioning/vpc && terraform init)
 
 # shellcheck disable=SC2016
 test -d platform/stage/provisioning/vpn/.terraform/providers ||
-  (platform/stage/provisioning/vpn && terraform init)
+  (cd platform/stage/provisioning/vpn && terraform init)
