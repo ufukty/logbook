@@ -29,7 +29,7 @@ which d2 ||
 which gohandlers ||
   go install "github.com/ufukty/gohandlers/cmd/gohandlers@latest"
 
-test -f "/usr/local/bin/bash" ||
+(bash --version | grep "^GNU bash, version 5") ||
   brew install "bash"
 which gsed ||
   brew install gnu-sed
@@ -53,6 +53,8 @@ which unbuffer || # run.sh (to trick Chi logger to print colors)
   brew install expect
 which magick || # docs (dark versions of schemas)
   brew install imagemagick
+which shellcheck ||
+  brew install shellcheck
 
 (which ansible && which qr) ||
   pip install -r "dev/requirements.txt"
@@ -65,9 +67,21 @@ which npm ||
 which mmdc || # docs
   npm install -g "@mermaid-js/mermaid-cli"
 
-type -f ~/.bash_include/autosource.sh ||
-  (mkdir -p ~/.bash_include && cp data/autosource.sh ~/.bash_include/autosource.sh)
+test -f ~/.bash_include/autosource.sh ||
+  (mkdir -p ~/.bash_include && cp dev/data/autosource.sh ~/.bash_include/autosource.sh)
 
 # shellcheck disable=2016
 grep ". ~/.bash_include" ~/.bash_profile >/dev/null ||
   echo 'for f in ~/.bash_include/*.sh; do . $f; done' >>~/.bash_profile
+
+# shellcheck disable=SC2016
+test -d platform/stage/provisioning/application/.terraform/providers ||
+  (platform/stage/provisioning/application && terraform init)
+
+# shellcheck disable=SC2016
+test -d platform/stage/provisioning/vpc/.terraform/providers ||
+  (platform/stage/provisioning/vpc && terraform init)
+
+# shellcheck disable=SC2016
+test -d platform/stage/provisioning/vpn/.terraform/providers ||
+  (platform/stage/provisioning/vpn && terraform init)
