@@ -3,9 +3,6 @@
 
 : "${DIGITALOCEAN_ACCESS_TOKEN:?}"
 : "${TF_VAR_DIGITALOCEAN_TOKEN:?}"
-: "${TF_VAR_OVPN_AUTH_HASH:?}"
-: "${TF_VAR_OVPN_AUTH_TOTP:?}"
-: "${TF_VAR_OVPN_AUTH_USERNAME:?}"
 
 (ssh-add -l | grep -q "$(ssh-keygen -lf secrets/ssh/do.pub)") ||
   (echo "calling ssh-agent" && ssh-agent && ssh-add secrets/ssh/do)

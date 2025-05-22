@@ -64,11 +64,6 @@ set -E
 # It could be an arbitrary string that is unique to each region/provider.
 : "${SERVER_NAME:?}"
 
-# Those will be used as login credentials to ovpn-auth
-: "${OVPN_AUTH_USERNAME:?}"
-: "${OVPN_AUTH_HASH:?}"
-: "${OVPN_AUTH_TOTP:?}"
-
 # ---------------------------------------------------------------------------- #
 # Optional Environment Variables
 # ---------------------------------------------------------------------------- #
@@ -288,12 +283,6 @@ function configure_openvpn() (
 )
 
 function configure_ovpn_auth() {
-  sed --in-place \
-    -e "s;<<OVPN_AUTH_USERNAME>>;${OVPN_AUTH_USERNAME:?};g" \
-    -e "s;<<OVPN_AUTH_HASH>>;${OVPN_AUTH_HASH:?};g" \
-    -e "s;<<OVPN_AUTH_TOTP>>;${OVPN_AUTH_TOTP:?};g" \
-    /etc/openvpn/ovpn_auth_database.yml
-
   chmod 744 /etc/openvpn/ovpn_auth_database.yml
   chown root:root /etc/openvpn/ovpn_auth_database.yml
 }

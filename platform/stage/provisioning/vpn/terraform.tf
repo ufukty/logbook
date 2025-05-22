@@ -43,9 +43,6 @@ variable "digitalocean" {
   })
 }
 variable "SSH_KEY_FINGERPRINT" { type = string }
-variable "OVPN_AUTH_USERNAME" { type = string }
-variable "OVPN_AUTH_HASH" { type = string }
-variable "OVPN_AUTH_TOTP" { type = string }
 
 locals {
   sudo_user           = "olwgtzjzhnvexhpr"
@@ -110,9 +107,6 @@ resource "digitalocean_droplet" "vpn-server" {
                    OPENVPN_SUBNET_MASK='255.255.255.0' \
              PUBLIC_ETHERNET_INTERFACE='eth0' \
             PRIVATE_ETHERNET_INTERFACE='eth1' \
-                    OVPN_AUTH_USERNAME='${var.OVPN_AUTH_USERNAME}' \
-                        OVPN_AUTH_HASH='${var.OVPN_AUTH_HASH}' \
-                        OVPN_AUTH_TOTP='${var.OVPN_AUTH_TOTP}' \
             sudo --preserve-env bash deployment.sh 
 
         cd ~/provisioner-files && \
