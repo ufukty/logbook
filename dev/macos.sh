@@ -28,6 +28,8 @@ which d2 ||
   go install "oss.terrastruct.com/d2@v0.6.3"
 which gohandlers ||
   go install "github.com/ufukty/gohandlers/cmd/gohandlers@latest"
+which ovpn-auth ||
+  go install "github.com/ufukty/ovpn-auth/cmd/ovpn-auth@v1.1.1"
 
 (bash --version | grep "^GNU bash, version 5") ||
   brew install "bash"
