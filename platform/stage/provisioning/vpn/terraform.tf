@@ -42,7 +42,7 @@ variable "digitalocean" {
     })
   })
 }
-variable "SSH_KEY_FINGERPRINT" { type = string }
+variable "DO_SSH_FINGERPRINT" { type = string }
 
 locals {
   sudo_user           = "olwgtzjzhnvexhpr"
@@ -78,7 +78,7 @@ resource "digitalocean_droplet" "vpn-server" {
   backups     = false
   monitoring  = true
   resize_disk = false
-  ssh_keys    = [var.SSH_KEY_FINGERPRINT]
+  ssh_keys    = [var.DO_SSH_FINGERPRINT]
   vpc_uuid    = data.digitalocean_vpc.vpc[each.value].id
   tags        = ["vpn"]
 
