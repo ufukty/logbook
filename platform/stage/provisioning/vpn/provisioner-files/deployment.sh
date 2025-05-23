@@ -269,15 +269,6 @@ function configure_openvpn() (
 
   sysctl --system # "Apply sysctl rules"
 
-  # If SELinux is enabled and a custom port was selected, we need this
-  if hash sestatus 2>/dev/null; then
-    if sestatus | grep "Current mode" | grep -qs "enforcing"; then
-      if [[ ${OPENVPN_PORT:?} != '1194' ]]; then
-        semanage port -a -t openvpn_port_t -p "${OPENVPN_PROTOCOL:?}" "${OPENVPN_PORT:?}"
-      fi
-    fi
-  fi
-
   systemctl enable openvpn
   systemctl start openvpn
 )
