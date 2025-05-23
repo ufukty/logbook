@@ -1,4 +1,4 @@
-#!/usr/local/bin/bash
+#!/usr/bin/env bash
 
 set -xe
 PS4='\033[31m$0:$LINENO: \033[0m'
@@ -7,6 +7,7 @@ test -d .git || (echo "Run from root folder" && exit 1)
 
 test -f ".venv/bin/activate" ||
   python3 -m venv ".venv"
+# shellcheck disable=SC1091
 source ".venv/bin/activate"
 
 which make ||
@@ -15,24 +16,25 @@ which make ||
 which go ||
   (open "https://go.dev/dl" && exit 1)
 
-which stringer || # backend
+which stringer ||
   go install "golang.org/x/tools/cmd/stringer@latest"
-which gonfique || # backend
+which gonfique ||
   go install "github.com/ufukty/gonfique@v1.3.1"
-which sqlc || # backend
+which sqlc ||
   go install "github.com/sqlc-dev/sqlc/cmd/sqlc@latest"
-which govalid || # backend
+which govalid ||
   go install "github.com/ufukty/govalid@v0.1.0"
-which d2 || # docs
+which d2 ||
   go install "oss.terrastruct.com/d2@v0.6.3"
-
 which gohandlers ||
-  (echo "install gohandlers" && exit 1)
+  go install "github.com/ufukty/gohandlers/cmd/gohandlers@latest"
+which ovpn-auth ||
+  go install "github.com/ufukty/ovpn-auth/cmd/ovpn-auth@v1.1.1"
 
 (bash --version | grep "^GNU bash, version 5") ||
   brew install "bash"
 which gsed ||
-  brew install coreutils
+  brew install gnu-sed
 which psql ||
   (brew install "postgresql@15" && brew services start "postgresql@15")
 which doctl ||

@@ -1,4 +1,4 @@
-#!/usr/local/bin/bash
+#!/usr/bin/env bash
 
 set -xeEo pipefail
 PS4='\033[31m$0:$LINENO: \033[0m'

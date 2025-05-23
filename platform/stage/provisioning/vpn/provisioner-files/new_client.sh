@@ -69,21 +69,21 @@ export DEBIAN_FRONTEND=noninteractive
 EASYRSA_SERVER_NAME="$(cat /etc/openvpn/easy-rsa/generated/server_name)"
 
 if [[ $OPENVPN_PROTOCOL =~ "udp" ]]; then
-    PROTOCOL_CONF_STR="proto udp"$'\n'"explicit-exit-notify"
+  PROTOCOL_CONF_STR="proto udp"$'\n'"explicit-exit-notify"
 else
-    PROTOCOL_CONF_STR="proto tcp-client"
+  PROTOCOL_CONF_STR="proto tcp-client"
 fi
 
 if test "$TLS_SIG" == "tls-crypt"; then
-    TLS_AUTH_KEY_DIRECTION="key-direction 1"
+  TLS_AUTH_KEY_DIRECTION="key-direction 1"
 else
-    TLS_AUTH_KEY_DIRECTION="#"
+  TLS_AUTH_KEY_DIRECTION="#"
 fi
 
 if [[ $ENCRYPTION_CERT_TYPE == "ECDSA" ]]; then
-    ENCRYPTION_CC_CIPHER="$ENCRYPTION_ECDSA_CC_CIPHER"
+  ENCRYPTION_CC_CIPHER="$ENCRYPTION_ECDSA_CC_CIPHER"
 elif [[ $ENCRYPTION_CERT_TYPE == "RSA" ]]; then
-    ENCRYPTION_CC_CIPHER="$ENCRYPTION_RSA_CC_CIPHER"
+  ENCRYPTION_CC_CIPHER="$ENCRYPTION_RSA_CC_CIPHER"
 fi
 
 # ---------------------------------------------------------------------------- #
@@ -125,19 +125,19 @@ echo "TLS_SIG                              = $TLS_SIG"
 echo "TLS_SIG_KEY_CONTENT_ESCAPED          = <HIDDEN>"
 
 cat /etc/openvpn/client.ovpn.tpl | sed \
-    -e "s;{{EASYRSA_CA_CERT_CONTENT}};$EASYRSA_CA_CERT_CONTENT_ESCAPED;g" \
-    -e "s;{{EASYRSA_CLIENT_CERT_CONTENT}};$EASYRSA_CLIENT_CERT_CONTENT_ESCAPED;g" \
-    -e "s;{{EASYRSA_CLIENT_KEY_CONTENT}};$EASYRSA_CLIENT_KEY_CONTENT_ESCAPED;g" \
-    -e "s;{{EASYRSA_SERVER_NAME}};$EASYRSA_SERVER_NAME;g" \
-    -e "s;{{ENCRYPTION_CC_CIPHER}};$ENCRYPTION_CC_CIPHER;g" \
-    -e "s;{{ENCRYPTION_CIPHER}};$ENCRYPTION_CIPHER;g" \
-    -e "s;{{ENCRYPTION_HMAC_ALG}};$ENCRYPTION_HMAC_ALG;g" \
-    -e "s;{{OPENVPN_PORT}};$OPENVPN_PORT;g" \
-    -e "s;{{PROTOCOL_CONF_STR}};$PROTOCOL_CONF_STR;g" \
-    -e "s;{{PUBLIC_IP}};$PUBLIC_IP;g" \
-    -e "s;{{TLS_AUTH_KEY_DIRECTION}};$TLS_AUTH_KEY_DIRECTION;g" \
-    -e "s;{{TLS_SIG}};$TLS_SIG;g" \
-    -e "s;{{TLS_SIG_KEY_CONTENT}};$TLS_SIG_KEY_CONTENT_ESCAPED;g" \
-    >"/home/$USER_ACCOUNT_NAME/artifacts/$CLIENT_NAME.ovpn"
+  -e "s;{{EASYRSA_CA_CERT_CONTENT}};$EASYRSA_CA_CERT_CONTENT_ESCAPED;g" \
+  -e "s;{{EASYRSA_CLIENT_CERT_CONTENT}};$EASYRSA_CLIENT_CERT_CONTENT_ESCAPED;g" \
+  -e "s;{{EASYRSA_CLIENT_KEY_CONTENT}};$EASYRSA_CLIENT_KEY_CONTENT_ESCAPED;g" \
+  -e "s;{{EASYRSA_SERVER_NAME}};$EASYRSA_SERVER_NAME;g" \
+  -e "s;{{ENCRYPTION_CC_CIPHER}};$ENCRYPTION_CC_CIPHER;g" \
+  -e "s;{{ENCRYPTION_CIPHER}};$ENCRYPTION_CIPHER;g" \
+  -e "s;{{ENCRYPTION_HMAC_ALG}};$ENCRYPTION_HMAC_ALG;g" \
+  -e "s;{{OPENVPN_PORT}};$OPENVPN_PORT;g" \
+  -e "s;{{PROTOCOL_CONF_STR}};$PROTOCOL_CONF_STR;g" \
+  -e "s;{{PUBLIC_IP}};$PUBLIC_IP;g" \
+  -e "s;{{TLS_AUTH_KEY_DIRECTION}};$TLS_AUTH_KEY_DIRECTION;g" \
+  -e "s;{{TLS_SIG}};$TLS_SIG;g" \
+  -e "s;{{TLS_SIG_KEY_CONTENT}};$TLS_SIG_KEY_CONTENT_ESCAPED;g" \
+  >"/home/$USER_ACCOUNT_NAME/artifacts/$CLIENT_NAME.ovpn"
 
 chown -R "$USER_ACCOUNT_NAME" "/home/$USER_ACCOUNT_NAME"

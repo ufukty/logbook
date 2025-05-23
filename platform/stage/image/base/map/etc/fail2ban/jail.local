@@ -1,0 +1,7 @@
+[sshd]
+enabled = true
+port    = 22
+filter  = sshd
+
+[DEFAULT]
+ignoreip = 127.0.0.1/8 ::1 10.0.0.0/8

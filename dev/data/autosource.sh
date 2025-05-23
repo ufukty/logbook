@@ -1,4 +1,4 @@
-#!/usr/local/bin/bash
+#!/usr/bin/env bash
 
 autosource() {
   local TARGET
@@ -7,5 +7,6 @@ autosource() {
   PARENTDIR="$(dirname "$TARGET")"
   test "$PARENTDIR" && test "$PARENTDIR" != "/" && test -d "$PARENTDIR" && autosource "$PARENTDIR"
   cd "$TARGET" || return
-  test -f "$TARGET/source.sh" && (echo "+ source $PWD/source.sh" && source "source.sh")
+  # shellcheck disable=SC1091
+  test -f "$TARGET/source.sh" && echo "+ source $PWD/source.sh" && source "source.sh"
 }

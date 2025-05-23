@@ -1,17 +1,7 @@
-#!/usr/local/bin/bash
+#!/usr/bin/env bash
 
-_check_ssh() {
-  SSH_KEY_NAME="mbp-ed"
-  ssh-add -l | grep ${SSH_KEY_NAME} >/dev/null
-}
-
-_enable_ssh() {
-  note "Calling ssh-agent" && ssh-agent && ssh-add
-}
-
-_check_ssh || _enable_ssh
-
-test "$VIRTUAL_ENV" || . "$HOME/venv/bin/activate"
+# shellcheck disable=1091
+test "$VIRTUAL_ENV" || . "$WORKSPACE/.venv/bin/activate"
 
 is_newer_than_all() {
   local TARGET="$1"
@@ -26,6 +16,7 @@ is_newer_than_all() {
 export -f is_newer_than_all
 
 is_up_to_date() {
+  # shellcheck disable=2046
   is_newer_than_all "$1" $(find . -type f | grep -v "$1")
 }
 export -f is_up_to_date

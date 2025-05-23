@@ -8,7 +8,7 @@ terraform {
 }
 
 variable "project_prefix" { type = string }
-variable "SSH_KEY_FINGERPRINT" { type = string }
+variable "DO_SSH_FINGERPRINT" { type = string }
 
 data "digitalocean_droplet_snapshot" "application" {
   name_regex  = "^build_application_.*"
@@ -39,7 +39,7 @@ resource "digitalocean_droplet" "account" {
   backups     = false
   monitoring  = true
   resize_disk = false
-  ssh_keys    = [var.SSH_KEY_FINGERPRINT]
+  ssh_keys    = [var.DO_SSH_FINGERPRINT]
   vpc_uuid    = data.digitalocean_vpc.fra1.id
 }
 
@@ -56,7 +56,7 @@ resource "digitalocean_droplet" "objectives" {
   backups     = false
   monitoring  = true
   resize_disk = false
-  ssh_keys    = [var.SSH_KEY_FINGERPRINT]
+  ssh_keys    = [var.DO_SSH_FINGERPRINT]
   vpc_uuid    = data.digitalocean_vpc.fra1.id
 }
 
@@ -73,7 +73,7 @@ resource "digitalocean_droplet" "gateway" {
   backups     = false
   monitoring  = true
   resize_disk = false
-  ssh_keys    = [var.SSH_KEY_FINGERPRINT]
+  ssh_keys    = [var.DO_SSH_FINGERPRINT]
   vpc_uuid    = data.digitalocean_vpc.fra1.id
 }
 

@@ -1,0 +1,23 @@
+AcceptEnv LANG LC_*
+AllowAgentForwarding no 
+AllowTcpForwarding no   
+AuthorizedKeysFile .ssh/authorized_keys 
+ClientAliveCountMax 2   
+ClientAliveInterval 300 
+GSSAPIAuthentication no
+HostbasedAuthentication no
+Include /etc/ssh/sshd_config.d/*.conf
+KbdInteractiveAuthentication no
+LogLevel VERBOSE
+MaxAuthTries 3 
+PasswordAuthentication no 
+PermitEmptyPasswords no
+PermitRootLogin no 
+Port 22
+PrintMotd no
+PubkeyAuthentication yes
+Subsystem sftp /usr/lib/openssh/sftp-server
+TCPKeepAlive yes
+UseDNS no
+UsePAM yes
+X11Forwarding no
