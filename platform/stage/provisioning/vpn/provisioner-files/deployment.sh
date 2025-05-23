@@ -68,11 +68,6 @@ set -E
 # Optional Environment Variables
 # ---------------------------------------------------------------------------- #
 
-# OPENVPN_PROTOCOL valid values:
-# [ udp, tcp ]
-OPENVPN_PROTOCOL="${OPENVPN_PROTOCOL:-"tcp"}"
-OPENVPN_PORT="${OPENVPN_PORT:-"443"}"
-
 # ENCRYPTION_TLS_SIG valid values:
 # [ tls-crypt, tls-auth ]
 ENCRYPTION_TLS_SIG=${ENCRYPTION_TLS_SIG:-"tls-crypt"}
@@ -253,8 +248,6 @@ function configure_openvpn() (
     -e "s;{{ENCRYPTION_CIPHER}};${ENCRYPTION_CIPHER:?};g" \
     -e "s;{{ENCRYPTION_HMAC_ALG}};${ENCRYPTION_HMAC_ALG:?};g" \
     -e "s;{{NOGROUP}};${NOGROUP:?};g" \
-    -e "s;{{OPENVPN_PORT}};${OPENVPN_PORT:?};g" \
-    -e "s;{{OPENVPN_PROTOCOL}};${OPENVPN_PROTOCOL:?};g" \
     -e "s;{{OPENVPN_SUBNET_ADDRESS}};${OPENVPN_SUBNET_ADDRESS:?};g" \
     -e "s;{{OPENVPN_SUBNET_MASK}};${OPENVPN_SUBNET_MASK:?};g" \
     -e "s;{{EASYRSA_SERVER_NAME}};${EASYRSA_SERVER_NAME:?};g" \
@@ -282,8 +275,6 @@ function configure_iptables() {
   sed --in-place \
     -e "s;{{PRIVATE_ETHERNET_INTERFACE}};${PRIVATE_ETHERNET_INTERFACE:?};g" \
     -e "s;{{PUBLIC_ETHERNET_INTERFACE}};${PUBLIC_ETHERNET_INTERFACE:?};g" \
-    -e "s;{{OPENVPN_PROTOCOL}};${OPENVPN_PROTOCOL:?};g" \
-    -e "s;{{OPENVPN_PORT}};${OPENVPN_PORT:?};g" \
     -e "s;{{OPENVPN_SUBNET_ADDRESS}};${OPENVPN_SUBNET_ADDRESS:?};g" \
     /etc/iptables/iptables-rules.v4
 
