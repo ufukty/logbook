@@ -1,5 +1,3 @@
-project_prefix = "logbook"
-
 digitalocean = {
   activated_regions = {
     vpc = [

@@ -7,10 +7,6 @@ terraform {
   }
 }
 
-variable "project_prefix" {
-  type = string
-}
-
 variable "digitalocean" {
   type = object({
     activated_regions = object({
@@ -49,7 +45,7 @@ variable "digitalocean" {
 resource "digitalocean_vpc" "vpc" {
   for_each = var.digitalocean.activated_regions.vpc
 
-  name     = "${var.project_prefix}-${each.value}"
+  name     = "logbook-${each.value}"
   region   = each.value
   ip_range = var.digitalocean.config.vpc[each.value].range
 }

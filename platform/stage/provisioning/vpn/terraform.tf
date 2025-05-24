@@ -7,7 +7,6 @@ terraform {
   }
 }
 
-variable "project_prefix" { type = string }
 variable "digitalocean" {
   type = object({
     activated_regions = object({
@@ -62,7 +61,7 @@ data "digitalocean_droplet_snapshot" "vpn" {
 data "digitalocean_vpc" "vpc" {
   for_each = var.digitalocean.activated_regions.vpn
 
-  name = "${var.project_prefix}-${each.value}"
+  name = "logbook-${each.value}"
 }
 
 # MARK: Resource creation
@@ -100,7 +99,7 @@ resource "digitalocean_droplet" "vpn-server" {
       <<EOF
         cd ~/provisioner-files && \
                      USER_ACCOUNT_NAME='${local.sudo_user}' \
-                           SERVER_NAME='${var.project_prefix}-do-${each.value}-vpn' \
+                           SERVER_NAME='logbook-do-${each.value}-vpn' \
                              PUBLIC_IP='${self.ipv4_address}' \
                             PRIVATE_IP='${self.ipv4_address_private}' \
                 OPENVPN_SUBNET_ADDRESS='${var.digitalocean.config.vpn[each.value].subnet_address}' \
@@ -125,7 +124,7 @@ resource "digitalocean_droplet" "vpn-server" {
 
       mkdir -p ../../artifacts/vpn
       scp ${local.sudo_user}@${self.ipv4_address}:~/artifacts/${local.openvpn_client_name}.ovpn \
-          ${path.module}/../../artifacts/vpn/${var.project_prefix}-do-${each.value}-${local.openvpn_client_name}.ovpn
+          ${path.module}/../../artifacts/vpn/logbook-do-${each.value}-${local.openvpn_client_name}.ovpn
     EOF
   }
 
