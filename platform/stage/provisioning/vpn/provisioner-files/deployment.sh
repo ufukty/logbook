@@ -57,9 +57,7 @@ VPC_RANGE_MASK="$(ipcalc "${VPC_CIDR:?}" --nobinary --nocolor | grep Netmask | a
 # Definitions
 # ---------------------------------------------------------------------------- #
 
-EASYRSA_CA_NAME="$SERVER_NAME-certificate-authority"
 EASYRSA_SERVER_NAME="$SERVER_NAME-server"
-# OVPN_GENERATED_TOTP_SHARE_FILE="/home/$USER_ACCOUNT_NAME/artifacts/totp-share.txt"
 
 # ---------------------------------------------------------------------------- #
 # Prep
