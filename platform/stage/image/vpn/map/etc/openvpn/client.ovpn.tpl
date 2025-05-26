@@ -1,5 +1,5 @@
 client
-{{PROTOCOL_CONF_STR}}
+proto tcp-client
 remote {{PUBLIC_IP}} 443
 dev tun
 
@@ -11,13 +11,13 @@ persist-tun
 remote-cert-tls server
 verify-x509-name {{EASYRSA_SERVER_NAME}} name
 
-auth {{ENCRYPTION_HMAC_ALG}}
+auth SHA256
 auth-nocache
 
-cipher {{ENCRYPTION_CIPHER}}
+cipher AES-128-GCM
 tls-client
 tls-version-min 1.2
-tls-cipher {{ENCRYPTION_CC_CIPHER}}
+tls-cipher TLS-ECDHE-ECDSA-WITH-AES-128-GCM-SHA256
 
 ignore-unknown-option block-outside-dns
 setenv opt block-outside-dns # Prevent Windows 10 DNS leak
@@ -38,7 +38,7 @@ verb 4
 {{EASYRSA_CLIENT_KEY_CONTENT}}
 </key>
 
-{{TLS_AUTH_KEY_DIRECTION}}
-<{{TLS_SIG}}>
+key-direction 1
+<tls-crypt>
 {{TLS_SIG_KEY_CONTENT}}
-</{{TLS_SIG}}>
+</tls-crypt>

@@ -1,0 +1,210 @@
+{
+  "version": 4,
+  "terraform_version": "1.12.0",
+  "serial": 261,
+  "lineage": "a392c26c-6d0f-4a2a-68bc-eb72e6aed123",
+  "outputs": {},
+  "resources": [
+    {
+      "mode": "data",
+      "type": "digitalocean_droplet_snapshot",
+      "name": "vpn",
+      "provider": "provider[\"registry.terraform.io/digitalocean/digitalocean\"]",
+      "instances": [
+        {
+          "index_key": "nyc3",
+          "schema_version": 0,
+          "attributes": {
+            "created_at": "2025-05-26T12:29:06Z",
+            "droplet_id": "498493856",
+            "id": "188272519",
+            "min_disk_size": 25,
+            "most_recent": true,
+            "name": "logbook_builder_vpn_25_05_26_15_27_18_7847b5d_dirty",
+            "name_regex": "^logbook_builder_vpn_.*",
+            "region": "nyc3",
+            "regions": [
+              "nyc1",
+              "nyc2",
+              "nyc3",
+              "sfo2",
+              "sfo3"
+            ],
+            "size": 2.23
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0
+        },
+        {
+          "index_key": "sfo2",
+          "schema_version": 0,
+          "attributes": {
+            "created_at": "2025-05-26T12:29:06Z",
+            "droplet_id": "498493856",
+            "id": "188272519",
+            "min_disk_size": 25,
+            "most_recent": true,
+            "name": "logbook_builder_vpn_25_05_26_15_27_18_7847b5d_dirty",
+            "name_regex": "^logbook_builder_vpn_.*",
+            "region": "sfo2",
+            "regions": [
+              "nyc1",
+              "nyc2",
+              "nyc3",
+              "sfo2",
+              "sfo3"
+            ],
+            "size": 2.23
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0
+        }
+      ]
+    },
+    {
+      "mode": "data",
+      "type": "digitalocean_vpc",
+      "name": "vpc",
+      "provider": "provider[\"registry.terraform.io/digitalocean/digitalocean\"]",
+      "instances": [
+        {
+          "index_key": "nyc3",
+          "schema_version": 0,
+          "attributes": {
+            "created_at": "2025-05-21 16:20:43 +0000 UTC",
+            "default": false,
+            "description": "",
+            "id": "ad936734-126c-4320-ab1f-80eb819f9310",
+            "ip_range": "10.144.0.0/16",
+            "name": "logbook-nyc3",
+            "region": "nyc3",
+            "urn": "do:vpc:ad936734-126c-4320-ab1f-80eb819f9310"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0
+        },
+        {
+          "index_key": "sfo2",
+          "schema_version": 0,
+          "attributes": {
+            "created_at": "2025-05-21 16:20:43 +0000 UTC",
+            "default": false,
+            "description": "",
+            "id": "d17c4d14-8579-40f3-9555-0d32f1145ee0",
+            "ip_range": "10.140.0.0/16",
+            "name": "logbook-sfo2",
+            "region": "sfo2",
+            "urn": "do:vpc:d17c4d14-8579-40f3-9555-0d32f1145ee0"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "digitalocean_droplet",
+      "name": "vpn-server",
+      "provider": "provider[\"registry.terraform.io/digitalocean/digitalocean\"]",
+      "instances": [
+        {
+          "index_key": "nyc3",
+          "status": "tainted",
+          "schema_version": 1,
+          "attributes": {
+            "backups": false,
+            "created_at": "2025-05-26T17:25:44Z",
+            "disk": 25,
+            "droplet_agent": null,
+            "graceful_shutdown": false,
+            "id": "498539042",
+            "image": "188272519",
+            "ipv4_address": "138.197.85.165",
+            "ipv4_address_private": "10.144.0.2",
+            "ipv6": true,
+            "ipv6_address": "2604:a880:800:14:0:1:3c98:2000",
+            "locked": false,
+            "memory": 1024,
+            "monitoring": true,
+            "name": "nyc3-vpn",
+            "price_hourly": 0.00893,
+            "price_monthly": 6,
+            "private_networking": true,
+            "region": "nyc3",
+            "resize_disk": false,
+            "size": "s-1vcpu-1gb",
+            "ssh_keys": [
+              "f5:fb:37:2d:cb:22:a0:08:f4:91:87:98:ea:80:38:91"
+            ],
+            "status": "active",
+            "tags": [
+              "vpn"
+            ],
+            "timeouts": null,
+            "urn": "do:droplet:498539042",
+            "user_data": null,
+            "vcpus": 1,
+            "volume_ids": [],
+            "vpc_uuid": "ad936734-126c-4320-ab1f-80eb819f9310"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjozNjAwMDAwMDAwMDAwLCJkZWxldGUiOjYwMDAwMDAwMDAwLCJ1cGRhdGUiOjM2MDAwMDAwMDAwMDB9LCJzY2hlbWFfdmVyc2lvbiI6IjEifQ==",
+          "dependencies": [
+            "data.digitalocean_droplet_snapshot.vpn",
+            "data.digitalocean_vpc.vpc"
+          ]
+        },
+        {
+          "index_key": "sfo2",
+          "status": "tainted",
+          "schema_version": 1,
+          "attributes": {
+            "backups": false,
+            "created_at": "2025-05-26T17:25:22Z",
+            "disk": 25,
+            "droplet_agent": null,
+            "graceful_shutdown": false,
+            "id": "498539014",
+            "image": "188272519",
+            "ipv4_address": "138.68.31.244",
+            "ipv4_address_private": "10.140.0.2",
+            "ipv6": true,
+            "ipv6_address": "2604:a880:2:d1::8ddc:9001",
+            "locked": false,
+            "memory": 1024,
+            "monitoring": true,
+            "name": "sfo2-vpn",
+            "price_hourly": 0.00893,
+            "price_monthly": 6,
+            "private_networking": true,
+            "region": "sfo2",
+            "resize_disk": false,
+            "size": "s-1vcpu-1gb",
+            "ssh_keys": [
+              "f5:fb:37:2d:cb:22:a0:08:f4:91:87:98:ea:80:38:91"
+            ],
+            "status": "active",
+            "tags": [
+              "vpn"
+            ],
+            "timeouts": null,
+            "urn": "do:droplet:498539014",
+            "user_data": null,
+            "vcpus": 1,
+            "volume_ids": [],
+            "vpc_uuid": "d17c4d14-8579-40f3-9555-0d32f1145ee0"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjozNjAwMDAwMDAwMDAwLCJkZWxldGUiOjYwMDAwMDAwMDAwLCJ1cGRhdGUiOjM2MDAwMDAwMDAwMDB9LCJzY2hlbWFfdmVyc2lvbiI6IjEifQ==",
+          "dependencies": [
+            "data.digitalocean_droplet_snapshot.vpn",
+            "data.digitalocean_vpc.vpc"
+          ]
+        }
+      ]
+    }
+  ],
+  "check_results": null
+}

@@ -48,9 +48,5 @@ md5sum /etc/openvpn/ovpn-auth | grep "050f02af158934591c1a240e25ca93ab"
 chmod 755 /etc/openvpn/ovpn-auth
 chown root:root /etc/openvpn/ovpn-auth
 
-# TODO: move to deployment step
-# chmod 744 /etc/openvpn/ovpn_auth_database.yml
-# chown root:root /etc/openvpn/ovpn_auth_database.yml
-
 # remove_password_change_requirement
 # sed --in-place -E 's/root:(.*):0:0:(.*):/root:\1:18770:0:\2:/g' /etc/shadow;
