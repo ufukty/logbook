@@ -53,7 +53,7 @@ locals {
 data "digitalocean_droplet_snapshot" "vpn" {
   for_each = var.digitalocean.activated_regions.vpn
 
-  name_regex  = "^build_vpn_.*"
+  name_regex  = "^logbook_builder_vpn_.*"
   region      = each.value
   most_recent = true
 }
