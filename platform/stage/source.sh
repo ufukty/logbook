@@ -20,15 +20,15 @@ export DO_SSH_KEY_ID="$(
 
 export DO_SSH_PUBKEY="$(cat secrets/ssh/do.pub)"
 
-alias ssh="ssh -F '${STAGE:?}/artifacts/ssh.conf'"
-alias scp="scp -F '${STAGE:?}/artifacts/ssh.conf'"
+alias ssh="ssh -F '$STAGE/artifacts/ssh.conf'"
+alias scp="scp -F '$STAGE/artifacts/ssh.conf'"
 
 _ssh_completion() {
   local cur opts
   COMPREPLY=()
   cur="${COMP_WORDS[COMP_CWORD]}"
   # prev="${COMP_WORDS[COMP_CWORD - 1]}"
-  opts=$(grep '^Host' "${STAGE:?}/artifacts/ssh.conf" 2>/dev/null | grep -v '[?*]' | cut -d ' ' -f 2-)
+  opts=$(grep '^Host' "$STAGE/artifacts/ssh.conf" 2>/dev/null | grep -v '[?*]' | cut -d ' ' -f 2-)
   COMPREPLY=($(compgen -W "$opts" -- "${cur}"))
   return 0
 }
