@@ -7,7 +7,6 @@ terraform {
   }
 }
 
-variable "project_prefix" { type = string }
 variable "DO_SSH_FINGERPRINT" { type = string }
 
 data "digitalocean_droplet_snapshot" "application" {
@@ -23,7 +22,7 @@ data "digitalocean_droplet_snapshot" "gateway" {
 }
 
 data "digitalocean_vpc" "fra1" {
-  name = "${var.project_prefix}-fra1"
+  name = "logbook-fra1"
 }
 
 resource "digitalocean_droplet" "account" {
