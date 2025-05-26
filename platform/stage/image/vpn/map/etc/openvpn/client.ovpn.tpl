@@ -1,6 +1,6 @@
 client
 {{PROTOCOL_CONF_STR}}
-remote {{PUBLIC_IP}} {{OPENVPN_PORT}}
+remote {{PUBLIC_IP}} 443
 dev tun
 
 resolv-retry infinite
