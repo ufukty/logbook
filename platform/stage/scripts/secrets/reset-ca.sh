@@ -10,63 +10,55 @@ set -xe
 # ---------------------------------------------------------------------------- #
 
 rm -rfv "$STAGE/secrets/pki"
-mkdir -p "$STAGE"/secrets/pki/{root,web,vpn,vpn-users}
+mkdir -p "$STAGE"/secrets/pki
 
 # ---------------------------------------------------------------------------- #
 # Root CA
 # ---------------------------------------------------------------------------- #
 
-cd "$STAGE/secrets/pki/root"
-easyrsa init-pki
-easyrsa --batch --req-cn="Logbook Stage Root CA" build-ca nopass
+EASYRSA_PKI="$STAGE/secrets/pki/root" easyrsa init-pki
+EASYRSA_PKI="$STAGE/secrets/pki/root" easyrsa --batch --req-cn="Logbook Stage Root CA" build-ca nopass
 
 # ---------------------------------------------------------------------------- #
 # Web Intermediate CA
 # ---------------------------------------------------------------------------- #
 
-cd "$STAGE/secrets/pki/web"
-easyrsa init-pki
-easyrsa --batch --req-cn="Logbook Stage Web CA" build-ca nopass subca
+EASYRSA_PKI="$STAGE/secrets/pki/web" easyrsa init-pki
+EASYRSA_PKI="$STAGE/secrets/pki/web" easyrsa --batch --req-cn="Logbook Stage Web CA" build-ca nopass subca
 
-cd "$STAGE/secrets/pki/root"
-easyrsa --batch import-req "$STAGE/secrets/pki/web/pki/reqs/ca.req" web
-easyrsa --batch sign-req ca web
+EASYRSA_PKI="$STAGE/secrets/pki/root" easyrsa --batch import-req "$STAGE/secrets/pki/web/reqs/ca.req" web
+EASYRSA_PKI="$STAGE/secrets/pki/root" easyrsa --batch sign-req ca web
 
-cp "$STAGE/secrets/pki/root/pki/issued/web.crt" \
-  "$STAGE/secrets/pki/web/pki/ca.crt"
+cp "$STAGE/secrets/pki/root/issued/web.crt" \
+  "$STAGE/secrets/pki/web/ca.crt"
 
 # ---------------------------------------------------------------------------- #
 # Vpn Intermediate CA
 # ---------------------------------------------------------------------------- #
 
-cd "$STAGE/secrets/pki/vpn"
-easyrsa init-pki
-easyrsa --batch --req-cn="Logbook Stage VPN CA" build-ca nopass subca
+EASYRSA_PKI="$STAGE/secrets/pki/vpn" easyrsa init-pki
+EASYRSA_PKI="$STAGE/secrets/pki/vpn" easyrsa --batch --req-cn="Logbook Stage VPN CA" build-ca nopass subca
 
-cd "$STAGE/secrets/pki/root"
-easyrsa --batch import-req "$STAGE/secrets/pki/vpn/pki/reqs/ca.req" vpn
-easyrsa --batch sign-req ca vpn
+EASYRSA_PKI="$STAGE/secrets/pki/root" easyrsa --batch import-req "$STAGE/secrets/pki/vpn/reqs/ca.req" vpn
+EASYRSA_PKI="$STAGE/secrets/pki/root" easyrsa --batch sign-req ca vpn
 
-cp "$STAGE/secrets/pki/root/pki/issued/vpn.crt" \
-  "$STAGE/secrets/pki/vpn/pki/ca.crt"
+cp "$STAGE/secrets/pki/root/issued/vpn.crt" \
+  "$STAGE/secrets/pki/vpn/ca.crt"
 
 # ---------------------------------------------------------------------------- #
 # Vpn Users Intermediate CA
 # ---------------------------------------------------------------------------- #
 
-cd "$STAGE/secrets/pki/vpn-users"
-easyrsa init-pki
-easyrsa --batch --req-cn="Logbook Stage VPN Users CA" build-ca nopass subca
+EASYRSA_PKI="$STAGE/secrets/pki/vpn-users" easyrsa init-pki
+EASYRSA_PKI="$STAGE/secrets/pki/vpn-users" easyrsa --batch --req-cn="Logbook Stage VPN Users CA" build-ca nopass subca
 
-cd "$STAGE/secrets/pki/root"
-easyrsa --batch import-req "$STAGE/secrets/pki/vpn-users/pki/reqs/ca.req" vpn-users
-easyrsa --batch sign-req ca vpn-users
+EASYRSA_PKI="$STAGE/secrets/pki/root" easyrsa --batch import-req "$STAGE/secrets/pki/vpn-users/reqs/ca.req" vpn-users
+EASYRSA_PKI="$STAGE/secrets/pki/root" easyrsa --batch sign-req ca vpn-users
 
-cp "$STAGE/secrets/pki/root/pki/issued/vpn-users.crt" \
-  "$STAGE/secrets/pki/vpn-users/pki/ca.crt"
+cp "$STAGE/secrets/pki/root/issued/vpn-users.crt" \
+  "$STAGE/secrets/pki/vpn-users/ca.crt"
 
-cd "$STAGE/secrets/pki/vpn-users"
-EASYRSA_CRL_DAYS=3650 easyrsa --batch gen-crl
+EASYRSA_PKI="$STAGE/secrets/pki/vpn-users" EASYRSA_CRL_DAYS=3650 easyrsa --batch gen-crl
 
 # ---------------------------------------------------------------------------- #
 # Trust Root CA on MacOS
@@ -75,4 +67,4 @@ EASYRSA_CRL_DAYS=3650 easyrsa --batch gen-crl
 security add-trusted-cert -d \
   -r trustRoot \
   -k ~/Library/Keychains/login.keychain-db \
-  "${STAGE:?}/secrets/pki/root/pki/ca.crt"
+  "${STAGE:?}/secrets/pki/root/ca.crt"
