@@ -18,7 +18,7 @@ mkdir -p "$STAGE"/secrets/pki/{root,web,vpn}
 
 cd "$STAGE/secrets/pki/root"
 easyrsa init-pki
-easyrsa --batch --req-cn="Logbook Stage CA" build-ca nopass
+easyrsa --batch --req-cn="Logbook Stage Root CA" build-ca nopass
 
 # ---------------------------------------------------------------------------- #
 # Web Intermediate CA
@@ -26,10 +26,10 @@ easyrsa --batch --req-cn="Logbook Stage CA" build-ca nopass
 
 cd "$STAGE/secrets/pki/web"
 easyrsa init-pki
-easyrsa --batch gen-req web nopass
+easyrsa --batch --req-cn="Logbook Stage Web CA" build-ca nopass subca
 
 cd "$STAGE/secrets/pki/root"
-easyrsa --batch import-req "$STAGE/secrets/pki/web/pki/reqs/web.req" web
+easyrsa --batch import-req "$STAGE/secrets/pki/web/pki/reqs/ca.req" web
 easyrsa --batch sign-req ca web
 
 cp "$STAGE/secrets/pki/root/pki/issued/web.crt" \
@@ -41,10 +41,10 @@ cp "$STAGE/secrets/pki/root/pki/issued/web.crt" \
 
 cd "$STAGE/secrets/pki/vpn"
 easyrsa init-pki
-easyrsa --batch gen-req vpn nopass
+easyrsa --batch --req-cn="Logbook Stage VPN CA" build-ca nopass subca
 
 cd "$STAGE/secrets/pki/root"
-easyrsa --batch import-req "$STAGE/secrets/pki/vpn/pki/reqs/vpn.req" vpn
+easyrsa --batch import-req "$STAGE/secrets/pki/vpn/pki/reqs/ca.req" vpn
 easyrsa --batch sign-req ca vpn
 
 cp "$STAGE/secrets/pki/root/pki/issued/vpn.crt" \
