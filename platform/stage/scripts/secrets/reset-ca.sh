@@ -29,7 +29,7 @@ easyrsa init-pki
 easyrsa --batch gen-req web nopass
 
 cd "$STAGE/secrets/pki/root"
-easyrsa --batch import-req "$STAGE/secrets/pki/web/reqs/web.req" web
+easyrsa --batch import-req "$STAGE/secrets/pki/web/pki/reqs/web.req" web
 easyrsa --batch sign-req ca web
 
 # ---------------------------------------------------------------------------- #
@@ -41,7 +41,7 @@ easyrsa init-pki
 easyrsa --batch gen-req vpn nopass
 
 cd "$STAGE/secrets/pki/root"
-easyrsa --batch import-req "$STAGE/secrets/pki/vpn/reqs/vpn.req" vpn
+easyrsa --batch import-req "$STAGE/secrets/pki/vpn/pki/reqs/vpn.req" vpn
 easyrsa --batch sign-req ca vpn
 
 # ---------------------------------------------------------------------------- #
@@ -51,4 +51,4 @@ easyrsa --batch sign-req ca vpn
 security add-trusted-cert -d \
   -r trustRoot \
   -k ~/Library/Keychains/login.keychain-db \
-  "${STAGE:?}/secrets/pki/root/ca.crt"
+  "${STAGE:?}/secrets/pki/root/pki/ca.crt"
