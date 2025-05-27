@@ -32,6 +32,9 @@ cd "$STAGE/secrets/pki/root"
 easyrsa --batch import-req "$STAGE/secrets/pki/web/pki/reqs/web.req" web
 easyrsa --batch sign-req ca web
 
+cp "$STAGE/secrets/pki/root/pki/issued/web.crt" \
+  "$STAGE/secrets/pki/web/pki/ca.crt"
+
 # ---------------------------------------------------------------------------- #
 # Vpn Intermediate CA
 # ---------------------------------------------------------------------------- #
@@ -43,6 +46,9 @@ easyrsa --batch gen-req vpn nopass
 cd "$STAGE/secrets/pki/root"
 easyrsa --batch import-req "$STAGE/secrets/pki/vpn/pki/reqs/vpn.req" vpn
 easyrsa --batch sign-req ca vpn
+
+cp "$STAGE/secrets/pki/root/pki/issued/vpn.crt" \
+  "$STAGE/secrets/pki/vpn/pki/ca.crt"
 
 # ---------------------------------------------------------------------------- #
 # Trust Root CA on MacOS
