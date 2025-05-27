@@ -83,17 +83,6 @@ cloud-init status --wait >/dev/null
 
 cd /etc/openvpn/easy-rsa
 
-# Move all the generated files
-cp \
-  "/etc/openvpn/easy-rsa/pki/ca.crt" \
-  "/etc/openvpn/easy-rsa/pki/private/ca.key" \
-  "/etc/openvpn/easy-rsa/pki/issued/$EASYRSA_SERVER_NAME.crt" \
-  "/etc/openvpn/easy-rsa/pki/private/$EASYRSA_SERVER_NAME.key" \
-  "/etc/openvpn/easy-rsa/pki/crl.pem" \
-  "/etc/openvpn"
-
-chmod 644 /etc/openvpn/crl.pem
-
 # "Populating the configure file at: /etc/openvpn/server.conf"
 sed --in-place \
   -e "s;{{OPENVPN_SUBNET_ADDRESS}};${OPENVPN_SUBNET_ADDRESS};g" \

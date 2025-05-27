@@ -1,23 +1,23 @@
 #!/usr/bin/env bash
 
+PS4='\033[32m$0:$LINENO\033[0m: '
 set -xe
 
 : "${VPS_SUDO_USER:?}"
 
-# ---------------------------------------------------------------------------- #
-# Upload Ovpn-Auth database
-# ---------------------------------------------------------------------------- #
-
 test -f "$STAGE/provision/vpn/terraform.tfstate" && (
-  # digitalocean
+
+  # ---------------------------------------------------------------------------- #
+  # DO regions
+  # ---------------------------------------------------------------------------- #
+
   jq -c '.resources.[] | select(.type == "digitalocean_droplet").instances.[]' <"$STAGE/provision/vpn/terraform.tfstate" |
     while read -r DROPLET; do
       IP="$(echo "$DROPLET" | jq -r '.attributes.ipv4_address')"
       REGION="$(echo "$DROPLET" | jq -r '.attributes.region')"
-
-      cd "$STAGE/secrets/pki/vpn"
       SERVERNAME="$REGION.do.vpn.logbook"
-      easyrsa --batch build-server-full "$SERVERNAME" nopass
+
+      EASYRSA_PKI="$STAGE/secrets/pki/vpn" easyrsa --batch build-server-full "$SERVERNAME" nopass
 
       scp -i "$STAGE/secrets/ssh/do" "$STAGE/secret/pki/vpn/ca.crt" "$VPS_SUDO_USER@$IP:ca.crt"
       scp -i "$STAGE/secrets/ssh/do" "$STAGE/secret/pki/vpn/issued/$SERVERNAME.crt" "$VPS_SUDO_USER@$IP:server.crt"
@@ -29,15 +29,12 @@ test -f "$STAGE/provision/vpn/terraform.tfstate" && (
         set -xe
         
         cd /home/$VPS_SUDO_USER
-        
-        mv ca.crt /etc/openvpn/
-        mv crl.pem /etc/openvpn/
-        mv server.crt /etc/openvpn/
-        mv server.key /etc/openvpn/
-        
-        mv ovpn_auth_database.yml /etc/openvpn/
-        chmod 744 /etc/openvpn/ovpn_auth_database.yml
-        chown root:root /etc/openvpn/ovpn_auth_database.yml
+        mv ca.crt crl.pem server.crt server.key ovpn_auth_database.yml /etc/openvpn/
+
+        cd /etc/openvpn
+        chmod 644 crl.pem
+        chmod 744 ovpn_auth_database.yml
+        chown root:root ovpn_auth_database.yml
       '"
     done
 )
