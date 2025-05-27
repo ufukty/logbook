@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# Based on: https://gist.github.com/QueuingKoala/e2c1c067a312384915b5
+
 PS4='\033[33m$0:$LINENO\033[0m '
 set -xe
 
