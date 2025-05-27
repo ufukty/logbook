@@ -1,13 +1,54 @@
 #!/usr/bin/env bash
 
-PS4="\n> "
-set -xTveE
+PS4='\033[33m$0:$LINENO\033[0m '
+set -xe
 
-mkdir -p "${STAGE:?}/secrets"
-cd "${STAGE:?}/secrets"
-test -d pki && rm -rfv pki
+: "${STAGE:?}"
 
-easyrsa init-pki soft
-easyrsa --batch --req-cn="Logbook Stage Environment CA" build-ca nopass
+# ---------------------------------------------------------------------------- #
+# PKI dir
+# ---------------------------------------------------------------------------- #
 
-security add-trusted-cert -d -r trustRoot -k ~/Library/Keychains/login.keychain-db "${STAGE:?}/secrets/pki/ca.crt" # macos keychain
+rm -rfv "$STAGE/secrets/pki"
+mkdir -p "$STAGE"/secrets/pki/{root,web,vpn}
+
+# ---------------------------------------------------------------------------- #
+# Root CA
+# ---------------------------------------------------------------------------- #
+
+cd "$STAGE/secrets/pki/root"
+easyrsa init-pki
+easyrsa --batch --req-cn="Logbook Stage CA" build-ca nopass
+
+# ---------------------------------------------------------------------------- #
+# Web Intermediate CA
+# ---------------------------------------------------------------------------- #
+
+cd "$STAGE/secrets/pki/web"
+easyrsa init-pki
+easyrsa --batch gen-req web nopass
+
+cd "$STAGE/secrets/pki/root"
+easyrsa --batch import-req "$STAGE/secrets/pki/web/reqs/web.req" web
+easyrsa --batch sign-req ca web
+
+# ---------------------------------------------------------------------------- #
+# Vpn Intermediate CA
+# ---------------------------------------------------------------------------- #
+
+cd "$STAGE/secrets/pki/vpn"
+easyrsa init-pki
+easyrsa --batch gen-req vpn nopass
+
+cd "$STAGE/secrets/pki/root"
+easyrsa --batch import-req "$STAGE/secrets/pki/vpn/reqs/vpn.req" vpn
+easyrsa --batch sign-req ca vpn
+
+# ---------------------------------------------------------------------------- #
+# Trust Root CA on MacOS
+# ---------------------------------------------------------------------------- #
+
+security add-trusted-cert -d \
+  -r trustRoot \
+  -k ~/Library/Keychains/login.keychain-db \
+  "${STAGE:?}/secrets/pki/root/ca.crt"
