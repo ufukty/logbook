@@ -10,7 +10,7 @@ set -xe
 # ---------------------------------------------------------------------------- #
 
 rm -rfv "$STAGE/secrets/pki"
-mkdir -p "$STAGE"/secrets/pki/{root,web,vpn}
+mkdir -p "$STAGE"/secrets/pki/{root,web,vpn,vpn-users}
 
 # ---------------------------------------------------------------------------- #
 # Root CA
@@ -49,6 +49,24 @@ easyrsa --batch sign-req ca vpn
 
 cp "$STAGE/secrets/pki/root/pki/issued/vpn.crt" \
   "$STAGE/secrets/pki/vpn/pki/ca.crt"
+
+# ---------------------------------------------------------------------------- #
+# Vpn Users Intermediate CA
+# ---------------------------------------------------------------------------- #
+
+cd "$STAGE/secrets/pki/vpn-users"
+easyrsa init-pki
+easyrsa --batch --req-cn="Logbook Stage VPN Users CA" build-ca nopass subca
+
+cd "$STAGE/secrets/pki/root"
+easyrsa --batch import-req "$STAGE/secrets/pki/vpn-users/pki/reqs/ca.req" vpn-users
+easyrsa --batch sign-req ca vpn-users
+
+cp "$STAGE/secrets/pki/root/pki/issued/vpn-users.crt" \
+  "$STAGE/secrets/pki/vpn-users/pki/ca.crt"
+
+cd "$STAGE/secrets/pki/vpn-users"
+EASYRSA_CRL_DAYS=3650 easyrsa --batch gen-crl
 
 # ---------------------------------------------------------------------------- #
 # Trust Root CA on MacOS
