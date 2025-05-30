@@ -43,9 +43,12 @@ test -f "provisioning/vpn/terraform.tfstate" && (
 
         openvpn --genkey secret tls-crypt.key
 
-        chmod 644 crl.pem
-        chmod 744 ovpn_auth_database.yml
-        chown -R root:root *
+        chown -R openvpn:openvpn *
+
+        chmod 600 server.key ovpn_auth_database.yml
+        chmod 640 ./{ca.crt,server.crt,crl.pem,tls-crypt.key,server.conf}
+        chmod 750 ccd
+        test $(ls -1 ccd | wc -l) -gt 0 && chmod 640 ccd/*
 HERE
     done
 )

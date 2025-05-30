@@ -26,7 +26,7 @@ export DEBIAN_FRONTEND=noninteractive
 apt-get update -y
 apt-get install -y ca-certificates curl gnupg iptables openssl openvpn unbound wget
 
-test -d /etc/openvpn/easy-rsa && rm -rfv /etc/openvpn/easy-rsa/*
+test -d /etc/openvpn/easy-rsa && rm -rfv /etc/openvpn/easy-rsa
 
 # ---------------------------------------------------------------------------- #
 # Mapping
@@ -37,6 +37,20 @@ find map -type f | while read FILE; do
   sudo mv -v "${FILE}" "${FILE/map/}"
 done
 rm -rfv /root/map
+
+# ---------------------------------------------------------------------------- #
+# Permissions
+# ---------------------------------------------------------------------------- #
+
+groupadd --system openvpn
+sudo useradd --system \
+  --no-create-home \
+  --shell /usr/sbin/nologin \
+  --gid openvpn \
+  --comment "OpenVPN Daemon" \
+  openvpn
+
+sudo chgrp -R openvpn /etc/openvpn
 
 # ---------------------------------------------------------------------------- #
 # Ovpn-auth
