@@ -111,21 +111,13 @@ resource "digitalocean_droplet" "vpn-server" {
         
         cd ~/upload
         sudo --preserve-env bash deployment.sh
-      EOF   
-    ]
-  }
 
-  // Clean up in server & last changes
-  provisioner "remote-exec" {
-    on_failure = continue
-    inline = [<<EOF
-        rm -rf ~/artifacts ~/upload
-        sudo bash -c "\
-            systemctl restart systemd-journald;\
-            systemctl restart iptables-activation;\
-            sed -E -in-place \"s;${local.sudo_user}(.*)NOPASSWD:(.*);${local.sudo_user} \1 \2;\" /etc/sudoers;\
-        "
-    EOF
+        cd /
+        rm -rfv ~/upload
+        sudo systemctl restart systemd-journald
+        sudo systemctl restart iptables-activation
+        sudo sed -E -in-place \"s;${local.sudo_user}(.*)NOPASSWD:(.*);${local.sudo_user} \1 \2;\" /etc/sudoers
+      EOF
     ]
   }
 }
