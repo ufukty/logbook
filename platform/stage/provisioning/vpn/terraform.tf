@@ -90,23 +90,27 @@ resource "digitalocean_droplet" "vpn-server" {
   }
 
   provisioner "file" {
-    source      = "${path.module}/provisioner-files"
+    source      = "${path.module}/upload"
     destination = "/home/${local.sudo_user}"
   }
 
   provisioner "remote-exec" {
     inline = [
       <<EOF
-        cd ~/provisioner-files && \
-                     USER_ACCOUNT_NAME='${local.sudo_user}' \
-                           SERVER_NAME='logbook-do-${each.value}-vpn' \
-                             PUBLIC_IP='${self.ipv4_address}' \
-                            PRIVATE_IP='${self.ipv4_address_private}' \
-                OPENVPN_SUBNET_ADDRESS='${var.digitalocean.config.vpn[each.value].subnet_address}' \
-                   OPENVPN_SUBNET_MASK='255.255.255.0' \
-             PUBLIC_ETHERNET_INTERFACE='eth0' \
-            PRIVATE_ETHERNET_INTERFACE='eth1' \
-            sudo --preserve-env bash deployment.sh 
+        PS4='\033[33m$0:$LINENO:\033[0m '
+        set -xe
+
+        export USER_ACCOUNT_NAME='${local.sudo_user}'
+        export SERVER_NAME='logbook-do-${each.value}-vpn'
+        export PUBLIC_IP='${self.ipv4_address}'
+        export PRIVATE_IP='${self.ipv4_address_private}'
+        export OPENVPN_SUBNET_ADDRESS='${var.digitalocean.config.vpn[each.value].subnet_address}'
+        export OPENVPN_SUBNET_MASK='255.255.255.0'
+        export PUBLIC_ETHERNET_INTERFACE='eth0'
+        export PRIVATE_ETHERNET_INTERFACE='eth1'
+        
+        cd ~/upload
+        sudo --preserve-env bash deployment.sh
       EOF   
     ]
   }
@@ -115,7 +119,7 @@ resource "digitalocean_droplet" "vpn-server" {
   provisioner "remote-exec" {
     on_failure = continue
     inline = [<<EOF
-        rm -rf ~/artifacts ~/provisioner-files
+        rm -rf ~/artifacts ~/upload
         sudo bash -c "\
             systemctl restart systemd-journald;\
             systemctl restart iptables-activation;\
