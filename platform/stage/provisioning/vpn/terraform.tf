@@ -121,15 +121,3 @@ resource "digitalocean_droplet" "vpn-server" {
     ]
   }
 }
-
-resource "local_file" "ssh-config" {
-  content = templatefile(
-    "${path.module}/templates/ssh.conf.tftpl",
-    {
-      providers = {
-        digitalocean = digitalocean_droplet.vpn-server
-      }
-    }
-  )
-  filename = abspath("${path.module}/../../artifacts/ssh.conf.d/0.vpn.conf")
-}
