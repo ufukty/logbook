@@ -7,27 +7,6 @@ terraform {
   }
 }
 
-variable "digitalocean" {
-  type = object({
-    activated_regions = object({
-      vpn = set(string)
-    })
-    config = object({
-      vpn = object({
-        sfo2 = object({ subnet_address = string })
-        sfo3 = object({ subnet_address = string })
-        tor1 = object({ subnet_address = string })
-        nyc1 = object({ subnet_address = string })
-        nyc3 = object({ subnet_address = string })
-        lon1 = object({ subnet_address = string })
-        ams3 = object({ subnet_address = string })
-        fra1 = object({ subnet_address = string })
-        blr1 = object({ subnet_address = string })
-        sgp1 = object({ subnet_address = string })
-      })
-    })
-  })
-}
 variable "DO_SSH_FINGERPRINT" { type = string }
 
 locals {
@@ -35,76 +14,213 @@ locals {
   openvpn_client_name = "provisioner"
 }
 
-# MARK: Data gathering
+data "digitalocean_vpc" "sfo2" { name = "logbook-sfo2" }
+data "digitalocean_vpc" "sfo3" { name = "logbook-sfo3" }
+# data "digitalocean_vpc" "tor1" { name = "logbook-tor1" }
+data "digitalocean_vpc" "nyc1" { name = "logbook-nyc1" }
+data "digitalocean_vpc" "nyc3" { name = "logbook-nyc3" }
+data "digitalocean_vpc" "lon1" { name = "logbook-lon1" }
+data "digitalocean_vpc" "ams3" { name = "logbook-ams3" }
+data "digitalocean_vpc" "fra1" { name = "logbook-fra1" }
+data "digitalocean_vpc" "blr1" { name = "logbook-blr1" }
+data "digitalocean_vpc" "sgp1" { name = "logbook-sgp1" }
 
-data "digitalocean_droplet_snapshot" "vpn" {
-  for_each = var.digitalocean.activated_regions.vpn
-
+data "digitalocean_droplet_snapshot" "sfo2" {
   name_regex  = "^logbook_builder_vpn_.*"
-  region      = each.value
+  region      = "sfo2"
   most_recent = true
 }
 
-data "digitalocean_vpc" "vpc" {
-  for_each = var.digitalocean.activated_regions.vpn
-
-  name = "logbook-${each.value}"
+data "digitalocean_droplet_snapshot" "sfo3" {
+  name_regex  = "^logbook_builder_vpn_.*"
+  region      = "sfo3"
+  most_recent = true
 }
 
-# MARK: Resource creation
+# data "digitalocean_droplet_snapshot" "tor1" {
+#   name_regex  = "^logbook_builder_vpn_.*"
+#   region      = "tor1"
+#   most_recent = true
+# }
 
-resource "digitalocean_droplet" "vpn-server" {
-  for_each = var.digitalocean.activated_regions.vpn
+data "digitalocean_droplet_snapshot" "nyc1" {
+  name_regex  = "^logbook_builder_vpn_.*"
+  region      = "nyc1"
+  most_recent = true
+}
 
+data "digitalocean_droplet_snapshot" "nyc3" {
+  name_regex  = "^logbook_builder_vpn_.*"
+  region      = "nyc3"
+  most_recent = true
+}
+
+# data "digitalocean_droplet_snapshot" "lon1" {
+#   name_regex  = "^logbook_builder_vpn_.*"
+#   region      = "lon1"
+#   most_recent = true
+# }
+
+# data "digitalocean_droplet_snapshot" "ams3" {
+#   name_regex  = "^logbook_builder_vpn_.*"
+#   region      = "ams3"
+#   most_recent = true
+# }
+
+# data "digitalocean_droplet_snapshot" "fra1" {
+#   name_regex  = "^logbook_builder_vpn_.*"
+#   region      = "fra1"
+#   most_recent = true
+# }
+
+# data "digitalocean_droplet_snapshot" "blr1" {
+#   name_regex  = "^logbook_builder_vpn_.*"
+#   region      = "blr1"
+#   most_recent = true
+# }
+
+# data "digitalocean_droplet_snapshot" "sgp1" {
+#   name_regex  = "^logbook_builder_vpn_.*"
+#   region      = "sgp1"
+#   most_recent = true
+# }
+
+resource "digitalocean_droplet" "sfo2" {
   ipv6        = true
-  name        = "${each.value}-vpn"
+  name        = "logbook-vpn-sfo2"
   size        = "s-1vcpu-1gb"
-  image       = data.digitalocean_droplet_snapshot.vpn[each.value].id
-  region      = each.value
+  image       = data.digitalocean_droplet_snapshot.sfo2.id
+  region      = "sfo2"
   backups     = false
   monitoring  = true
   resize_disk = false
   ssh_keys    = [var.DO_SSH_FINGERPRINT]
-  vpc_uuid    = data.digitalocean_vpc.vpc[each.value].id
+  vpc_uuid    = data.digitalocean_vpc.sfo2.id
   tags        = ["vpn"]
-
-  connection {
-    host    = self.ipv4_address
-    user    = local.sudo_user
-    type    = "ssh"
-    agent   = true
-    timeout = "2m"
-  }
-
-  provisioner "file" {
-    source      = "${path.module}/upload"
-    destination = "/home/${local.sudo_user}"
-  }
-
-  provisioner "remote-exec" {
-    inline = [
-      <<EOF
-        PS4='\033[33m$0:$LINENO:\033[0m '
-        set -xe
-
-        export USER_ACCOUNT_NAME='${local.sudo_user}'
-        export SERVER_NAME='logbook-do-${each.value}-vpn'
-        export PUBLIC_IP='${self.ipv4_address}'
-        export PRIVATE_IP='${self.ipv4_address_private}'
-        export OPENVPN_SUBNET_ADDRESS='${var.digitalocean.config.vpn[each.value].subnet_address}'
-        export OPENVPN_SUBNET_MASK='255.255.255.0'
-        export PUBLIC_ETHERNET_INTERFACE='eth0'
-        export PRIVATE_ETHERNET_INTERFACE='eth1'
-        
-        cd ~/upload
-        sudo --preserve-env bash deployment.sh
-
-        cd /
-        rm -rfv ~/upload
-        sudo systemctl restart systemd-journald
-        sudo systemctl restart iptables-activation
-        sudo sed -E -in-place \"s;${local.sudo_user}(.*)NOPASSWD:(.*);${local.sudo_user} \1 \2;\" /etc/sudoers
-      EOF
-    ]
-  }
 }
+
+resource "digitalocean_droplet" "sfo3" {
+  ipv6        = true
+  name        = "logbook-vpn-sfo3"
+  size        = "s-1vcpu-1gb"
+  image       = data.digitalocean_droplet_snapshot.sfo3.id
+  region      = "sfo3"
+  backups     = false
+  monitoring  = true
+  resize_disk = false
+  ssh_keys    = [var.DO_SSH_FINGERPRINT]
+  vpc_uuid    = data.digitalocean_vpc.sfo3.id
+  tags        = ["vpn"]
+}
+
+# resource "digitalocean_droplet" "tor1" {
+#   ipv6        = true
+#   name        = "logbook-vpn-tor1"
+#   size        = "s-1vcpu-1gb"
+#   image       = data.digitalocean_droplet_snapshot.tor1.id
+#   region      = "tor1"
+#   backups     = false
+#   monitoring  = true
+#   resize_disk = false
+#   ssh_keys    = [var.DO_SSH_FINGERPRINT]
+#   vpc_uuid    = data.digitalocean_vpc.tor1.id
+#   tags        = ["vpn"]
+# }
+
+resource "digitalocean_droplet" "nyc1" {
+  ipv6        = true
+  name        = "logbook-vpn-nyc1"
+  size        = "s-1vcpu-1gb"
+  image       = data.digitalocean_droplet_snapshot.nyc1.id
+  region      = "nyc1"
+  backups     = false
+  monitoring  = true
+  resize_disk = false
+  ssh_keys    = [var.DO_SSH_FINGERPRINT]
+  vpc_uuid    = data.digitalocean_vpc.nyc1.id
+  tags        = ["vpn"]
+}
+
+resource "digitalocean_droplet" "nyc3" {
+  ipv6        = true
+  name        = "logbook-vpn-nyc3"
+  size        = "s-1vcpu-1gb"
+  image       = data.digitalocean_droplet_snapshot.nyc3.id
+  region      = "nyc3"
+  backups     = false
+  monitoring  = true
+  resize_disk = false
+  ssh_keys    = [var.DO_SSH_FINGERPRINT]
+  vpc_uuid    = data.digitalocean_vpc.nyc3.id
+  tags        = ["vpn"]
+}
+
+# resource "digitalocean_droplet" "lon1" {
+#   ipv6        = true
+#   name        = "logbook-vpn-lon1"
+#   size        = "s-1vcpu-1gb"
+#   image       = data.digitalocean_droplet_snapshot.lon1.id
+#   region      = "lon1"
+#   backups     = false
+#   monitoring  = true
+#   resize_disk = false
+#   ssh_keys    = [var.DO_SSH_FINGERPRINT]
+#   vpc_uuid    = data.digitalocean_vpc.lon1.id
+#   tags        = ["vpn"]
+# }
+
+# resource "digitalocean_droplet" "ams3" {
+#   ipv6        = true
+#   name        = "logbook-vpn-ams3"
+#   size        = "s-1vcpu-1gb"
+#   image       = data.digitalocean_droplet_snapshot.ams3.id
+#   region      = "ams3"
+#   backups     = false
+#   monitoring  = true
+#   resize_disk = false
+#   ssh_keys    = [var.DO_SSH_FINGERPRINT]
+#   vpc_uuid    = data.digitalocean_vpc.ams3.id
+#   tags        = ["vpn"]
+# }
+
+# resource "digitalocean_droplet" "fra1" {
+#   ipv6        = true
+#   name        = "logbook-vpn-fra1"
+#   size        = "s-1vcpu-1gb"
+#   image       = data.digitalocean_droplet_snapshot.fra1.id
+#   region      = "fra1"
+#   backups     = false
+#   monitoring  = true
+#   resize_disk = false
+#   ssh_keys    = [var.DO_SSH_FINGERPRINT]
+#   vpc_uuid    = data.digitalocean_vpc.fra1.id
+#   tags        = ["vpn"]
+# }
+
+# resource "digitalocean_droplet" "blr1" {
+#   ipv6        = true
+#   name        = "logbook-vpn-blr1"
+#   size        = "s-1vcpu-1gb"
+#   image       = data.digitalocean_droplet_snapshot.blr1.id
+#   region      = "blr1"
+#   backups     = false
+#   monitoring  = true
+#   resize_disk = false
+#   ssh_keys    = [var.DO_SSH_FINGERPRINT]
+#   vpc_uuid    = data.digitalocean_vpc.blr1.id
+#   tags        = ["vpn"]
+# }
+
+# resource "digitalocean_droplet" "sgp1" {
+#   ipv6        = true
+#   name        = "logbook-vpn-sgp1"
+#   size        = "s-1vcpu-1gb"
+#   image       = data.digitalocean_droplet_snapshot.sgp1.id
+#   region      = "sgp1"
+#   backups     = false
+#   monitoring  = true
+#   resize_disk = false
+#   ssh_keys    = [var.DO_SSH_FINGERPRINT]
+#   vpc_uuid    = data.digitalocean_vpc.sgp1.id
+#   tags        = ["vpn"]
+# }
