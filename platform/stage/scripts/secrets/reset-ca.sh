@@ -79,15 +79,6 @@ cp "$STAGE/secrets/pki/root/issued/vpn-users.crt" \
 EASYRSA_PKI="$STAGE/secrets/pki/vpn-users" EASYRSA_CRL_DAYS=3650 easyrsa gen-crl
 
 # ---------------------------------------------------------------------------- #
-# Trust Root CA on MacOS
-# ---------------------------------------------------------------------------- #
-
-security add-trusted-cert -d \
-  -r trustRoot \
-  -k ~/Library/Keychains/login.keychain-db \
-  "${STAGE:?}/secrets/pki/root/ca.crt"
-
-# ---------------------------------------------------------------------------- #
 # Debug
 # ---------------------------------------------------------------------------- #
 

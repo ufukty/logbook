@@ -111,17 +111,6 @@ resource "digitalocean_droplet" "vpn-server" {
     ]
   }
 
-  provisioner "local-exec" {
-    command = <<EOF
-      ssh-keygen -R ${self.ipv4_address_private}
-      ssh-keyscan ${self.ipv4_address_private} >> ~/.ssh/known_hosts
-
-      mkdir -p ../../artifacts/vpn
-      scp ${local.sudo_user}@${self.ipv4_address}:~/artifacts/${local.openvpn_client_name}.ovpn \
-          ${path.module}/../../artifacts/vpn/logbook-do-${each.value}-${local.openvpn_client_name}.ovpn
-    EOF
-  }
-
   // Clean up in server & last changes
   provisioner "remote-exec" {
     on_failure = continue
