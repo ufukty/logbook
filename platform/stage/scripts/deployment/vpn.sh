@@ -43,8 +43,7 @@ digitalocean | while read -r DROPLET; do
     "secrets/ovpn-auth/ovpn_auth_database.yml" \
     "$VPS_SUDO_USER@$IP:/home/$VPS_SUDO_USER/"
 
-  # shellcheck disable=SC2012
-  # shellcheck disable=SC2087
+  # shellcheck disable=SC2012,SC2087
   ssh -i "secrets/ssh/do" "$VPS_SUDO_USER@$IP" sudo bash <<-HERE
     PS4='\033[33m$VPS_SUDO_USER@$IP \$1:\$LINENO:\033[0m '
     set -xe
