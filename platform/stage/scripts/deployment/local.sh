@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+PS4='\033[34m$0:$LINENO\033[0m:'
+set -xe
+
 # ---------------------------------------------------------------------------- #
 # Providers
 # ---------------------------------------------------------------------------- #
@@ -24,7 +27,10 @@ done
 # Trust Root CA on MacOS
 # ---------------------------------------------------------------------------- #
 
-security add-trusted-cert -d \
-  -r trustRoot \
-  -k ~/Library/Keychains/login.keychain-db \
-  "${STAGE:?}/secrets/pki/root/ca.crt"
+CHAIN="$HOME/Library/Keychains/login.keychain-db"
+
+if security find-certificate -c "Logbook Stage Root CA" "$CHAIN" >/dev/null 2>&1; then
+  security delete-certificate -c "Logbook Stage Root CA" "$CHAIN"
+fi
+
+security add-trusted-cert -d -r trustRoot -k "$CHAIN" "${STAGE:?}/secrets/pki/root/ca.crt"
