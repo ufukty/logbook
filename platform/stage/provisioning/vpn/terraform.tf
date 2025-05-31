@@ -107,13 +107,6 @@ resource "digitalocean_droplet" "vpn-server" {
              PUBLIC_ETHERNET_INTERFACE='eth0' \
             PRIVATE_ETHERNET_INTERFACE='eth1' \
             sudo --preserve-env bash deployment.sh 
-
-        cd ~/provisioner-files && \
-                    PUBLIC_IP="${self.ipv4_address}" \
-                  CLIENT_NAME="${local.openvpn_client_name}" \
-                  SERVER_NAME='logbook-do-${each.value}-vpn' \
-            USER_ACCOUNT_NAME="${local.sudo_user}" \
-            sudo --preserve-env bash new_client.sh
       EOF   
     ]
   }
