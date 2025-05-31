@@ -10,22 +10,9 @@ terraform {
 variable "digitalocean" {
   type = object({
     activated_regions = object({
-      vpc = set(string)
       vpn = set(string)
     })
     config = object({
-      vpc = object({
-        sfo2 = object({ range = string })
-        sfo3 = object({ range = string })
-        tor1 = object({ range = string })
-        nyc1 = object({ range = string })
-        nyc3 = object({ range = string })
-        lon1 = object({ range = string })
-        ams3 = object({ range = string })
-        fra1 = object({ range = string })
-        blr1 = object({ range = string })
-        sgp1 = object({ range = string })
-      })
       vpn = object({
         sfo2 = object({ subnet_address = string })
         sfo3 = object({ subnet_address = string })

@@ -7,45 +7,62 @@ terraform {
   }
 }
 
-variable "digitalocean" {
-  type = object({
-    activated_regions = object({
-      vpc = set(string)
-      vpn = set(string)
-    })
-    config = object({
-      vpc = object({
-        sfo2 = object({ range = string })
-        sfo3 = object({ range = string })
-        tor1 = object({ range = string })
-        nyc1 = object({ range = string })
-        nyc3 = object({ range = string })
-        lon1 = object({ range = string })
-        ams3 = object({ range = string })
-        fra1 = object({ range = string })
-        blr1 = object({ range = string })
-        sgp1 = object({ range = string })
-      })
-      vpn = object({
-        sfo2 = object({ subnet_address = string })
-        sfo3 = object({ subnet_address = string })
-        tor1 = object({ subnet_address = string })
-        nyc1 = object({ subnet_address = string })
-        nyc3 = object({ subnet_address = string })
-        lon1 = object({ subnet_address = string })
-        ams3 = object({ subnet_address = string })
-        fra1 = object({ subnet_address = string })
-        blr1 = object({ subnet_address = string })
-        sgp1 = object({ subnet_address = string })
-      })
-    })
-  })
+resource "digitalocean_vpc" "sfo2" {
+  name     = "logbook-sfo2"
+  region   = "sfo2"
+  ip_range = "10.140.0.0/16"
 }
 
-resource "digitalocean_vpc" "vpc" {
-  for_each = var.digitalocean.activated_regions.vpc
+resource "digitalocean_vpc" "sfo3" {
+  name     = "logbook-sfo3"
+  region   = "sfo3"
+  ip_range = "10.141.0.0/16"
+}
 
-  name     = "logbook-${each.value}"
-  region   = each.value
-  ip_range = var.digitalocean.config.vpc[each.value].range
+resource "digitalocean_vpc" "tor1" {
+  name     = "logbook-tor1"
+  region   = "tor1"
+  ip_range = "10.142.0.0/16"
+}
+
+resource "digitalocean_vpc" "nyc1" {
+  name     = "logbook-nyc1"
+  region   = "nyc1"
+  ip_range = "10.143.0.0/16"
+}
+
+resource "digitalocean_vpc" "nyc3" {
+  name     = "logbook-nyc3"
+  region   = "nyc3"
+  ip_range = "10.144.0.0/16"
+}
+
+resource "digitalocean_vpc" "lon1" {
+  name     = "logbook-lon1"
+  region   = "lon1"
+  ip_range = "10.145.0.0/16"
+}
+
+resource "digitalocean_vpc" "ams3" {
+  name     = "logbook-ams3"
+  region   = "ams3"
+  ip_range = "10.146.0.0/16"
+}
+
+resource "digitalocean_vpc" "fra1" {
+  name     = "logbook-fra1"
+  region   = "fra1"
+  ip_range = "10.147.0.0/16"
+}
+
+resource "digitalocean_vpc" "blr1" {
+  name     = "logbook-blr1"
+  region   = "blr1"
+  ip_range = "10.148.0.0/16"
+}
+
+resource "digitalocean_vpc" "sgp1" {
+  name     = "logbook-sgp1"
+  region   = "sgp1"
+  ip_range = "10.149.0.0/16"
 }
