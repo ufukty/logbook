@@ -24,7 +24,7 @@ done
 # Trust Root CA on MacOS
 # ---------------------------------------------------------------------------- #
 
-# security add-trusted-cert -d \
-#   -r trustRoot \
-#   -k ~/Library/Keychains/login.keychain-db \
-#   "${STAGE:?}/secrets/pki/root/ca.crt"
+security add-trusted-cert -d \
+  -r trustRoot \
+  -k ~/Library/Keychains/login.keychain-db \
+  "${STAGE:?}/secrets/pki/root/ca.crt"
