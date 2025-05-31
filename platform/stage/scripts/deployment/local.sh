@@ -15,8 +15,7 @@ digitalocean() {
 # ---------------------------------------------------------------------------- #
 
 digitalocean | while read -r HOST; do
-  echo "$HOST" | jq '.attributes.ipv4_address'
-
+  IP="$(echo "$HOST" | jq -r '.attributes.ipv4_address')"
   ssh-keygen -R "$IP"
   ssh-keyscan "$IP" >>~/.ssh/known_hosts # or Private IP
 done
