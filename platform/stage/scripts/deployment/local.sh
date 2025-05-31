@@ -1,12 +1,20 @@
 #!/usr/bin/env bash
 
 # ---------------------------------------------------------------------------- #
-# All hosts
+# Providers
 # ---------------------------------------------------------------------------- #
 
-SELECTOR='select(.resources | length > 0) | .resources.[] | select(.type == "digitalocean_droplet").instances.[]'
-# shellcheck disable=SC2002,SC2046
-cat $(find provisioning -name 'terraform.tfstate') | jq -c "$SELECTOR" | while read -r HOST; do
+digitalocean() {
+  # shellcheck disable=SC2002,SC2046
+  cat $(find provisioning -name 'terraform.tfstate') |
+    jq -c 'select(.resources | length > 0) | .resources.[] | select(.type == "digitalocean_droplet").instances.[]'
+}
+
+# ---------------------------------------------------------------------------- #
+# Provisioning
+# ---------------------------------------------------------------------------- #
+
+digitalocean | while read -r HOST; do
   echo "$HOST" | jq '.attributes.ipv4_address'
 
   ssh-keygen -R "$IP"
