@@ -67,4 +67,4 @@ Run `bash scripts/...` to build ssh config and instance list.
 
 ### Deployment
 
-Run `ansible playbook.yml` in deployment folder.
+Run `ansible playbook.yml` in deployment folder and shell scripts under `scripts/deployment`. Deployment scripts are generally safe to run repeatedly until finalization.
