@@ -36,6 +36,8 @@ Root CA
 ├── Web CA
 │   ├── API Gateway (server)
 │   └── ...
+├── VPN Users CA
+│   └── ...
 └── VPN CA
     ├── DO-NYC2 (server)
     ├── DO-SFO3 (server)
