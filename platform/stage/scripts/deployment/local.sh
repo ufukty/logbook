@@ -3,6 +3,8 @@
 PS4='\033[34m$0:$LINENO\033[0m:'
 set -xe
 
+: "${STAGE:?}"
+
 # ---------------------------------------------------------------------------- #
 # Providers
 # ---------------------------------------------------------------------------- #
@@ -33,4 +35,4 @@ if security find-certificate -c "Logbook Stage Root CA" "$CHAIN" >/dev/null 2>&1
   security delete-certificate -c "Logbook Stage Root CA" "$CHAIN"
 fi
 
-security add-trusted-cert -d -r trustRoot -k "$CHAIN" "${STAGE:?}/secrets/pki/root/ca.crt"
+security add-trusted-cert -d -r trustRoot -k "$CHAIN" "$STAGE/secrets/pki/root/ca.crt"
