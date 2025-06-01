@@ -78,11 +78,5 @@ digitalocean | while read -r DROPLET; do
     chmod 640 ./{ca.crt,server.crt,crl.pem,tls-crypt.key,server.conf}
     chmod 750 ccd
     test \$(ls -1 ccd | wc -l) -gt 0 && chmod 640 ccd/*
-
-    # sudo bash <<PRIVILEGED
-    #   systemctl restart systemd-journald
-    #   systemctl restart iptables-activation
-    #   sed -E -in-place \"s;$VPS_SUDO_USER(.*)NOPASSWD:(.*);$VPS_SUDO_USER \1 \2;\" /etc/sudoers  
-    # PRIVILEGED
 HERE
 done
