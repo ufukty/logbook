@@ -31,7 +31,7 @@ digitalocean | while read -r DROPLET; do
   PRIVATE_IP="$(echo "$DROPLET" | jq -r '.attributes.ipv4_address_private')"
   REGION="$(echo "$DROPLET" | jq -r '.attributes.region')"
   SERVER_NAME="$REGION.do.vpn.logbook"
-  SUBNET_ADDR="$(sed 's;//.*;;g' <"$STAGE/config/digitalocean.jsonc" | jq --arg region fra1 -r '.vpn[$region]')"
+  SUBNET_ADDR="$(sed 's;//.*;;g' <"$STAGE/config/digitalocean.jsonc" | jq --arg region "$REGION" -r '.vpn[$region]')"
 
   if ! test -f "secrets/pki/vpn/issued/$SERVER_NAME.crt"; then
     EASYRSA_PKI="secrets/pki/vpn" easyrsa --batch build-server-full "$SERVER_NAME" nopass
