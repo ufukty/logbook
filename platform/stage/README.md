@@ -44,7 +44,18 @@ Root CA
 
 ### Building images
 
-Run `bash build.sh` in the folder of each image. Order is in [readme](stage/image/README.md). Building images based on `internal` requires active VPN connection into the build region.
+Run `bash build.sh` in the folder of each image. Building images based on `internal` requires active VPN connection into the build region.
+
+**Image hierarchy**
+
+```
+base                # user, utilities, fail2ban, basic security
+├── vpn             # openvpn, easy-rsa, ovpn-auth
+└── internal        # firewall, accessible with internal network
+    ├── gateway     # allows :8080 on firewall
+    ├── database    # postgres, tunnel with application
+    └── application # systemd service, logging, certs, database tunnel
+```
 
 ### Creating cloud resources
 
