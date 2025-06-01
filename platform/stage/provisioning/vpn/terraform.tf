@@ -11,7 +11,7 @@ variable "DO_SSH_FINGERPRINT" { type = string }
 
 data "digitalocean_vpc" "sfo2" { name = "logbook-sfo2" }
 data "digitalocean_vpc" "sfo3" { name = "logbook-sfo3" }
-# data "digitalocean_vpc" "tor1" { name = "logbook-tor1" }
+data "digitalocean_vpc" "tor1" { name = "logbook-tor1" }
 data "digitalocean_vpc" "nyc1" { name = "logbook-nyc1" }
 data "digitalocean_vpc" "nyc3" { name = "logbook-nyc3" }
 data "digitalocean_vpc" "lon1" { name = "logbook-lon1" }
