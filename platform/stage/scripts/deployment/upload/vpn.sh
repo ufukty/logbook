@@ -23,7 +23,7 @@ set -xe
 # Required Environment Variables
 # ---------------------------------------------------------------------------- #
 
-: "${USER_ACCOUNT_NAME:?}"
+: "${VPS_SUDO_USER:?}"
 
 : "${PUBLIC_IP:?}"
 : "${PRIVATE_IP:?}"

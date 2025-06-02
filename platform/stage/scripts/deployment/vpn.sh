@@ -51,7 +51,7 @@ digitalocean | while read -r DROPLET; do
     PS4='\033[33m$VPS_SUDO_USER@$PUBLIC_IP \$1:\$LINENO:\033[0m '
     set -xe
 
-    export USER_ACCOUNT_NAME='$VPS_SUDO_USER'
+    export VPS_SUDO_USER='$VPS_SUDO_USER'
     export SERVER_NAME='$SERVER_NAME'
     export PUBLIC_IP='$PUBLIC_IP'
     export PRIVATE_IP='$PRIVATE_IP'
