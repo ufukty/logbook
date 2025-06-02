@@ -5,8 +5,7 @@
 Follow the order:
 
 - image
-  - base, internal
-  - vpn, database, application etc.
+  - time consuming, low-frequency tasks
 - provision
   - vpc
   - vpn
