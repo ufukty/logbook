@@ -4,6 +4,9 @@
 # configutation much harder or impossible due to removal of passwordless
 # sudo rights.
 
+PS4='\033[34m$0:$LINENO\033[0m:'
+set -xe
+
 : "${VPS_SUDO_USER:?}"
 
 digitalocean() {
