@@ -53,7 +53,6 @@ digitalocean | while read -r DROPLET; do
 
     export VPS_SUDO_USER='$VPS_SUDO_USER'
     export SERVER_NAME='$SERVER_NAME'
-    export PUBLIC_IP='$PUBLIC_IP'
     export PRIVATE_IP='$PRIVATE_IP'
     export OPENVPN_SUBNET_ADDRESS='$SUBNET_ADDR'
     export OPENVPN_SUBNET_MASK='255.255.255.0'

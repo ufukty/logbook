@@ -2,7 +2,6 @@
 
 # Example usage:
 #
-# PUBLIC_IP="192.168.33.8" \
 # VPC_ADDRESS="10.170.0.0" \
 # PUBLIC_ETHERNET_INTERFACE="eth0" \
 # PRIVATE_ETHERNET_INTERFACE="eth1" \
@@ -25,7 +24,6 @@ set -xe
 
 : "${VPS_SUDO_USER:?}"
 
-: "${PUBLIC_IP:?}"
 : "${PRIVATE_IP:?}"
 
 # OpenVPN to handle underlying networking jobs.
