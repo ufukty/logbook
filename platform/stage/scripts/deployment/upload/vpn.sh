@@ -79,16 +79,14 @@ cloud-init status --wait >/dev/null
 # Configure OpenVPN
 # ---------------------------------------------------------------------------- #
 
-cd /etc/openvpn/easy-rsa
-
 # "Populating the configure file at: /etc/openvpn/server.conf"
 sed --in-place \
-  -e "s;{{OPENVPN_SUBNET_ADDRESS}};${OPENVPN_SUBNET_ADDRESS};g" \
-  -e "s;{{OPENVPN_SUBNET_MASK}};${OPENVPN_SUBNET_MASK};g" \
-  -e "s;{{EASYRSA_SERVER_NAME}};${EASYRSA_SERVER_NAME};g" \
-  -e "s;{{UNBOUND_ADDRESS}};${UNBOUND_ADDRESS};g" \
-  -e "s;{{VPC_RANGE_ADDRESS}};${VPC_RANGE_ADDRESS};g" \
-  -e "s;{{VPC_RANGE_MASK}};${VPC_RANGE_MASK};g" \
+  -e "s;{{OPENVPN_SUBNET_ADDRESS}};$OPENVPN_SUBNET_ADDRESS;g" \
+  -e "s;{{OPENVPN_SUBNET_MASK}};$OPENVPN_SUBNET_MASK;g" \
+  -e "s;{{EASYRSA_SERVER_NAME}};$EASYRSA_SERVER_NAME;g" \
+  -e "s;{{UNBOUND_ADDRESS}};$UNBOUND_ADDRESS;g" \
+  -e "s;{{VPC_RANGE_ADDRESS}};$VPC_RANGE_ADDRESS;g" \
+  -e "s;{{VPC_RANGE_MASK}};$VPC_RANGE_MASK;g" \
   /etc/openvpn/server.conf
 
 mkdir -p /etc/openvpn/ccd # Create client-config-dir dir
@@ -104,9 +102,9 @@ systemctl start openvpn
 # ---------------------------------------------------------------------------- #
 
 sed --in-place \
-  -e "s;{{PRIVATE_ETHERNET_INTERFACE}};${PRIVATE_ETHERNET_INTERFACE:?};g" \
-  -e "s;{{PUBLIC_ETHERNET_INTERFACE}};${PUBLIC_ETHERNET_INTERFACE:?};g" \
-  -e "s;{{OPENVPN_SUBNET_ADDRESS}};${OPENVPN_SUBNET_ADDRESS:?};g" \
+  -e "s;{{PRIVATE_ETHERNET_INTERFACE}};$PRIVATE_ETHERNET_INTERFACE;g" \
+  -e "s;{{PUBLIC_ETHERNET_INTERFACE}};$PUBLIC_ETHERNET_INTERFACE;g" \
+  -e "s;{{OPENVPN_SUBNET_ADDRESS}};$OPENVPN_SUBNET_ADDRESS;g" \
   /etc/iptables/iptables-rules.v4
 
 chmod 644 /etc/iptables/iptables-rules.v4
@@ -120,11 +118,32 @@ systemctl enable iptables-activation
 # ---------------------------------------------------------------------------- #
 
 sed --in-place \
-  -e "s;{{UNBOUND_ADDRESS}};${UNBOUND_ADDRESS:?};g" \
-  -e "s;{{OPENVPN_SUBNET_ADDRESS}};${OPENVPN_SUBNET_ADDRESS:?};g" \
+  -e "s;{{UNBOUND_ADDRESS}};$UNBOUND_ADDRESS;g" \
+  -e "s;{{OPENVPN_SUBNET_ADDRESS}};$OPENVPN_SUBNET_ADDRESS;g" \
   /etc/unbound/unbound.conf.d/unbound.conf
 # -e "s;{{HOST_ADDRESS}};$PRIVATE_IP;g" \
 # -e "s;{{VPC_CIDR}};$VPC_CIDR;g" \
 
 systemctl enable unbound
 systemctl restart unbound
+
+# ---------------------------------------------------------------------------- #
+#
+# ---------------------------------------------------------------------------- #
+
+cd "/home/$VPS_SUDO_USER"
+mv ca.crt crl.pem ovpn_auth_database.yml /etc/openvpn/
+mv "$SERVER_NAME.crt" /etc/openvpn/server.crt
+mv "$SERVER_NAME.key" /etc/openvpn/server.key
+
+cd /etc/openvpn
+
+openvpn --genkey secret tls-crypt.key
+
+chown -R openvpn:openvpn *
+
+chmod 600 server.key ovpn_auth_database.yml
+chmod 640 ./{ca.crt,server.crt,crl.pem,tls-crypt.key,server.conf}
+chmod 750 ccd
+# shellcheck disable=SC2012,SC2046
+test $(ls -1 ccd | wc -l) -gt 0 && chmod 640 ccd/*
