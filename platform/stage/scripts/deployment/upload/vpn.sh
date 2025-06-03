@@ -3,8 +3,6 @@
 # Example usage:
 #
 # VPC_ADDRESS="10.170.0.0" \
-# PUBLIC_ETHERNET_INTERFACE="eth0" \
-# PRIVATE_ETHERNET_INTERFACE="eth1" \
 # SERVER_NAME="my_server" \
 # SERVER_NAME="my_server_common_name" \
 # sudo --preserve-env bash sh.sh \
@@ -30,14 +28,6 @@ set -xe
 : "${OPENVPN_SUBNET_ADDRESS:?}"
 : "${OPENVPN_SUBNET_MASK:?}"
 
-# PUBLIC_ETHERNET_INTERFACE
-# Like eth0
-: "${PUBLIC_ETHERNET_INTERFACE:?}"
-
-# The name of the ethernet adapter.
-# Used for connecting public internet. Like eth1
-: "${PRIVATE_ETHERNET_INTERFACE:?}"
-
 # Used for EasyRSA and ovpn TOTP URI.
 # It could be an arbitrary string that is unique to each region/provider.
 : "${SERVER_NAME:?}"
@@ -46,8 +36,8 @@ set -xe
 # Runtime Variables
 # ---------------------------------------------------------------------------- #
 
-UNBOUND_ADDRESS="$(ip -json route list dev "${PRIVATE_ETHERNET_INTERFACE:?}" | jq -r '.[0].prefsrc')" # IP points to itself
-VPC_CIDR="$(ip -json route list dev "${PRIVATE_ETHERNET_INTERFACE:?}" | jq -r '.[0].dst')"
+UNBOUND_ADDRESS="$(ip -json route list dev eth1 | jq -r '.[0].prefsrc')" # IP points to itself
+VPC_CIDR="$(ip -json route list dev eth1 | jq -r '.[0].dst')"
 VPC_RANGE_ADDRESS="$(ipcalc "${VPC_CIDR:?}" --nobinary --nocolor | grep Address | awk '{ print $2 }')"
 VPC_RANGE_MASK="$(ipcalc "${VPC_CIDR:?}" --nobinary --nocolor | grep Netmask | awk '{ print $2 }')"
 
@@ -102,8 +92,6 @@ systemctl start openvpn
 # ---------------------------------------------------------------------------- #
 
 sed --in-place \
-  -e "s;{{PRIVATE_ETHERNET_INTERFACE}};$PRIVATE_ETHERNET_INTERFACE;g" \
-  -e "s;{{PUBLIC_ETHERNET_INTERFACE}};$PUBLIC_ETHERNET_INTERFACE;g" \
   -e "s;{{OPENVPN_SUBNET_ADDRESS}};$OPENVPN_SUBNET_ADDRESS;g" \
   /etc/iptables/iptables-rules.v4
 

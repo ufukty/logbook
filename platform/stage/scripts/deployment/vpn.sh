@@ -47,8 +47,8 @@ digitalocean | while read -r DROPLET; do
     "$VPS_SUDO_USER@$PUBLIC_IP:/home/$VPS_SUDO_USER/"
 
   # shellcheck disable=SC2012,SC2087
-  ssh -i "secrets/ssh/do" "$VPS_SUDO_USER@$PUBLIC_IP" sudo bash <<-HERE
-    PS4='\033[33m$VPS_SUDO_USER@$PUBLIC_IP \$1:\$LINENO:\033[0m '
+  ssh -i "secrets/ssh/do" "$VPS_SUDO_USER@$PUBLIC_IP" <<-HERE
+    PS4='\033[35m$VPS_SUDO_USER@$PUBLIC_IP \$1:\$LINENO:\033[0m '    
     set -xe
 
     export VPS_SUDO_USER='$VPS_SUDO_USER'
@@ -56,26 +56,7 @@ digitalocean | while read -r DROPLET; do
     export PRIVATE_IP='$PRIVATE_IP'
     export OPENVPN_SUBNET_ADDRESS='$SUBNET_ADDR'
     export OPENVPN_SUBNET_MASK='255.255.255.0'
-    export PUBLIC_ETHERNET_INTERFACE='eth0'
-    export PRIVATE_ETHERNET_INTERFACE='eth1'
-    
-    cd ~
-    sudo --preserve-env bash deployment.sh
-
-    cd "/home/$VPS_SUDO_USER"
-    mv ca.crt crl.pem ovpn_auth_database.yml /etc/openvpn/
-    mv "$SERVER_NAME.crt" /etc/openvpn/server.crt
-    mv "$SERVER_NAME.key" /etc/openvpn/server.key
-
-    cd /etc/openvpn
-
-    openvpn --genkey secret tls-crypt.key
-
-    chown -R openvpn:openvpn *
-
-    chmod 600 server.key ovpn_auth_database.yml
-    chmod 640 ./{ca.crt,server.crt,crl.pem,tls-crypt.key,server.conf}
-    chmod 750 ccd
-    test \$(ls -1 ccd | wc -l) -gt 0 && chmod 640 ccd/*
+    sudo --preserve-env bash vpn.sh
+    rm -rfv vpn.sh
 HERE
 done

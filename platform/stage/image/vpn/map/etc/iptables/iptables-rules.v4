@@ -19,7 +19,7 @@
 # keep state
 -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 # ssh
--A INPUT -p tcp -i {{PRIVATE_ETHERNET_INTERFACE}} --dport 22 -m conntrack --ctstate NEW -j ACCEPT
+-A INPUT -p tcp -i eth1 --dport 22 -m conntrack --ctstate NEW -j ACCEPT
 # ping reply (originated from the server)
 -A INPUT -p icmp --icmp-type echo-reply -j ACCEPT
 
@@ -28,8 +28,8 @@
 # ------------------------------------------------------------------ #
 
 # Allow incoming DNS requests coming from other hosts in same VPC
--A INPUT -p tcp -i {{PRIVATE_ETHERNET_INTERFACE}} --dport 53 -j ACCEPT
--A INPUT -p udp -i {{PRIVATE_ETHERNET_INTERFACE}} --dport 53 -j ACCEPT
+-A INPUT -p tcp -i eth1 --dport 53 -j ACCEPT
+-A INPUT -p udp -i eth1 --dport 53 -j ACCEPT
 # Allow incoming OpenVPN
 -A INPUT -p tcp --dport 443 -m conntrack --ctstate NEW -j ACCEPT
 # Allow TUN interface connections to OpenVPN server
@@ -72,10 +72,10 @@
 -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 
 # Allow TUN interface connections to be forwarded through other interfaces
--A FORWARD -i tun0 -o {{PUBLIC_ETHERNET_INTERFACE}} -m conntrack --ctstate NEW -j ACCEPT
--A FORWARD -o tun0 -i {{PUBLIC_ETHERNET_INTERFACE}} -m conntrack --ctstate NEW -j ACCEPT
--A FORWARD -i tun0 -o {{PRIVATE_ETHERNET_INTERFACE}} -m conntrack --ctstate NEW -j ACCEPT
--A FORWARD -o tun0 -i {{PRIVATE_ETHERNET_INTERFACE}} -m conntrack --ctstate NEW -j ACCEPT
+-A FORWARD -i tun0 -o eth0 -m conntrack --ctstate NEW -j ACCEPT
+-A FORWARD -o tun0 -i eth0 -m conntrack --ctstate NEW -j ACCEPT
+-A FORWARD -i tun0 -o eth1 -m conntrack --ctstate NEW -j ACCEPT
+-A FORWARD -o tun0 -i eth1 -m conntrack --ctstate NEW -j ACCEPT
 
 # Block client-to-client routing on the VPN
 -A FORWARD -i tun0 -s {{OPENVPN_SUBNET_ADDRESS}}/24 -d {{OPENVPN_SUBNET_ADDRESS}}/24 -j DROP
@@ -92,7 +92,7 @@
 # keep state
 -A OUTPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 # ssh
--A OUTPUT -o {{PRIVATE_ETHERNET_INTERFACE}} -p tcp --dport 22 -m conntrack --ctstate NEW -j ACCEPT
+-A OUTPUT -o eth1 -p tcp --dport 22 -m conntrack --ctstate NEW -j ACCEPT
 # ping
 -A OUTPUT -p icmp --icmp-type echo-request -j ACCEPT
 # dns
@@ -121,7 +121,7 @@ COMMIT
 # ---------------------------------------------------------------------------- #
 
 # Enable NAT for the VPN
--A POSTROUTING -s {{OPENVPN_SUBNET_ADDRESS}}/24 -o {{PUBLIC_ETHERNET_INTERFACE}} -j MASQUERADE
--A POSTROUTING -s {{OPENVPN_SUBNET_ADDRESS}}/24 -o {{PRIVATE_ETHERNET_INTERFACE}} -j MASQUERADE
+-A POSTROUTING -s {{OPENVPN_SUBNET_ADDRESS}}/24 -o eth0 -j MASQUERADE
+-A POSTROUTING -s {{OPENVPN_SUBNET_ADDRESS}}/24 -o eth1 -j MASQUERADE
 
 COMMIT
