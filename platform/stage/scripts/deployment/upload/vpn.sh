@@ -1,18 +1,5 @@
 #!/usr/bin/env bash
 
-# Example usage:
-#
-# VPC_ADDRESS="10.170.0.0" \
-# SERVER_NAME="my_server" \
-# SERVER_NAME="my_server_common_name" \
-# sudo --preserve-env bash sh.sh \
-# my_client_1 my_client_2 my_client_n
-#
-# Prior art:
-#
-# The steps in this script follows:
-# https://github.com/angristan/openvpn-install
-
 PS4='\033[32m$0:$LINENO\033[0m: '
 set -xe
 
