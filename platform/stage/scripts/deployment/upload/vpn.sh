@@ -25,8 +25,8 @@ set -xe
 
 UNBOUND_ADDRESS="$(ip -json route list dev eth1 | jq -r '.[0].prefsrc')" # IP points to itself
 VPC_CIDR="$(ip -json route list dev eth1 | jq -r '.[0].dst')"
-VPC_RANGE_ADDRESS="$(ipcalc "${VPC_CIDR:?}" --nobinary --nocolor | grep Address | awk '{ print $2 }')"
-VPC_RANGE_MASK="$(ipcalc "${VPC_CIDR:?}" --nobinary --nocolor | grep Netmask | awk '{ print $2 }')"
+VPC_RANGE_ADDRESS="$(echo "$VPC_CIDR" | perl -nE 'say $1 if /^(.*)\//')"
+VPC_RANGE_MASK="$(echo "$VPC_CIDR" | perl -nE 'say $1 if /\/(\d{2})$/')"
 
 # ---------------------------------------------------------------------------- #
 # Prep
