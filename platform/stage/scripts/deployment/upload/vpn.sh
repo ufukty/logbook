@@ -42,12 +42,6 @@ VPC_RANGE_ADDRESS="$(ipcalc "${VPC_CIDR:?}" --nobinary --nocolor | grep Address 
 VPC_RANGE_MASK="$(ipcalc "${VPC_CIDR:?}" --nobinary --nocolor | grep Netmask | awk '{ print $2 }')"
 
 # ---------------------------------------------------------------------------- #
-# Definitions
-# ---------------------------------------------------------------------------- #
-
-EASYRSA_SERVER_NAME="$SERVER_NAME-server"
-
-# ---------------------------------------------------------------------------- #
 # Prep
 # ---------------------------------------------------------------------------- #
 
@@ -73,7 +67,6 @@ cloud-init status --wait >/dev/null
 sed --in-place \
   -e "s;{{OPENVPN_SUBNET_ADDRESS}};$OPENVPN_SUBNET_ADDRESS;g" \
   -e "s;{{OPENVPN_SUBNET_MASK}};$OPENVPN_SUBNET_MASK;g" \
-  -e "s;{{EASYRSA_SERVER_NAME}};$EASYRSA_SERVER_NAME;g" \
   -e "s;{{UNBOUND_ADDRESS}};$UNBOUND_ADDRESS;g" \
   -e "s;{{VPC_RANGE_ADDRESS}};$VPC_RANGE_ADDRESS;g" \
   -e "s;{{VPC_RANGE_MASK}};$VPC_RANGE_MASK;g" \
