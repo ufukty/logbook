@@ -78,10 +78,10 @@
 -A FORWARD -o tun0 -i eth1 -m conntrack --ctstate NEW -j ACCEPT
 
 # Block client-to-client routing on the VPN
--A FORWARD -i tun0 -s {{OPENVPN_SUBNET_ADDRESS}}/24 -d {{OPENVPN_SUBNET_ADDRESS}}/24 -j DROP
+-A FORWARD -i tun0 -s ${OPENVPN_SUBNET_ADDRESS}/24 -d ${OPENVPN_SUBNET_ADDRESS}/24 -j DROP
 
 # Allow outbound access to all networks on the Internet from the VPN
--A FORWARD -i tun0 -s {{OPENVPN_SUBNET_ADDRESS}}/24 -m conntrack --ctstate NEW -j ACCEPT
+-A FORWARD -i tun0 -s ${OPENVPN_SUBNET_ADDRESS}/24 -m conntrack --ctstate NEW -j ACCEPT
 
 # ------------------------------------------------------------- #
 # FILTER / OUTPUT
@@ -121,7 +121,7 @@ COMMIT
 # ---------------------------------------------------------------------------- #
 
 # Enable NAT for the VPN
--A POSTROUTING -s {{OPENVPN_SUBNET_ADDRESS}}/24 -o eth0 -j MASQUERADE
--A POSTROUTING -s {{OPENVPN_SUBNET_ADDRESS}}/24 -o eth1 -j MASQUERADE
+-A POSTROUTING -s ${OPENVPN_SUBNET_ADDRESS}/24 -o eth0 -j MASQUERADE
+-A POSTROUTING -s ${OPENVPN_SUBNET_ADDRESS}/24 -o eth1 -j MASQUERADE
 
 COMMIT
