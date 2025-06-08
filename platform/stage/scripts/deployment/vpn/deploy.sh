@@ -48,12 +48,13 @@ digitalocean | while read -r DROPLET; do
 
   scp "${SSH_ARGS[@]}" \
     "secrets/pki/vpn/ca.crt" \
-    "secrets/pki/vpn/issued/$SERVER_NAME.crt" \
-    "secrets/pki/vpn/private/$SERVER_NAME.key" \
     "secrets/pki/vpn-users/crl.pem" \
     "secrets/ovpn-auth/ovpn_auth_database.yml" \
     "scripts/deployment/vpn/remote.sh" \
     "$VPS_SUDO_USER@$PUBLIC_IP:"
+
+  scp "${SSH_ARGS[@]}" "secrets/pki/vpn/issued/$SERVER_NAME.crt" "$VPS_SUDO_USER@$PUBLIC_IP:server.crt"
+  scp "${SSH_ARGS[@]}" "secrets/pki/vpn/private/$SERVER_NAME.key" "$VPS_SUDO_USER@$PUBLIC_IP:server.key"
 
   ssh "${SSH_ARGS[@]}" -n "$VPS_SUDO_USER@$PUBLIC_IP" "sudo bash remote.sh && rm -rfv *"
 done
