@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2155,SC2029
 
-PS4='\033[34m$0:$LINENO:\033[0m '
+PS4='\033[34m$0:$LINENO\033[0m: '
 set -xe
 
 # ---------------------------------------------------------------------------- #
@@ -28,7 +28,7 @@ digitalocean() {
 cd "$STAGE"
 
 digitalocean | while read -r DROPLET; do
-  PS4='\033[34m$0:$LINENO: \033[33m$PUBLIC_IP:\033[0m '
+  PS4='\033[34m$0:$LINENO\033[0m: \033[33m$PUBLIC_IP:\033[0m '
 
   export PUBLIC_IP="$(echo "$DROPLET" | jq -r '.attributes.ipv4_address')"
   export PRIVATE_IP="$(echo "$DROPLET" | jq -r '.attributes.ipv4_address_private')"
