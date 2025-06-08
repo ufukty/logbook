@@ -3,6 +3,11 @@
     "prettier.tabWidth": 2
   },
   "editor.wordWrap": "off",
+  "files.exclude": {
+    "**/.terraform": true,
+    "**/.terraform.lock.hcl": true,
+    "**/terraform.tfstate.backup": true
+  },
   "go.testEnvVars": {
     "WORKSPACE": "${workspaceFolder}"
   },
