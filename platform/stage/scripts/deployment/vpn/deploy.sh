@@ -36,9 +36,8 @@ digitalocean | while read -r DROPLET; do
   export SERVER_NAME="$REGION.do.vpn.logbook"
   export OPENVPN_SUBNET_ADDRESS="$(sed 's;//.*;;g' <"$STAGE/config/digitalocean.jsonc" | jq --arg region "$REGION" -r '.vpn[$region]')"
 
-  if ! test -f "secrets/pki/vpn/issued/$SERVER_NAME.crt"; then
+  test -f "secrets/pki/vpn/issued/$SERVER_NAME.crt" ||
     EASYRSA_PKI="secrets/pki/vpn" easyrsa --batch build-server-full "$SERVER_NAME" nopass
-  fi
 
   SSH_ARGS=(-i "$STAGE/secrets/ssh/do" -o ControlMaster=auto -o ControlPath="$(mktemp -u)" -o ControlPersist=300)
 
