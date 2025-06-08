@@ -57,6 +57,8 @@ which magick || # docs (dark versions of schemas)
   brew install imagemagick
 which shellcheck ||
   brew install shellcheck
+which envsubst ||
+  brew install gettext
 
 (which ansible && which qr) ||
   pip install -r "dev/requirements.txt"
