@@ -43,6 +43,7 @@ digitalocean | while read -r DROPLET; do
 
   TEMPLATES="$STAGE/scripts/deployment/vpn/template"
   find "$TEMPLATES" -type f | while read -r TEMPLATE; do
+    colordiff <(cat "$TEMPLATE") <(envsubst <"$TEMPLATE") || true
     envsubst <"$TEMPLATE" | ssh "${SSH_ARGS[@]}" "$VPS_SUDO_USER@$PUBLIC_IP" sudo tee "${TEMPLATE//"$TEMPLATES"/}" >/dev/null
   done
 
