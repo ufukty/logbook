@@ -28,7 +28,7 @@ digitalocean() {
 cd "$STAGE"
 
 digitalocean | while read -r DROPLET; do
-  PS4='\033[34m$0:$LINENO\033[0m: \033[33m$PUBLIC_IP:\033[0m '
+  PS4='\033[34m$0:$LINENO\033[0m: \033[33m$SERVER_NAME ($PUBLIC_IP)\033[0m: '
 
   PUBLIC_IP="$(echo "$DROPLET" | jq -r '.attributes.ipv4_address')"
   REGION="$(echo "$DROPLET" | jq -r '.attributes.region')"
