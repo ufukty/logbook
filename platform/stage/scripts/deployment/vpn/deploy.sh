@@ -53,21 +53,7 @@ digitalocean | while read -r DROPLET; do
     "secrets/pki/vpn-users/crl.pem" \
     "secrets/ovpn-auth/ovpn_auth_database.yml" \
     "scripts/deployment/vpn/remote.sh" \
-    "$VPS_SUDO_USER@$PUBLIC_IP:/home/$VPS_SUDO_USER/"
+    "$VPS_SUDO_USER@$PUBLIC_IP:"
 
-  #   # shellcheck disable=SC2012,SC2087
-  #   ssh -i "secrets/ssh/do" "$VPS_SUDO_USER@$PUBLIC_IP" <<-HERE
-  #     PS4='\033[35m$VPS_SUDO_USER@$PUBLIC_IP \$1:\$LINENO:\033[0m '
-  #     set -xe
-
-  #     export VPS_SUDO_USER='$VPS_SUDO_USER'
-  #     export SERVER_NAME='$SERVER_NAME'
-  #     export PRIVATE_IP='$PRIVATE_IP'
-  #     export OPENVPN_SUBNET_ADDRESS='$OPENVPN_SUBNET_ADDRESS'
-  #     export OPENVPN_SUBNET_MASK='255.255.255.0'
-  #     sudo --preserve-env bash remote.sh
-  #     rm -rfv vpn.sh
-
-  #     chown openvpn:openvpn /etc/openvpn/server.conf
-  # HERE
+  ssh "${SSH_ARGS[@]}" -n "$VPS_SUDO_USER@$PUBLIC_IP" "sudo bash remote.sh && rm -rfv *"
 done
