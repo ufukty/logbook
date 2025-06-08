@@ -30,11 +30,15 @@ cd "$STAGE"
 digitalocean | while read -r DROPLET; do
   PS4='\033[34m$0:$LINENO\033[0m: \033[33m$PUBLIC_IP:\033[0m '
 
-  export PUBLIC_IP="$(echo "$DROPLET" | jq -r '.attributes.ipv4_address')"
-  export PRIVATE_IP="$(echo "$DROPLET" | jq -r '.attributes.ipv4_address_private')"
-  export REGION="$(echo "$DROPLET" | jq -r '.attributes.region')"
-  export SERVER_NAME="$REGION.do.vpn.logbook"
+  PUBLIC_IP="$(echo "$DROPLET" | jq -r '.attributes.ipv4_address')"
+  REGION="$(echo "$DROPLET" | jq -r '.attributes.region')"
+  SERVER_NAME="$REGION.do.vpn.logbook"
+
   export OPENVPN_SUBNET_ADDRESS="$(sed 's;//.*;;g' <"$STAGE/config/digitalocean.jsonc" | jq --arg region "$REGION" -r '.vpn[$region]')"
+  export UNBOUND_ADDRESS="$(echo "$DROPLET" | jq -r '.attributes.ipv4_address_private')"
+  export VPC_CIDR="$(doctl vpcs get "$(echo "$DROPLET" | jq -r '.attributes.vpc_uuid')" --output json | jq -r '.[0].ip_range')"
+  export VPC_RANGE_ADDRESS="$(echo "$VPC_CIDR" | perl -nE 'say $1 if /^(.*)\//')"
+  export VPC_RANGE_MASK="$(echo "$VPC_CIDR" | perl -nE 'say $1 if /\/(\d{2})$/')"
 
   test -f "secrets/pki/vpn/issued/$SERVER_NAME.crt" ||
     EASYRSA_PKI="secrets/pki/vpn" easyrsa --batch build-server-full "$SERVER_NAME" nopass
