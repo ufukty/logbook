@@ -17,8 +17,8 @@ set -xe
 # ---------------------------------------------------------------------------- #
 
 digitalocean() {
-  test -f "$STAGE/provisioning/vpn/terraform.tfstate" &&
-    jq -c '.resources.[] | select(.type == "digitalocean_droplet").instances.[]' <"$STAGE/provisioning/vpn/terraform.tfstate"
+  test -f "$STAGE/provision/vpn/terraform.tfstate" &&
+    jq -c '.resources.[] | select(.type == "digitalocean_droplet").instances.[]' <"$STAGE/provision/vpn/terraform.tfstate"
 }
 
 # ---------------------------------------------------------------------------- #

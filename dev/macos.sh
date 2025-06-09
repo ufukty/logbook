@@ -79,13 +79,13 @@ grep ". ~/.bash_include" ~/.bash_profile >/dev/null ||
   echo 'for f in ~/.bash_include/*.sh; do . $f; done' >>~/.bash_profile
 
 # shellcheck disable=SC2016
-test -d platform/stage/provisioning/application/.terraform/providers ||
-  (cd platform/stage/provisioning/application && terraform init)
+test -d platform/stage/provision/application/.terraform/providers ||
+  (cd platform/stage/provision/application && terraform init)
 
 # shellcheck disable=SC2016
-test -d platform/stage/provisioning/vpc/.terraform/providers ||
-  (cd platform/stage/provisioning/vpc && terraform init)
+test -d platform/stage/provision/vpc/.terraform/providers ||
+  (cd platform/stage/provision/vpc && terraform init)
 
 # shellcheck disable=SC2016
-test -d platform/stage/provisioning/vpn/.terraform/providers ||
-  (cd platform/stage/provisioning/vpn && terraform init)
+test -d platform/stage/provision/vpn/.terraform/providers ||
+  (cd platform/stage/provision/vpn && terraform init)
