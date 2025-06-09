@@ -19,7 +19,7 @@ set -xe
 
 digitalocean() {
   # shellcheck disable=SC2002,SC2046
-  cat $(find provisioning -name 'terraform.tfstate') |
+  cat $(find "$STAGE/provision" -name 'terraform.tfstate') |
     jq -c 'select(.resources | length > 0) | .resources.[] | select(.type == "digitalocean_droplet").instances.[]'
 }
 
