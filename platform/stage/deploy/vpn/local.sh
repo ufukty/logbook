@@ -47,7 +47,7 @@ digitalocean | while read -r DROPLET; do
 
   TEMPLATES="$STAGE/deploy/vpn/template"
   find "$TEMPLATES" -type f | while read -r TEMPLATE; do
-    perl -nE 'say $1 if /\${(.*?)}/' <"$TEMPLATE" | sort | uniq | xargs -n 1 printenv
+    perl -nE 'say $1 if /\${(.*?)}/' <"$TEMPLATE" | sort | uniq | while read -r ENVVAR; do printenv "$ENVVAR" >/dev/null; done
     colordiff <(cat "$TEMPLATE") <(envsubst <"$TEMPLATE") || true
     envsubst <"$TEMPLATE" | ssh "${SSH_ARGS[@]}" "$VPS_SUDO_USER@$PUBLIC_IP" sudo tee "${TEMPLATE//"$TEMPLATES"/}" >/dev/null
   done
