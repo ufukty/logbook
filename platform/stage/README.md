@@ -70,10 +70,10 @@ Run `bash scripts/...` to build ssh config and instance list.
 
 Run the shell scripts under `deployment` folder, from the `$STAGE` directory.
 
-| Script      | What it does                                 |
-| ----------- | -------------------------------------------- |
-| local.sh    | Adds Root CA. Refreshes ssh-keyscan.         |
-| all.sh      | Uploads Root CA.                             |
-| finalize.sh | Removes passwordless sudo. Reloads journald. |
+| Script      | What it does                                   |
+| ----------- | ---------------------------------------------- |
+| local.sh    | Adds Root CA. Refreshes `known_hosts` entries. |
+| all.sh      | Uploads Root CA.                               |
+| finalize.sh | Removes passwordless sudo. Reloads journald.   |
 
 Deployment scripts are generally safe to run repeatedly until finalization.
