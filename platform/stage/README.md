@@ -4,7 +4,7 @@
 
 Follow the order:
 
-- image
+- build
   - time consuming, low-frequency tasks
 - provision
   - vpc
@@ -14,7 +14,7 @@ Follow the order:
 - artifacts
   - ssh config
   - instance list
-- deployment
+- deploy
   - secrets
   - instance list
 
@@ -45,7 +45,7 @@ Root CA
 
 ### Building images
 
-Run `bash build.sh` in the folder of each image. Building images based on `internal` requires active VPN connection into the build region.
+Run `bash build.sh` in the folder of each image under `build` folder. Building images based on `internal` requires active VPN connection into the build region.
 
 **Image hierarchy**
 
