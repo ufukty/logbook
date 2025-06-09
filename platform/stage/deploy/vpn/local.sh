@@ -59,6 +59,7 @@ digitalocean | while read -r DROPLET; do
     "scripts/deployment/vpn/remote.sh" \
     "$VPS_SUDO_USER@$PUBLIC_IP:"
 
+  scp "${SSH_ARGS[@]}" "secrets/vpn/tls-crypt/do-$REGION.key" "$VPS_SUDO_USER@$PUBLIC_IP:tls-crypt.key"
   scp "${SSH_ARGS[@]}" "secrets/pki/vpn/issued/$SERVER_NAME.crt" "$VPS_SUDO_USER@$PUBLIC_IP:server.crt"
   scp "${SSH_ARGS[@]}" "secrets/pki/vpn/private/$SERVER_NAME.key" "$VPS_SUDO_USER@$PUBLIC_IP:server.key"
 

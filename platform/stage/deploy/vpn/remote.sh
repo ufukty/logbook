@@ -18,10 +18,9 @@ cloud-init status --wait >/dev/null
 # ---------------------------------------------------------------------------- #
 
 cd "$HOME"
-mv ca.crt crl.pem ovpn_auth_database.yml server.crt server.key /etc/openvpn/
+mv ca.crt crl.pem ovpn_auth_database.yml server.crt server.key tls-crypt.key /etc/openvpn/
 
 cd /etc/openvpn
-openvpn --genkey secret tls-crypt.key
 chown -R openvpn:openvpn *
 chmod 600 server.key ovpn_auth_database.yml
 chmod 640 ./{ca.crt,server.crt,crl.pem,tls-crypt.key,server.conf}
