@@ -15,3 +15,10 @@ sudo killall mDNSResponder{,Helper}
 (cd provision/? && terraform apply --auto-approve)
 (cd provision/? && terraform destroy --auto-approve)
 ```
+
+**Running deployment playbooks**
+
+```sh
+ansible-playbook --forks="20" playbook.yml
+ansible-playbook --forks="20" --limit="?" --tags="redeploy" playbook.yml
+```
