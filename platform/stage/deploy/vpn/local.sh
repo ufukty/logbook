@@ -45,7 +45,7 @@ digitalocean | while read -r DROPLET; do
 
   SSH_ARGS=(-i "$STAGE/secrets/ssh/do" -o ControlMaster=auto -o ControlPath="$(mktemp -u)" -o ControlPersist=300)
 
-  TEMPLATES="$STAGE/scripts/deployment/vpn/template"
+  TEMPLATES="$STAGE/deploy/vpn/template"
   find "$TEMPLATES" -type f | while read -r TEMPLATE; do
     perl -nE 'say $1 if /\${(.*?)}/' <"$TEMPLATE" | sort | uniq | xargs -n 1 printenv
     colordiff <(cat "$TEMPLATE") <(envsubst <"$TEMPLATE") || true
@@ -56,7 +56,7 @@ digitalocean | while read -r DROPLET; do
     "secrets/pki/vpn/ca.crt" \
     "secrets/pki/vpn-users/crl.pem" \
     "secrets/ovpn-auth/ovpn_auth_database.yml" \
-    "scripts/deployment/vpn/remote.sh" \
+    "deploy/vpn/remote.sh" \
     "$VPS_SUDO_USER@$PUBLIC_IP:"
 
   scp "${SSH_ARGS[@]}" "secrets/vpn/tls-crypt/do-$REGION.key" "$VPS_SUDO_USER@$PUBLIC_IP:tls-crypt.key"
