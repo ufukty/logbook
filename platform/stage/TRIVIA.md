@@ -12,6 +12,6 @@ sudo killall mDNSResponder{,Helper}
 **Running a Terraform config**
 
 ```sh
-(cd provision && terraform apply --auto-approve)
-(cd provision && terraform destroy --auto-approve)
+(cd provision/? && terraform apply --auto-approve)
+(cd provision/? && terraform destroy --auto-approve)
 ```
