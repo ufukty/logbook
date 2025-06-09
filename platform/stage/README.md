@@ -68,4 +68,12 @@ Run `bash scripts/...` to build ssh config and instance list.
 
 ### Deployment
 
-Run `ansible playbook.yml` in deployment folder and shell scripts under `scripts/deployment`. Deployment scripts are generally safe to run repeatedly until finalization.
+Run the shell scripts under `deployment` folder, from the `$STAGE` directory.
+
+| Script      | What it does                                 |
+| ----------- | -------------------------------------------- |
+| local.sh    | Adds Root CA. Refreshes ssh-keyscan.         |
+| all.sh      | Uploads Root CA.                             |
+| finalize.sh | Removes passwordless sudo. Reloads journald. |
+
+Deployment scripts are generally safe to run repeatedly until finalization.
