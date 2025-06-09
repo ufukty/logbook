@@ -58,13 +58,13 @@ base                # user, utilities, fail2ban, basic security
     └── application # systemd service, logging, certs, database tunnel
 ```
 
-### Creating cloud resources
+### Provisioning
 
 Run terraform apply on each folder in `provisioning`.
 
 ### Artifacts
 
-Run `bash scripts/...` to build ssh config and instance list.
+Run `bash scripts/...` to build ssh config and instance list. They rely on information generated during provisioning.
 
 ### Deployment
 
