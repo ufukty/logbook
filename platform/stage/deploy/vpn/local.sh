@@ -53,7 +53,7 @@ digitalocean | while read -r DROPLET; do
   done
 
   scp "${SSH_ARGS[@]}" \
-    "secrets/pki/vpn/ca.crt" \
+    "secrets/pki/vpn-users/ca.crt" \
     "secrets/pki/vpn-users/crl.pem" \
     "secrets/ovpn-auth/ovpn_auth_database.yml" \
     "deploy/vpn/remote.sh" \
