@@ -41,7 +41,6 @@ digitalocean | while read -r HOST; do
     export PUBLIC_IP="$IP"
     export EASYRSA_SERVER_NAME="$REGION.do.vpn.logbook"
     export VPN_USERS_CA_CERT="$(awk '/BEGIN/,/END/' "$STAGE/secrets/pki/vpn-users/ca.crt")"
-    export ROOT_CA_CERT="$(awk '/BEGIN/,/END/' "$STAGE/secrets/pki/root/ca.crt")"
     export VPN_USER_KEY="$(cat "$STAGE/secrets/pki/vpn-users/private/$PROFILE_NAME.key")"
     export VPN_USER_CERT="$(awk '/BEGIN/,/END/' "$STAGE/secrets/pki/vpn-users/issued/$PROFILE_NAME.crt")"
     export TLS_CRYPT_KEY="$(cat "$STAGE/secrets/vpn/tls-crypt/do-$REGION.key")"

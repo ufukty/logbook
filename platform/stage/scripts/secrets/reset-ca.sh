@@ -86,3 +86,18 @@ openssl x509 -in "$STAGE/secrets/pki/root/ca.crt" -text -noout
 openssl x509 -in "$STAGE/secrets/pki/web/ca.crt" -text -noout
 openssl x509 -in "$STAGE/secrets/pki/vpn/ca.crt" -text -noout
 openssl x509 -in "$STAGE/secrets/pki/vpn-users/ca.crt" -text -noout
+
+# ---------------------------------------------------------------------------- #
+# Aggregation
+# ---------------------------------------------------------------------------- #
+
+TEMP="$(mktemp)"
+
+cp "$STAGE/secrets/pki/web/ca.crt" "$TEMP"
+cat "$TEMP" "$STAGE/secrets/pki/root/ca.crt" >"$STAGE/secrets/pki/web/ca.crt"
+
+cp "$STAGE/secrets/pki/vpn/ca.crt" "$TEMP"
+cat "$TEMP" "$STAGE/secrets/pki/root/ca.crt" >"$STAGE/secrets/pki/vpn/ca.crt"
+
+cp "$STAGE/secrets/pki/vpn-users/ca.crt" "$TEMP"
+cat "$TEMP" "$STAGE/secrets/pki/root/ca.crt" >"$STAGE/secrets/pki/vpn-users/ca.crt"
