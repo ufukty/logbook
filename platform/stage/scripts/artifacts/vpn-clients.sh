@@ -24,6 +24,7 @@ digitalocean() {
 # Action
 # ---------------------------------------------------------------------------- #
 
+rm -rv "$STAGE/artifacts/vpn-clients"
 mkdir -p "$STAGE/artifacts/vpn-clients"
 
 # shellcheck disable=SC2002
@@ -34,12 +35,13 @@ digitalocean | while read -r HOST; do
   cat "$STAGE/config/vpn-users" | while read -r VPN_USER; do
     PROFILE_NAME="$VPN_USER@$REGION.do.vpn.logbook"
 
-    test -f "$STAGE/secrets/pki/vpn-users/reqs/$PROFILE_NAME.req" ||
+    test -f "$STAGE/secrets/pki/vpn-users/issued/$PROFILE_NAME.crt" ||
       EASYRSA_PKI="$STAGE/secrets/pki/vpn-users" EASYRSA_BATCH="yes" easyrsa build-client-full "$PROFILE_NAME" nopass
 
     set +x
     export PUBLIC_IP="$IP"
     export EASYRSA_SERVER_NAME="$REGION.do.vpn.logbook"
+    export ROOT_CA_CERT="$(awk '/BEGIN/,/END/' "$STAGE/secrets/pki/root/ca.crt")"
     export VPN_USERS_CA_CERT="$(awk '/BEGIN/,/END/' "$STAGE/secrets/pki/vpn-users/ca.crt")"
     export VPN_USER_KEY="$(cat "$STAGE/secrets/pki/vpn-users/private/$PROFILE_NAME.key")"
     export VPN_USER_CERT="$(awk '/BEGIN/,/END/' "$STAGE/secrets/pki/vpn-users/issued/$PROFILE_NAME.crt")"

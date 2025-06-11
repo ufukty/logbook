@@ -22,6 +22,17 @@ digitalocean() {
 }
 
 # ---------------------------------------------------------------------------- #
+# Utils
+# ---------------------------------------------------------------------------- #
+
+redact() {
+  perl -0777 -pe '
+    s{(BEGIN CERTIFICATE).*?(END CERTIFICATE)}{$1/REDACTED FOR LOGS/$2}gs;
+    s{(BEGIN PRIVATE KEY).*?(END PRIVATE KEY)}{$1/REDACTED FOR LOGS/$2}gs;
+  ' /dev/stdin
+}
+
+# ---------------------------------------------------------------------------- #
 # Action
 # ---------------------------------------------------------------------------- #
 
@@ -34,34 +45,38 @@ digitalocean | while read -r DROPLET; do
   REGION="$(echo "$DROPLET" | jq -r '.attributes.region')"
   SERVER_NAME="$REGION.do.vpn.logbook"
 
+  test -f "secrets/pki/vpn/issued/$SERVER_NAME.crt" ||
+    EASYRSA_PKI="secrets/pki/vpn" easyrsa --batch build-server-full "$SERVER_NAME" nopass
+
+  set +x
+  export GATEWAY_IP="127.0.0.1" # FIXME:
   export OPENVPN_SUBNET_ADDRESS="$(sed 's;//.*;;g' <"$STAGE/config/digitalocean.jsonc" | jq --arg region "$REGION" -r '.vpn[$region]')"
   export UNBOUND_ADDRESS="$(echo "$DROPLET" | jq -r '.attributes.ipv4_address_private')"
   export VPC_CIDR="$(doctl vpcs get "$(echo "$DROPLET" | jq -r '.attributes.vpc_uuid')" --output json | jq -r '.[0].ip_range')"
   export VPC_RANGE_ADDRESS="$(echo "$VPC_CIDR" | perl -nE 'say $1 if /^(.*)\//')"
   export VPC_RANGE_MASK="$(echo "$VPC_CIDR" | perl -nE 'say $1 if /\/(\d{2})$/')"
-
-  test -f "secrets/pki/vpn/issued/$SERVER_NAME.crt" ||
-    EASYRSA_PKI="secrets/pki/vpn" easyrsa --batch build-server-full "$SERVER_NAME" nopass
+  export ROOT_CA_CERT="$(awk '/BEGIN/,/END/' "$STAGE/secrets/pki/root/ca.crt")"
+  export VPN_CA_CERT="$(awk '/BEGIN/,/END/' "$STAGE/secrets/pki/vpn/ca.crt")"
+  export VPN_SERVER_CERT="$(awk '/BEGIN/,/END/' "$STAGE/secrets/pki/vpn/issued/$SERVER_NAME.crt")"
+  export VPN_SERVER_KEY="$(awk '/BEGIN/,/END/' "$STAGE/secrets/pki/vpn/private/$SERVER_NAME.key")"
+  set -x
 
   SSH_ARGS=(-i "$STAGE/secrets/ssh/do" -o ControlMaster=auto -o ControlPath="$(mktemp -u)" -o ControlPersist=300)
 
   TEMPLATES="$STAGE/deploy/vpn/template"
   find "$TEMPLATES" -type f | while read -r TEMPLATE; do
     perl -nE 'say $1 if /\${(.*?)}/' <"$TEMPLATE" | sort | uniq | while read -r ENVVAR; do printenv "$ENVVAR" >/dev/null; done
-    colordiff <(cat "$TEMPLATE") <(envsubst <"$TEMPLATE") || true
+    (colordiff <(cat "$TEMPLATE") <(envsubst <"$TEMPLATE") || true) | redact
     envsubst <"$TEMPLATE" | ssh "${SSH_ARGS[@]}" "$VPS_SUDO_USER@$PUBLIC_IP" sudo tee "${TEMPLATE//"$TEMPLATES"/}" >/dev/null
   done
 
   scp "${SSH_ARGS[@]}" \
-    "secrets/pki/vpn/ca.crt" \
     "secrets/pki/vpn-users/crl.pem" \
     "secrets/ovpn-auth/ovpn_auth_database.yml" \
     "deploy/vpn/remote.sh" \
     "$VPS_SUDO_USER@$PUBLIC_IP:"
 
   scp "${SSH_ARGS[@]}" "secrets/vpn/tls-crypt/do-$REGION.key" "$VPS_SUDO_USER@$PUBLIC_IP:tls-crypt.key"
-  scp "${SSH_ARGS[@]}" "secrets/pki/vpn/issued/$SERVER_NAME.crt" "$VPS_SUDO_USER@$PUBLIC_IP:server.crt"
-  scp "${SSH_ARGS[@]}" "secrets/pki/vpn/private/$SERVER_NAME.key" "$VPS_SUDO_USER@$PUBLIC_IP:server.key"
 
   ssh "${SSH_ARGS[@]}" -n "$VPS_SUDO_USER@$PUBLIC_IP" "sudo --preserve-env bash remote.sh && rm -rfv *"
 done
