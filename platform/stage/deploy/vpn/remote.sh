@@ -22,7 +22,7 @@ mv crl.pem ovpn_auth_database.yml tls-crypt.key /etc/openvpn/
 
 cd /etc/openvpn
 chown -R openvpn:openvpn *
-chmod 600 server.key ovpn_auth_database.yml
+chmod 600 ovpn_auth_database.yml
 chmod 640 ./{crl.pem,tls-crypt.key,server.conf}
 mkdir -p /var/log/openvpn
 sysctl --system
