@@ -78,4 +78,5 @@ digitalocean | while read -r DROPLET; do (
   scp "${SSH_ARGS[@]}" "secrets/vpn/tls-crypt/do-$REGION.key" "$VPS_SUDO_USER@$PUBLIC_IP:tls-crypt.key"
 
   ssh "${SSH_ARGS[@]}" -n "$VPS_SUDO_USER@$PUBLIC_IP" "sudo --preserve-env bash remote.sh && rm -rfv *"
+  ssh "${SSH_ARGS[@]}" -n "$VPS_SUDO_USER@$PUBLIC_IP" "sudo sh -c 'sleep 1 && systemctl restart iptables-activation' &"
 ) & done
