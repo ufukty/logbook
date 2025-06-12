@@ -27,7 +27,7 @@ digitalocean() {
 # Action
 # ---------------------------------------------------------------------------- #
 
-digitalocean | while read -r HOST; do
+digitalocean | while read -r HOST; do (
   IP="$(echo "$HOST" | jq -r '.attributes.ipv4_address')"
 
   # shellcheck disable=SC2087
@@ -36,4 +36,4 @@ digitalocean | while read -r HOST; do
     systemctl restart iptables-activation
     sed -E -in-place \"s;$VPS_SUDO_USER(.*)NOPASSWD:(.*);$VPS_SUDO_USER \1 \2;\" /etc/sudoers
 HERE
-done
+) & done

@@ -38,7 +38,7 @@ redact() {
 
 cd "$STAGE"
 
-digitalocean | while read -r DROPLET; do
+digitalocean | while read -r DROPLET; do (
   PS4='\033[34m$0:$LINENO\033[0m: \033[33m$SERVER_NAME ($PUBLIC_IP)\033[0m: '
 
   PUBLIC_IP="$(echo "$DROPLET" | jq -r '.attributes.ipv4_address')"
@@ -79,4 +79,4 @@ digitalocean | while read -r DROPLET; do
   scp "${SSH_ARGS[@]}" "secrets/vpn/tls-crypt/do-$REGION.key" "$VPS_SUDO_USER@$PUBLIC_IP:tls-crypt.key"
 
   ssh "${SSH_ARGS[@]}" -n "$VPS_SUDO_USER@$PUBLIC_IP" "sudo --preserve-env bash remote.sh && rm -rfv *"
-done
+) & done

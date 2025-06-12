@@ -24,7 +24,7 @@ digitalocean() {
 # Action
 # ---------------------------------------------------------------------------- #
 
-digitalocean | while read -r HOST; do
+digitalocean | while read -r HOST; do (
   IP="$(echo "$HOST" | jq -r '.attributes.ipv4_address')"
 
   scp -i secrets/ssh/do secrets/pki/root/ca.crt "$VPS_SUDO_USER@$IP:/home/$VPS_SUDO_USER/"
@@ -40,4 +40,4 @@ digitalocean | while read -r HOST; do
     update-ca-certificates
     openssl x509 -in /usr/local/share/ca-certificates/logbook-stage-root-ca.crt -noout -text | grep "Logbook Stage Root CA"
 HERE
-done
+) & done

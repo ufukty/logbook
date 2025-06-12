@@ -23,11 +23,13 @@ digitalocean() {
 # Action
 # ---------------------------------------------------------------------------- #
 
-digitalocean | while read -r HOST; do
+digitalocean | while read -r HOST; do (
   IP="$(echo "$HOST" | jq -r '.attributes.ipv4_address')"
   ssh-keygen -R "$IP"
   ssh-keyscan "$IP" >>~/.ssh/known_hosts # or Private IP
-done
+) & done
+
+wait
 
 # ---------------------------------------------------------------------------- #
 # Trust Root CA on MacOS
