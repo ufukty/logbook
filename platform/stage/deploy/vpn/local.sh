@@ -54,7 +54,6 @@ digitalocean | while read -r DROPLET; do (
   export UNBOUND_ADDRESS="$(echo "$DROPLET" | jq -r '.attributes.ipv4_address_private')"
   export VPC_CIDR="$(doctl vpcs get "$(echo "$DROPLET" | jq -r '.attributes.vpc_uuid')" --output json | jq -r '.[0].ip_range')"
   export VPC_RANGE_ADDRESS="$(echo "$VPC_CIDR" | perl -nE 'say $1 if /^(.*)\//')"
-  export VPC_RANGE_MASK="$(echo "$VPC_CIDR" | perl -nE 'say $1 if /\/(\d{2})$/')"
   export ROOT_CA_CERT="$(awk '/BEGIN/,/END/' "$STAGE/secrets/pki/root/ca.crt")"
   export VPN_CA_CERT="$(awk '/BEGIN/,/END/' "$STAGE/secrets/pki/vpn/ca.crt")"
   export VPN_SERVER_CERT="$(awk '/BEGIN/,/END/' "$STAGE/secrets/pki/vpn/issued/$SERVER_NAME.crt")"
