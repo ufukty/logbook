@@ -5,7 +5,7 @@ all: \
 	$(MAKE) -C endpoints
 
 client/client.go: $(shell find endpoints -name '*.go' ! -name '*.gh.go')
-	gohandlers clients -dir endpoints -out client/client.go -pkg registration -import logbook/cmd/registration/endpoints
+	gohandlers client -dir endpoints -out client/client.go -pkg registration -import logbook/cmd/registration/endpoints
 
 client/mock.go: $(shell find endpoints -name '*.go' ! -name '*.gh.go')
 	gohandlers mock -dir endpoints -out client/mock.go -pkg registration -import "logbook/cmd/registration/endpoints"
