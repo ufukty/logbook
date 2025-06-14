@@ -19,3 +19,27 @@ type Client struct {
 func NewClient(p Pool) *Client {
 	return &Client{p: p}
 }
+
+func (c *Client) CreateUser(bq *endpoints.CreateUserRequest) (*endpoints.CreateUserResponse, error) {
+	h, err := c.p.Host()
+	if err != nil {
+		return nil, fmt.Errorf("Host: %w", err)
+	}
+	rq, err := bq.Build(h)
+	if err != nil {
+		return nil, fmt.Errorf("Build: %w", err)
+	}
+	rs, err := http.DefaultClient.Do(rq)
+	if err != nil {
+		return nil, fmt.Errorf("Do: %w", err)
+	}
+	if rs.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("non-200 status code: %d (%s)", rs.StatusCode, http.StatusText(rs.StatusCode))
+	}
+	bs := &endpoints.CreateUserResponse{}
+	err = bs.Parse(rs)
+	if err != nil {
+		return nil, fmt.Errorf("Parse: %w", err)
+	}
+	return bs, nil
+}

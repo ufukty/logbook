@@ -5,7 +5,12 @@ package users
 import "logbook/cmd/users/endpoints"
 
 type Interface interface {
+	CreateUser(*endpoints.CreateUserRequest) (*endpoints.CreateUserResponse, error)
 }
 
 type Mock struct {
+}
+
+func (m *Mock) CreateUser(*endpoints.CreateUserRequest) (*endpoints.CreateUserResponse, error) {
+	return nil, nil
 }

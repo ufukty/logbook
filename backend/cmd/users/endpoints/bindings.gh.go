@@ -10,6 +10,42 @@ import (
 	"strings"
 )
 
+func join(segments ...string) string {
+	url := ""
+	for i, segment := range segments {
+		if i != 0 && !strings.HasPrefix(segment, "/") {
+			url += "/"
+		}
+		url += segment
+	}
+	return url
+}
+
+func (bq CreateUserRequest) Build(host string) (*http.Request, error) {
+	uri := "/create-user"
+	body := bytes.NewBuffer([]byte{})
+	if err := json.NewEncoder(body).Encode(bq); err != nil {
+		return nil, fmt.Errorf("json.Encoder.Encode: %w", err)
+	}
+	r, err := http.NewRequest("POST", join(host, uri), body)
+	if err != nil {
+		return nil, fmt.Errorf("http.NewRequest: %w", err)
+	}
+	r.Header.Set("Content-Type", "application/json")
+	r.Header.Set("Content-Length", fmt.Sprintf("%d", body.Len()))
+	return r, nil
+}
+
+func (bq *CreateUserRequest) Parse(rq *http.Request) error {
+	if !strings.HasPrefix(rq.Header.Get("Content-Type"), "application/json") {
+		return fmt.Errorf("invalid content type for request: %s", rq.Header.Get("Content-Type"))
+	}
+	if err := json.NewDecoder(rq.Body).Decode(bq); err != nil {
+		return fmt.Errorf("decoding body: %w", err)
+	}
+	return nil
+}
+
 func (bs CreateUserResponse) Write(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
