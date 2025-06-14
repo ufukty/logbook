@@ -9,7 +9,7 @@ database/dbtx.sqlc.go: database/sqlc.yml database/queries.sql database/schema.sq
 	cd database && sqlc generate .
 
 client/client.go: $(shell find endpoints -name '*.go' ! -name '*.gh.go')
-	gohandlers clients -dir endpoints -out client/client.go -pkg users -import logbook/cmd/users/endpoints
+	gohandlers client -dir endpoints -out client/client.go -pkg users -import logbook/cmd/users/endpoints
 
 client/mock.go: $(shell find endpoints -name '*.go' ! -name '*.gh.go')
 	gohandlers mock -dir endpoints -out client/mock.go -pkg users -import "logbook/cmd/users/endpoints"
