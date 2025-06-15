@@ -3,22 +3,21 @@ package endpoints
 import (
 	"fmt"
 	"logbook/internal/web/validate"
-	"logbook/models/columns"
 	"logbook/models/transports"
 	"net/http"
 )
 
-type GetPhoneGrantRequest struct {
+type CreatePasswordGrantRequest struct {
 	AntiCsrfToken transports.AntiCsrfToken `json:"acsrft"`
-	Phone         columns.Phone            `json:"phone"`
+	Password      transports.Password      `json:"password"`
 }
 
-type GetPhoneGrantResponse struct {
-	PhoneGrant transports.PhoneGrant `json:"phone-grant"`
+type CreatePasswordGrantResponse struct {
+	PasswordGrant transports.PasswordGrant `json:"password-grant"`
 }
 
-func (p *Public) GetPhoneGrant(w http.ResponseWriter, r *http.Request) {
-	bq := &GetPhoneGrantRequest{}
+func (p *Public) CreatePasswordGrant(w http.ResponseWriter, r *http.Request) {
+	bq := &CreatePasswordGrantRequest{}
 
 	if err := bq.Parse(r); err != nil {
 		p.l.Println(fmt.Errorf("parsing request: %w", err))
@@ -32,15 +31,15 @@ func (p *Public) GetPhoneGrant(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	g, err := p.a.GrantPhone(r.Context(), bq.Phone)
+	g, err := p.a.GrantPassword(r.Context(), bq.Password)
 	if err != nil {
-		p.l.Println(fmt.Errorf("a.GrantEmail: %w", err))
+		p.l.Println(fmt.Errorf("a.GrantPassword: %w", err))
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
-	bs := GetPhoneGrantResponse{
-		PhoneGrant: g,
+	bs := CreatePasswordGrantResponse{
+		PasswordGrant: g,
 	}
 	if err := bs.Write(w); err != nil {
 		p.l.Println(fmt.Errorf("writing json response: %w", err))

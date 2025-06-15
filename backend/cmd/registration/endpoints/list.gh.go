@@ -6,9 +6,9 @@ import "logbook/internal/web/reception"
 
 func (pu *Public) ListHandlers() map[string]reception.HandlerInfo {
 	return map[string]reception.HandlerInfo{
-		"CreateAccount":    {Method: "POST", Path: "/create-account", Ref: pu.CreateAccount},
-		"GetEmailGrant":    {Method: "GET", Path: "/get-email-grant", Ref: pu.GetEmailGrant},
-		"GetPasswordGrant": {Method: "GET", Path: "/get-password-grant", Ref: pu.GetPasswordGrant},
-		"GetPhoneGrant":    {Method: "GET", Path: "/get-phone-grant", Ref: pu.GetPhoneGrant},
+		"CreateAccount":       {Method: "POST", Path: "/create-account", Ref: pu.CreateAccount},
+		"CreateEmailGrant":    {Method: "POST", Path: "/create-email-grant", Ref: pu.CreateEmailGrant},
+		"CreatePasswordGrant": {Method: "POST", Path: "/create-password-grant", Ref: pu.CreatePasswordGrant},
+		"CreatePhoneGrant":    {Method: "POST", Path: "/create-phone-grant", Ref: pu.CreatePhoneGrant},
 	}
 }

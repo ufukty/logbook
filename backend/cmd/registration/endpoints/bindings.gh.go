@@ -46,13 +46,13 @@ func (bq *CreateAccountRequest) Parse(rq *http.Request) error {
 	return nil
 }
 
-func (bq GetEmailGrantRequest) Build(host string) (*http.Request, error) {
-	uri := "/get-email-grant"
+func (bq CreateEmailGrantRequest) Build(host string) (*http.Request, error) {
+	uri := "/create-email-grant"
 	body := bytes.NewBuffer([]byte{})
 	if err := json.NewEncoder(body).Encode(bq); err != nil {
 		return nil, fmt.Errorf("json.Encoder.Encode: %w", err)
 	}
-	r, err := http.NewRequest("GET", join(host, uri), body)
+	r, err := http.NewRequest("POST", join(host, uri), body)
 	if err != nil {
 		return nil, fmt.Errorf("http.NewRequest: %w", err)
 	}
@@ -61,7 +61,7 @@ func (bq GetEmailGrantRequest) Build(host string) (*http.Request, error) {
 	return r, nil
 }
 
-func (bq *GetEmailGrantRequest) Parse(rq *http.Request) error {
+func (bq *CreateEmailGrantRequest) Parse(rq *http.Request) error {
 	if !strings.HasPrefix(rq.Header.Get("Content-Type"), "application/json") {
 		return fmt.Errorf("invalid content type for request: %s", rq.Header.Get("Content-Type"))
 	}
@@ -71,7 +71,7 @@ func (bq *GetEmailGrantRequest) Parse(rq *http.Request) error {
 	return nil
 }
 
-func (bs GetEmailGrantResponse) Write(w http.ResponseWriter) error {
+func (bs CreateEmailGrantResponse) Write(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(bs); err != nil {
@@ -80,7 +80,7 @@ func (bs GetEmailGrantResponse) Write(w http.ResponseWriter) error {
 	return nil
 }
 
-func (bs *GetEmailGrantResponse) Parse(rs *http.Response) error {
+func (bs *CreateEmailGrantResponse) Parse(rs *http.Response) error {
 	if !strings.HasPrefix(rs.Header.Get("Content-Type"), "application/json") {
 		return fmt.Errorf("invalid content type for request: %s", rs.Header.Get("Content-Type"))
 	}
@@ -90,13 +90,13 @@ func (bs *GetEmailGrantResponse) Parse(rs *http.Response) error {
 	return nil
 }
 
-func (bq GetPasswordGrantRequest) Build(host string) (*http.Request, error) {
-	uri := "/get-password-grant"
+func (bq CreatePasswordGrantRequest) Build(host string) (*http.Request, error) {
+	uri := "/create-password-grant"
 	body := bytes.NewBuffer([]byte{})
 	if err := json.NewEncoder(body).Encode(bq); err != nil {
 		return nil, fmt.Errorf("json.Encoder.Encode: %w", err)
 	}
-	r, err := http.NewRequest("GET", join(host, uri), body)
+	r, err := http.NewRequest("POST", join(host, uri), body)
 	if err != nil {
 		return nil, fmt.Errorf("http.NewRequest: %w", err)
 	}
@@ -105,7 +105,7 @@ func (bq GetPasswordGrantRequest) Build(host string) (*http.Request, error) {
 	return r, nil
 }
 
-func (bq *GetPasswordGrantRequest) Parse(rq *http.Request) error {
+func (bq *CreatePasswordGrantRequest) Parse(rq *http.Request) error {
 	if !strings.HasPrefix(rq.Header.Get("Content-Type"), "application/json") {
 		return fmt.Errorf("invalid content type for request: %s", rq.Header.Get("Content-Type"))
 	}
@@ -115,7 +115,7 @@ func (bq *GetPasswordGrantRequest) Parse(rq *http.Request) error {
 	return nil
 }
 
-func (bs GetPasswordGrantResponse) Write(w http.ResponseWriter) error {
+func (bs CreatePasswordGrantResponse) Write(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(bs); err != nil {
@@ -124,7 +124,7 @@ func (bs GetPasswordGrantResponse) Write(w http.ResponseWriter) error {
 	return nil
 }
 
-func (bs *GetPasswordGrantResponse) Parse(rs *http.Response) error {
+func (bs *CreatePasswordGrantResponse) Parse(rs *http.Response) error {
 	if !strings.HasPrefix(rs.Header.Get("Content-Type"), "application/json") {
 		return fmt.Errorf("invalid content type for request: %s", rs.Header.Get("Content-Type"))
 	}
@@ -134,13 +134,13 @@ func (bs *GetPasswordGrantResponse) Parse(rs *http.Response) error {
 	return nil
 }
 
-func (bq GetPhoneGrantRequest) Build(host string) (*http.Request, error) {
-	uri := "/get-phone-grant"
+func (bq CreatePhoneGrantRequest) Build(host string) (*http.Request, error) {
+	uri := "/create-phone-grant"
 	body := bytes.NewBuffer([]byte{})
 	if err := json.NewEncoder(body).Encode(bq); err != nil {
 		return nil, fmt.Errorf("json.Encoder.Encode: %w", err)
 	}
-	r, err := http.NewRequest("GET", join(host, uri), body)
+	r, err := http.NewRequest("POST", join(host, uri), body)
 	if err != nil {
 		return nil, fmt.Errorf("http.NewRequest: %w", err)
 	}
@@ -149,7 +149,7 @@ func (bq GetPhoneGrantRequest) Build(host string) (*http.Request, error) {
 	return r, nil
 }
 
-func (bq *GetPhoneGrantRequest) Parse(rq *http.Request) error {
+func (bq *CreatePhoneGrantRequest) Parse(rq *http.Request) error {
 	if !strings.HasPrefix(rq.Header.Get("Content-Type"), "application/json") {
 		return fmt.Errorf("invalid content type for request: %s", rq.Header.Get("Content-Type"))
 	}
@@ -159,7 +159,7 @@ func (bq *GetPhoneGrantRequest) Parse(rq *http.Request) error {
 	return nil
 }
 
-func (bs GetPhoneGrantResponse) Write(w http.ResponseWriter) error {
+func (bs CreatePhoneGrantResponse) Write(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(bs); err != nil {
@@ -168,7 +168,7 @@ func (bs GetPhoneGrantResponse) Write(w http.ResponseWriter) error {
 	return nil
 }
 
-func (bs *GetPhoneGrantResponse) Parse(rs *http.Response) error {
+func (bs *CreatePhoneGrantResponse) Parse(rs *http.Response) error {
 	if !strings.HasPrefix(rs.Header.Get("Content-Type"), "application/json") {
 		return fmt.Errorf("invalid content type for request: %s", rs.Header.Get("Content-Type"))
 	}

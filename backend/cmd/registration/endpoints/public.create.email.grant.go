@@ -3,21 +3,22 @@ package endpoints
 import (
 	"fmt"
 	"logbook/internal/web/validate"
+	"logbook/models/columns"
 	"logbook/models/transports"
 	"net/http"
 )
 
-type GetPasswordGrantRequest struct {
+type CreateEmailGrantRequest struct {
 	AntiCsrfToken transports.AntiCsrfToken `json:"acsrft"`
-	Password      transports.Password      `json:"password"`
+	Email         columns.Email            `json:"email"`
 }
 
-type GetPasswordGrantResponse struct {
-	PasswordGrant transports.PasswordGrant `json:"password-grant"`
+type CreateEmailGrantResponse struct {
+	EmailGrant transports.EmailGrant `json:"email-grant"`
 }
 
-func (p *Public) GetPasswordGrant(w http.ResponseWriter, r *http.Request) {
-	bq := &GetPasswordGrantRequest{}
+func (p *Public) CreateEmailGrant(w http.ResponseWriter, r *http.Request) {
+	bq := &CreateEmailGrantRequest{}
 
 	if err := bq.Parse(r); err != nil {
 		p.l.Println(fmt.Errorf("parsing request: %w", err))
@@ -31,15 +32,15 @@ func (p *Public) GetPasswordGrant(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	g, err := p.a.GrantPassword(r.Context(), bq.Password)
+	g, err := p.a.GrantEmail(r.Context(), bq.Email)
 	if err != nil {
-		p.l.Println(fmt.Errorf("a.GrantPassword: %w", err))
+		p.l.Println(fmt.Errorf("a.GrantEmail: %w", err))
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
-	bs := GetPasswordGrantResponse{
-		PasswordGrant: g,
+	bs := CreateEmailGrantResponse{
+		EmailGrant: g,
 	}
 	if err := bs.Write(w); err != nil {
 		p.l.Println(fmt.Errorf("writing json response: %w", err))

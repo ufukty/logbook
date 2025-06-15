@@ -9,9 +9,9 @@ import (
 
 type Interface interface {
 	CreateAccount(*endpoints.CreateAccountRequest) (*http.Response, error)
-	GetEmailGrant(*endpoints.GetEmailGrantRequest) (*endpoints.GetEmailGrantResponse, error)
-	GetPasswordGrant(*endpoints.GetPasswordGrantRequest) (*endpoints.GetPasswordGrantResponse, error)
-	GetPhoneGrant(*endpoints.GetPhoneGrantRequest) (*endpoints.GetPhoneGrantResponse, error)
+	CreateEmailGrant(*endpoints.CreateEmailGrantRequest) (*endpoints.CreateEmailGrantResponse, error)
+	CreatePasswordGrant(*endpoints.CreatePasswordGrantRequest) (*endpoints.CreatePasswordGrantResponse, error)
+	CreatePhoneGrant(*endpoints.CreatePhoneGrantRequest) (*endpoints.CreatePhoneGrantResponse, error)
 }
 
 type Mock struct {
@@ -21,14 +21,14 @@ func (m *Mock) CreateAccount(*endpoints.CreateAccountRequest) (*http.Response, e
 	return nil, nil
 }
 
-func (m *Mock) GetEmailGrant(*endpoints.GetEmailGrantRequest) (*endpoints.GetEmailGrantResponse, error) {
+func (m *Mock) CreateEmailGrant(*endpoints.CreateEmailGrantRequest) (*endpoints.CreateEmailGrantResponse, error) {
 	return nil, nil
 }
 
-func (m *Mock) GetPasswordGrant(*endpoints.GetPasswordGrantRequest) (*endpoints.GetPasswordGrantResponse, error) {
+func (m *Mock) CreatePasswordGrant(*endpoints.CreatePasswordGrantRequest) (*endpoints.CreatePasswordGrantResponse, error) {
 	return nil, nil
 }
 
-func (m *Mock) GetPhoneGrant(*endpoints.GetPhoneGrantRequest) (*endpoints.GetPhoneGrantResponse, error) {
+func (m *Mock) CreatePhoneGrant(*endpoints.CreatePhoneGrantRequest) (*endpoints.CreatePhoneGrantResponse, error) {
 	return nil, nil
 }
