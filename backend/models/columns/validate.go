@@ -1,16 +1,5 @@
 package columns
 
-import (
-	"github.com/ufukty/gohandlers/pkg/validator/validate"
-)
-
-func (v NonNegativeNumber) Validate() error {
-	if v < 0 {
-		return validate.ErrPattern
-	}
-	return nil
-}
-
 func (v AccessId) Validate() error          { return uuid.Validate(string(v)) }
 func (v BookmarkId) Validate() error        { return uuid.Validate(string(v)) }
 func (v BottomUpPropsId) Validate() error   { return uuid.Validate(string(v)) }

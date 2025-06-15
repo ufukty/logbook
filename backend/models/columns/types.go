@@ -1,10 +1,5 @@
 package columns
 
-// commons
-type (
-	NonNegativeNumber int
-)
-
 // users
 type (
 	UserId   string
