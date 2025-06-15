@@ -8,6 +8,7 @@ import (
 
 // TODO: add anti-CSRF token checks
 // POST
+// gh:list
 func (p *Public) Logout(w http.ResponseWriter, r *http.Request) {
 	st, err := cookies.GetSessionToken(r)
 	if err != nil {
