@@ -39,7 +39,7 @@ func (c *Client) CreateAccount(bq *endpoints.CreateAccountRequest) (*http.Respon
 	return rs, nil
 }
 
-func (c *Client) GetEmailGrant(bq *endpoints.GetEmailGrantRequest) (*endpoints.GetEmailGrantResponse, error) {
+func (c *Client) CreateEmailGrant(bq *endpoints.CreateEmailGrantRequest) (*endpoints.CreateEmailGrantResponse, error) {
 	h, err := c.p.Host()
 	if err != nil {
 		return nil, fmt.Errorf("Host: %w", err)
@@ -55,7 +55,7 @@ func (c *Client) GetEmailGrant(bq *endpoints.GetEmailGrantRequest) (*endpoints.G
 	if rs.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("non-200 status code: %d (%s)", rs.StatusCode, http.StatusText(rs.StatusCode))
 	}
-	bs := &endpoints.GetEmailGrantResponse{}
+	bs := &endpoints.CreateEmailGrantResponse{}
 	err = bs.Parse(rs)
 	if err != nil {
 		return nil, fmt.Errorf("Parse: %w", err)
@@ -63,7 +63,7 @@ func (c *Client) GetEmailGrant(bq *endpoints.GetEmailGrantRequest) (*endpoints.G
 	return bs, nil
 }
 
-func (c *Client) GetPasswordGrant(bq *endpoints.GetPasswordGrantRequest) (*endpoints.GetPasswordGrantResponse, error) {
+func (c *Client) CreatePasswordGrant(bq *endpoints.CreatePasswordGrantRequest) (*endpoints.CreatePasswordGrantResponse, error) {
 	h, err := c.p.Host()
 	if err != nil {
 		return nil, fmt.Errorf("Host: %w", err)
@@ -79,7 +79,7 @@ func (c *Client) GetPasswordGrant(bq *endpoints.GetPasswordGrantRequest) (*endpo
 	if rs.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("non-200 status code: %d (%s)", rs.StatusCode, http.StatusText(rs.StatusCode))
 	}
-	bs := &endpoints.GetPasswordGrantResponse{}
+	bs := &endpoints.CreatePasswordGrantResponse{}
 	err = bs.Parse(rs)
 	if err != nil {
 		return nil, fmt.Errorf("Parse: %w", err)
@@ -87,7 +87,7 @@ func (c *Client) GetPasswordGrant(bq *endpoints.GetPasswordGrantRequest) (*endpo
 	return bs, nil
 }
 
-func (c *Client) GetPhoneGrant(bq *endpoints.GetPhoneGrantRequest) (*endpoints.GetPhoneGrantResponse, error) {
+func (c *Client) CreatePhoneGrant(bq *endpoints.CreatePhoneGrantRequest) (*endpoints.CreatePhoneGrantResponse, error) {
 	h, err := c.p.Host()
 	if err != nil {
 		return nil, fmt.Errorf("Host: %w", err)
@@ -103,7 +103,7 @@ func (c *Client) GetPhoneGrant(bq *endpoints.GetPhoneGrantRequest) (*endpoints.G
 	if rs.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("non-200 status code: %d (%s)", rs.StatusCode, http.StatusText(rs.StatusCode))
 	}
-	bs := &endpoints.GetPhoneGrantResponse{}
+	bs := &endpoints.CreatePhoneGrantResponse{}
 	err = bs.Parse(rs)
 	if err != nil {
 		return nil, fmt.Errorf("Parse: %w", err)

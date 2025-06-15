@@ -8,17 +8,17 @@ import (
 	"net/http"
 )
 
-type GetEmailGrantRequest struct {
+type CreatePhoneGrantRequest struct {
 	AntiCsrfToken transports.AntiCsrfToken `json:"acsrft"`
-	Email         columns.Email            `json:"email"`
+	Phone         columns.Phone            `json:"phone"`
 }
 
-type GetEmailGrantResponse struct {
-	EmailGrant transports.EmailGrant `json:"email-grant"`
+type CreatePhoneGrantResponse struct {
+	PhoneGrant transports.PhoneGrant `json:"phone-grant"`
 }
 
-func (p *Public) GetEmailGrant(w http.ResponseWriter, r *http.Request) {
-	bq := &GetEmailGrantRequest{}
+func (p *Public) CreatePhoneGrant(w http.ResponseWriter, r *http.Request) {
+	bq := &CreatePhoneGrantRequest{}
 
 	if err := bq.Parse(r); err != nil {
 		p.l.Println(fmt.Errorf("parsing request: %w", err))
@@ -32,15 +32,15 @@ func (p *Public) GetEmailGrant(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	g, err := p.a.GrantEmail(r.Context(), bq.Email)
+	g, err := p.a.GrantPhone(r.Context(), bq.Phone)
 	if err != nil {
 		p.l.Println(fmt.Errorf("a.GrantEmail: %w", err))
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
-	bs := GetEmailGrantResponse{
-		EmailGrant: g,
+	bs := CreatePhoneGrantResponse{
+		PhoneGrant: g,
 	}
 	if err := bs.Write(w); err != nil {
 		p.l.Println(fmt.Errorf("writing json response: %w", err))
