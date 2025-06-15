@@ -16,5 +16,5 @@ var (
 	phoneNumber  = validator.ForStrings(`^\+?(\d{1,3})?[ -]?(\d{3})[ -]?(\d{3})[ -]?(\d{4})$`, 10, 15)
 	sessionToken = validator.ForStrings(`[A-Za-z0-9-_]+$`, 256, 256) // pattern is as defined in std lib base64.URLEncoding
 	username     = validator.ForStrings(`^[a-zA-Z]+[a-zA-Z0-9\_\.\-]*$`, 3, 50)
-	uuid_        = validator.ForStrings(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`, len("00000000-0000-0000-0000-000000000000"), len("00000000-0000-0000-0000-000000000000"))
+	uuid         = validator.ForStrings(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`, len("00000000-0000-0000-0000-000000000000"), len("00000000-0000-0000-0000-000000000000"))
 )
