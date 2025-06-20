@@ -4,10 +4,10 @@ package endpoints
 
 import "logbook/internal/web/reception"
 
-func (pr *Private) ListHandlers() map[string]reception.HandlerInfo {
+func (p *Private) ListHandlers() map[string]reception.HandlerInfo {
 	return map[string]reception.HandlerInfo{
-		"CheckMembership":         {Method: "GET", Path: "/check-membership/{gid}/{uid}", Ref: pr.CheckMembership},
-		"CheckMembershipEventual": {Method: "GET", Path: "/check-membership-eventual/{gid}/{uid}", Ref: pr.CheckMembershipEventual},
+		"CheckMembership":         {Method: "GET", Path: "/check-membership/{gid}/{uid}", Ref: p.CheckMembership},
+		"CheckMembershipEventual": {Method: "GET", Path: "/check-membership-eventual/{gid}/{uid}", Ref: p.CheckMembershipEventual},
 	}
 }
 

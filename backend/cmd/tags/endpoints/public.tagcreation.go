@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"logbook/cmd/sessions/endpoints"
 	"logbook/internal/cookies"
+	"logbook/internal/web/serialize"
 	"logbook/models/columns"
 	"net/http"
 )
@@ -43,8 +44,9 @@ func (p *Public) TagCreation(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if issues := bq.Validate(); len(issues) > 0 {
-		p.l.Println(fmt.Errorf("validating request parameters: %w", err))
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		if err := serialize.ValidationIssues(w, issues); err != nil {
+			p.l.Println(fmt.Errorf("serializing validation issues: %w", err))
+		}
 		return
 	}
 

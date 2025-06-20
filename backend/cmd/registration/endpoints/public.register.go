@@ -3,6 +3,7 @@ package endpoints
 import (
 	"fmt"
 	"logbook/cmd/registration/app"
+	"logbook/internal/web/serialize"
 	"logbook/models/columns"
 	"logbook/models/transports"
 	"net/http"
@@ -32,8 +33,9 @@ func (p *Public) CreateAccount(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if issues := bq.Validate(); len(issues) > 0 {
-		p.l.Println(fmt.Errorf("validation: %w", err))
-		http.Error(w, redact(err), http.StatusBadRequest)
+		if err := serialize.ValidationIssues(w, issues); err != nil {
+			p.l.Println(fmt.Errorf("serializing validation issues: %w", err))
+		}
 		return
 	}
 

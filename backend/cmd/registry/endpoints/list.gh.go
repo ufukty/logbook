@@ -4,10 +4,10 @@ package endpoints
 
 import "logbook/internal/web/reception"
 
-func (en *Endpoints) ListHandlers() map[string]reception.HandlerInfo {
+func (e *Endpoints) ListHandlers() map[string]reception.HandlerInfo {
 	return map[string]reception.HandlerInfo{
-		"ListInstances":    {Method: "GET", Path: "/list-instances/{service}", Ref: en.ListInstances},
-		"RecheckInstance":  {Method: "POST", Path: "/recheck-instance", Ref: en.RecheckInstance},
-		"RegisterInstance": {Method: "POST", Path: "/register-instance", Ref: en.RegisterInstance},
+		"ListInstances":    {Method: "GET", Path: "/list-instances/{service}", Ref: e.ListInstances},
+		"RecheckInstance":  {Method: "POST", Path: "/recheck-instance", Ref: e.RecheckInstance},
+		"RegisterInstance": {Method: "POST", Path: "/register-instance", Ref: e.RegisterInstance},
 	}
 }
