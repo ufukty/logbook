@@ -2,6 +2,7 @@ package endpoints
 
 import (
 	"fmt"
+	"logbook/internal/web/serialize"
 	"logbook/models"
 	"net/http"
 )
@@ -25,8 +26,9 @@ func (e *Endpoints) ListInstances(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if issues := bq.Validate(); len(issues) > 0 {
-		e.l.Println(fmt.Errorf("validating request parameters: %w", err))
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		if err := serialize.ValidationIssues(w, issues); err != nil {
+			e.l.Println(fmt.Errorf("serializing validation issues: %w", err))
+		}
 		return
 	}
 
