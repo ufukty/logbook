@@ -9,10 +9,10 @@ type (
 	UserIds  []columns.UserId
 )
 
-func (gs GroupIds) Validate() any {
+func collect[E interface{ Validate() any }](s []E) any {
 	issues := []any{}
-	for _, g := range gs {
-		if issue := g.Validate(); issue != nil {
+	for _, e := range s {
+		if issue := e.Validate(); issue != nil {
 			issues = append(issues, issue)
 		}
 	}
@@ -21,3 +21,6 @@ func (gs GroupIds) Validate() any {
 	}
 	return nil
 }
+
+func (gs GroupIds) Validate() any { return collect(gs) }
+func (us UserIds) Validate() any  { return collect(us) }
