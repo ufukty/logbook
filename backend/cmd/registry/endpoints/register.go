@@ -16,7 +16,7 @@ type RegisterInstanceRequest struct {
 	Port    int            `json:"port"`
 }
 
-func (bq RegisterInstanceRequest) validate() error {
+func (bq RegisterInstanceRequest) crossValidate() error {
 	proto := "http"
 	if bq.TLS {
 		proto = "https"
@@ -50,6 +50,11 @@ func (e *Endpoints) RegisterInstance(w http.ResponseWriter, r *http.Request) {
 		if err := serialize.ValidationIssues(w, issues); err != nil {
 			e.l.Println(fmt.Errorf("serializing validation issues: %w", err))
 		}
+		return
+	}
+
+	if err := bq.crossValidate(); err != nil {
+		http.Error(w, "cross validation error", 400)
 		return
 	}
 
