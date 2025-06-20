@@ -2,7 +2,6 @@ package endpoints
 
 import (
 	"fmt"
-	"logbook/internal/web/validate"
 	"logbook/models"
 	"net/http"
 )
@@ -25,7 +24,7 @@ func (e *Endpoints) ListInstances(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := validate.RequestFields(bq); err != nil {
+	if issues := bq.Validate(); len(issues) > 0 {
 		e.l.Println(fmt.Errorf("validating request parameters: %w", err))
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return

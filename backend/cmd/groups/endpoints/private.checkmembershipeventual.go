@@ -3,7 +3,6 @@ package endpoints
 import (
 	"fmt"
 	"logbook/cmd/groups/app"
-	"logbook/internal/web/validate"
 	"logbook/models/columns"
 	"net/http"
 )
@@ -27,7 +26,7 @@ func (e *Private) CheckMembershipEventual(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	if err := validate.RequestFields(bq); err != nil {
+	if issues := bq.Validate(); len(issues) > 0 {
 		e.l.Println(fmt.Errorf("validating request parameters: %w", err))
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return

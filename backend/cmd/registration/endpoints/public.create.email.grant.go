@@ -2,7 +2,6 @@ package endpoints
 
 import (
 	"fmt"
-	"logbook/internal/web/validate"
 	"logbook/models/columns"
 	"logbook/models/transports"
 	"net/http"
@@ -26,7 +25,7 @@ func (p *Public) CreateEmailGrant(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := validate.RequestFields(bq); err != nil {
+	if issues := bq.Validate(); len(issues) > 0 {
 		p.l.Println(fmt.Errorf("validating request parameters: %w", err))
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"logbook/cmd/sessions/app"
 	"logbook/internal/cookies"
-	"logbook/internal/web/validate"
 	"logbook/models/columns"
 	"logbook/models/transports"
 	"net/http"
@@ -25,7 +24,7 @@ func (p *Public) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := validate.RequestFields(bq); err != nil {
+	if issues := bq.Validate(); len(issues) > 0 {
 		p.l.Println(fmt.Errorf("validation: %w", err))
 		http.Error(w, redact(err), http.StatusBadRequest)
 		return

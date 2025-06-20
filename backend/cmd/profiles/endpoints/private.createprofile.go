@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"logbook/cmd/profiles/app"
 
-	"logbook/internal/web/validate"
 	"logbook/models/columns"
 	"net/http"
 )
@@ -27,7 +26,7 @@ func (p *Private) CreateProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := validate.RequestFields(bq); err != nil {
+	if issues := bq.Validate(); len(issues) > 0 {
 		p.l.Println(fmt.Errorf("validating the request parameters: %w", err))
 		http.Error(w, redact(err), http.StatusBadRequest)
 		return
