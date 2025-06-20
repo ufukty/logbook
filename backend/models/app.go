@@ -2,7 +2,6 @@ package models
 
 import (
 	"fmt"
-	"logbook/internal/web/validate"
 	"logbook/models/columns"
 	"strings"
 )
@@ -19,11 +18,18 @@ func (ovid Ovid) String() string {
 	return fmt.Sprintf("(Oid: %q, Vid: %q)", ovid.Oid, ovid.Vid)
 }
 
-func (ovid Ovid) Validate() error {
-	return validate.All(map[string]validate.Validator{
-		"oid": ovid.Oid,
-		"vid": ovid.Vid,
-	})
+func (ovid Ovid) Validate() any {
+	issues := map[string]any{}
+	if issue := ovid.Oid.Validate(); issue != nil {
+		issues["oid"] = issue
+	}
+	if issue := ovid.Vid.Validate(); issue != nil {
+		issues["vid"] = issue
+	}
+	if len(issues) > 0 {
+		return issues
+	}
+	return nil
 }
 
 func (ovid *Ovid) FromRoute(s string) error {
