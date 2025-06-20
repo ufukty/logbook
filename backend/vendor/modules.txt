@@ -6,8 +6,8 @@ github.com/alexedwards/argon2id
 github.com/boombuler/barcode
 github.com/boombuler/barcode/qr
 github.com/boombuler/barcode/utils
-# github.com/go-chi/chi/v5 v5.1.0
-## explicit; go 1.14
+# github.com/go-chi/chi/v5 v5.2.2
+## explicit; go 1.20
 github.com/go-chi/chi/v5
 github.com/go-chi/chi/v5/middleware
 # github.com/google/uuid v1.6.0
