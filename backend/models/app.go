@@ -41,7 +41,7 @@ func (ovid *Ovid) FromRoute(s string) error {
 		return fmt.Errorf("invalid number of fragments")
 	}
 	ovid.Oid = columns.ObjectiveId(us[0])
-	ovid.Vid = columns.VersionId(us[0])
+	ovid.Vid = columns.VersionId(us[1])
 	return nil
 }
 
