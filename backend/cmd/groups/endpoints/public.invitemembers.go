@@ -11,9 +11,9 @@ import (
 )
 
 type InviteMembersRequest struct {
-	Gid              columns.GroupId   `route:"gid"`
-	GroupTypeMembers []columns.GroupId `json:"user-type-members"`
-	UserTypeMembers  []columns.UserId  `json:"group-type-members"`
+	Gid              columns.GroupId  `route:"gid"`
+	GroupTypeMembers columns.GroupIds `json:"user-type-members"`
+	UserTypeMembers  columns.UserIds  `json:"group-type-members"`
 }
 
 // TODO: check the inviter is owner; or the last delegee if there is any active delegation.
