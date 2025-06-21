@@ -42,6 +42,12 @@ github.com/ufukty/gohandlers v0.29.0 h1:obFWeH4wmzp1iioAZndbrT/YMZLLUfOOilNF2R9e
 github.com/ufukty/gohandlers v0.29.0/go.mod h1:B8KcHr+tcHIW5N82lP0iRPDDeZLtuVNKYhW/Vh/xz4A=
 github.com/ufukty/gohandlers v0.31.0 h1:D2+P5RfzEsahxIBCX+jRcPVnvntGfU4YCwwYLqmnkE8=
 github.com/ufukty/gohandlers v0.31.0/go.mod h1:B8KcHr+tcHIW5N82lP0iRPDDeZLtuVNKYhW/Vh/xz4A=
+github.com/ufukty/gohandlers v0.31.1-0.20250621034655-388a5bd0dea8 h1:s5M22y5kJKhAfTs7g99S1zFDyKnZnhuSChwHCH0jcWg=
+github.com/ufukty/gohandlers v0.31.1-0.20250621034655-388a5bd0dea8/go.mod h1:B8KcHr+tcHIW5N82lP0iRPDDeZLtuVNKYhW/Vh/xz4A=
+github.com/ufukty/gohandlers v0.31.1-0.20250621042700-3028396eeb74 h1:TNsDQ8z4K128UdvIbQ9r8prIjnupu5kmWRNjXwo9LPs=
+github.com/ufukty/gohandlers v0.31.1-0.20250621042700-3028396eeb74/go.mod h1:B8KcHr+tcHIW5N82lP0iRPDDeZLtuVNKYhW/Vh/xz4A=
+github.com/ufukty/gohandlers v0.32.0 h1:vPVFKpC1hOLiOd8eAX+vXNf6o8fheF4qN9uLEVS2xYc=
+github.com/ufukty/gohandlers v0.32.0/go.mod h1:B8KcHr+tcHIW5N82lP0iRPDDeZLtuVNKYhW/Vh/xz4A=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20210921155107-089bfa567519/go.mod h1:GvvjBRRGRdwPK5ydBHafDWAxML/pGHZbMvKqRZ5+Abc=
