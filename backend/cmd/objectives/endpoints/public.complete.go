@@ -6,8 +6,9 @@ import (
 	"logbook/internal/cookies"
 	"logbook/internal/web/serialize"
 	"logbook/models"
-	"logbook/models/basics"
 	"net/http"
+
+	"github.com/ufukty/gohandlers/pkg/types/basics"
 )
 
 type MarkCompleteRequest struct {
