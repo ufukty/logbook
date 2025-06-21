@@ -3,6 +3,7 @@ package endpoints
 import (
 	"fmt"
 	"logbook/cmd/registry/app"
+	"logbook/internal/web/serialize"
 	"logbook/models"
 	"net/http"
 	"net/url"
@@ -15,7 +16,7 @@ type RegisterInstanceRequest struct {
 	Port    int            `json:"port"`
 }
 
-func (bq RegisterInstanceRequest) validate() error {
+func (bq RegisterInstanceRequest) crossValidate() error {
 	proto := "http"
 	if bq.TLS {
 		proto = "https"
@@ -45,9 +46,15 @@ func (e *Endpoints) RegisterInstance(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := bq.validate(); err != nil {
-		e.l.Println(fmt.Errorf("validating request parameters: %w", err))
-		http.Error(w, redact(err), http.StatusBadRequest)
+	if issues := bq.Validate(); len(issues) > 0 {
+		if err := serialize.ValidationIssues(w, issues); err != nil {
+			e.l.Println(fmt.Errorf("serializing validation issues: %w", err))
+		}
+		return
+	}
+
+	if err := bq.crossValidate(); err != nil {
+		http.Error(w, "cross validation error", 400)
 		return
 	}
 

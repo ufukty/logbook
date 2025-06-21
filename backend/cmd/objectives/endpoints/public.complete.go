@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"logbook/cmd/sessions/endpoints"
 	"logbook/internal/cookies"
-	"logbook/internal/web/validate"
+	"logbook/internal/web/serialize"
 	"logbook/models"
-	"logbook/models/basics"
 	"net/http"
+
+	"github.com/ufukty/gohandlers/pkg/types/basics"
 )
 
 type MarkCompleteRequest struct {
@@ -45,9 +46,10 @@ func (p *Public) MarkComplete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := validate.RequestFields(bq); err != nil {
-		p.l.Println(fmt.Errorf("validating request parameters: %w", err))
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+	if issues := bq.Validate(); len(issues) > 0 {
+		if err := serialize.ValidationIssues(w, issues); err != nil {
+			p.l.Println(fmt.Errorf("serializing validation issues: %w", err))
+		}
 		return
 	}
 

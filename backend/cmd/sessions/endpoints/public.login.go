@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"logbook/cmd/sessions/app"
 	"logbook/internal/cookies"
-	"logbook/internal/web/validate"
+	"logbook/internal/web/serialize"
 	"logbook/models/columns"
 	"logbook/models/transports"
 	"net/http"
@@ -25,9 +25,10 @@ func (p *Public) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := validate.RequestFields(bq); err != nil {
-		p.l.Println(fmt.Errorf("validation: %w", err))
-		http.Error(w, redact(err), http.StatusBadRequest)
+	if issues := bq.Validate(); len(issues) > 0 {
+		if err := serialize.ValidationIssues(w, issues); err != nil {
+			p.l.Println(fmt.Errorf("serializing validation issues: %w", err))
+		}
 		return
 	}
 

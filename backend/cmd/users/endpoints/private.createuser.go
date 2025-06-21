@@ -3,6 +3,7 @@ package endpoints
 import (
 	"fmt"
 
+	"logbook/internal/web/serialize"
 	"logbook/models/columns"
 	"logbook/models/transports"
 	"net/http"
@@ -31,6 +32,13 @@ func (p *Private) CreateUser(w http.ResponseWriter, r *http.Request) {
 	if err := bq.Parse(r); err != nil {
 		p.l.Println(fmt.Errorf("parsing: %w", err))
 		http.Error(w, "parsing", 400)
+		return
+	}
+	
+	if issues := bq.Validate(); len(issues) > 0 {
+		if err := serialize.ValidationIssues(w, issues); err != nil {
+			p.l.Println(fmt.Errorf("serializing validation issues: %w", err))
+		}
 		return
 	}
 

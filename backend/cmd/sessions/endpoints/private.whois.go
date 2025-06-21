@@ -2,6 +2,7 @@ package endpoints
 
 import (
 	"fmt"
+	"logbook/internal/web/serialize"
 	"logbook/models/columns"
 	"net/http"
 )
@@ -23,6 +24,13 @@ func (p *Private) WhoIs(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		p.l.Println(fmt.Errorf("ParseRequest: %w", err))
 		http.Error(w, fmt.Errorf("ParseRequest :%w", err).Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if issues := bq.Validate(); len(issues) > 0 {
+		if err := serialize.ValidationIssues(w, issues); err != nil {
+			p.l.Println(fmt.Errorf("serializing validation issues: %w", err))
+		}
 		return
 	}
 

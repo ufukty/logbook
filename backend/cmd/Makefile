@@ -1,5 +1,6 @@
 all:
 	$(MAKE) -C auth
+	$(MAKE) -C delegation
 	$(MAKE) -C groups
 	$(MAKE) -C objectives
 	$(MAKE) -C pdp
