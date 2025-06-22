@@ -8,11 +8,16 @@ import (
 	"logbook/internal/stores"
 	"logbook/models"
 	"logbook/models/columns"
+	"logbook/models/validators"
 	"sync"
 	"time"
 )
 
 type InstanceId string
+
+func (v InstanceId) Validate() any {
+	return validators.Uuid.Validate(string(v))
+}
 
 // maintains per-service locks
 type serviceRegistry struct {
