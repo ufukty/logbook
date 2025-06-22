@@ -30,3 +30,23 @@ func (s *Service) FromRoute(src string) error {
 func (s Service) ToRoute() (string, error) {
 	return string(s), nil
 }
+
+func (s Service) Validate() any {
+	switch s {
+	case
+		Auth,
+		Discovery,
+		Groups,
+		Internal,
+		Objectives,
+		Pdp,
+		Profiles,
+		Registration,
+		Registry,
+		Sessions,
+		Tags,
+		Users:
+		return nil
+	}
+	return "invalid value"
+}
