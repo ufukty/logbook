@@ -3,63 +3,19 @@ package endpoints
 import (
 	"fmt"
 	"logbook/cmd/objectives/app"
+	"logbook/cmd/objectives/models/scalars"
 	"logbook/cmd/sessions/endpoints"
 	"logbook/internal/cookies"
 	"logbook/internal/web/serialize"
 	"logbook/models"
 	"logbook/models/owners"
 	"net/http"
-	"strconv"
 )
 
-type PlacementStart int
-
-func (p *PlacementStart) FromRoute(src string) error {
-	a, err := strconv.Atoi(src)
-	if err != nil {
-		return fmt.Errorf("atoi: %w", err)
-	}
-	*p = PlacementStart(a)
-	return nil
-}
-
-func (p PlacementStart) ToRoute() (string, error) {
-	return strconv.Itoa(int(p)), nil
-}
-
-func (p PlacementStart) Validate() any {
-	if 0 <= p && p < 10000 {
-		return "out of range"
-	}
-	return nil
-}
-
-type PlacementLength int
-
-func (p *PlacementLength) FromRoute(src string) error {
-	a, err := strconv.Atoi(src)
-	if err != nil {
-		return fmt.Errorf("atoi: %w", err)
-	}
-	*p = PlacementLength(a)
-	return nil
-}
-
-func (p PlacementLength) ToRoute() (string, error) {
-	return strconv.Itoa(int(p)), nil
-}
-
-func (p PlacementLength) Validate() any {
-	if 0 <= p && p < 10000 {
-		return "out of range"
-	}
-	return nil
-}
-
 type GetPlacementRequest struct {
-	Root   models.Ovid     `route:"root"`
-	Start  PlacementStart  `route:"start"`
-	Length PlacementLength `route:"length"`
+	Root   models.Ovid             `route:"root"`
+	Start  scalars.PlacementStart  `route:"start"`
+	Length scalars.PlacementLength `route:"length"`
 }
 
 type GetPlacementResponse struct {
