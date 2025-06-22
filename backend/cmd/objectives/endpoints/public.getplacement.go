@@ -27,9 +27,9 @@ func (p PlacementStart) ToRoute() (string, error) {
 	return strconv.Itoa(int(p)), nil
 }
 
-func (p PlacementStart) Validate() error {
+func (p PlacementStart) Validate() any {
 	if 0 <= p && p < 10000 {
-		return fmt.Errorf("out of range")
+		return "out of range"
 	}
 	return nil
 }
@@ -49,9 +49,9 @@ func (p PlacementLength) ToRoute() (string, error) {
 	return strconv.Itoa(int(p)), nil
 }
 
-func (p PlacementLength) Validate() error {
+func (p PlacementLength) Validate() any {
 	if 0 <= p && p < 10000 {
-		return fmt.Errorf("out of range")
+		return "out of range"
 	}
 	return nil
 }
