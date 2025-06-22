@@ -61,9 +61,9 @@ func (e *Endpoints) RegisterInstance(w http.ResponseWriter, r *http.Request) {
 	}
 
 	iid, err := e.a.RegisterInstance(bq.Service, models.Instance{
-		Tls:     bq.TLS,
-		Address: bq.Address,
-		Port:    bq.Port,
+		Tls:     bool(bq.TLS),
+		Address: string(bq.Address),
+		Port:    int(bq.Port),
 	})
 	if err != nil {
 		e.l.Println(fmt.Errorf("performing request: %w", err))
