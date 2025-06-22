@@ -2,10 +2,6 @@ package transports
 
 func (a *PolicyAction) FromRoute(src string) error {
 	*a = PolicyAction(src)
-	err := a.Validate()
-	if err != nil {
-		return err
-	}
 	return nil
 }
 
