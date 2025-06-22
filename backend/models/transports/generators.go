@@ -6,7 +6,7 @@ import (
 )
 
 func NewAntiCsrfToken() (AntiCsrfToken, error) {
-	b := make([]byte, length_anti_csrf_token)
+	b := make([]byte, 32)
 	if _, err := rand.Read(b); err != nil {
 		return "reading random bytes", err
 	}

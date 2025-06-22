@@ -1,31 +1,21 @@
 package transports
 
 import (
+	"logbook/models/validators"
 	"time"
 
 	"github.com/ufukty/gohandlers/pkg/validator/validate"
 )
 
-func (a AntiCsrfToken) Validate() any {
-	return validate.String(string(a), length_anti_csrf_token, length_anti_csrf_token, regexp_base64_url)
-}
+func (v EmailGrant) Validate() any    { return validators.Uuid.Validate(string(v)) }
+func (v PasswordGrant) Validate() any { return validators.Uuid.Validate(string(v)) }
+func (v PhoneGrant) Validate() any    { return validators.Uuid.Validate(string(v)) }
 
-func (hb HumanBirthday) Validate() any {
-	return validate.Time(time.Time(hb), min_human_birthday, max_human_birthday)
-}
+func (v AntiCsrfToken) Validate() any { return validators.AntiCsrfToken.Validate(string(v)) }
+func (v HumanBirthday) Validate() any { return validate.Time(time.Time(v), minBirthday, maxBirthday) }
+func (v Password) Validate() any      { return validate.String(string(v), 6, 2048, nil) }
 
-func (v Password) Validate() any {
-	return validate.String(string(v), min_length_password, max_length_password, nil)
-}
-
-func (v PhoneGrant) Validate() any {
-	return validate.String(string(v), length_uuid, length_uuid, regexp_uuid)
-}
-
-func (v EmailGrant) Validate() any {
-	return validate.String(string(v), length_uuid, length_uuid, regexp_uuid)
-}
-
-func (v PasswordGrant) Validate() any {
-	return validate.String(string(v), length_uuid, length_uuid, regexp_uuid)
-}
+var (
+	minBirthday = time.Now().AddDate(-100, 0, 0) // 100 years ago
+	maxBirthday = time.Now().AddDate(-18, 0, 1)  // 18 years ago
+)
