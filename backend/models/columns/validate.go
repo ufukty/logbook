@@ -27,6 +27,8 @@ func (v Phone) Validate() any        { return phoneNumber.Validate(string(v)) }
 func (v SessionToken) Validate() any { return sessionToken.Validate(string(v)) }
 func (v Username) Validate() any     { return username.Validate(string(v)) }
 
+func (v ObjectiveContent) Validate() any { return nil }
+func (v TagTitle) Validate() any         { return nil }
 
 func collect[E interface{ Validate() any }](s []E) any {
 	issues := []any{}
