@@ -11,6 +11,8 @@ import (
 	"logbook/models"
 	"sync"
 	"time"
+
+	"github.com/ufukty/gohandlers/pkg/types/basics"
 )
 
 // summary:
@@ -141,9 +143,9 @@ func (c *Sidecar) SetInstanceDetails(s models.Service, i models.Instance) error 
 	c.l.Printf("registering the instance: %s -> %s\n", s, i)
 	r, err := c.ctl.RegisterInstance(&endpoints.RegisterInstanceRequest{
 		Service: s,
-		TLS:     i.Tls,
-		Address: i.Address,
-		Port:    i.Port,
+		TLS:     basics.Boolean(i.Tls),
+		Address: basics.String(i.Address),
+		Port:    basics.Int(i.Port),
 	})
 	if err != nil {
 		return fmt.Errorf("RegisterInstance: %w", err)

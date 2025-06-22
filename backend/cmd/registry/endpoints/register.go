@@ -2,7 +2,7 @@ package endpoints
 
 import (
 	"fmt"
-	"logbook/cmd/registry/app"
+	"logbook/cmd/registry/models/scalars"
 	"logbook/internal/web/serialize"
 	"logbook/models"
 	"net/http"
@@ -35,7 +35,7 @@ func (bq RegisterInstanceRequest) crossValidate() error {
 }
 
 type RegisterInstanceResponse struct {
-	InstanceId app.InstanceId `json:"instance-id"`
+	InstanceId scalars.InstanceId `json:"instance-id"`
 }
 
 // POST

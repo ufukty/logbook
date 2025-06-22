@@ -3,21 +3,15 @@ package app
 import (
 	"context"
 	"fmt"
+	"logbook/cmd/registry/models/scalars"
 	"logbook/config/deployment"
 	"logbook/internal/logger"
 	"logbook/internal/stores"
 	"logbook/models"
 	"logbook/models/columns"
-	"logbook/models/validators"
 	"sync"
 	"time"
 )
-
-type InstanceId string
-
-func (v InstanceId) Validate() any {
-	return validators.Uuid.Validate(string(v))
-}
 
 // maintains per-service locks
 type serviceRegistry struct {
@@ -27,8 +21,8 @@ type serviceRegistry struct {
 	ctx    context.Context
 	cancel context.CancelFunc
 
-	instances *stores.KV[InstanceId, models.Instance]
-	checks    *stores.KV[InstanceId, time.Time]
+	instances *stores.KV[scalars.InstanceId, models.Instance]
+	checks    *stores.KV[scalars.InstanceId, time.Time]
 	cache     []models.Instance
 	mu        sync.RWMutex
 }
@@ -42,8 +36,8 @@ func newServiceRegistry(deplycfg *deployment.Config, l *logger.Logger) *serviceR
 		ctx:    ctx,
 		cancel: cancel,
 
-		instances: stores.NewKV[InstanceId, models.Instance](),
-		checks:    stores.NewKV[InstanceId, time.Time](),
+		instances: stores.NewKV[scalars.InstanceId, models.Instance](),
+		checks:    stores.NewKV[scalars.InstanceId, time.Time](),
 
 		cache: []models.Instance{},
 	}
@@ -51,16 +45,16 @@ func newServiceRegistry(deplycfg *deployment.Config, l *logger.Logger) *serviceR
 	return sr
 }
 
-func (sr *serviceRegistry) RegisterInstance(i models.Instance) (InstanceId, error) {
+func (sr *serviceRegistry) RegisterInstance(i models.Instance) (scalars.InstanceId, error) {
 	sr.mu.Lock()
 	defer sr.mu.Unlock()
 
-	var iid InstanceId
+	var iid scalars.InstanceId
 	var err error
 	for iid == "" || sr.checks.Has(iid) { // collision
-		iid, err = columns.NewUuidV4[InstanceId]()
+		iid, err = columns.NewUuidV4[scalars.InstanceId]()
 		if err != nil {
-			return "", fmt.Errorf("NewUuidV4[InstanceId]: %w", err)
+			return "", fmt.Errorf("NewUuidV4[scalars.InstanceId]: %w", err)
 		}
 	}
 	sr.l.Printf("welcome: %s (%s)\n", iid, i)
@@ -71,7 +65,7 @@ func (sr *serviceRegistry) RegisterInstance(i models.Instance) (InstanceId, erro
 	return iid, nil
 }
 
-func (sr *serviceRegistry) RecheckInstance(iid InstanceId) error {
+func (sr *serviceRegistry) RecheckInstance(iid scalars.InstanceId) error {
 	sr.mu.Lock()
 	defer sr.mu.Unlock()
 
@@ -108,7 +102,7 @@ func (sr *serviceRegistry) houseKeeping() {
 	defer sr.mu.Unlock()
 	sr.l.Println("HouseKeeping starts...")
 	t := time.Now()
-	toClear := []InstanceId{}
+	toClear := []scalars.InstanceId{}
 	for iid, last := range sr.checks.Iter() {
 		if t.Sub(last) > sr.deplycfg.Registry.InstanceTimeout {
 			toClear = append(toClear, iid)
@@ -156,7 +150,7 @@ func (a *App) Stop() {
 	}
 }
 
-func (a *App) RegisterInstance(s models.Service, i models.Instance) (InstanceId, error) {
+func (a *App) RegisterInstance(s models.Service, i models.Instance) (scalars.InstanceId, error) {
 	if !a.registries.Has(s) {
 		a.l.Println("service registry has generated for:", s)
 		a.registries.Set(s, newServiceRegistry(a.deplycfg, a.l.Sub(fmt.Sprintf("ServiceRegistry(%s)", s))))
@@ -165,7 +159,7 @@ func (a *App) RegisterInstance(s models.Service, i models.Instance) (InstanceId,
 	return sr.RegisterInstance(i)
 }
 
-func (a *App) RecheckInstance(s models.Service, iid InstanceId) error {
+func (a *App) RecheckInstance(s models.Service, iid scalars.InstanceId) error {
 	sr, ok := a.registries.Get(s)
 	if !ok {
 		return fmt.Errorf("the service %s is not created. is the instance registered itself before try to recheck?", s)

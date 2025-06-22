@@ -2,15 +2,15 @@ package endpoints
 
 import (
 	"fmt"
-	"logbook/cmd/registry/app"
+	"logbook/cmd/registry/models/scalars"
 	"logbook/internal/web/serialize"
 	"logbook/models"
 	"net/http"
 )
 
 type RecheckInstanceRequest struct {
-	Service    models.Service `json:"service"`
-	InstanceId app.InstanceId `json:"instance-id"`
+	Service    models.Service     `json:"service"`
+	InstanceId scalars.InstanceId `json:"instance-id"`
 }
 
 // POST
