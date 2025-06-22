@@ -17,11 +17,6 @@ const (
 	Users        Service = "users"
 )
 
-func (s *Service) Set(v string) error {
-	*s = Service(v)
-	return nil
-}
-
 func (s *Service) FromRoute(src string) error {
 	*s = Service(src)
 	return nil
@@ -29,4 +24,24 @@ func (s *Service) FromRoute(src string) error {
 
 func (s Service) ToRoute() (string, error) {
 	return string(s), nil
+}
+
+func (s Service) Validate() any {
+	switch s {
+	case
+		Auth,
+		Discovery,
+		Groups,
+		Internal,
+		Objectives,
+		Pdp,
+		Profiles,
+		Registration,
+		Registry,
+		Sessions,
+		Tags,
+		Users:
+		return nil
+	}
+	return "invalid value"
 }

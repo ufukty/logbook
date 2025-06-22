@@ -60,7 +60,7 @@ func TestGroupNames(t *testing.T) {
 	}
 	for _, tc := range tcs {
 		if err := tc.Validate(); err != nil {
-			t.Error(fmt.Errorf("got error for valid value %q: %w", tc, err))
+			t.Error(fmt.Errorf("got error for valid value %q: %v", tc, err))
 		}
 	}
 }

@@ -3,9 +3,12 @@ package endpoints
 import (
 	"fmt"
 
+	"logbook/internal/web/serialize"
 	"logbook/models/columns"
 	"logbook/models/transports"
 	"net/http"
+
+	"github.com/ufukty/gohandlers/pkg/types/basics"
 )
 
 type CreateUserRequest struct {
@@ -16,7 +19,7 @@ type CreateUserRequest struct {
 	Country   transports.Country       `json:"country"`
 	Email     columns.Email            `json:"email"`
 	Phone     columns.Phone            `json:"phone"`
-	Password  string                   `json:"password"`
+	Password  basics.String            `json:"password"`
 }
 
 type CreateUserResponse struct {
@@ -31,6 +34,13 @@ func (p *Private) CreateUser(w http.ResponseWriter, r *http.Request) {
 	if err := bq.Parse(r); err != nil {
 		p.l.Println(fmt.Errorf("parsing: %w", err))
 		http.Error(w, "parsing", 400)
+		return
+	}
+
+	if issues := bq.Validate(); len(issues) > 0 {
+		if err := serialize.ValidationIssues(w, issues); err != nil {
+			p.l.Println(fmt.Errorf("serializing validation issues: %w", err))
+		}
 		return
 	}
 

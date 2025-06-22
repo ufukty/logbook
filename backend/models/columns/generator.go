@@ -3,11 +3,11 @@ package columns
 import (
 	"fmt"
 
-	"github.com/google/uuid"
+	guuid "github.com/google/uuid"
 )
 
 func NewUuidV4[T ~string]() (T, error) {
-	uuid, err := uuid.NewRandom()
+	uuid, err := guuid.NewRandom()
 	if err != nil {
 		return "", fmt.Errorf("uuid.NewRandom: %w", err)
 	}
@@ -15,7 +15,7 @@ func NewUuidV4[T ~string]() (T, error) {
 }
 
 func NewUuidV4Unsafe[T ~string]() T {
-	uuid, err := uuid.NewRandom()
+	uuid, err := guuid.NewRandom()
 	if err != nil {
 		panic(fmt.Errorf("uuid.NewRandom: %w", err))
 	}

@@ -2,7 +2,7 @@ package endpoints
 
 import (
 	"fmt"
-	"logbook/internal/web/validate"
+	"logbook/internal/web/serialize"
 	"logbook/models/columns"
 	"net/http"
 )
@@ -21,9 +21,10 @@ func (e *Private) RockCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := validate.RequestFields(bq); err != nil {
-		e.l.Println(fmt.Errorf("validating request parameters: %w", err))
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+	if issues := bq.Validate(); len(issues) > 0 {
+		if err := serialize.ValidationIssues(w, issues); err != nil {
+			e.l.Println(fmt.Errorf("serializing validation issues: %w", err))
+		}
 		return
 	}
 

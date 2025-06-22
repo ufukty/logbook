@@ -3,8 +3,8 @@ package endpoints
 import (
 	"fmt"
 	"logbook/cmd/profiles/app"
+	"logbook/internal/web/serialize"
 
-	"logbook/internal/web/validate"
 	"logbook/models/columns"
 	"net/http"
 )
@@ -27,9 +27,10 @@ func (p *Private) CreateProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := validate.RequestFields(bq); err != nil {
-		p.l.Println(fmt.Errorf("validating the request parameters: %w", err))
-		http.Error(w, redact(err), http.StatusBadRequest)
+	if issues := bq.Validate(); len(issues) > 0 {
+		if err := serialize.ValidationIssues(w, issues); err != nil {
+			p.l.Println(fmt.Errorf("serializing validation issues: %w", err))
+		}
 		return
 	}
 

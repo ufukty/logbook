@@ -3,14 +3,16 @@ package sidecar
 import (
 	"context"
 	"fmt"
-	"logbook/cmd/registry/app"
 	registry "logbook/cmd/registry/client"
 	"logbook/cmd/registry/endpoints"
+	"logbook/cmd/registry/models/scalars"
 	"logbook/config/deployment"
 	"logbook/internal/logger"
 	"logbook/models"
 	"sync"
 	"time"
+
+	"github.com/ufukty/gohandlers/pkg/types/basics"
 )
 
 // summary:
@@ -33,7 +35,7 @@ type Sidecar struct {
 	store   map[models.Service][]models.Instance
 	storemu sync.RWMutex
 
-	iid   app.InstanceId
+	iid   scalars.InstanceId
 	iidmu sync.RWMutex
 }
 
@@ -103,7 +105,7 @@ func (c *Sidecar) InstanceSource(s models.Service) *source {
 func (d *Sidecar) recheck() error {
 	d.iidmu.RLock()
 	defer d.iidmu.RUnlock()
-	if d.iid == app.InstanceId("") || d.service == "" { // sidecar without registration (eg. "api-gateway")
+	if d.iid == scalars.InstanceId("") || d.service == "" { // sidecar without registration (eg. "api-gateway")
 		return nil
 	}
 	d.l.Println("rechecking...")
@@ -141,9 +143,9 @@ func (c *Sidecar) SetInstanceDetails(s models.Service, i models.Instance) error 
 	c.l.Printf("registering the instance: %s -> %s\n", s, i)
 	r, err := c.ctl.RegisterInstance(&endpoints.RegisterInstanceRequest{
 		Service: s,
-		TLS:     i.Tls,
-		Address: i.Address,
-		Port:    i.Port,
+		TLS:     basics.Boolean(i.Tls),
+		Address: basics.String(i.Address),
+		Port:    basics.Int(i.Port),
 	})
 	if err != nil {
 		return fmt.Errorf("RegisterInstance: %w", err)
