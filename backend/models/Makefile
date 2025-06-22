@@ -1,5 +1,4 @@
 all: services.validate.go
-	$(MAKE) -C columns
 	$(MAKE) -C transports
 
 services.validate.go: services.go

@@ -1,5 +1,9 @@
 package columns
 
+import (
+	"slices"
+)
+
 func (v AccessId) Validate() any          { return uuid.Validate(string(v)) }
 func (v BookmarkId) Validate() any        { return uuid.Validate(string(v)) }
 func (v BottomUpPropsId) Validate() any   { return uuid.Validate(string(v)) }
@@ -45,3 +49,10 @@ func collect[E interface{ Validate() any }](s []E) any {
 
 func (gs GroupIds) Validate() any { return collect(gs) }
 func (us UserIds) Validate() any  { return collect(us) }
+
+func (l LinkType) Validate() any {
+	if !slices.Contains([]LinkType{Primary, Private, Remote}, l) {
+		return "invalid value"
+	}
+	return nil
+}
