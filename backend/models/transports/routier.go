@@ -1,12 +1,5 @@
 package transports
 
-type PolicyAction string
-
-const (
-	Read  = PolicyAction("read")
-	Write = PolicyAction("write")
-)
-
 func (a *PolicyAction) FromRoute(src string) error {
 	*a = PolicyAction(src)
 	err := a.Validate()

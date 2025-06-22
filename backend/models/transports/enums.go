@@ -1,6 +1,11 @@
 package transports
 
-type Country string
+type (
+	Country        string
+	InviteResponse string
+	MemberType     string
+	PolicyAction   string
+)
 
 const (
 	Afghanistan                         Country = "Afghanistan"
@@ -248,4 +253,19 @@ const (
 	Yemen                               Country = "Yemen"
 	Zambia                              Country = "Zambia"
 	Zimbabwe                            Country = "Zimbabwe"
+)
+
+const (
+	Accept = InviteResponse("accept")
+	Reject = InviteResponse("reject")
+)
+
+const (
+	GroupTypeMember = MemberType("group")
+	UserTypeMember  = MemberType("user")
+)
+
+const (
+	Read  = PolicyAction("read")
+	Write = PolicyAction("write")
 )
