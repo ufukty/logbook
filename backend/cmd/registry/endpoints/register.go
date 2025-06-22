@@ -7,13 +7,15 @@ import (
 	"logbook/models"
 	"net/http"
 	"net/url"
+
+	"github.com/ufukty/gohandlers/pkg/types/basics"
 )
 
 type RegisterInstanceRequest struct {
 	Service models.Service `json:"service"`
-	TLS     bool           `json:"tls"`
-	Address string         `json:"address"`
-	Port    int            `json:"port"`
+	TLS     basics.Boolean `json:"tls"`
+	Address basics.String  `json:"address"`
+	Port    basics.Int     `json:"port"`
 }
 
 func (bq RegisterInstanceRequest) crossValidate() error {
