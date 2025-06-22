@@ -17,11 +17,6 @@ const (
 	Users        Service = "users"
 )
 
-func (s *Service) Set(v string) error {
-	*s = Service(v)
-	return nil
-}
-
 func (s *Service) FromRoute(src string) error {
 	*s = Service(src)
 	return nil
