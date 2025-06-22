@@ -3,9 +3,9 @@ package sidecar
 import (
 	"context"
 	"fmt"
-	"logbook/cmd/registry/app"
 	registry "logbook/cmd/registry/client"
 	"logbook/cmd/registry/endpoints"
+	"logbook/cmd/registry/models/scalars"
 	"logbook/config/deployment"
 	"logbook/internal/logger"
 	"logbook/models"
@@ -35,7 +35,7 @@ type Sidecar struct {
 	store   map[models.Service][]models.Instance
 	storemu sync.RWMutex
 
-	iid   app.InstanceId
+	iid   scalars.InstanceId
 	iidmu sync.RWMutex
 }
 
@@ -105,7 +105,7 @@ func (c *Sidecar) InstanceSource(s models.Service) *source {
 func (d *Sidecar) recheck() error {
 	d.iidmu.RLock()
 	defer d.iidmu.RUnlock()
-	if d.iid == app.InstanceId("") || d.service == "" { // sidecar without registration (eg. "api-gateway")
+	if d.iid == scalars.InstanceId("") || d.service == "" { // sidecar without registration (eg. "api-gateway")
 		return nil
 	}
 	d.l.Println("rechecking...")
