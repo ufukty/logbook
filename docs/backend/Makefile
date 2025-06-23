@@ -10,7 +10,6 @@ service-discovery.png: service-discovery.mmd
 
 uss.png: uss.mmd
 	mmdc -f -e png -s 3 -i "uss.mmd" -o "uss.png"
-	magick uss.png -channel RGB -negate -brightness-contrast -10x-30  uss.dark.png
 
 anti-csrf-token-generation.png: anti-csrf-token-generation.mmd
 	mmdc -f -e png -s 3 -i "anti-csrf-token-generation.mmd" -o "anti-csrf-token-generation.png"

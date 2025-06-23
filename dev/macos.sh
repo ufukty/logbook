@@ -53,8 +53,6 @@ which jq || # platform
   brew install jq
 which unbuffer || # run.sh (to trick Chi logger to print colors)
   brew install expect
-which magick || # docs (dark versions of schemas)
-  brew install imagemagick
 which shellcheck ||
   brew install shellcheck
 which envsubst ||
