@@ -36,7 +36,7 @@ which ovpn-auth ||
 which gsed ||
   brew install gnu-sed
 which psql ||
-  (brew install "postgresql@15" && brew services start "postgresql@15")
+  (brew install "postgresql@16" && brew services start "postgresql@16")
 which doctl ||
   brew install "doctl"
 (which terraform && which packer) ||
