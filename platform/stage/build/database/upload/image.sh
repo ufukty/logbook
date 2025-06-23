@@ -1,5 +1,8 @@
 #!/bin/bash
 
+PS4='\033[32m$0:$LINENO\033[0m: '
+set -xe
+
 # TODO: Harden Postgres https://www.cybertec-postgresql.com/en/postgresql-security-things-to-avoid-in-real-life/
 
 # ------------------------------------------------------------- #
@@ -8,7 +11,9 @@
 
 PROVISIONER_FILES="/home/$SUDO_USER/provisioner-files"
 cd "$PROVISIONER_FILES"
+# shellcheck disable=SC1091
 . commons.sh
+# shellcheck disable=SC1091
 . secrets.sh
 
 # ------------------------------------------------------------- #
