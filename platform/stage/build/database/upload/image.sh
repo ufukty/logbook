@@ -67,11 +67,11 @@ function configure-ssh() {
   sed -r "s;^AllowUsers (.*);AllowUsers \1 $POSTGRES_USER;" --in-place /etc/ssh/sshd_config
   # info "creating ~/.ssh directory, adjusting ownership and privileges"
   mkdir -p "/home/$POSTGRES_USER/.ssh"
-  chown -R $POSTGRES_USER:$POSTGRES_USER "/home/$POSTGRES_USER"
+  chown -R "$POSTGRES_USER:$POSTGRES_USER" "/home/$POSTGRES_USER"
   chmod 700 "/home/$POSTGRES_USER"
   # info "deploy application server's public key to created user's authorized_keys"
   touch "/home/$POSTGRES_USER/.ssh/authorized_keys"
-  chown -R $POSTGRES_USER:$POSTGRES_USER "/home/$POSTGRES_USER"
+  chown -R "$POSTGRES_USER:$POSTGRES_USER" "/home/$POSTGRES_USER"
   chmod 700 "/home/$POSTGRES_USER"
   cat "$PROVISIONER_FILES/ssh-app-db.pub" >>"/home/$POSTGRES_USER/.ssh/authorized_keys"
   # info "restart sshd.service"
