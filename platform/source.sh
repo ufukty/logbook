@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-# shellcheck disable=1091
-test "$VIRTUAL_ENV" || . "$WORKSPACE/.venv/bin/activate"
-
 is_newer_than_all() {
   local TARGET="$1"
   local -a SOURCES=("${@:2}")
