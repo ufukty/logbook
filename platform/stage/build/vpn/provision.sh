@@ -32,7 +32,7 @@ test -d /etc/openvpn/easy-rsa && rm -rfv /etc/openvpn/easy-rsa
 # Mapping
 # ---------------------------------------------------------------------------- #
 
-find map -type f | while read FILE; do
+find map -type f | while read -r FILE; do
   sudo mkdir -pv "$(dirname "${FILE/map/}")"
   sudo mv -v "${FILE}" "${FILE/map/}"
 done

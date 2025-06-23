@@ -58,6 +58,7 @@ trap cleanup EXIT
 ping -o "${IP:?}" && until ssh "${VPS_SUDO_USER:?}@${IP:?}" exit; do sleep 5; done # wait
 
 rsync --verbose --recursive -e ssh "./upload" "${VPS_SUDO_USER:?}@${IP:?}:${VPS_HOME:?}/"
+# shellcheck disable=SC2087
 ssh "${VPS_SUDO_USER:?}@$IP" bash <<EOF
   set -e -v
   cd "${VPS_HOME:?}/upload"

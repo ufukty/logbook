@@ -30,7 +30,7 @@ apt-get install -y tree jq fail2ban openssh-server unattended-upgrades
 # Mapping
 # ---------------------------------------------------------------------------- #
 
-find map -type f | while read FILE; do
+find map -type f | while read -r FILE; do
   sudo mkdir -pv "$(dirname "${FILE/map/}")"
   sudo mv -v "${FILE}" "${FILE/map/}"
 done

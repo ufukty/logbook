@@ -17,7 +17,6 @@ set -xeuo pipefail
 # ---------------------------------------------------------------------------- #
 
 VPS_HOME="/home/${VPS_SUDO_USER:?}"
-IPTABLES_PUBLIC_ETHERNET_INTERFACE="eth0"
 IPTABLES_PRIVATE_ETHERNET_INTERFACE="eth1"
 
 BASE_IMAGE_PREFIX="build_internal"
@@ -57,6 +56,7 @@ trap cleanup EXIT
 ping -o "${IP:?}" && until ssh "${VPS_SUDO_USER:?}@${IP:?}" exit; do sleep 5; done # wait
 
 rsync --verbose --recursive -e ssh "./upload" "${VPS_SUDO_USER:?}@${IP:?}:${VPS_HOME:?}/"
+# shellcheck disable=SC2087
 ssh "${VPS_SUDO_USER:?}@$IP" bash <<EOF
     set -e
     set -v
