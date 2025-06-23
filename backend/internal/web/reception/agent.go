@@ -5,7 +5,6 @@ import (
 	"logbook/config/deployment"
 	"logbook/internal/logger"
 	"logbook/internal/web/forwarder"
-	"logbook/internal/web/headers"
 	"logbook/models"
 	"net/http"
 	"net/url"
@@ -46,10 +45,7 @@ func (ag *Agent) RegisterEndpoints(public, private Lister) error {
 		return fmt.Errorf("url.JoinPath: %w", err)
 	}
 
-	corsheaders := []string{
-		headers.ContentType,
-		headers.Authorization,
-	}
+	corsheaders := []string{"Authorization", "Content-Type"}
 
 	if public != nil {
 		for hn, info := range public.ListHandlers() {
