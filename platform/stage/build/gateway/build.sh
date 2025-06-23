@@ -17,7 +17,6 @@ set -xeuo pipefail
 # ---------------------------------------------------------------------------- #
 
 VPS_HOME="/home/${VPS_SUDO_USER:?}"
-IPTABLES_PUBLIC_ETHERNET_INTERFACE="eth0"
 IPTABLES_PRIVATE_ETHERNET_INTERFACE="eth1"
 
 BASE_IMAGE_PREFIX="build_internal"
