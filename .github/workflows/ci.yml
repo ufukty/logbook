@@ -8,8 +8,6 @@ jobs:
   go:
     name: Go fmt, lint, build and test
     runs-on: ubuntu-latest
-    env:
-      GOFLAGS: -mod=vendor
     steps:
       - name: check out code
         uses: actions/checkout@v4
