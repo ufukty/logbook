@@ -53,8 +53,9 @@ github.com/skip2/go-qrcode/bitset
 github.com/skip2/go-qrcode/reedsolomon
 # github.com/stretchr/testify v1.9.0
 ## explicit; go 1.17
-# github.com/ufukty/gohandlers v0.32.0
+# github.com/ufukty/gohandlers v0.34.0
 ## explicit; go 1.23.0
+github.com/ufukty/gohandlers/pkg/gohandlers
 github.com/ufukty/gohandlers/pkg/types/basics
 github.com/ufukty/gohandlers/pkg/validator
 github.com/ufukty/gohandlers/pkg/validator/validate
