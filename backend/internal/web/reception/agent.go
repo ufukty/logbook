@@ -8,6 +8,8 @@ import (
 	"logbook/models"
 	"net/http"
 	"net/url"
+
+	"github.com/ufukty/gohandlers/pkg/gohandlers"
 )
 
 // [Agent] is the registration Agent which helps services, and gateways to register their handlers and forwarders appropriately
@@ -36,7 +38,7 @@ type HandlerInfo struct {
 }
 
 type Lister interface {
-	ListHandlers() map[string]HandlerInfo
+	ListHandlers() map[string]gohandlers.HandlerInfo
 }
 
 func (ag *Agent) RegisterEndpoints(public, private Lister) error {
