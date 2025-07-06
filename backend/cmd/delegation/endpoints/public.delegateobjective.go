@@ -31,7 +31,7 @@ func (p *Public) DelegateObjective(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rp, err := p.sessions.WhoIs(&endpoints.WhoIsRequest{SessionToken: st})
+	_, err = p.sessions.WhoIs(&endpoints.WhoIsRequest{SessionToken: st})
 	if err != nil {
 		p.l.Println(fmt.Errorf("who is: %w", err))
 		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)

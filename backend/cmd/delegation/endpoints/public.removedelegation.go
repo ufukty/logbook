@@ -18,7 +18,7 @@ type RemoveDelegationResponse struct {
 
 // POST
 func (p *Public) RemoveDelegation(w http.ResponseWriter, r *http.Request) {
-	st, err := cookies.GetSessionToken(r)
+	_, err := cookies.GetSessionToken(r)
 	if err != nil {
 		p.l.Println(fmt.Errorf("checking session token"))
 		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
