@@ -1,6 +1,4 @@
-# Logbook database docs
-
-## Document model: Versioned objectives
+# Document model
 
 ![](./.assets/objectives.png)
 
@@ -53,19 +51,19 @@ Cons:
 - View builder needs to know which versions are ahead of the active version after checking out to previous version, which might not scale well for big version history.
 - Needs caching of views built for user-version since the information related to build views are distributed into tables.
 
-### Promoting Updates
+## Promoting Updates
 
 - Ascendants are individually versioned.
 - Updates proprages. They trigger version iteration on the parent. Only the updated parent can link to new version of the objective.
 - The siblings which are not updated, gets linked by the new version of parent, which is the reason of the `objective`'s being immutable and why `active` table exist.
 
-### Communal lands and immutability
+## Communal lands and immutability
 
 As the document model aims for the storage efficiency, unchanged parts of the tree (siblings, subtree/descendants etc.) never gets duplicated when an update occur for an objective. Thus, in the lifecycle of objectives, there is frequently occuring issue that any objective's any version may be referred by multiple version of the ascendants.
 
 Asserting immutability only solves the issue partially. But promoting each update to the right (active) ascendant is still crucial.
 
-#### Active versions
+### Active versions
 
 Problem:
 
@@ -78,27 +76,3 @@ Solution:
 - When an update is received on **direct child** of an checkout applied objective, the table is the direct source to tell which version receive the update.
 
 - When an update is received on a descendant of a previously checked out objective, the method needs to traceback the link tree until it finds an ascendant has its active version marked in the table.
-
-## View builder
-
-Definition
-
-- View builder is the linearization component for the hierarchically stored objectives, that generates an array of objectives that sit in the part of a document shown in the viewport of browser.
-
-Design enablers
-
-- Building the whole of document is almost never required.
-
-Constraints:
-
-- View builder needs the size of subtree of every node to be known for each version.
-
-Design:
-
-- View builder should start comparing rows with only the latest version number
-- As the parent node's version can never be older than its children's, view builder can pop the version numbers from version array when they are ahead of the held one, as it dig deeper. So, it can also postpone asking for the whole of version array, as it can fetch previous versions as it dig deeper and see another version than it holds
-- View builder may leverage `created_at` columns to quickly filter out ahead rows.
-
-## Privileges
-
-![](./.assets/privileges.png)
