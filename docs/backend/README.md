@@ -54,4 +54,3 @@ Improvement opportunities:
 - Notification
 
 ![](placement-cache.png)
-

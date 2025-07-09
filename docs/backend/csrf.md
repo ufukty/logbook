@@ -1,0 +1,19 @@
+# CSRF 
+
+## A-CSRF Token generation
+
+```mermaid
+sequenceDiagram
+autoNumber
+
+participant u as User
+participant ua as User Agent
+participant r as Static Registration Page
+participant a as API for registration
+
+u ->> ua: enters URL
+ua ->> r: GET registration.html
+r ->> ua: registration.html
+note over ua: enter email + pass
+ua ->> a: POST /api/account
+```
