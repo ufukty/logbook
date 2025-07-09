@@ -42,15 +42,3 @@ Improvement opportunities:
 - Enable the persistency among `registry service` instances by a hash ring. To remove the need of `internal gateway` to duplicate & forward each registration and recheck request.
 
 ![](service-discovery.png)
-
-## Anti-CSRF Token generation
-
-![](anti-csrf-token-generation.png)
-
-## Placement Cache
-
-- Invalidation
-- Re-computation
-- Notification
-
-![](placement-cache.png)
