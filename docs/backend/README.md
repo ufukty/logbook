@@ -47,10 +47,6 @@ Improvement opportunities:
 
 ![](anti-csrf-token-generation.png)
 
-## Server-Client Communication
-
-![](server-client.png)
-
 ## Placement Cache
 
 - Invalidation
