@@ -102,7 +102,3 @@ Design:
 ## Privileges
 
 ![](privileges.png)
-
-## Distributed transactions
-
-![](transactions.png)
