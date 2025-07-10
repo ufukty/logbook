@@ -237,4 +237,4 @@ The design shapes a **centralized** & **stateless** Policy Decision Point (PDP).
 - **Complex access control logic**: Due to collaboration and hierarchical groups
 - **Distributed data**: Involved data in the decision process is too big and varying to gather in one place
 
-![](pdp.png)
+![](.assets/pdp.png)
