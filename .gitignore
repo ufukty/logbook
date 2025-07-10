@@ -2,5 +2,6 @@
 /.venv
 /*.env
 /build
+/docs-build
 /ignored
 todo.md
