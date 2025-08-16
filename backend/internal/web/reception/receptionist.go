@@ -20,8 +20,6 @@ import (
 
 type RequestId string
 
-const ZeroRequestId = RequestId("00000000-0000-0000-0000-000000000000")
-
 type receptionist struct {
 	l       *logger.Logger
 	handler http.Handler
@@ -40,6 +38,10 @@ func newReceptionist(deplcfg *deployment.Config, l *logger.Logger, handler http.
 // DONE: recover
 // DONE: timeout
 func (recp receptionist) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if r.TLS != nil {
+		w.Header().Set("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload")
+	}
+
 	ww := &response{ResponseWriter: w}
 
 	id, err := columns.NewUuidV4[RequestId]()
