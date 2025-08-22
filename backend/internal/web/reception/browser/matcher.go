@@ -1,6 +1,8 @@
 package browser
 
 import (
+	"maps"
+	"slices"
 	"strings"
 )
 
@@ -58,7 +60,12 @@ func NewMatcher(origin, path StringMatcher, allowedmethods, allowedheaders []str
 	}
 }
 
-func (m Matcher) Match(origin, method, path string, headers []string) *allowance {
+type Scope struct {
+	Methods []string
+	Headers []string
+}
+
+func (m Matcher) Match(origin, method, path string, headers []string) *Scope {
 	if origin == "" || path == "" || method == "" {
 		return nil
 	}
@@ -71,10 +78,13 @@ func (m Matcher) Match(origin, method, path string, headers []string) *allowance
 	if !containsAll(headers, m.allowance.headers) {
 		return nil
 	}
-	return m.allowance
+	return &Scope{
+		Methods: slices.Collect(maps.Keys(m.allowance.methods)),
+		Headers: slices.Collect(maps.Keys(m.allowance.headers)),
+	}
 }
 
-func matchAny(ms []*Matcher, origin, method, path string, headers []string) *allowance {
+func matchAny(ms []*Matcher, origin, method, path string, headers []string) *Scope {
 	for _, m := range ms {
 		if a := m.Match(origin, method, path, headers); a != nil {
 			return a
