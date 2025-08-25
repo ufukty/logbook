@@ -15,13 +15,13 @@ const (
 	accessControlRequestMethod    = "Access-Control-Request-Method"
 )
 
-// OriginChecking performs (path, method, headers) permission checking
+// OriginChecker performs (path, method, headers) permission checking
 // both for the cross/same origin and preflight/actual requests
-type OriginChecking struct {
+type OriginChecker struct {
 	Allowances []*Matcher
 }
 
-func (c OriginChecking) preflight(w http.ResponseWriter, r *http.Request) {
+func (c OriginChecker) preflight(w http.ResponseWriter, r *http.Request) {
 	allowance := matchAny(c.Allowances,
 		r.Header.Get(origin),
 		r.Header.Get(accessControlRequestMethod),
@@ -40,7 +40,7 @@ func (c OriginChecking) preflight(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (c OriginChecking) actual(w http.ResponseWriter, r *http.Request) {
+func (c OriginChecker) actual(w http.ResponseWriter, r *http.Request) {
 	allowance := matchAny(c.Allowances, r.Header.Get(origin), r.Method, r.URL.Path, slices.Collect(maps.Keys(r.Header)))
 
 	if allowance != nil {
@@ -56,7 +56,7 @@ func isPreflight(r *http.Request) bool {
 	return r.Method == http.MethodOptions && has(r.Header, accessControlAllowCredentials)
 }
 
-func (c OriginChecking) Handler(w http.ResponseWriter, r *http.Request) {
+func (c OriginChecker) Handler(w http.ResponseWriter, r *http.Request) {
 	if o := r.Header.Get(origin); o == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
