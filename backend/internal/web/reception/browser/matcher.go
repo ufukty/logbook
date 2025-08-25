@@ -19,7 +19,7 @@ func lookup(ss []string) map[string]any {
 	return us
 }
 
-func has(m map[string]any, k string) bool {
+func has[K comparable, V any](m map[K]V, k K) bool {
 	_, ok := m[k]
 	return ok
 }
