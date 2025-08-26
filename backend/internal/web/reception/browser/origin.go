@@ -36,7 +36,7 @@ func (c OriginChecker) preflight(w http.ResponseWriter, r *http.Request) {
 func (c OriginChecker) actual(w http.ResponseWriter, r *http.Request) {
 	allowance := matchAny(c.Allowances, r.Header.Get(headers.Origin), r.Method, r.URL.Path, slices.Collect(maps.Keys(r.Header)))
 
-	if allowance != nil {
+	if allowance == nil {
 		http.Error(w, "Please try again using the official website.", http.StatusForbidden)
 		return
 	}
