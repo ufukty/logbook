@@ -61,3 +61,9 @@ func (c OriginChecker) Handler(w http.ResponseWriter, r *http.Request) {
 		c.actual(w, r)
 	}
 }
+
+func NewOriginChecker(allow ...*Matcher) *OriginChecker {
+	return &OriginChecker{
+		Allowances: allow,
+	}
+}
