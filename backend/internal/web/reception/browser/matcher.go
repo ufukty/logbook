@@ -2,6 +2,7 @@ package browser
 
 import (
 	"maps"
+	"net/http"
 	"slices"
 	"strings"
 )
@@ -11,10 +12,10 @@ type allowance struct {
 	headers map[string]any
 }
 
-func lookup(ss []string) map[string]any {
+func lookup(ss []string, canonicalize func(string) string) map[string]any {
 	us := make(map[string]any, len(ss))
 	for _, s := range ss {
-		us[strings.ToLower(s)] = nil
+		us[canonicalize(s)] = nil
 	}
 	return us
 }
@@ -24,13 +25,13 @@ func has[K comparable, V any](m map[K]V, k K) bool {
 	return ok
 }
 
-func contains(asked string, allowed map[string]any) bool {
-	return has(allowed, strings.ToLower(asked))
+func contains(asked string, allowed map[string]any, canonicalize func(string) string) bool {
+	return has(allowed, canonicalize(asked))
 }
 
-func containsAll(asked []string, allowed map[string]any) bool {
+func containsAll(asked []string, allowed map[string]any, canonicalize func(string) string) bool {
 	for _, a := range asked {
-		if !contains(a, allowed) {
+		if !contains(a, allowed, canonicalize) {
 			return false
 		}
 	}
@@ -54,8 +55,8 @@ func NewMatcher(origin, path StringMatcher, allowedmethods, allowedheaders []str
 		origin: origin,
 		path:   path,
 		allowance: &allowance{
-			methods: lookup(allowedmethods),
-			headers: lookup(allowedheaders),
+			methods: lookup(allowedmethods, strings.ToLower),
+			headers: lookup(allowedheaders, http.CanonicalHeaderKey),
 		},
 	}
 }
@@ -72,10 +73,10 @@ func (m Matcher) Match(origin, method, path string, headers []string) *Scope {
 	if !m.origin.MatchString(origin) || !m.path.MatchString(path) {
 		return nil
 	}
-	if !contains(method, m.allowance.methods) {
+	if !contains(method, m.allowance.methods, strings.ToLower) {
 		return nil
 	}
-	if !containsAll(headers, m.allowance.headers) {
+	if !containsAll(headers, m.allowance.headers, http.CanonicalHeaderKey) {
 		return nil
 	}
 	return &Scope{
