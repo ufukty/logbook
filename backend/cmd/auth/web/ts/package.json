@@ -1,6 +1,6 @@
 {
   "devDependencies": {
-    "happy-dom": "^15.11.7",
+    "happy-dom": "^20.0.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.2",
     "vitest": "^3.2.3"
