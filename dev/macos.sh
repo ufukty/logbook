@@ -30,6 +30,8 @@ which gohandlers ||
   go install "github.com/ufukty/gohandlers/cmd/gohandlers@latest"
 which ovpn-auth ||
   go install "github.com/ufukty/ovpn-auth/cmd/ovpn-auth@v1.1.1"
+which shfmt ||
+  go install mvdan.cc/sh/v3/cmd/shfmt@latest
 
 (bash --version | grep "^GNU bash, version 5") ||
   brew install "bash"
