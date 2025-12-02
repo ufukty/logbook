@@ -1,0 +1,3 @@
+# Privileges
+
+![](./.assets/privileges.png)
