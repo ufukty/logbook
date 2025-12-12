@@ -23,6 +23,14 @@
         font-size: 12pt;
       }
 
+      :root {
+        color-scheme: light dark;
+      }
+
+      body {
+        background-color: light-dark(#fff, #000);
+      }
+
       #page {
         width: 480px;
         font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
@@ -165,7 +173,7 @@
         mask-mode: alpha;
         mask-repeat: no-repeat;
 
-        mix-blend-mode: soft-light;
+        mix-blend-mode: overlay;
 
         pointer-events: none;
 
