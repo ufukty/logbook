@@ -15,10 +15,11 @@ jobs:
         with: { go-version-file: backend/go.mod, cache-dependency-path: backend/go.sum, cache: true }
       - run: go fmt ./...
       - run: go mod download
+      - run: go mod verify
       - run: go mod tidy; git diff --exit-code go.mod go.sum
-      - uses: golangci/golangci-lint-action@1e7e51e771db61008b38414a730f564565cf7c20
+      - uses: golangci/golangci-lint-action@1e7e51e771db61008b38414a730f564565cf7c20 # v9
         with: { working-directory: backend }
-      - run: go test ./...
+      - run: go test -race -v ./...
 
   Shell:
     runs-on: ubuntu-latest
