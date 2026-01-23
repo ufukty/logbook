@@ -4,6 +4,12 @@ on:
   push:
   pull_request:
 
+concurrency:
+  group: codeql-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions: read-all
+
 jobs:
   Go:
     runs-on: ubuntu-latest
