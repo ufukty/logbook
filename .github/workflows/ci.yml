@@ -1,62 +1,28 @@
 name: CI
 
 on:
-  push: {}
-  pull_request: {}
+  push:
+  pull_request:
 
 jobs:
-  go:
-    name: Go fmt, lint, build and test
+  Go:
+    runs-on: ubuntu-latest
+    defaults:
+      run: { working-directory: backend }
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with: { go-version-file: backend/go.mod, cache-dependency-path: backend/go.sum, cache: true }
+      - run: go fmt ./...
+      - run: go mod download
+      - run: go mod tidy; git diff --exit-code go.mod go.sum
+      - uses: golangci/golangci-lint-action@1e7e51e771db61008b38414a730f564565cf7c20
+        with: { working-directory: backend }
+      - run: go test ./...
+
+  Shell:
     runs-on: ubuntu-latest
     steps:
-      - name: check out code
-        uses: actions/checkout@v4
-
-      - name: set up go
-        uses: actions/setup-go@v5
-        with:
-          go-version: "1.24.4"
-
-      - name: Cache Go modules
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/go-build
-          key: ${{ runner.os }}-go-${{ hashFiles('backend/go.sum') }}
-          restore-keys: ${{ runner.os }}-go-
-
-      - name: go fmt
-        working-directory: backend
-        run: go fmt ./...
-
-      - name: get dependencies
-        working-directory: backend
-        run: go mod download
-
-      - name: check go.mod is tidy
-        working-directory: backend
-        run: |
-          go mod tidy
-          git diff --exit-code go.mod go.sum
-
-      - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v8
-        with:
-          version: v2.1.0
-          working-directory: backend
-
-      - name: run tests
-        working-directory: backend
-        run: go test ./...
-
-  shell-lint:
-    name: Shell script linting
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install shellcheck
-        run: sudo apt-get update && sudo apt-get install -y shellcheck
-
-      - name: Run shellcheck
-        run: shellcheck $(find . -type f -name '*.sh' -not -path '*/site-packages/*' -not -path '*/vendor/*' -not -path '*/node_modules/*')
+      - uses: actions/checkout@v6
+      - run: sudo apt-get update && sudo apt-get install -y shellcheck
+      - run: shellcheck $(find . -type f -name '*.sh' -not -path '*/site-packages/*' -not -path '*/vendor/*' -not -path '*/node_modules/*')
