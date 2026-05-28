@@ -1,7 +1,7 @@
 package validators
 
 import (
-	"github.com/ufukty/gohandlers/pkg/validator"
+	"go.ufukty.com/gohandlers/pkg/validator"
 )
 
 var (

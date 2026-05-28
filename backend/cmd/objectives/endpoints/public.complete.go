@@ -8,7 +8,7 @@ import (
 	"logbook/models"
 	"net/http"
 
-	"github.com/ufukty/gohandlers/pkg/types/basics"
+	"go.ufukty.com/gohandlers/pkg/types/basics"
 )
 
 type MarkCompleteRequest struct {

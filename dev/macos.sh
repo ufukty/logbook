@@ -27,7 +27,7 @@ which govalid ||
 which d2 ||
   go install "oss.terrastruct.com/d2@v0.6.3"
 which gohandlers ||
-  go install "github.com/ufukty/gohandlers/cmd/gohandlers@latest"
+  go install "go.ufukty.com/gohandlers/cmd/gohandlers@0.39.1"
 which ovpn-auth ||
   go install "github.com/ufukty/ovpn-auth/cmd/ovpn-auth@v1.1.1"
 which shfmt ||
