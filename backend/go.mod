@@ -1,6 +1,6 @@
 module logbook
 
-go 1.24.0
+go 1.26
 
 require (
 	github.com/alexedwards/argon2id v1.0.0
