@@ -2,13 +2,12 @@ package endpoints
 
 import (
 	"fmt"
-
 	"logbook/internal/web/serialize"
 	"logbook/models/columns"
 	"logbook/models/transports"
 	"net/http"
 
-	"github.com/ufukty/gohandlers/pkg/types/basics"
+	"go.ufukty.com/gohandlers/pkg/types/basics"
 )
 
 type CreateUserRequest struct {

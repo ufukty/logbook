@@ -9,7 +9,7 @@ require (
 	github.com/jackc/pgx/v5 v5.9.2
 	github.com/pquerna/otp v1.5.0
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
-	github.com/ufukty/gohandlers v0.37.0
+	go.ufukty.com/gohandlers v0.39.1
 	golang.org/x/exp v0.0.0-20260527015227-08cc5374adb3
 	golang.org/x/time v0.15.0
 	gopkg.in/yaml.v3 v3.0.1

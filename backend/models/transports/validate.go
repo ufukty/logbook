@@ -4,7 +4,7 @@ import (
 	"logbook/models/validators"
 	"time"
 
-	"github.com/ufukty/gohandlers/pkg/validator/validate"
+	"go.ufukty.com/gohandlers/pkg/validator/validate"
 )
 
 func (v EmailGrant) Validate() any    { return validators.Uuid.Validate(string(v)) }

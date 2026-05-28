@@ -12,7 +12,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ufukty/gohandlers/pkg/types/basics"
+	"go.ufukty.com/gohandlers/pkg/types/basics"
 )
 
 // summary:

@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/ufukty/gohandlers/pkg/types/basics"
+	"go.ufukty.com/gohandlers/pkg/types/basics"
 )
 
 type RegisterInstanceRequest struct {

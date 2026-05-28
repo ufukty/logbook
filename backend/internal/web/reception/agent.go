@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/ufukty/gohandlers/pkg/gohandlers"
+	"go.ufukty.com/gohandlers/pkg/gohandlers"
 )
 
 // [Agent] is the registration Agent which helps services, and gateways to register their handlers and forwarders appropriately

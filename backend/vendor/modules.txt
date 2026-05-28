@@ -51,12 +51,12 @@ github.com/pquerna/otp/totp
 github.com/skip2/go-qrcode
 github.com/skip2/go-qrcode/bitset
 github.com/skip2/go-qrcode/reedsolomon
-# github.com/ufukty/gohandlers v0.37.0
-## explicit; go 1.23.0
-github.com/ufukty/gohandlers/pkg/gohandlers
-github.com/ufukty/gohandlers/pkg/types/basics
-github.com/ufukty/gohandlers/pkg/validator
-github.com/ufukty/gohandlers/pkg/validator/validate
+# go.ufukty.com/gohandlers v0.39.1
+## explicit; go 1.26
+go.ufukty.com/gohandlers/pkg/gohandlers
+go.ufukty.com/gohandlers/pkg/types/basics
+go.ufukty.com/gohandlers/pkg/validator
+go.ufukty.com/gohandlers/pkg/validator/validate
 # golang.org/x/crypto v0.52.0
 ## explicit; go 1.25.0
 golang.org/x/crypto/argon2

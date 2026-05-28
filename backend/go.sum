@@ -39,6 +39,8 @@ github.com/stretchr/testify v1.11.1/go.mod h1:wZwfW3scLgRK+23gO65QZefKpKQRnfz6sD
 github.com/ufukty/gohandlers v0.37.0 h1:rqdqdVAyWmFxUB2VL9a0+3n2BMp2+W+rNWhbAdCJga4=
 github.com/ufukty/gohandlers v0.37.0/go.mod h1:B8KcHr+tcHIW5N82lP0iRPDDeZLtuVNKYhW/Vh/xz4A=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
+go.ufukty.com/gohandlers v0.39.1 h1:Y+KyjzyQ+EEU4kBZq0zFJyF3y5W8soCno9fBGSwE1O8=
+go.ufukty.com/gohandlers v0.39.1/go.mod h1:hap7MZmkG4TJn6yHbezRDlfd3sAtbwzdFUOUezxGNnY=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20210921155107-089bfa567519/go.mod h1:GvvjBRRGRdwPK5ydBHafDWAxML/pGHZbMvKqRZ5+Abc=
 golang.org/x/crypto v0.14.0/go.mod h1:MVFd36DqK4CsrnJYDkBA3VC4m2GkXAM0PvzMCn4JQf4=
