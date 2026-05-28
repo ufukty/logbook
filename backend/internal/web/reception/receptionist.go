@@ -18,9 +18,17 @@ import (
 	"time"
 )
 
-type RequestId string
+type response struct {
+	http.ResponseWriter
+	Status int
+}
 
-const ZeroRequestId = RequestId("00000000-0000-0000-0000-000000000000")
+func (r *response) WriteHeader(statusCode int) {
+	r.Status = statusCode
+	r.ResponseWriter.WriteHeader(statusCode)
+}
+
+type RequestId string
 
 type receptionist struct {
 	l       *logger.Logger
@@ -40,6 +48,10 @@ func newReceptionist(deplcfg *deployment.Config, l *logger.Logger, handler http.
 // DONE: recover
 // DONE: timeout
 func (recp receptionist) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if r.TLS != nil {
+		w.Header().Set("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload")
+	}
+
 	ww := &response{ResponseWriter: w}
 
 	id, err := columns.NewUuidV4[RequestId]()
