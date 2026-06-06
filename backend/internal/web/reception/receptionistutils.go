@@ -2,12 +2,14 @@ package reception
 
 import (
 	"fmt"
-	"logbook/config/deployment"
-	"logbook/internal/logger/colors"
 	"net/http"
 	"reflect"
 	"runtime"
 	"time"
+
+	"logbook/config/deployment"
+	"logbook/internal/logger/colors"
+	"logbook/internal/web/captured"
 )
 
 func summarize(deplcfg *deployment.Config, r *http.Request) string {
@@ -29,7 +31,7 @@ func summarize(deplcfg *deployment.Config, r *http.Request) string {
 	)
 }
 
-func summarizeW(deplcfg *deployment.Config, w *response, t time.Time) string {
+func summarizeW(deplcfg *deployment.Config, w *captured.ResponseWriter, t time.Time) string {
 	if deplcfg.Environment == "local" {
 		return fmt.Sprintf("%s %s %s bytes",
 			colors.Magenta(w.Status),

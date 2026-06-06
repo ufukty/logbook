@@ -10,12 +10,14 @@ package reception
 import (
 	"context"
 	"fmt"
-	"logbook/config/deployment"
-	"logbook/internal/logger"
-	"logbook/models/columns"
 	"net/http"
 	"runtime/debug"
 	"time"
+
+	"logbook/config/deployment"
+	"logbook/internal/logger"
+	"logbook/internal/web/captured"
+	"logbook/models/columns"
 )
 
 type RequestId string
@@ -40,12 +42,12 @@ func newReceptionist(deplcfg *deployment.Config, l *logger.Logger, handler http.
 // DONE: recover
 // DONE: timeout
 func (recp receptionist) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	ww := &response{ResponseWriter: w}
+	crw := captured.New(w)
 
 	id, err := columns.NewUuidV4[RequestId]()
 	if err != nil {
 		recp.l.Println(fmt.Errorf("generating new request id: %w", err))
-		http.Error(ww, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		http.Error(crw, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
@@ -53,14 +55,14 @@ func (recp receptionist) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	recp.l.Printf("accepted %s: %s\n", lastsix(id), summarize(recp.deplcfg, r))
 	defer func() {
-		recp.l.Printf("served   %s: %s\n", lastsix(id), summarizeW(recp.deplcfg, ww, t))
+		recp.l.Printf("served   %s: %s\n", lastsix(id), summarizeW(recp.deplcfg, crw, t))
 	}()
 
 	ctx, cancel := context.WithTimeout(r.Context(), recp.deplcfg.Reception.RequestTimeout)
 	defer func() {
 		cancel()
 		if ctx.Err() == context.DeadlineExceeded {
-			http.Error(ww, http.StatusText(http.StatusGatewayTimeout), http.StatusGatewayTimeout)
+			http.Error(crw, http.StatusText(http.StatusGatewayTimeout), http.StatusGatewayTimeout)
 		}
 	}()
 	r = r.WithContext(ctx)
@@ -73,7 +75,7 @@ func (recp receptionist) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			debug.PrintStack()
 			recp.l.Println(fmt.Errorf("recovered: %s: %v", funcname(recp.handler), rec))
 			if r.Header.Get("Connection") != "Upgrade" { // except websocket (?)
-				http.Error(ww, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				http.Error(crw, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			}
 			return
 		}
@@ -84,7 +86,6 @@ func (recp receptionist) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 
 	default:
-		recp.handler.ServeHTTP(ww, r)
+		recp.handler.ServeHTTP(crw, r)
 	}
-
 }
