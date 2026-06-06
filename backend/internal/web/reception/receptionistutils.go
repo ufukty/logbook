@@ -39,11 +39,12 @@ func summarizeW(deplcfg *deployment.Config, w *captured.ResponseWriter, t time.T
 			colors.Cyan(w.Header().Get("Content-Length")),
 		)
 	}
-	return fmt.Sprintf("%d %s %s bytes",
-		w.Status,
-		time.Since(t),
-		w.Header().Get("Content-Length"),
-	)
+	sc, written := w.Status()
+	format := "%d %s %s bytes"
+	if !written {
+		format = "%d* %s %s bytes"
+	}
+	return fmt.Sprintf(format, sc, time.Since(t), w.Header().Get("Content-Length"))
 }
 
 func lastsix[S ~string](id S) S {
