@@ -6,34 +6,34 @@ import (
 )
 
 // A [http.ResponseWriter] that keeps status code accessible and supports [http.ResponseController].
-type responseWriter struct {
+type ResponseWriter struct {
 	wrapped    http.ResponseWriter
 	statusCode int
 	written    bool
 }
 
 func New(rw http.ResponseWriter) http.ResponseWriter {
-	return &responseWriter{wrapped: rw}
+	return &ResponseWriter{wrapped: rw}
 }
 
-func (rw *responseWriter) Header() http.Header {
+func (rw *ResponseWriter) Header() http.Header {
 	return rw.wrapped.Header()
 }
 
-func (rw *responseWriter) Write(n []byte) (int, error) {
+func (rw *ResponseWriter) Write(n []byte) (int, error) {
 	rw.written = true
 	return rw.wrapped.Write(n)
 }
 
-func (rw *responseWriter) WriteHeader(statusCode int) {
+func (rw *ResponseWriter) WriteHeader(statusCode int) {
 	rw.statusCode = statusCode
 	rw.wrapped.WriteHeader(statusCode)
 }
 
-func (rw *responseWriter) Unwrap() http.ResponseWriter {
+func (rw *ResponseWriter) Unwrap() http.ResponseWriter {
 	return rw.wrapped
 }
 
-func (rw responseWriter) Status() (int, bool) {
+func (rw ResponseWriter) Status() (int, bool) {
 	return cmp.Or(rw.statusCode, int(http.StatusOK)), rw.statusCode > 0 || rw.written
 }
