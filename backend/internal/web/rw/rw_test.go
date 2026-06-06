@@ -19,7 +19,7 @@ func (h hijacker) Hijack() (net.Conn, *bufio.ReadWriter, error) {
 var _ http.Hijacker = (*hijacker)(nil)
 
 func ExampleResponseWriter_additionalMethods() {
-	rw := New(hijacker{})
+	var rw http.ResponseWriter = New(hijacker{})
 	if _, ok := rw.(http.Hijacker); !ok {
 		fmt.Println("the non-ResponseWriter methods are not available directly")
 	}

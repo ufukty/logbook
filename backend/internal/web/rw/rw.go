@@ -12,8 +12,8 @@ type ResponseWriter struct {
 	written    bool
 }
 
-func New(rw http.ResponseWriter) http.ResponseWriter {
-	return &ResponseWriter{wrapped: rw}
+func New(w http.ResponseWriter) *ResponseWriter {
+	return &ResponseWriter{wrapped: w}
 }
 
 func (rw *ResponseWriter) Header() http.Header {
