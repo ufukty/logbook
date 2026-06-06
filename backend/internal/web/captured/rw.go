@@ -5,7 +5,6 @@ import (
 	"net/http"
 )
 
-// A [http.ResponseWriter] that keeps status code accessible and supports [http.ResponseController].
 type ResponseWriter struct {
 	wrapped    http.ResponseWriter
 	statusCode int
@@ -30,6 +29,7 @@ func (rw *ResponseWriter) WriteHeader(statusCode int) {
 	rw.wrapped.WriteHeader(statusCode)
 }
 
+// Supports [http.ResponseController]
 func (rw *ResponseWriter) Unwrap() http.ResponseWriter {
 	return rw.wrapped
 }
