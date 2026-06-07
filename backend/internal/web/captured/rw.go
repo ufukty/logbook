@@ -3,6 +3,7 @@ package captured
 import (
 	"cmp"
 	"net/http"
+	"strconv"
 )
 
 type ResponseWriter struct {
@@ -36,4 +37,11 @@ func (rw *ResponseWriter) Unwrap() http.ResponseWriter {
 
 func (rw ResponseWriter) Status() (int, bool) {
 	return cmp.Or(rw.statusCode, int(http.StatusOK)), rw.statusCode > 0 || rw.written
+}
+
+func (rw ResponseWriter) StatusRepresentation() string {
+	if !rw.written {
+		return strconv.Itoa(rw.statusCode) + "*"
+	}
+	return strconv.Itoa(rw.statusCode)
 }

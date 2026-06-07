@@ -11,54 +11,73 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"reflect"
+	"runtime"
 	"runtime/debug"
 	"time"
 
 	"logbook/config/deployment"
 	"logbook/internal/logger"
 	"logbook/internal/web/captured"
+	"logbook/internal/web/reception/summarizer"
 	"logbook/models/columns"
 )
 
 type RequestId string
 
-const ZeroRequestId = RequestId("00000000-0000-0000-0000-000000000000")
-
-type receptionist struct {
-	l       *logger.Logger
-	handler http.Handler
-	deplcfg *deployment.Config
+func (id RequestId) lastsix() string {
+	return string(id)[max(0, len(string(id))-6):]
 }
 
-func newReceptionist(deplcfg *deployment.Config, l *logger.Logger, handler http.Handler) *receptionist {
+const ZeroRequestId = RequestId("00000000-0000-0000-0000-000000000000")
+
+func funcname(i any) string {
+	v := reflect.ValueOf(i)
+	if v.Kind() != reflect.Func {
+		return "(Not a function)"
+	}
+	f := runtime.FuncForPC(reflect.ValueOf(i).Pointer())
+	if f == nil {
+		return "(Unknown function)"
+	}
+	return f.Name()
+}
+
+type receptionist struct {
+	c *deployment.Config
+	s *summarizer.Summarizer
+	l *logger.Logger
+	h http.Handler
+}
+
+func newReceptionist(c *deployment.Config, l *logger.Logger, h http.Handler) *receptionist {
 	return &receptionist{
-		l:       l.Sub("receptionist"),
-		handler: handler,
-		deplcfg: deplcfg,
+		c: c,
+		s: summarizer.New(c.Environment == "local"),
+		l: l.Sub("receptionist"),
+		h: h,
 	}
 }
 
 // DONE: logging
 // DONE: recover
 // DONE: timeout
-func (recp receptionist) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (rc receptionist) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	crw := captured.New(w)
 
 	id, err := columns.NewUuidV4[RequestId]()
 	if err != nil {
-		recp.l.Println(fmt.Errorf("generating new request id: %w", err))
+		rc.l.Println(fmt.Errorf("generating new request id: %w", err))
 		http.Error(crw, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
 	t := time.Now()
 
-	recp.l.Printf("accepted %s: %s\n", lastsix(id), summarize(recp.deplcfg, r))
-	defer func() {
-		recp.l.Printf("served   %s: %s\n", lastsix(id), summarizeW(recp.deplcfg, crw, t))
-	}()
+	rc.l.Printf("accepted %s: %s\n", id.lastsix(), rc.s.Pre(r))
+	defer func() { rc.l.Printf("served   %s: %s\n", id.lastsix(), rc.s.Post(crw, t)) }()
 
-	ctx, cancel := context.WithTimeout(r.Context(), recp.deplcfg.Reception.RequestTimeout)
+	ctx, cancel := context.WithTimeout(r.Context(), rc.c.Reception.RequestTimeout)
 	defer func() {
 		cancel()
 		if ctx.Err() == context.DeadlineExceeded {
@@ -73,7 +92,7 @@ func (recp receptionist) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				panic(rec)
 			}
 			debug.PrintStack()
-			recp.l.Println(fmt.Errorf("recovered: %s: %v", funcname(recp.handler), rec))
+			rc.l.Println(fmt.Errorf("recovered: %s: %v", funcname(rc.h), rec))
 			if r.Header.Get("Connection") != "Upgrade" { // except websocket (?)
 				http.Error(crw, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			}
@@ -86,6 +105,6 @@ func (recp receptionist) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 
 	default:
-		recp.handler.ServeHTTP(crw, r)
+		rc.h.ServeHTTP(crw, r)
 	}
 }
