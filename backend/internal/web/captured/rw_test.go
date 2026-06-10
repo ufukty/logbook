@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 )
 
@@ -52,5 +53,14 @@ func TestBytes(t *testing.T) {
 				t.Errorf("expected %q got %q", expected, got)
 			}
 		})
+	}
+}
+
+func TestResponseWriter_SizeRepresentation(t *testing.T) {
+	crw := New(httptest.NewRecorder())
+	crw.Write([]byte("lorem ipsum dolor sit amet consectetur adipscing elit"))
+	expected, got := "53B", crw.SizeRepresentation()
+	if expected != got {
+		t.Errorf("expected %q got %q", expected, got)
 	}
 }
