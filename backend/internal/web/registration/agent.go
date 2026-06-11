@@ -33,12 +33,6 @@ func (a *Agent) Mux() *http.ServeMux {
 	return a.r
 }
 
-type HandlerInfo struct {
-	Method string
-	Path   string
-	Ref    http.HandlerFunc
-}
-
 type Lister interface {
 	ListHandlers() map[string]gohandlers.HandlerInfo
 }
