@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+
 	"logbook/cmd/objectives/app"
 	"logbook/cmd/objectives/endpoints"
 	"logbook/cmd/objectives/service"
@@ -11,7 +12,7 @@ import (
 	sessions "logbook/cmd/sessions/client"
 	"logbook/internal/startup"
 	"logbook/internal/web/balancer"
-	"logbook/internal/web/reception"
+	"logbook/internal/web/registration/reception"
 	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router"
 	"logbook/internal/web/sidecar"

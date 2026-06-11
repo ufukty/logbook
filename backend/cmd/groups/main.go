@@ -3,13 +3,14 @@ package main
 import (
 	"context"
 	"fmt"
+
 	"logbook/cmd/groups/app"
 	"logbook/cmd/groups/endpoints"
 	"logbook/cmd/groups/service"
 	registry "logbook/cmd/registry/client"
 	"logbook/internal/startup"
 	"logbook/internal/web/balancer"
-	"logbook/internal/web/reception"
+	"logbook/internal/web/registration/reception"
 	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router"
 	"logbook/internal/web/sidecar"

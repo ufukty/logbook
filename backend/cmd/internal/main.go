@@ -3,9 +3,10 @@ package main
 import (
 	"fmt"
 	"log"
+
 	"logbook/internal/startup"
 	"logbook/internal/web/forwarder"
-	"logbook/internal/web/reception"
+	"logbook/internal/web/registration/reception"
 	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router"
 	"logbook/models"

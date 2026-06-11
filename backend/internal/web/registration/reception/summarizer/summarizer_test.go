@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"time"
 
-	"logbook/internal/web/reception/captured"
+	"logbook/internal/web/registration/reception/captured"
 )
 
 func ExampleSummarizer_post() {

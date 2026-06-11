@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+
 	objectives "logbook/cmd/objectives/client"
 	profiles "logbook/cmd/profiles/client"
 	"logbook/cmd/registration/app"
@@ -13,7 +14,7 @@ import (
 	sessions "logbook/cmd/sessions/client"
 	"logbook/internal/startup"
 	"logbook/internal/web/balancer"
-	"logbook/internal/web/reception"
+	"logbook/internal/web/registration/reception"
 	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router"
 	"logbook/internal/web/sidecar"

@@ -18,8 +18,8 @@ import (
 
 	"logbook/config/deployment"
 	"logbook/internal/logger"
-	"logbook/internal/web/reception/captured"
-	"logbook/internal/web/reception/summarizer"
+	"logbook/internal/web/registration/reception/captured"
+	"logbook/internal/web/registration/reception/summarizer"
 	"logbook/models/columns"
 )
 

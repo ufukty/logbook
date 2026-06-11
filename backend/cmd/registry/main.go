@@ -3,10 +3,11 @@ package main
 import (
 	"fmt"
 	"log"
+
 	"logbook/cmd/registry/app"
 	"logbook/cmd/registry/endpoints"
 	"logbook/internal/startup"
-	"logbook/internal/web/reception"
+	"logbook/internal/web/registration/reception"
 	"logbook/internal/web/router"
 )
 

@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
+
 	groups "logbook/cmd/groups/client"
 	objectives "logbook/cmd/objectives/client"
 	"logbook/cmd/pdp/decider"
@@ -10,12 +12,11 @@ import (
 	registry "logbook/cmd/registry/client"
 	"logbook/internal/startup"
 	"logbook/internal/web/balancer"
-	"logbook/internal/web/reception"
+	"logbook/internal/web/registration/reception"
 	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router"
 	"logbook/internal/web/sidecar"
 	"logbook/models"
-	"os"
 )
 
 func Main() error {
