@@ -1,11 +1,16 @@
+# Distributed 
+
+## Transactions
+
+```mermaid
 sequenceDiagram
 autonumber
 
 actor c as Client
 participant a as Accounts<br>Service
-participant ad as Accounts<br>Database 
+participant ad as Accounts<br>Database
 participant o as Objectives<br>Service
-participant od as Accounts<br>Database 
+participant od as Accounts<br>Database
 
 c->>+a: HTTP Register
 a->>+ad: SQL BEGIN TRANSACTION
@@ -16,7 +21,7 @@ o->>+od: SQL BEGIN TRANSACTION
 od-->>o: Tb
 o->>od: (Tb) INSERT INTO OBJECTIVE
 o->>od: (Tb) COMMIT
-alt 
+alt
   od->>o: (Tb) OK
   o->>a: OK
   a->>ad: (Ta) COMMIT
@@ -29,3 +34,4 @@ else
   deactivate ad
   a->>-c: 500
 end
+```

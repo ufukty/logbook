@@ -1,5 +1,5 @@
 all: \
-	pdp.png
+	.assets/pdp.png
 
-pdp.png: pdp.mmd
-	mmdc -f -e png -s 3 -i "pdp.mmd" -o "pdp.png"
+.assets/pdp.png: .diagrams/pdp.mmd
+	mmdc -f -e png -s 3 -i .diagrams/pdp.mmd -o .assets/pdp.png

@@ -1,13 +1,9 @@
 all: \
-	privileges.png \
-	objectives.png \
-	transactions.png
+	.assets/privileges.png \
+	.assets/objectives.png
 
-privileges.png: privileges.d2
-	d2 --layout elk "privileges.d2" "privileges.png"
+.assets/privileges.png: .diagrams/privileges.d2
+	d2 --layout elk ".diagrams/privileges.d2" ".assets/privileges.png"
 
-objectives.png: objectives.d2
-	d2 --layout elk "objectives.d2" "objectives.png"
-
-transactions.png: transactions.mmd
-	mmdc -f -e png -s 3 -i "transactions.mmd" -o "transactions.png"
+.assets/objectives.png: .diagrams/objectives.d2
+	d2 --layout elk ".diagrams/objectives.d2" ".assets/objectives.png"
