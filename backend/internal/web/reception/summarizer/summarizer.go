@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"logbook/internal/web/captured"
+	"logbook/internal/web/reception/captured"
 )
 
 type colorizer interface {
