@@ -63,7 +63,7 @@ func (s Summarizer) Pre(r *http.Request) string {
 }
 
 func (s Summarizer) Post(crw *captured.ResponseWriter, start time.Time) string {
-	return fmt.Sprintf("%s %s %s bytes",
+	return fmt.Sprintf("%s %s %s",
 		s.c.Magenta(crw.StatusRepresentation()),
 		s.c.Green(time.Since(start)),
 		s.c.Cyan(crw.SizeRepresentation()),
