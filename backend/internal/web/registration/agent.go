@@ -1,13 +1,15 @@
-package reception
+package registration
 
 import (
 	"fmt"
+	"net/http"
+	"net/url"
+
 	"logbook/config/deployment"
 	"logbook/internal/logger"
 	"logbook/internal/web/forwarder"
+	"logbook/internal/web/registration/reception"
 	"logbook/models"
-	"net/http"
-	"net/url"
 
 	"go.ufukty.com/gohandlers/pkg/gohandlers"
 )
@@ -51,8 +53,8 @@ func (ag *Agent) RegisterEndpoints(public, private Lister) error {
 
 	if public != nil {
 		for hn, info := range public.ListHandlers() {
-			c := newCors(info.Ref, origin, []string{info.Method}, corsheaders)
-			pl := newReceptionist(ag.deplcfg, ag.l.Sub(info.Path), c)
+			c := reception.NewCors(info.Ref, origin, []string{info.Method}, corsheaders)
+			pl := reception.New(ag.deplcfg, ag.l.Sub(info.Path), c)
 
 			ag.l.Printf("registering: %s (%s, OPTIONS %s) -> %p\n", hn, info.Method, info.Path, pl)
 			for _, method := range []string{info.Method, "OPTIONS"} {
@@ -64,15 +66,15 @@ func (ag *Agent) RegisterEndpoints(public, private Lister) error {
 
 	if private != nil {
 		for hn, info := range private.ListHandlers() {
-			pl := newReceptionist(ag.deplcfg, ag.l.Sub(info.Path), info.Ref)
+			pl := reception.New(ag.deplcfg, ag.l.Sub(info.Path), info.Ref)
 			pattern := fmt.Sprintf("%s %s", info.Method, info.Path)
 			ag.l.Printf("registering: %s (%s) -> %p\n", hn, pattern, pl)
 			ag.r.Handle(pattern, pl)
 		}
 	}
 
-	ag.r.Handle("GET /ping", newReceptionist(ag.deplcfg, ag.l.Sub("ping"), http.HandlerFunc(pong)))
-	ag.r.Handle("GET /", newReceptionist(ag.deplcfg, ag.l.Sub("not-found"), http.HandlerFunc(http.NotFound)))
+	ag.r.Handle("GET /ping", reception.New(ag.deplcfg, ag.l.Sub("ping"), http.HandlerFunc(reception.Pong)))
+	ag.r.Handle("GET /", reception.New(ag.deplcfg, ag.l.Sub("not-found"), http.HandlerFunc(http.NotFound)))
 
 	return nil
 }
@@ -81,11 +83,11 @@ func (ag *Agent) RegisterForwarders(fwds map[models.Service]*forwarder.LoadBalan
 	for addr, fwd := range fwds {
 		ag.l.Printf("registering forwarder for: %s -> %p\n", addr, fwd)
 		l := ag.l.Sub(fmt.Sprintf("strip-prefix(%s)", addr))
-		ag.r.Handle(string(addr)+"/", newReceptionist(ag.deplcfg, l, http.StripPrefix(string(addr), fwd)))
+		ag.r.Handle(string(addr)+"/", reception.New(ag.deplcfg, l, http.StripPrefix(string(addr), fwd)))
 	}
 
-	ag.r.Handle("/ping", newReceptionist(ag.deplcfg, ag.l.Sub("ping"), http.HandlerFunc(pong)))
-	ag.r.Handle("/", newReceptionist(ag.deplcfg, ag.l.Sub("not-found"), http.HandlerFunc(http.NotFound)))
+	ag.r.Handle("/ping", reception.New(ag.deplcfg, ag.l.Sub("ping"), http.HandlerFunc(reception.Pong)))
+	ag.r.Handle("/", reception.New(ag.deplcfg, ag.l.Sub("not-found"), http.HandlerFunc(http.NotFound)))
 
 	return nil
 }

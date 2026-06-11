@@ -11,7 +11,7 @@ import (
 	registry "logbook/cmd/registry/client"
 	"logbook/internal/startup"
 	"logbook/internal/web/balancer"
-	"logbook/internal/web/registration/reception"
+	"logbook/internal/web/registration"
 	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router"
 	"logbook/internal/web/sidecar"
@@ -46,7 +46,7 @@ func Main() error {
 
 	pri := endpoints.NewPrivate(a, l)
 
-	agent := reception.NewAgent(deplcfg, l)
+	agent := registration.NewAgent(deplcfg, l)
 	err = agent.RegisterEndpoints(nil, pri)
 	if err != nil {
 		return fmt.Errorf("agent.RegisterEndpoints: %w", err)

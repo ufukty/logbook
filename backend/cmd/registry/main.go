@@ -7,7 +7,7 @@ import (
 	"logbook/cmd/registry/app"
 	"logbook/cmd/registry/endpoints"
 	"logbook/internal/startup"
-	"logbook/internal/web/registration/reception"
+	"logbook/internal/web/registration"
 	"logbook/internal/web/router"
 )
 
@@ -21,7 +21,7 @@ func Main() error {
 	defer a.Stop()
 	e := endpoints.New(a, l)
 
-	agent := reception.NewAgent(deplycfg, l)
+	agent := registration.NewAgent(deplycfg, l)
 	err = agent.RegisterEndpoints(nil, e)
 	if err != nil {
 		return fmt.Errorf("agent.RegisterEndpoints: %w", err)

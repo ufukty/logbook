@@ -50,7 +50,7 @@ type receptionist struct {
 	h http.Handler
 }
 
-func newReceptionist(c *deployment.Config, l *logger.Logger, h http.Handler) *receptionist {
+func New(c *deployment.Config, l *logger.Logger, h http.Handler) *receptionist {
 	return &receptionist{
 		c: c,
 		s: summarizer.New(c.Environment == "local"),

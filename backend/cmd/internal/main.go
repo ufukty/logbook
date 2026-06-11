@@ -6,7 +6,7 @@ import (
 
 	"logbook/internal/startup"
 	"logbook/internal/web/forwarder"
-	"logbook/internal/web/registration/reception"
+	"logbook/internal/web/registration"
 	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router"
 	"logbook/models"
@@ -24,7 +24,7 @@ func Main() error {
 	}, l)
 	defer registrysd.Stop()
 
-	agent := reception.NewAgent(deplcfg, l)
+	agent := registration.NewAgent(deplcfg, l)
 	err = agent.RegisterForwarders(map[models.Service]*forwarder.LoadBalancedReverseProxy{
 		models.Registry: forwarder.New(registrysd, deplcfg, l),
 	})
