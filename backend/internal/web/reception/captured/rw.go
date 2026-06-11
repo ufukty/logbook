@@ -44,8 +44,8 @@ func (rw ResponseWriter) Status() (int, bool) {
 }
 
 func (rw ResponseWriter) StatusRepresentation() string {
-	if !rw.written {
-		return strconv.Itoa(rw.statusCode) + "*"
+	if rw.statusCode == 0 && rw.written {
+		return "200*"
 	}
 	return strconv.Itoa(rw.statusCode)
 }
