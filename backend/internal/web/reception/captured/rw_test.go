@@ -64,3 +64,29 @@ func TestResponseWriter_SizeRepresentation(t *testing.T) {
 		t.Errorf("expected %q got %q", expected, got)
 	}
 }
+
+func TestResponseWriter_statusCodeRepresentation(t *testing.T) {
+	t.Run("untouched", func(t *testing.T) {
+		w := New(httptest.NewRecorder())
+		expected, got := "0", w.StatusRepresentation()
+		if expected != got {
+			t.Errorf("expected %q got %q", expected, got)
+		}
+	})
+	t.Run("implicit", func(t *testing.T) {
+		w := New(httptest.NewRecorder())
+		w.Write([]byte("lorem ipsum dolor sit amet."))
+		expected, got := "200*", w.StatusRepresentation()
+		if expected != got {
+			t.Errorf("expected %q got %q", expected, got)
+		}
+	})
+	t.Run("explicit", func(t *testing.T) {
+		w := New(httptest.NewRecorder())
+		w.WriteHeader(200)
+		expected, got := "200", w.StatusRepresentation()
+		if expected != got {
+			t.Errorf("expected %q got %q", expected, got)
+		}
+	})
+}
