@@ -14,7 +14,7 @@ import (
 	sessions "logbook/cmd/sessions/client"
 	"logbook/internal/startup"
 	"logbook/internal/web/balancer"
-	"logbook/internal/web/registration"
+	"logbook/internal/web/register"
 	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router"
 	"logbook/internal/web/sidecar"
@@ -51,7 +51,7 @@ func Main() error {
 		Profiles:   profiles.NewClient(balancer.New(sc.InstanceSource(models.Profiles))),
 	}
 	pub := endpoints.NewPublic(a, l)
-	agent := registration.NewAgent(deplcfg, l)
+	agent := register.NewAgent(deplcfg, l)
 	err = agent.RegisterEndpoints(pub, nil)
 	if err != nil {
 		return fmt.Errorf("agent.RegisterEndpoints: %w", err)

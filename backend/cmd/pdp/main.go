@@ -12,7 +12,7 @@ import (
 	registry "logbook/cmd/registry/client"
 	"logbook/internal/startup"
 	"logbook/internal/web/balancer"
-	"logbook/internal/web/registration"
+	"logbook/internal/web/register"
 	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router"
 	"logbook/internal/web/sidecar"
@@ -44,7 +44,7 @@ func Main() error {
 		objectives.NewClient(balancer.New(sc.InstanceSource(models.Objectives))),
 	)
 	eps := endpoints.NewPrivate(d, l)
-	agent := registration.NewAgent(deplcfg, l)
+	agent := register.NewAgent(deplcfg, l)
 	err = agent.RegisterEndpoints(nil, eps)
 	if err != nil {
 		return fmt.Errorf("agent.RegisterEndpoints: %w", err)

@@ -12,7 +12,7 @@ import (
 	"logbook/cmd/tags/service"
 	"logbook/internal/startup"
 	"logbook/internal/web/balancer"
-	"logbook/internal/web/registration"
+	"logbook/internal/web/register"
 	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router"
 	"logbook/internal/web/sidecar"
@@ -50,7 +50,7 @@ func Main() error {
 	a := app.New(pool, internalsd)
 	e := endpoints.New(a, sessions, l)
 
-	agent := registration.NewAgent(deplcfg, l)
+	agent := register.NewAgent(deplcfg, l)
 	err = agent.RegisterEndpoints(e, nil)
 	if err != nil {
 		return fmt.Errorf("agent.RegisterEndpoints: %w", err)

@@ -8,7 +8,7 @@ import (
 	"logbook/internal/startup"
 	"logbook/internal/web/balancer"
 	"logbook/internal/web/forwarder"
-	"logbook/internal/web/registration"
+	"logbook/internal/web/register"
 	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router"
 	"logbook/internal/web/sidecar"
@@ -37,7 +37,7 @@ func Main() error {
 	}, l)
 	defer sc.Stop()
 
-	agent := registration.NewAgent(deplcfg, l)
+	agent := register.NewAgent(deplcfg, l)
 	err = agent.RegisterForwarders(map[models.Service]*forwarder.LoadBalancedReverseProxy{
 		models.Users:        forwarder.New(sc.InstanceSource(models.Users), deplcfg, l),
 		models.Objectives:   forwarder.New(sc.InstanceSource(models.Objectives), deplcfg, l),
