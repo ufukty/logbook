@@ -47,8 +47,7 @@ func Main() error {
 	pub := endpoints.NewPublic(a, l)
 	pri := endpoints.NewPrivate(a, l)
 
-	agent := register.NewAgent(deplcfg, l)
-	err = agent.RegisterEndpoints(pub, pri)
+	r, err := register.RegisterEndpoints(deplcfg, l, pub, pri)
 	if err != nil {
 		return fmt.Errorf("agent.RegisterEndpoints: %w", err)
 	}
@@ -59,7 +58,7 @@ func Main() error {
 		Port:     deplcfg.Ports.Sessions,
 		Router:   deplcfg.Router,
 		Service:  models.Sessions,
-		ServeMux: agent.Mux(),
+		ServeMux: r,
 		Sidecar:  sc,
 		TlsCrt:   args.TlsCertificate,
 		TlsKey:   args.TlsKey,

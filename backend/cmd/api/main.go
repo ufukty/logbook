@@ -37,8 +37,7 @@ func Main() error {
 	}, l)
 	defer sc.Stop()
 
-	agent := register.NewAgent(deplcfg, l)
-	err = agent.RegisterForwarders(map[models.Service]*forwarder.LoadBalancedReverseProxy{
+	r, err := register.RegisterForwarders(deplcfg, l, map[models.Service]*forwarder.LoadBalancedReverseProxy{
 		models.Users:        forwarder.New(sc.InstanceSource(models.Users), deplcfg, l),
 		models.Objectives:   forwarder.New(sc.InstanceSource(models.Objectives), deplcfg, l),
 		models.Profiles:     forwarder.New(sc.InstanceSource(models.Profiles), deplcfg, l),
@@ -51,7 +50,7 @@ func Main() error {
 	err = router.StartServer(router.ServerParameters{
 		Port:     deplcfg.Ports.Gateway,
 		Router:   deplcfg.Router,
-		ServeMux: agent.Mux(),
+		ServeMux: r,
 		TlsCrt:   args.TlsCertificate,
 		TlsKey:   args.TlsKey,
 	}, l)

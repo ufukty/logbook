@@ -24,22 +24,17 @@ func Main() error {
 	}, l)
 	defer registrysd.Stop()
 
-	agent := register.NewAgent(deplcfg, l)
-	err = agent.RegisterForwarders(map[models.Service]*forwarder.LoadBalancedReverseProxy{
+	r, err := register.RegisterForwarders(deplcfg, l, map[models.Service]*forwarder.LoadBalancedReverseProxy{
 		models.Registry: forwarder.New(registrysd, deplcfg, l),
 	})
 	if err != nil {
 		return fmt.Errorf("agent.RegisterForwarders: %w", err)
 	}
-	// err = agent.RegisterCommonalities()
-	// if err != nil {
-	// 	return fmt.Errorf("agent.RegisterCommonalities: %w", err)
-	// }
 
 	router.StartServer(router.ServerParameters{
 		Router:   deplcfg.Router,
 		Port:     deplcfg.Ports.Internal,
-		ServeMux: agent.Mux(),
+		ServeMux: r,
 		TlsCrt:   args.TlsCertificate,
 		TlsKey:   args.TlsKey,
 	}, l)

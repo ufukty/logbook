@@ -44,8 +44,7 @@ func Main() error {
 		objectives.NewClient(balancer.New(sc.InstanceSource(models.Objectives))),
 	)
 	eps := endpoints.NewPrivate(d, l)
-	agent := register.NewAgent(deplcfg, l)
-	err = agent.RegisterEndpoints(nil, eps)
+	r, err := register.RegisterEndpoints(deplcfg, l, nil, eps)
 	if err != nil {
 		return fmt.Errorf("agent.RegisterEndpoints: %w", err)
 	}
@@ -56,7 +55,7 @@ func Main() error {
 		Port:     deplcfg.Ports.Pdp,
 		Router:   deplcfg.Router,
 		Service:  models.Pdp,
-		ServeMux: agent.Mux(),
+		ServeMux: r,
 		Sidecar:  sc,
 		TlsCrt:   args.TlsCertificate,
 		TlsKey:   args.TlsKey,

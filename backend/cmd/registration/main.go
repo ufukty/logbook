@@ -51,8 +51,7 @@ func Main() error {
 		Profiles:   profiles.NewClient(balancer.New(sc.InstanceSource(models.Profiles))),
 	}
 	pub := endpoints.NewPublic(a, l)
-	agent := register.NewAgent(deplcfg, l)
-	err = agent.RegisterEndpoints(pub, nil)
+	r, err := register.RegisterEndpoints(deplcfg, l, pub, nil)
 	if err != nil {
 		return fmt.Errorf("agent.RegisterEndpoints: %w", err)
 	}
@@ -63,7 +62,7 @@ func Main() error {
 		Port:     deplcfg.Ports.Registration,
 		Router:   deplcfg.Router,
 		Service:  models.Registration,
-		ServeMux: agent.Mux(),
+		ServeMux: r,
 		Sidecar:  sc,
 		TlsCrt:   args.TlsCertificate,
 		TlsKey:   args.TlsKey,
