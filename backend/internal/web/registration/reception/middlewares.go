@@ -13,7 +13,7 @@ type cors struct {
 	next    http.HandlerFunc
 }
 
-func newCors(next http.HandlerFunc, origin string, methods, headers []string) *cors {
+func NewCors(next http.HandlerFunc, origin string, methods, headers []string) *cors {
 	methods = append(methods, "OPTIONS")
 	return &cors{
 		origin:  origin,
@@ -38,7 +38,7 @@ func (c *cors) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	c.next(w, r)
 }
 
-func pong(w http.ResponseWriter, r *http.Request) {
+func Pong(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "pong")
 	w.WriteHeader(http.StatusOK)
 }

@@ -3,13 +3,14 @@ package main
 import (
 	"context"
 	"fmt"
+
 	"logbook/cmd/groups/app"
 	"logbook/cmd/groups/endpoints"
 	"logbook/cmd/groups/service"
 	registry "logbook/cmd/registry/client"
 	"logbook/internal/startup"
 	"logbook/internal/web/balancer"
-	"logbook/internal/web/reception"
+	"logbook/internal/web/register"
 	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router"
 	"logbook/internal/web/sidecar"
@@ -45,8 +46,7 @@ func Main() error {
 	pub := endpoints.NewPublic(a, l)
 	pri := endpoints.NewPrivate(a, l)
 
-	agent := reception.NewAgent(deplcfg, l)
-	err = agent.RegisterEndpoints(pub, pri)
+	r, err := register.Endpoints(deplcfg, l, pub, pri)
 	if err != nil {
 		return fmt.Errorf("agent.RegisterEndpoints: %w", err)
 	}
@@ -55,7 +55,7 @@ func Main() error {
 		Address:  args.PrivateNetworkIp,
 		Port:     deplcfg.Ports.Objectives,
 		Router:   deplcfg.Router,
-		ServeMux: agent.Mux(),
+		ServeMux: r,
 		Service:  models.Groups,
 		Sidecar:  sc,
 		TlsCrt:   args.TlsCertificate,

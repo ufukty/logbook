@@ -3,33 +3,33 @@ package main
 import (
 	"fmt"
 	"log"
+
 	"logbook/cmd/registry/app"
 	"logbook/cmd/registry/endpoints"
 	"logbook/internal/startup"
-	"logbook/internal/web/reception"
+	"logbook/internal/web/register"
 	"logbook/internal/web/router"
 )
 
 func Main() error {
-	l, args, deplycfg, err := startup.Service("registry")
+	l, args, deplcfg, err := startup.Service("registry")
 	if err != nil {
 		return fmt.Errorf("reading config: %w", err)
 	}
 
-	a := app.New(deplycfg, l)
+	a := app.New(deplcfg, l)
 	defer a.Stop()
 	e := endpoints.New(a, l)
 
-	agent := reception.NewAgent(deplycfg, l)
-	err = agent.RegisterEndpoints(nil, e)
+	r, err := register.Endpoints(deplcfg, l, nil, e)
 	if err != nil {
 		return fmt.Errorf("agent.RegisterEndpoints: %w", err)
 	}
 
 	err = router.StartServer(router.ServerParameters{
-		Port:     deplycfg.Ports.Registry,
-		Router:   deplycfg.Router,
-		ServeMux: agent.Mux(),
+		Port:     deplcfg.Ports.Registry,
+		Router:   deplcfg.Router,
+		ServeMux: r,
 		TlsCrt:   args.TlsCertificate,
 		TlsKey:   args.TlsKey,
 	}, l)

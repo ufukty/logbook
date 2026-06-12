@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+
 	"logbook/cmd/objectives/app"
 	"logbook/cmd/objectives/endpoints"
 	"logbook/cmd/objectives/service"
@@ -11,7 +12,7 @@ import (
 	sessions "logbook/cmd/sessions/client"
 	"logbook/internal/startup"
 	"logbook/internal/web/balancer"
-	"logbook/internal/web/reception"
+	"logbook/internal/web/register"
 	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router"
 	"logbook/internal/web/sidecar"
@@ -47,8 +48,7 @@ func Main() error {
 	pub := endpoints.NewPublic(a, sessions.NewClient(balancer.New(sc.InstanceSource(models.Sessions))), l)
 	priv := endpoints.NewPrivate(a, l)
 
-	agent := reception.NewAgent(deplcfg, l)
-	err = agent.RegisterEndpoints(pub, priv)
+	r, err := register.Endpoints(deplcfg, l, pub, priv)
 	if err != nil {
 		return fmt.Errorf("agent.RegisterEndpoints: %w", err)
 	}
@@ -57,7 +57,7 @@ func Main() error {
 		Address:  args.PrivateNetworkIp,
 		Port:     deplcfg.Ports.Objectives,
 		Router:   deplcfg.Router,
-		ServeMux: agent.Mux(),
+		ServeMux: r,
 		Service:  models.Objectives,
 		Sidecar:  sc,
 		TlsCrt:   args.TlsCertificate,

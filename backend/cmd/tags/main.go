@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+
 	registry "logbook/cmd/registry/client"
 	sessions "logbook/cmd/sessions/client"
 	"logbook/cmd/tags/app"
@@ -11,7 +12,7 @@ import (
 	"logbook/cmd/tags/service"
 	"logbook/internal/startup"
 	"logbook/internal/web/balancer"
-	"logbook/internal/web/reception"
+	"logbook/internal/web/register"
 	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router"
 	"logbook/internal/web/sidecar"
@@ -49,8 +50,7 @@ func Main() error {
 	a := app.New(pool, internalsd)
 	e := endpoints.New(a, sessions, l)
 
-	agent := reception.NewAgent(deplcfg, l)
-	err = agent.RegisterEndpoints(e, nil)
+	r, err := register.Endpoints(deplcfg, l, e, nil)
 	if err != nil {
 		return fmt.Errorf("agent.RegisterEndpoints: %w", err)
 	}
@@ -64,7 +64,7 @@ func Main() error {
 		Sidecar:  sc,
 		TlsCrt:   args.TlsCertificate,
 		TlsKey:   args.TlsKey,
-		ServeMux: agent.Mux(),
+		ServeMux: r,
 	}, l)
 	if err != nil {
 		return fmt.Errorf("router.StartServer: %w", err)

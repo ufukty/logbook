@@ -3,9 +3,10 @@ package main
 import (
 	"fmt"
 	"log"
+
 	"logbook/internal/startup"
 	"logbook/internal/web/forwarder"
-	"logbook/internal/web/reception"
+	"logbook/internal/web/register"
 	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router"
 	"logbook/models"
@@ -23,25 +24,23 @@ func Main() error {
 	}, l)
 	defer registrysd.Stop()
 
-	agent := reception.NewAgent(deplcfg, l)
-	err = agent.RegisterForwarders(map[models.Service]*forwarder.LoadBalancedReverseProxy{
+	r, err := register.Forwarders(deplcfg, l, map[models.Service]*forwarder.LoadBalancedReverseProxy{
 		models.Registry: forwarder.New(registrysd, deplcfg, l),
 	})
 	if err != nil {
-		return fmt.Errorf("agent.RegisterForwarders: %w", err)
+		return fmt.Errorf("registering forwarders: %w", err)
 	}
-	// err = agent.RegisterCommonalities()
-	// if err != nil {
-	// 	return fmt.Errorf("agent.RegisterCommonalities: %w", err)
-	// }
 
-	router.StartServer(router.ServerParameters{
+	err = router.StartServer(router.ServerParameters{
 		Router:   deplcfg.Router,
 		Port:     deplcfg.Ports.Internal,
-		ServeMux: agent.Mux(),
+		ServeMux: r,
 		TlsCrt:   args.TlsCertificate,
 		TlsKey:   args.TlsKey,
 	}, l)
+	if err != nil {
+		return fmt.Errorf("starting server: %w", err)
+	}
 
 	return nil
 }

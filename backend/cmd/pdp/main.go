@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
+
 	groups "logbook/cmd/groups/client"
 	objectives "logbook/cmd/objectives/client"
 	"logbook/cmd/pdp/decider"
@@ -10,12 +12,11 @@ import (
 	registry "logbook/cmd/registry/client"
 	"logbook/internal/startup"
 	"logbook/internal/web/balancer"
-	"logbook/internal/web/reception"
+	"logbook/internal/web/register"
 	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router"
 	"logbook/internal/web/sidecar"
 	"logbook/models"
-	"os"
 )
 
 func Main() error {
@@ -43,8 +44,7 @@ func Main() error {
 		objectives.NewClient(balancer.New(sc.InstanceSource(models.Objectives))),
 	)
 	eps := endpoints.NewPrivate(d, l)
-	agent := reception.NewAgent(deplcfg, l)
-	err = agent.RegisterEndpoints(nil, eps)
+	r, err := register.Endpoints(deplcfg, l, nil, eps)
 	if err != nil {
 		return fmt.Errorf("agent.RegisterEndpoints: %w", err)
 	}
@@ -55,7 +55,7 @@ func Main() error {
 		Port:     deplcfg.Ports.Pdp,
 		Router:   deplcfg.Router,
 		Service:  models.Pdp,
-		ServeMux: agent.Mux(),
+		ServeMux: r,
 		Sidecar:  sc,
 		TlsCrt:   args.TlsCertificate,
 		TlsKey:   args.TlsKey,

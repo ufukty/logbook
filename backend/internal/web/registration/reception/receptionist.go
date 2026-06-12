@@ -18,8 +18,8 @@ import (
 
 	"logbook/config/deployment"
 	"logbook/internal/logger"
-	"logbook/internal/web/reception/captured"
-	"logbook/internal/web/reception/summarizer"
+	"logbook/internal/web/registration/reception/captured"
+	"logbook/internal/web/registration/reception/summarizer"
 	"logbook/models/columns"
 )
 
@@ -50,7 +50,7 @@ type receptionist struct {
 	h http.Handler
 }
 
-func newReceptionist(c *deployment.Config, l *logger.Logger, h http.Handler) *receptionist {
+func New(c *deployment.Config, l *logger.Logger, h http.Handler) *receptionist {
 	return &receptionist{
 		c: c,
 		s: summarizer.New(c.Environment == "local"),

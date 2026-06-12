@@ -3,11 +3,12 @@ package main
 import (
 	"fmt"
 	"log"
+
 	registry "logbook/cmd/registry/client"
 	"logbook/internal/startup"
 	"logbook/internal/web/balancer"
 	"logbook/internal/web/forwarder"
-	"logbook/internal/web/reception"
+	"logbook/internal/web/register"
 	"logbook/internal/web/registryfile"
 	"logbook/internal/web/router"
 	"logbook/internal/web/sidecar"
@@ -36,8 +37,7 @@ func Main() error {
 	}, l)
 	defer sc.Stop()
 
-	agent := reception.NewAgent(deplcfg, l)
-	err = agent.RegisterForwarders(map[models.Service]*forwarder.LoadBalancedReverseProxy{
+	r, err := register.Forwarders(deplcfg, l, map[models.Service]*forwarder.LoadBalancedReverseProxy{
 		models.Users:        forwarder.New(sc.InstanceSource(models.Users), deplcfg, l),
 		models.Objectives:   forwarder.New(sc.InstanceSource(models.Objectives), deplcfg, l),
 		models.Profiles:     forwarder.New(sc.InstanceSource(models.Profiles), deplcfg, l),
@@ -50,7 +50,7 @@ func Main() error {
 	err = router.StartServer(router.ServerParameters{
 		Port:     deplcfg.Ports.Gateway,
 		Router:   deplcfg.Router,
-		ServeMux: agent.Mux(),
+		ServeMux: r,
 		TlsCrt:   args.TlsCertificate,
 		TlsKey:   args.TlsKey,
 	}, l)
