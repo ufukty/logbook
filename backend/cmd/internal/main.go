@@ -28,16 +28,19 @@ func Main() error {
 		models.Registry: forwarder.New(registrysd, deplcfg, l),
 	})
 	if err != nil {
-		return fmt.Errorf("agent.RegisterForwarders: %w", err)
+		return fmt.Errorf("registering forwarders: %w", err)
 	}
 
-	router.StartServer(router.ServerParameters{
+	err = router.StartServer(router.ServerParameters{
 		Router:   deplcfg.Router,
 		Port:     deplcfg.Ports.Internal,
 		ServeMux: r,
 		TlsCrt:   args.TlsCertificate,
 		TlsKey:   args.TlsKey,
 	}, l)
+	if err != nil {
+		return fmt.Errorf("starting server: %w", err)
+	}
 
 	return nil
 }
