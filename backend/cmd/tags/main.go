@@ -50,7 +50,7 @@ func Main() error {
 	a := app.New(pool, internalsd)
 	e := endpoints.New(a, sessions, l)
 
-	r, err := register.RegisterEndpoints(deplcfg, l, e, nil)
+	r, err := register.Endpoints(deplcfg, l, e, nil)
 	if err != nil {
 		return fmt.Errorf("agent.RegisterEndpoints: %w", err)
 	}

@@ -21,7 +21,7 @@ func Main() error {
 	defer a.Stop()
 	e := endpoints.New(a, l)
 
-	r, err := register.RegisterEndpoints(deplcfg, l, nil, e)
+	r, err := register.Endpoints(deplcfg, l, nil, e)
 	if err != nil {
 		return fmt.Errorf("agent.RegisterEndpoints: %w", err)
 	}

@@ -44,7 +44,7 @@ func Main() error {
 		objectives.NewClient(balancer.New(sc.InstanceSource(models.Objectives))),
 	)
 	eps := endpoints.NewPrivate(d, l)
-	r, err := register.RegisterEndpoints(deplcfg, l, nil, eps)
+	r, err := register.Endpoints(deplcfg, l, nil, eps)
 	if err != nil {
 		return fmt.Errorf("agent.RegisterEndpoints: %w", err)
 	}

@@ -51,7 +51,7 @@ func Main() error {
 		Profiles:   profiles.NewClient(balancer.New(sc.InstanceSource(models.Profiles))),
 	}
 	pub := endpoints.NewPublic(a, l)
-	r, err := register.RegisterEndpoints(deplcfg, l, pub, nil)
+	r, err := register.Endpoints(deplcfg, l, pub, nil)
 	if err != nil {
 		return fmt.Errorf("agent.RegisterEndpoints: %w", err)
 	}

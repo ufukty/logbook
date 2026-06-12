@@ -48,7 +48,7 @@ func Main() error {
 	pub := endpoints.NewPublic(a, sessions.NewClient(balancer.New(sc.InstanceSource(models.Sessions))), l)
 	priv := endpoints.NewPrivate(a, l)
 
-	r, err := register.RegisterEndpoints(deplcfg, l, pub, priv)
+	r, err := register.Endpoints(deplcfg, l, pub, priv)
 	if err != nil {
 		return fmt.Errorf("agent.RegisterEndpoints: %w", err)
 	}

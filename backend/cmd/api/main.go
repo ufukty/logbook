@@ -37,7 +37,7 @@ func Main() error {
 	}, l)
 	defer sc.Stop()
 
-	r, err := register.RegisterForwarders(deplcfg, l, map[models.Service]*forwarder.LoadBalancedReverseProxy{
+	r, err := register.Forwarders(deplcfg, l, map[models.Service]*forwarder.LoadBalancedReverseProxy{
 		models.Users:        forwarder.New(sc.InstanceSource(models.Users), deplcfg, l),
 		models.Objectives:   forwarder.New(sc.InstanceSource(models.Objectives), deplcfg, l),
 		models.Profiles:     forwarder.New(sc.InstanceSource(models.Profiles), deplcfg, l),

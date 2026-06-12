@@ -23,7 +23,8 @@ func debug(c *deployment.Config, l *logger.Logger, r *http.ServeMux) {
 	r.Handle("GET /", reception.New(c, l.Sub("not-found"), http.HandlerFunc(http.NotFound)))
 }
 
-func RegisterEndpoints(c *deployment.Config, l *logger.Logger, public, private Lister) (*http.ServeMux, error) {
+// For non-gateway services
+func Endpoints(c *deployment.Config, l *logger.Logger, public, private Lister) (*http.ServeMux, error) {
 	r := http.NewServeMux()
 	l = l.Sub("register")
 
@@ -61,7 +62,7 @@ func RegisterEndpoints(c *deployment.Config, l *logger.Logger, public, private L
 	return r, nil
 }
 
-func RegisterForwarders(c *deployment.Config, l *logger.Logger, fwds map[models.Service]*forwarder.LoadBalancedReverseProxy) (*http.ServeMux, error) {
+func Forwarders(c *deployment.Config, l *logger.Logger, fwds map[models.Service]*forwarder.LoadBalancedReverseProxy) (*http.ServeMux, error) {
 	r := http.NewServeMux()
 	l = l.Sub("register")
 

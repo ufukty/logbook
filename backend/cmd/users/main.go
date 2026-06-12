@@ -46,7 +46,7 @@ func Main() error {
 
 	pri := endpoints.NewPrivate(a, l)
 
-	r, err := register.RegisterEndpoints(deplcfg, l, nil, pri)
+	r, err := register.Endpoints(deplcfg, l, nil, pri)
 	if err != nil {
 		return fmt.Errorf("agent.RegisterEndpoints: %w", err)
 	}

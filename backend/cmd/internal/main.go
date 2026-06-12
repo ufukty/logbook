@@ -24,7 +24,7 @@ func Main() error {
 	}, l)
 	defer registrysd.Stop()
 
-	r, err := register.RegisterForwarders(deplcfg, l, map[models.Service]*forwarder.LoadBalancedReverseProxy{
+	r, err := register.Forwarders(deplcfg, l, map[models.Service]*forwarder.LoadBalancedReverseProxy{
 		models.Registry: forwarder.New(registrysd, deplcfg, l),
 	})
 	if err != nil {
