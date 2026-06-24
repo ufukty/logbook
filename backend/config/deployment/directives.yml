@@ -1,2 +1,12 @@
-router:
-  declare: Router
+meta:
+  package: deployment
+  type: Config
+  
+rules:
+  "*": {export: true}
+  
+  "sidecar.*": {replace: time.Duration time}
+  "registry.*": {replace: time.Duration time}
+  "registry-file.*": {replace: time.Duration time}
+  "reception.*": {replace: time.Duration time}
+  "router.*": {replace: time.Duration time}
