@@ -19,7 +19,7 @@ which go ||
 which stringer ||
   go install "golang.org/x/tools/cmd/stringer@latest"
 which gonfique ||
-  go install "github.com/ufukty/gonfique@v1.3.1"
+  go install "go.ufukty.com/gonfique/v2@v2.0.0-alpha.9"
 which sqlc ||
   go install "github.com/sqlc-dev/sqlc/cmd/sqlc@latest"
 which govalid ||
