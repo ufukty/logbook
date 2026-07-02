@@ -5,8 +5,9 @@ router:
   read-timeout: 1s
   idle-timeout: 1s
   grace-period: 1s
-  cors:
-    allow-origin: "*"
+
+cors:
+  allow-origin: "*"
 
 reception:
   request-timeout: 2s
