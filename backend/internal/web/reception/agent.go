@@ -2,12 +2,13 @@ package reception
 
 import (
 	"fmt"
+	"net/http"
+	"net/url"
+
 	"logbook/config/deployment"
 	"logbook/internal/logger"
 	"logbook/internal/web/forwarder"
 	"logbook/models"
-	"net/http"
-	"net/url"
 
 	"go.ufukty.com/gohandlers/pkg/gohandlers"
 )
@@ -42,7 +43,7 @@ type Lister interface {
 }
 
 func (ag *Agent) RegisterEndpoints(public, private Lister) error {
-	origin, err := url.JoinPath(ag.deplcfg.Router.Cors.AllowOrigin)
+	origin, err := url.JoinPath(ag.deplcfg.Cors.AllowOrigin)
 	if err != nil {
 		return fmt.Errorf("url.JoinPath: %w", err)
 	}
